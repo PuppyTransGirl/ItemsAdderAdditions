@@ -1,0 +1,12 @@
+actions:
+  actionbar: true
+  open_inventory: true
+  play_animation: true
+  swing_hand: true
+  teleport: true
+  title: true
+  toast: true
+  veinminer: true
+behaviours:
+  stackable: true
+  touch_damage: true

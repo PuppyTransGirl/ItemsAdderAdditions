@@ -1,0 +1,15 @@
+name: ItemsAdderAdditions
+version: '${version}'
+main: toutouchien.itemsadderadditions.ItemsAdderAdditions
+api-version: '${minMinecraftVersion}'
+authors: [ PuppyTransGirl ]
+
+dependencies:
+  server:
+    ItemsAdder:
+      load: BEFORE
+      required: true
+
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
