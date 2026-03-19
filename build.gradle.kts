@@ -97,6 +97,10 @@ tasks {
         filesMatching("paper-plugin.yml") {
             expand(props)
         }
+
+        from(listOf("LICENSE", "THIRD_PARTY_LICENSES.md")) {
+            into("META-INF")
+        }
     }
 }
 
