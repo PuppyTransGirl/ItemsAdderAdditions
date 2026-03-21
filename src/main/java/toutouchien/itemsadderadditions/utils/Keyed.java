@@ -9,7 +9,7 @@ package toutouchien.itemsadderadditions.utils;
 public interface Keyed {
     /**
      * The YAML key used to reference this executor in item configs
-     * (e.g. {@code "title"}, {@code "touch_damage"}).
+     * (e.g. {@code "title"}, {@code "contact_damage"}).
      *
      * <p>Implementations read this from their class-level annotation
      * and throw {@link IllegalStateException} if the annotation is absent.

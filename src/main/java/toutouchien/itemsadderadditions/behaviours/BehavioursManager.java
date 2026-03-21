@@ -1,8 +1,8 @@
 package toutouchien.itemsadderadditions.behaviours;
 
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.behaviours.executors.ContactDamageBehaviour;
 import toutouchien.itemsadderadditions.behaviours.executors.StackableBehaviour;
-import toutouchien.itemsadderadditions.behaviours.executors.TouchDamageBehaviour;
 import toutouchien.itemsadderadditions.behaviours.loading.BehaviourLoader;
 import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
 
@@ -23,7 +23,7 @@ import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
  * <pre>{@code
  * behaviours:
  *   stackable:    false
- *   touch_damage: false
+ *   contact_damage: false
  * }</pre>
  */
 public final class BehavioursManager {
@@ -37,8 +37,8 @@ public final class BehavioursManager {
 
     public BehavioursManager() {
         registerBuiltins(
-                new StackableBehaviour(),
-                new TouchDamageBehaviour()
+                new ContactDamageBehaviour(),
+                new StackableBehaviour()
         );
     }
 

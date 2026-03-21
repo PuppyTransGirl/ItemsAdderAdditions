@@ -296,6 +296,7 @@ public final class CreativeMenuManager {
                 // we don't care
             }
         }
+
         try {
             file.getParentFile().mkdirs();
             try (FileWriter writer = new FileWriter(file)) {

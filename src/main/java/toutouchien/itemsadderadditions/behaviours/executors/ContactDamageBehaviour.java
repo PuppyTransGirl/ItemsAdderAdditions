@@ -12,6 +12,7 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -20,6 +21,7 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
 import toutouchien.itemsadderadditions.utils.ItemCategory;
+import toutouchien.itemsadderadditions.utils.other.PotionUtils;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -49,7 +51,7 @@ import java.util.function.Predicate;
  * <h3>Example</h3>
  * <pre>{@code
  * behaviours:
- *   touch_damage:
+ *   contact_damage:
  *     amount: 1.0
  *     interval: 20          # ticks between damage pulses (default 20, min 1, max 200)
  *     fire_duration: 40     # ticks of fire on hit       (default 0,  min 0, max 200)
@@ -63,8 +65,8 @@ import java.util.function.Predicate;
  */
 @SuppressWarnings("unused")
 @NullMarked
-@Behaviour(key = "touch_damage")
-public final class TouchDamageBehaviour extends BehaviourExecutor {
+@Behaviour(key = "contact_damage")
+public final class ContactDamageBehaviour extends BehaviourExecutor {
     private static final DamageSource DAMAGE_SOURCE = DamageSource.builder(DamageType.CACTUS).build();
     private static final double HALF_PLAYER_WIDTH = 0.3;
     private static final double HALF_BLOCK_SIZE = 0.5;
@@ -75,6 +77,9 @@ public final class TouchDamageBehaviour extends BehaviourExecutor {
     // Faces on which this block deals damage (populated during configure())
     private final EnumSet<BlockFace> activeFaces = EnumSet.noneOf(BlockFace.class);
 
+    // Effects given when the block deals damage to the player (populated during configure())
+    private List<PotionEffect> potionEffects = new ArrayList<>();
+
     @Parameter(key = "amount", type = Double.class, required = true, min = 0.5, max = 100.0)
     private Double amount;
 
@@ -83,6 +88,9 @@ public final class TouchDamageBehaviour extends BehaviourExecutor {
 
     @Parameter(key = "fire_duration", type = Integer.class, min = 0, max = 200)
     private Integer fireDuration = 0;
+
+    @Parameter(key = "damage_when_sneaking", type = Boolean.class)
+    private Boolean damageWhenSneaking = true;
 
     /**
      * Whether standing on top of the block counts as contact.
@@ -102,7 +110,7 @@ public final class TouchDamageBehaviour extends BehaviourExecutor {
 
     @Override
     public boolean configure(Object configData, String namespacedID) {
-        // Inject @Parameter fields (amount, interval, fire_duration).
+        // Inject @Parameter fields (amount, interval, fire_duration, damage_when_sneaking)
         super.configure(configData, namespacedID);
 
         ConfigurationSection section = (ConfigurationSection) configData;
@@ -113,6 +121,16 @@ public final class TouchDamageBehaviour extends BehaviourExecutor {
         readFace(facesSection, "south", BlockFace.SOUTH);
         readFace(facesSection, "west", BlockFace.WEST);
         readFace(facesSection, "east", BlockFace.EAST);
+
+        for (String key : section.getKeys(false)) {
+            if (!key.startsWith("potion_effect"))
+                continue;
+
+            ConfigurationSection potionSection = section.getConfigurationSection(key);
+            PotionEffect potionEffect = PotionUtils.parsePotion(potionSection);
+            if (potionEffect != null)
+                this.potionEffects.add(potionEffect);
+        }
 
         return true;
     }
@@ -147,12 +165,13 @@ public final class TouchDamageBehaviour extends BehaviourExecutor {
     }
 
     private void tick() {
-        if (namespacedID == null || category == null) return;
+        if (namespacedID == null || category == null)
+            return;
 
         Set<UUID> touchingThisTick = new HashSet<>();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!isTouching(player)) {
+            if (!isTouching(player) || (player.isSneaking() && !damageWhenSneaking)) {
                 // Player left contact - restore vanilla damage-immunity window for this player only.
                 if (touchingLastTick.contains(player.getUniqueId()))
                     player.setMaximumNoDamageTicks(20);
@@ -170,6 +189,8 @@ public final class TouchDamageBehaviour extends BehaviourExecutor {
 
             if (fireDuration > 0)
                 player.setFireTicks(fireDuration);
+
+            potionEffects.forEach(player::addPotionEffect);
         }
 
         touchingLastTick.clear();

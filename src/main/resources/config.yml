@@ -8,5 +8,5 @@ actions:
   toast: true
   veinminer: true
 behaviours:
+  contact_damage: true
   stackable: true
-  touch_damage: true

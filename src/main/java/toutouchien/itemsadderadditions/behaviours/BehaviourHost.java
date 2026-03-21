@@ -19,5 +19,11 @@ import toutouchien.itemsadderadditions.utils.ItemCategory;
  */
 @NullMarked
 public record BehaviourHost(String namespacedID, ItemCategory category, JavaPlugin plugin) {
+    public String namespace() {
+        return this.namespacedID.substring(0, namespacedID.indexOf(":"));
+    }
 
+    public String id() {
+        return this.namespacedID.substring(namespacedID.indexOf(":" + 1));
+    }
 }
