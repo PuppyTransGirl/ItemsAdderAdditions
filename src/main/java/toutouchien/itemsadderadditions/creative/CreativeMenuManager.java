@@ -128,15 +128,15 @@ public final class CreativeMenuManager {
      *
      * <p>Resolution order:
      * <ol>
-     *   <li>{@code graphics.icon} / {@code resource.icon} present →
+     *   <li>{@code graphics.icon} / {@code resource.icon} present ->
      *       {@code <ns>:item/ia_auto/<id>_icon}<br>
      *       IA generates this flat GUI-oriented model for every item that
      *       declares an icon.</li>
-     *   <li>{@code graphics.model} present →
+     *   <li>{@code graphics.model} present ->
      *       the declared model path (physical file in the content pack).</li>
-     *   <li>{@code resource.model_path} with {@code generate: false} →
+     *   <li>{@code resource.model_path} with {@code generate: false} ->
      *       the declared model path (physical file in the content pack).</li>
-     *   <li>Everything else →
+     *   <li>Everything else ->
      *       {@code <ns>:item/ia_auto/<id>}<br>
      *       IA generates this model for ALL items - it is the correct path
      *       for items using {@code graphics.texture}, {@code graphics.parent +

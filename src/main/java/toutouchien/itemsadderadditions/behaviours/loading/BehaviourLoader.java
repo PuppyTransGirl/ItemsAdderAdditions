@@ -22,7 +22,7 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
  *     # ... ItemsAdder built-in fields ...
  *     behaviours:
  *       furniture: ...            # ItemsAdder built-in - skipped silently
- *       contact_damage:             # registered custom behaviour → loaded
+ *       contact_damage:             # registered custom behaviour -> loaded
  *         damage: 1.0
  *         delay: 2
  *       your_behaviour:           # another custom behaviour

@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @NullMarked
 public final class PacketListener {
     /**
-     * Painting variant registry integer ID → ItemsAdder CustomStack.
+     * Painting variant registry integer ID -> ItemsAdder CustomStack.
      *
      * <p>A {@link ConcurrentHashMap} so that {@link ChannelDupeHandler} instances
      * (which run on Netty I/O threads) can safely read from it while the main thread
@@ -59,7 +59,7 @@ public final class PacketListener {
     }
 
     /**
-     * Rebuilds the painting-variant-ID → CustomStack lookup from the live registry.
+     * Rebuilds the painting-variant-ID -> CustomStack lookup from the live registry.
      *
      * <p>On the very first server start the data pack has not been applied yet
      * ({@code painting_variant} is a frozen registry loaded at startup), so no
