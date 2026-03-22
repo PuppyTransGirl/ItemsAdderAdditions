@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.CraftServer;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.utils.Log;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -65,9 +66,7 @@ public final class RegistryInjector {
             setRegistryFrozen(mappedRegistry, true);
         }
 
-        ItemsAdderAdditions.instance().getSLF4JLogger().info(
-                "[CreativeMenu] Injected {} new variant(s) into the PaintingVariant registry.", injected
-        );
+        Log.loaded("CreativeMenu", injected, "new PaintingVariant(s) injected");
     }
 
     /**
@@ -81,9 +80,7 @@ public final class RegistryInjector {
             bindMethod.setAccessible(true);
             bindMethod.invoke(holder, value);
         } catch (Exception e) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().error(
-                "[CreativeMenu] Failed to bind holder value via reflection", e
-            );
+            Log.error("CreativeMenu", "Failed to bind holder value via reflection", e);
         }
     }
 
@@ -93,7 +90,7 @@ public final class RegistryInjector {
             frozenField.setAccessible(true);
             frozenField.set(registry, frozen);
         } catch (Exception e) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().error("Failed to toggle registry lock", e);
+            Log.error("CreativeMenu", "Failed to toggle registry lock", e);
         }
     }
 }

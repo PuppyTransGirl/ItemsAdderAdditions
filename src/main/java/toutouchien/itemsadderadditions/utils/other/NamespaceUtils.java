@@ -10,7 +10,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class NamespaceUtils {
+public final class NamespaceUtils {
     private NamespaceUtils() {
         throw new IllegalStateException("Utility class");
     }

@@ -11,7 +11,7 @@ import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import java.util.Locale;
 import java.util.UUID;
 
-public class ToastUtils {
+public final class ToastUtils {
     private ToastUtils() {
         throw new IllegalStateException("Utility class");
     }

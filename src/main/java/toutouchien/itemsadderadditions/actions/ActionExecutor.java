@@ -1,17 +1,24 @@
 package toutouchien.itemsadderadditions.actions;
 
-
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.utils.Keyed;
+import toutouchien.itemsadderadditions.utils.ParameterInjector;
 
-@SuppressWarnings("unused")
 @NullMarked
 public abstract class ActionExecutor implements Keyed {
+
+    @Parameter(key = "permission", type = String.class)
+    @Nullable private String permission;
+
+    @Parameter(key = "delay", type = Integer.class)
+    private int delay = 0;
+
     public final String key() {
         return annotation().key();
     }
@@ -19,19 +26,18 @@ public abstract class ActionExecutor implements Keyed {
     public final boolean isAllowedFor(TriggerType type) {
         TriggerType[] allowed = annotation().triggers();
         if (allowed.length == 0)
-            return true; // empty = unrestricted
+            return true;
 
-        for (TriggerType t : allowed) {
+        for (TriggerType t : allowed)
             if (t == type)
                 return true;
-        }
 
         return false;
     }
 
     /**
-     * Creates a fresh instance of this executor (used when loading items
-     * so each item gets its own injected copy, avoiding shared state).
+     * Creates a fresh instance of this executor via no-arg reflection.
+     * Each loaded item gets its own isolated, injectable copy.
      */
     public final ActionExecutor newInstance() {
         try {
@@ -42,11 +48,24 @@ public abstract class ActionExecutor implements Keyed {
         }
     }
 
-    @Parameter(key = "permission", type = String.class)
-    @Nullable private String permission;
-
-    @Parameter(key = "delay", type = Integer.class)
-    private int delay = 0;
+    /**
+     * Reads YAML configuration into this executor's fields.
+     *
+     * <p>The default implementation runs {@link ParameterInjector} over all
+     * {@link Parameter}-annotated fields. Subclasses that need to read non-standard
+     * structures (lists, polymorphic sections, etc.) should override this and call
+     * {@code super.configure(configData, namespacedID)} first to inject base fields
+     * ({@code permission}, {@code delay}).
+     *
+     * @param configData  the raw YAML value for this action's key (usually a
+     *                    {@link ConfigurationSection}, but may be {@code null})
+     * @param namespacedID the item's namespaced ID, used only in log messages
+     * @return {@code true} if configuration succeeded and the executor should be loaded
+     */
+    public boolean configure(@Nullable Object configData, String namespacedID) {
+        ConfigurationSection section = configData instanceof ConfigurationSection cs ? cs : null;
+        return ParameterInjector.inject(this, section, namespacedID);
+    }
 
     public final void run(ActionContext context) {
         if (permission != null && !context.player().hasPermission(permission))

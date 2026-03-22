@@ -10,24 +10,30 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 import java.util.Locale;
 
 /**
- * Swing mainhand or offhand.
+ * Swings the player's main hand or off hand.
  * <p>
  * Example:
  * <pre>{@code
  * swing_hand:
- *   hand: off_hand
+ *   hand: "off_hand"   # HAND or OFF_HAND (case-insensitive)
  * }</pre>
  */
 @SuppressWarnings("unused")
 @NullMarked
 @Action(key = "swing_hand")
-public class SwingHandAction extends ActionExecutor {
+public final class SwingHandAction extends ActionExecutor {
     @Parameter(key = "hand", type = String.class, required = true)
     private String hand;
 
     @Override
     protected void execute(ActionContext context) {
-        EquipmentSlot equipmentSlot = EquipmentSlot.valueOf(hand.toUpperCase(Locale.ROOT));
-        context.player().swingHand(equipmentSlot);
+        EquipmentSlot slot;
+        try {
+            slot = EquipmentSlot.valueOf(hand.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            return; // invalid value already warned at load time by ParameterInjector
+        }
+
+        context.player().swingHand(slot);
     }
 }

@@ -6,6 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.utils.Log;
 import toutouchien.itemsadderadditions.utils.ParameterInjector;
 import toutouchien.itemsadderadditions.components.annotations.Property;
 import toutouchien.itemsadderadditions.utils.ConfigUtils;
@@ -14,7 +15,7 @@ import toutouchien.itemsadderadditions.utils.ReflectionUtils;
 import java.util.List;
 
 @NullMarked
-public class ComponentsManager {
+public final class ComponentsManager {
     private static final List<ComponentProperty> PROPERTY_INSTANCES = List.of(
             new toutouchien.itemsadderadditions.components.properties.UseCooldownProperty()
     );
@@ -28,10 +29,7 @@ public class ComponentsManager {
             for (ComponentProperty componentProperty : PROPERTY_INSTANCES) {
                 Property property = componentProperty.getClass().getAnnotation(Property.class);
                 if (property == null) {
-                    ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                            "[Components] Missing @Property annotation on: {}",
-                            componentProperty.getClass().getName()
-                    );
+                    Log.warn("Components", "Missing @Property annotation on: {}", componentProperty.getClass().getName());
                     continue;
                 }
 
@@ -52,11 +50,9 @@ public class ComponentsManager {
                         SimpleComponentProperty<Object> cast = (SimpleComponentProperty<Object>) simpleProperty;
                         cast.applyComponent(value, customStack.getId(), itemStack);
                     } else if (value != null && expectedType != null) {
-                        ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                                "[Components] Invalid type for property '{}'. Expected {}, got {} for item {}",
-                                property.key(), expectedType.getSimpleName(),
-                                value.getClass().getSimpleName(), customStack.getNamespacedID()
-                        );
+                        Log.itemWarn("Components", customStack.getNamespacedID(),
+                                "property '{}' has wrong type: expected {}, got {}",
+                                property.key(), expectedType.getSimpleName(), value.getClass().getSimpleName());
                     }
                     continue;
                 }

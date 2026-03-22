@@ -119,9 +119,7 @@ public final class ActionsListener implements Listener {
         String namespacedID = furniture.getNamespacedID();
         ItemStack held = player.getInventory().getItemInMainHand();
 
-        // FurnitureInteractEvent does not expose a Bukkit Action, so we default to "right"
-        // If a future ItemsAdder API version exposes more detail here, resolve it the same
-        // way as resolveInteractArgument() does for PlayerInteractEvent
+        // FurnitureInteractEvent does not expose a click action, so we default to "right"
         String argument = "right";
 
         dispatch(
@@ -171,11 +169,13 @@ public final class ActionsListener implements Listener {
     public void onItemInteract(PlayerInteractEvent event) {
         String argument = resolveInteractArgument(event);
         if (argument == null)
-            return; // PHYSICAL or unmappable action - not an interact trigger
+            return; // PHYSICAL or unmappable - not an interact trigger
 
-        // We can't use ignoreCancelled
-        // Javadoc of PlayerInteractEvent "This event will fire as cancelled if the vanilla behavior is to do nothing (e.g. interacting with air)."
-        if (event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_AIR && event.useInteractedBlock() == Event.Result.DENY)
+        // PlayerInteractEvent is fired as cancelled when vanilla has nothing to do
+        // (e.g. interacting with air), so we cannot use ignoreCancelled = true.
+        // We do skip it when the player actually clicked a block and the block
+        // interaction was explicitly denied, which means the click did nothing.
+        if (!isInteractAllowed(event))
             return;
 
         ItemStack item = event.getItem();
@@ -195,10 +195,8 @@ public final class ActionsListener implements Listener {
                 .heldItem(item)
                 .eventArgument(argument);
 
-        // Generic interact (both hands)
         dispatch(namespacedID, TriggerType.ITEM_INTERACT, argument, base.build());
 
-        // Hand-specific
         TriggerType handType = event.getHand() == EquipmentSlot.HAND
                 ? TriggerType.ITEM_INTERACT_MAINHAND
                 : TriggerType.ITEM_INTERACT_OFFHAND;
@@ -213,6 +211,18 @@ public final class ActionsListener implements Listener {
                         .eventArgument(argument)
                         .build()
         );
+    }
+
+    /**
+     * Returns {@code true} when the interact event should be processed.
+     * Air-clicks are always allowed. Block-clicks are allowed unless the block
+     * interaction was explicitly denied by another listener.
+     */
+    private static boolean isInteractAllowed(PlayerInteractEvent event) {
+        Action action = event.getAction();
+        if (action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR)
+            return true;
+        return event.useInteractedBlock() != Event.Result.DENY;
     }
 
     /**
@@ -482,13 +492,6 @@ public final class ActionsListener implements Listener {
         );
     }
 
-    /*
-     * Gun triggers (ITEM_GUN_SHOT, ITEM_GUN_NO_AMMO, ITEM_GUN_RELOAD) are not yet wired up.
-     * ItemsAdder does not expose stable GunShootEvent / GunNoAmmoEvent / GunReloadEvent in its
-     * public API.  Once those events are confirmed and available, add @EventHandler methods here
-     * following the same pattern as the other item-trigger handlers above.
-     */
-
     @EventHandler(ignoreCancelled = true)
     public void onItemThrow(ProjectileLaunchEvent event) {
         if (!(event.getEntity().getShooter() instanceof Player player))
@@ -499,7 +502,7 @@ public final class ActionsListener implements Listener {
         if (cs == null)
             return;
 
-        // Remember which item launched this projectile so the hit handler can look it up
+        // Track which item launched this projectile so the hit handler can resolve it.
         projectileItems.put(event.getEntity().getUniqueId(), cs.getNamespacedID());
 
         dispatch(
@@ -658,20 +661,12 @@ public final class ActionsListener implements Listener {
         );
     }
 
-    /**
-     * Dispatches to executors bound with a specific event argument
-     * (used by argumentized triggers such as {@code interact}).
-     */
     private void dispatch(String id, TriggerType type, @Nullable String argument, ActionContext context) {
         List<ActionExecutor> executors = ActionBindings.get(id, type, argument);
         for (ActionExecutor executor : executors)
             executor.run(context);
     }
 
-    /**
-     * Dispatches to executors bound without an event argument
-     * (used by all non-argumentized triggers).
-     */
     private void dispatch(String id, TriggerType type, ActionContext context) {
         dispatch(id, type, null, context);
     }

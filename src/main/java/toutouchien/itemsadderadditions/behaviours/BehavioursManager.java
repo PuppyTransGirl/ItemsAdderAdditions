@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions.behaviours;
 
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.utils.Log;
 import toutouchien.itemsadderadditions.behaviours.executors.ConnectableBehaviour;
 import toutouchien.itemsadderadditions.behaviours.executors.ContactDamageBehaviour;
 import toutouchien.itemsadderadditions.behaviours.executors.StackableBehaviour;
@@ -23,17 +24,14 @@ import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
  * {@code behaviours} section, e.g.:
  * <pre>{@code
  * behaviours:
- *   stackable:    false
+ *   stackable:      false
  *   contact_damage: false
  * }</pre>
  */
 public final class BehavioursManager {
-    /**
-     * Config key prefix matching the {@code behaviours:} section in config.yml.
-     */
     private static final String CONFIG_SECTION = "behaviours.";
 
-    private final ExecutorRegistry<BehaviourExecutor> registry = new ExecutorRegistry<>("[Behaviours]");
+    private final ExecutorRegistry<BehaviourExecutor> registry = new ExecutorRegistry<>("Behaviours");
     private final BehaviourLoader loader = new BehaviourLoader(registry);
 
     public BehavioursManager() {
@@ -52,9 +50,7 @@ public final class BehavioursManager {
         for (BehaviourExecutor executor : executors) {
             String configPath = CONFIG_SECTION + executor.key();
             if (!ItemsAdderAdditions.instance().getConfig().getBoolean(configPath, true)) {
-                ItemsAdderAdditions.instance().getSLF4JLogger().info(
-                        "[Behaviours] Skipping '{}' - disabled in config.", executor.key()
-                );
+                Log.disabled("Behaviours", executor.key());
                 continue;
             }
 

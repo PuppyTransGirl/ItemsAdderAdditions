@@ -1,14 +1,14 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
-import dev.lone.itemsadder.api.CustomStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.ActionContext;
+import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.NamespaceUtils;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
@@ -16,82 +16,86 @@ import toutouchien.itemsadderadditions.utils.ToastUtils;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Shows an advancement-style toast notification using MiniMessage formatting.
  *
- * <p>The {@code item} field accepts either a vanilla Minecraft material key
- * (e.g. {@code "minecraft:diamond"}) or an ItemsAdder namespaced ID
- * (e.g. {@code "myplugin:my_item"}).
- *
- * <p>The {@code text} field supports multi-line input as a YAML list or a plain
- * string - both forms are accepted.
+ * <p>{@code item} accepts a vanilla material key (e.g. {@code "minecraft:diamond"})
+ * or an ItemsAdder namespaced ID. {@code text} accepts a plain string or a YAML list
+ * whose lines are joined with {@code \n}.
  *
  * <pre>{@code
  * toast:
- *   item:  "minecraft:diamond"    # required
- *   text:                         # required - list or plain string
+ *   item:  "minecraft:diamond"
+ *   text:
  *     - "<yellow>Line one"
  *     - "<gray>Line two"
- *   frame: "goal"                 # optional - task | goal | challenge (default: goal)
+ *   frame: "goal"   # task | goal | challenge (default: goal)
  * }</pre>
  */
 @SuppressWarnings("unused")
 @NullMarked
 @Action(key = "toast")
-public class ToastAction extends ActionExecutor {
+public final class ToastAction extends ActionExecutor {
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     @Parameter(key = "item", type = String.class, required = true)
     private String item;
 
-    @Parameter(key = "text", type = List.class, required = true)
-    private List<?> text;
-
     @Parameter(key = "frame", type = String.class)
     private String frame = "goal";
 
+    /** Resolved at configure-time from a plain string or list. */
+    private String text = "";
+
     @Override
-    protected void execute(ActionContext context) {
-        if (text.isEmpty()) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                "[Actions] toast: 'text' is missing or empty for item '{}'.",
-                context.heldItem()
-            );
-            return;
+    public boolean configure(Object configData, String namespacedID) {
+        if (!super.configure(configData, namespacedID))
+            return false;
+
+        if (!(configData instanceof ConfigurationSection section))
+            return false;
+
+        Object raw = section.get("text");
+        if (raw instanceof List<?> list) {
+            text = list.stream().map(Object::toString).collect(Collectors.joining("\n"));
+        } else if (raw instanceof String s) {
+            text = s;
+        } else {
+            Log.itemSkip("Actions", namespacedID, "toast: 'text' is missing or not a string/list");
+            return false;
         }
 
+        if (text.isBlank()) {
+            Log.itemSkip("Actions", namespacedID, "toast: 'text' is blank");
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    protected void execute(ActionContext context) {
         String itemId = item.toLowerCase(Locale.ROOT);
         ItemStack itemStack = resolveItemStack(itemId);
         if (itemStack == null) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                "[Actions] toast: unknown item '{}' - skipping.", itemId
-            );
+            Log.warn("Actions", "toast: unknown item '{}' - check the item key in your config", itemId);
             return;
         }
 
-        String joined = String.join("\n", text.stream().map(Object::toString).toList());
-        Component title = MM.deserialize(joined);
+        Component title = MM.deserialize(text);
         ToastUtils.sendToast(context.player(), itemStack, title, frame);
     }
 
     /**
-     * Resolves the item ID to an {@link ItemStack}: tries ItemsAdder first, then
-     * falls back to a vanilla {@link Material}.
-     *
-     * @return the resolved stack, or {@code null} if the ID is unknown
+     * Resolves {@code itemId} to an {@link ItemStack} via {@link NamespaceUtils},
+     * trying ItemsAdder first then falling back to a vanilla material.
      */
     @Nullable
     private static ItemStack resolveItemStack(String itemId) {
-        CustomStack custom = CustomStack.getInstance(itemId);
-        if (custom != null)
-            return custom.getItemStack();
-
-        String materialName = itemId.replace("minecraft:", "").toUpperCase(Locale.ROOT);
-        try {
-            return ItemStack.of(Material.valueOf(materialName));
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        // NamespaceUtils handles both "namespace:id" and plain "id" lookups,
+        // and falls back to vanilla Minecraft items automatically.
+        return NamespaceUtils.itemByID("", itemId);
     }
 }

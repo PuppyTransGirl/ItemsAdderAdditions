@@ -8,7 +8,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class PlaceholderAPIUtils {
+public final class PlaceholderAPIUtils {
     private static TriState placeholderAPILoaded = TriState.NOT_SET;
 
     private PlaceholderAPIUtils() {
@@ -16,10 +16,13 @@ public class PlaceholderAPIUtils {
     }
 
     public static String parsePlaceholders(@Nullable Player player, String text) {
-        if (placeholderAPILoaded != TriState.NOT_SET)
-            return placeholderAPILoaded == TriState.TRUE ? PlaceholderAPI.setPlaceholders(player, text) : text;
-
-        placeholderAPILoaded = TriState.byBoolean(Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"));
-        return parsePlaceholders(player, text);
+        if (placeholderAPILoaded == TriState.NOT_SET) {
+            placeholderAPILoaded = TriState.byBoolean(
+                    Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")
+            );
+        }
+        return placeholderAPILoaded == TriState.TRUE
+                ? PlaceholderAPI.setPlaceholders(player, text)
+                : text;
     }
 }

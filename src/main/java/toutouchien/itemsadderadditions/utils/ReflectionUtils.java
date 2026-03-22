@@ -1,27 +1,28 @@
 package toutouchien.itemsadderadditions.utils;
 
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.components.SimpleComponentProperty;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class ReflectionUtils {
+@NullMarked
+public final class ReflectionUtils {
     private ReflectionUtils() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static @Nullable Class<?> getTypeArgument(@NonNull Class<?> clazz) {
+    @Nullable
+    public static Class<?> getTypeArgument(Class<?> clazz) {
         for (Type type : clazz.getGenericInterfaces()) {
-            if (!(type instanceof ParameterizedType parameterizedType) ||
-                    !parameterizedType.getRawType().equals(SimpleComponentProperty.class))
+            if (!(type instanceof ParameterizedType parameterizedType)
+                    || !parameterizedType.getRawType().equals(SimpleComponentProperty.class))
                 continue;
 
             Type actualType = parameterizedType.getActualTypeArguments()[0];
-            if (actualType instanceof Class<?> actualClass) {
+            if (actualType instanceof Class<?> actualClass)
                 return actualClass;
-            }
         }
         return null;
     }

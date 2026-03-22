@@ -6,10 +6,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
-import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
-import toutouchien.itemsadderadditions.utils.ItemCategory;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
+import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
+import toutouchien.itemsadderadditions.utils.ItemCategory;
+import toutouchien.itemsadderadditions.utils.Log;
 
 /**
  * Reads every CustomStack's YAML config, finds the {@code behaviours:} section,
@@ -41,6 +42,7 @@ public final class BehaviourLoader {
     public BehaviourLoader(ExecutorRegistry<BehaviourExecutor> registry) {
         this.registry = registry;
     }
+
     public void load() {
         BehaviourBindings.clear();
         int total = 0;
@@ -48,7 +50,7 @@ public final class BehaviourLoader {
         for (CustomStack customStack : ItemsAdder.getAllItems())
             total += loadItem(customStack);
 
-        ItemsAdderAdditions.instance().getSLF4JLogger().info("[Behaviours] Loaded {} behaviour binding(s).", total);
+        Log.loaded("Behaviours", total, "behaviour binding(s)");
     }
 
     private int loadItem(CustomStack customStack) {
@@ -70,7 +72,6 @@ public final class BehaviourLoader {
 
             BehaviourExecutor instance = prototype.newInstance();
 
-            // Get the raw value (could be a Section, a List, or a String)
             Object configValue = behavioursSection.get(behaviourKey);
 
             if (!instance.configure(configValue, namespacedID))

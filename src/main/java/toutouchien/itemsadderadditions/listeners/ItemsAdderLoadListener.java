@@ -6,6 +6,7 @@ import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.utils.Log;
 import toutouchien.itemsadderadditions.creative.PacketListener;
 import toutouchien.itemsadderadditions.creative.RegistryInjector;
 
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * Triggers the full reload cycle whenever ItemsAdder finishes loading its data.
  */
-public class ItemsAdderLoadListener implements Listener {
+public final class ItemsAdderLoadListener implements Listener {
 
     @EventHandler
     public void onItemsAdderLoad(ItemsAdderLoadDataEvent event) {
@@ -28,6 +29,6 @@ public class ItemsAdderLoadListener implements Listener {
         PacketListener.updateCache(items);
         plugin.creativeMenuManager().reload();
 
-        plugin.getSLF4JLogger().info("Reload complete.");
+        Log.success("IAA", "Reload complete.");
     }
 }

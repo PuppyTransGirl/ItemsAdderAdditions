@@ -14,10 +14,25 @@ import java.lang.annotation.Target;
  * {@link toutouchien.itemsadderadditions.utils.ParameterInjector} will read the
  * corresponding YAML key and inject the value into the field.
  *
+ * <h3>Nested keys via {@code path}</h3>
+ * Set {@link #path} to read from a sub-section without having to manually call
+ * {@link org.bukkit.configuration.ConfigurationSection#getConfigurationSection}.
+ * The path is resolved relative to the injector's root section using dot notation.
+ *
+ * <pre>
+ * // Reads section.block_faces.top
+ * {@literal @}Parameter(key = "top", path = "block_faces", type = Boolean.class)
+ * private boolean topFaceActive = true;
+ *
+ * // Reads section.sound.name
+ * {@literal @}Parameter(key = "name", path = "sound", type = String.class)
+ * private String soundName;
+ * </pre>
+ *
  * <h3>Min / max constraints</h3>
  * {@link #min} and {@link #max} are only enforced when they differ from each other
  * (i.e. when {@code min != max}).  Leaving both at their default value of {@code 0.0}
- * disables range checking entirely - that is the "no constraint" sentinel.
+ * disables range checking - that is the "no constraint" sentinel.
  *
  * <p>To apply a one-sided constraint, use {@link Double#NEGATIVE_INFINITY} or
  * {@link Double#POSITIVE_INFINITY} for the unconstrained end.
@@ -40,8 +55,17 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Parameter {
-    /** Key in the YAML config section. */
+    /** Key in the YAML config section (or sub-section if {@link #path} is set). */
     String key();
+
+    /**
+     * Optional dot-separated path to a sub-section to read {@link #key} from.
+     * Empty string (default) means read directly from the root section.
+     *
+     * <p>Example: {@code path = "sound"} with {@code key = "name"} reads
+     * {@code section.sound.name}.
+     */
+    String path() default "";
 
     /** Expected Java type. Number types are auto-converted by {@link toutouchien.itemsadderadditions.utils.ConfigUtils}. */
     Class<?> type();

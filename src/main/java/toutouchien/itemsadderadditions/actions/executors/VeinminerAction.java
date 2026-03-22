@@ -49,16 +49,14 @@ public final class VeinminerAction extends ActionExecutor {
         if (origin == null)
             return;
 
-        // just in case
-        // if this block is already part of a chain-break skip it
+        // Already being broken as part of a chain - skip to avoid recursion.
         if (currentlyBreaking.contains(origin.getLocation()))
             return;
 
         Material targetType = origin.getType();
         ItemStack tool = player.getInventory().getItemInMainHand();
 
-        // don't veinmine if the block broken doesn't drop anything
-        // like for e.g. breaking stone with dirt in hand
+        // No drops means the tool can't mine this material; don't veinmine.
         if (origin.getDrops(tool, player).isEmpty())
             return;
 

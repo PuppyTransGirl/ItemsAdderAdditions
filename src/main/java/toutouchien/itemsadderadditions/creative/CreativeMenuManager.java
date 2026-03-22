@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.utils.Log;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -70,10 +71,7 @@ public final class CreativeMenuManager {
         Collection<CustomStack> items = ItemsAdder.getAllItems();
         int count = generatePaintingJson(items);
 
-        ItemsAdderAdditions.instance().getSLF4JLogger().info(
-                "[CreativeMenu] Generated {} creative menu entries. " +
-                        "Run /iazip to apply resource pack changes.", count
-        );
+        Log.success("CreativeMenu", "Generated {} entries - run /iazip to apply resource pack changes.", count);
     }
 
     /**
@@ -231,9 +229,7 @@ public final class CreativeMenuManager {
             if (!ImageIO.write(image, "PNG", out))
                 throw new IOException("No PNG writer available");
         } catch (IOException e) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().error(
-                    "[CreativeMenu] Failed to write placeholder painting texture", e
-            );
+            Log.error("CreativeMenu", "Failed to write placeholder painting texture", e);
         }
     }
 
@@ -244,11 +240,7 @@ public final class CreativeMenuManager {
         );
 
         if (!iaConfig.exists()) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                    "[CreativeMenu] Could not locate ItemsAdder/config.yml - " +
-                            "please add '{}' to merge_other_plugins_resourcepacks_folders manually.",
-                    IA_MERGE_PATH
-            );
+            Log.warn("CreativeMenu", "Could not locate ItemsAdder/config.yml - add '{}' to merge_other_plugins_resourcepacks_folders manually", IA_MERGE_PATH);
             return;
         }
 
@@ -263,13 +255,9 @@ public final class CreativeMenuManager {
 
         try {
             config.save(iaConfig);
-            ItemsAdderAdditions.instance().getSLF4JLogger().info(
-                    "[CreativeMenu] Registered '{}' in ItemsAdder's merge list.", IA_MERGE_PATH
-            );
+            Log.success("CreativeMenu", "Registered '{}' in ItemsAdder's merge list.", IA_MERGE_PATH);
         } catch (IOException e) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().error(
-                    "[CreativeMenu] Failed to save ItemsAdder/config.yml", e
-            );
+            Log.error("CreativeMenu", "Failed to save ItemsAdder/config.yml", e);
         }
     }
 
@@ -304,9 +292,7 @@ public final class CreativeMenuManager {
             }
             return true;
         } catch (IOException e) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().error(
-                    "[CreativeMenu] Failed to write {}", file.getPath(), e
-            );
+            Log.error("CreativeMenu", "Failed to write " + file.getPath(), e);
             return false;
         }
     }

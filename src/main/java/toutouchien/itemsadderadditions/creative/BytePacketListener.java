@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.utils.Log;
 
 /**
  * Intercepts the {@code set_creative_mode_slot} (0x37) packet before it is decoded.
@@ -139,9 +140,7 @@ public final class BytePacketListener {
                         }
                     }
                 } catch (Exception e) {
-                    ItemsAdderAdditions.instance().getSLF4JLogger().error(
-                            "[CreativeMenu] Failed to parse set_creative_mode_slot (0x37)", e
-                    );
+                    Log.error("CreativeMenu", "Failed to parse set_creative_mode_slot (0x37)", e);
                 }
 
                 // Release the original buffer when we handled it; otherwise reset so

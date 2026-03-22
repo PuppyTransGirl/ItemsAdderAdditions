@@ -2,7 +2,6 @@ package toutouchien.itemsadderadditions.utils;
 
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +41,7 @@ public final class ExecutorRegistry<E extends Keyed> {
     private final String logPrefix;
 
     /**
-     * @param logPrefix short prefix included in log messages, e.g. {@code "[Actions]"}
+     * @param logPrefix short prefix included in log messages, e.g. {@code "Actions"}
      */
     public ExecutorRegistry(String logPrefix) {
         this.logPrefix = logPrefix;
@@ -64,16 +63,12 @@ public final class ExecutorRegistry<E extends Keyed> {
             try {
                 key = e.key();
             } catch (IllegalStateException ex) {
-                ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                        "{} Skipping registration - missing annotation on {}",
-                        logPrefix, e.getClass().getName()
-                );
+                Log.warn(logPrefix, "Skipping registration - missing @{} annotation on {}",
+                        "Behaviour/Action", e.getClass().getName());
                 continue;
             }
             prototypes.put(key, e);
-            ItemsAdderAdditions.instance().getSLF4JLogger().info(
-                    "{} Registered '{}'", logPrefix, key
-            );
+            Log.registered(logPrefix, key);
         }
     }
 

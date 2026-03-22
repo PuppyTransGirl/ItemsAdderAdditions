@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.utils.Log;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
@@ -28,7 +29,7 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 @SuppressWarnings("unused")
 @NullMarked
 @Action(key = "teleport")
-public class TeleportAction extends ActionExecutor {
+public final class TeleportAction extends ActionExecutor {
 
     @Parameter(key = "x", type = Double.class, required = true)
     private Double x;
@@ -59,9 +60,7 @@ public class TeleportAction extends ActionExecutor {
 
         World bukkitWorld = Bukkit.getWorld(worldName);
         if (bukkitWorld == null) {
-            ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                "[Actions] teleport: world '{}' does not exist, skipping.", worldName
-            );
+            Log.itemWarn("Actions", context.player().getName(), "teleport: world '{}' does not exist - skipping", worldName);
             return;
         }
 

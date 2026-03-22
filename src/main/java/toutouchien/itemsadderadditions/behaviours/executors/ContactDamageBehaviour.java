@@ -110,10 +110,13 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
 
     @Override
     public boolean configure(Object configData, String namespacedID) {
-        // Inject @Parameter fields (amount, interval, fire_duration, damage_when_sneaking)
-        super.configure(configData, namespacedID);
+        if (!(configData instanceof ConfigurationSection section))
+            return false;
 
-        ConfigurationSection section = (ConfigurationSection) configData;
+        // Inject @Parameter fields (amount, interval, fire_duration, damage_when_sneaking).
+        if (!super.configure(configData, namespacedID))
+            return false;
+
         ConfigurationSection facesSection = section.getConfigurationSection("block_faces");
 
         this.topFaceActive = readFace(facesSection, "top", BlockFace.UP);
@@ -148,7 +151,6 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
     protected void onLoad(BehaviourHost host) {
         this.namespacedID = host.namespacedID();
         this.category = host.category();
-        // Delay first tick by 5s, there's no need to tick before that
         task = Bukkit.getScheduler().runTaskTimer(host.plugin(), this::tick, 100L, 2L);
     }
 

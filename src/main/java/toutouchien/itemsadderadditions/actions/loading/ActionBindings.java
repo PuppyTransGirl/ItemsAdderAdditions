@@ -1,6 +1,5 @@
 package toutouchien.itemsadderadditions.actions.loading;
 
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
@@ -22,7 +21,6 @@ import java.util.Map;
  * {@code interact}, each argument variant (e.g. {@code "right"}, {@code "left_shift"})
  * is stored and looked up independently.
  */
-@SuppressWarnings("unused")
 @NullMarked
 public final class ActionBindings {
     private static final Map<String, Map<TriggerKey, List<ActionExecutor>>> bindings = new HashMap<>();
@@ -57,9 +55,9 @@ public final class ActionBindings {
      * <p>When {@code argument} is non-null (i.e. an argumentized trigger fires at runtime),
      * this method returns executors in two groups, concatenated:
      * <ol>
-     *   <li>Executors registered for the exact {@code (type, argument)} key — these were
+     *   <li>Executors registered for the exact {@code (type, argument)} key - these were
      *       declared with a specific argument sub-key in YAML (e.g. {@code right:}).</li>
-     *   <li>Executors registered for the wildcard {@code (type, null)} key — these were
+     *   <li>Executors registered for the wildcard {@code (type, null)} key - these were
      *       declared without any argument sub-key in YAML, meaning "fire on any interaction".</li>
      * </ol>
      * When {@code argument} is {@code null} only the exact (null-argument) key is looked up,

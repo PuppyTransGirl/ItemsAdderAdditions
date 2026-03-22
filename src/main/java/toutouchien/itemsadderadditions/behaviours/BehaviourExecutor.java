@@ -107,13 +107,12 @@ public abstract class BehaviourExecutor implements Keyed {
      * Can be overridden for complex behaviours (like lists or polymorphic configs).
      */
     public boolean configure(Object configData, String namespacedID) {
-        // Default behavior: If it's a section, use the standard injector
+        // Default: if it's a section, use the standard injector.
         if (configData instanceof ConfigurationSection section)
             return ParameterInjector.inject(this, section, namespacedID);
 
-        // If it's not a section (e.g., a List), but the class has @Parameter fields,
-        // the default injector will likely fail. Subclasses must override this
-        // to handle Lists/Strings.
+        // If it's not a section (e.g. a List), the default injector cannot handle it.
+        // Subclasses must override configure() to handle Lists, Strings, or other types.
         return false;
     }
 

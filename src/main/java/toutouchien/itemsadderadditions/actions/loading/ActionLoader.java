@@ -6,13 +6,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.TriggerKey;
 import toutouchien.itemsadderadditions.actions.TriggerType;
 import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
 import toutouchien.itemsadderadditions.utils.ItemCategory;
-import toutouchien.itemsadderadditions.utils.ParameterInjector;
+import toutouchien.itemsadderadditions.utils.Log;
 
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +27,7 @@ import java.util.Set;
  *       max_blocks: 32
  * </pre>
  *
- * <h3>Argumentized trigger — wildcard (fire on any interaction)</h3>
+ * <h3>Argumentized trigger - wildcard (fire on any interaction)</h3>
  * When no argument sub-key is present the actions are registered as a wildcard
  * and will execute regardless of which specific interaction occurred.
  *
@@ -39,7 +38,7 @@ import java.util.Set;
  *       text: "&lt;green&gt;You interacted!"
  * </pre>
  *
- * <h3>Argumentized trigger — qualified (fire only for specific interactions)</h3>
+ * <h3>Argumentized trigger - qualified (fire only for specific interactions)</h3>
  * Add one or more argument sub-keys to restrict execution to those interaction types.
  * The set of argumentized trigger names per category is declared in
  * {@link #ITEM_ARGUMENTIZED}, {@link #FURNITURE_ARGUMENTIZED}, etc.
@@ -212,12 +211,12 @@ public final class ActionLoader {
         for (CustomStack customStack : ItemsAdder.getAllItems())
             totalActions += loadItem(customStack);
 
-        ItemsAdderAdditions.instance().getSLF4JLogger().info("[Actions] Loaded {} action binding(s).", totalActions);
+        Log.loaded("Actions", totalActions, "action binding(s)");
     }
 
     private int loadItem(CustomStack customStack) {
         FileConfiguration config = customStack.getConfig();
-        String itemID      = customStack.getId();
+        String itemID = customStack.getId();
         String namespacedID = customStack.getNamespacedID();
 
         ItemCategory category = ItemCategory.determine(customStack, config, itemID);
@@ -294,12 +293,10 @@ public final class ActionLoader {
             ConfigurationSection argumentSection = triggerSection.getConfigurationSection(argument);
             if (argumentSection == null) {
                 // A plain scalar under an argumentized trigger - likely a config mistake.
-                ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                        "[Actions] Item '{}' - expected an argument sub-section under trigger '{}', " +
-                                "got a plain value for key '{}'. " +
-                                "Did you forget to add an event argument (e.g. 'right:', 'left_shift:') ?",
-                        itemName, type, argument
-                );
+                Log.itemWarn("Actions", itemName,
+                        "expected a sub-section under trigger '{}', got a plain value for key '{}' " +
+                        "(did you forget an event argument like 'right:' or 'left_shift:'?)",
+                        type, argument);
                 continue;
             }
 
@@ -330,17 +327,16 @@ public final class ActionLoader {
             }
 
             if (!prototype.isAllowedFor(triggerKey.type())) {
-                ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                        "[Actions] Item '{}' - action '{}' is not allowed for trigger '{}', skipping.",
-                        itemName, actionKey, triggerKey.type()
-                );
+                Log.itemWarn("Actions", itemName,
+                        "action '{}' is not allowed for trigger '{}' - skipping",
+                        actionKey, triggerKey.type());
                 continue;
             }
 
             ActionExecutor instance = prototype.newInstance();
             ConfigurationSection actionSection = triggerSection.getConfigurationSection(actionKey);
 
-            if (ParameterInjector.inject(instance, actionSection, itemName)) {
+            if (instance.configure(actionSection, itemName)) {
                 ActionBindings.add(bindingKey, triggerKey, instance);
                 count++;
             }

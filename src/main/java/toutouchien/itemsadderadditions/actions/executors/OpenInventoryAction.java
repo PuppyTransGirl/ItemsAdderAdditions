@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.actions.executors;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.utils.Log;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
@@ -11,22 +12,15 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 import java.util.Locale;
 
 /**
- * Opens a vanilla inventory GUI for the player.<br>
- * Supported types (case-insensitive):<br>
- * - "anvil"<br>
- * - "cartography", "cartography_table"<br>
- * - "crafting_table", "workbench"<br>
- * - "enchanting", "enchanting_table"<br>
- * - "ender_chest"<br>
- * - "grindstone"<br>
- * - "loom"<br>
- * - "smithing", "smithing_table"<br>
- * - "stonecutter"
- * <p>
- * Example:
+ * Opens a vanilla inventory GUI for the player.
+ *
+ * <p>Supported types (case-insensitive): {@code anvil}, {@code cartography_table},
+ * {@code crafting_table}, {@code enchanting_table}, {@code ender_chest},
+ * {@code grindstone}, {@code loom}, {@code smithing_table}, {@code stonecutter}.
+ *
  * <pre>{@code
  * open_inventory:
- *   type: "stonecutter"   # required
+ *   type: "stonecutter"
  * }</pre>
  */
 @SuppressWarnings("unused")
@@ -67,10 +61,7 @@ public final class OpenInventoryAction extends ActionExecutor {
             case "loom" -> player.openLoom(player.getLocation(), true);
             case "smithing", "smithing_table" -> player.openSmithingTable(player.getLocation(), true);
             case "stonecutter" -> player.openStonecutter(player.getLocation(), true);
-            default -> ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                    "[Actions] open_inventory: unsupported type '{}'. Use enderchest, stonecutter, or anvil.",
-                    type
-            );
+            default -> Log.warn("Actions", "open_inventory: unsupported type '{}' - valid types: anvil, cartography_table, crafting_table, enchanting_table, ender_chest, grindstone, loom, smithing_table, stonecutter", type);
         }
     }
 }

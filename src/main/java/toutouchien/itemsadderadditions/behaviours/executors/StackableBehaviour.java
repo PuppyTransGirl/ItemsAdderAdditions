@@ -2,7 +2,6 @@ package toutouchien.itemsadderadditions.behaviours.executors;
 
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -20,6 +19,8 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
+import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.SoundUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,7 @@ import java.util.Locale;
  */
 @NullMarked
 @Behaviour(key = "stackable")
-public class StackableBehaviour extends BehaviourExecutor implements Listener {
+public final class StackableBehaviour extends BehaviourExecutor implements Listener {
     private final List<StackStep> steps = new ArrayList<>();
     private String namespacedID = "";
 
@@ -126,30 +127,22 @@ public class StackableBehaviour extends BehaviourExecutor implements Listener {
         if (section != null && section.contains("items")) {
             step.items.addAll(normalizeIds(section.getStringList("items")));
             step.decrementAmount = Math.clamp(section.getInt("decrement_amount", 1), 0, 256);
-        } else
+        } else {
             step.items.add(fallbackItemID);
+        }
 
-        if (section != null && section.contains("sound"))
-            step.sound = parseSound(section.getConfigurationSection("sound"));
+        if (section != null && section.contains("sound")) {
+            ConfigurationSection soundSection = section.getConfigurationSection("sound");
+            Sound parsed = SoundUtils.parseSound(soundSection);
+            if (parsed == null && soundSection != null) {
+                String src = soundSection.getString("source", "");
+                if (!src.isBlank() && SoundUtils.parseSource(src) == null)
+                    Log.warn("Behaviours", "stackable: invalid sound source '{}' - valid values: master, music, record, weather, block, hostile, neutral, player, ambient, voice", src);
+            }
+            step.sound = parsed;
+        }
 
         steps.add(step);
-    }
-
-    private static @Nullable Sound parseSound(@Nullable ConfigurationSection s) {
-        if (s == null)
-            return null;
-
-        String name = s.getString("name", "");
-
-        if (name.isBlank())
-            return null;
-
-        return Sound.sound(
-            Key.key(name.contains(":") ? name : "minecraft:" + name),
-            Sound.Source.valueOf(s.getString("source", "master").toUpperCase(Locale.ROOT)),
-            ((Number) s.get("volume", 1)).floatValue(),
-            ((Number) s.get("pitch",  1)).floatValue()
-        );
     }
 
     private static List<String> normalizeIds(List<String> ids) {

@@ -3,7 +3,6 @@ package toutouchien.itemsadderadditions.utils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 
 import java.lang.reflect.Field;
@@ -15,19 +14,30 @@ import java.util.List;
  * Injects {@link Parameter}-annotated fields on any object from a YAML
  * {@link ConfigurationSection}.
  *
+ * <h3>Sub-section paths</h3>
+ * When {@link Parameter#path()} is non-empty, the injector resolves the value from
+ * a nested sub-section rather than the root section. For example:
+ * <pre>
+ * {@literal @}Parameter(key = "name", path = "sound", type = String.class)
+ * private String soundName;
+ * </pre>
+ * reads {@code section.sound.name}. If the sub-section is absent and the field is not
+ * required, the field's default value is preserved silently.
+ *
  * <h3>Min / max enforcement</h3>
- * When a {@link Parameter} annotation declares {@code min != max}, the injected
- * numeric value is clamped to {@code [min, max]} and a warning is logged if the
- * configured value was out of range.
+ * When {@link Parameter#min()} {@code != } {@link Parameter#max()}, the injected
+ * numeric value is clamped to {@code [min, max]} and a warning is logged if clamping
+ * occurred.
  *
  * <h3>Superclass walk</h3>
  * Fields from the entire class hierarchy (up to but not including {@link Object})
  * are processed, so base-class parameters (e.g. {@code permission}, {@code delay}
  * on {@link toutouchien.itemsadderadditions.actions.ActionExecutor}) are always injected.
  */
-@SuppressWarnings("unused")
 @NullMarked
 public final class ParameterInjector {
+    private static final String SUBSYSTEM = "Config";
+
     private ParameterInjector() {
         throw new IllegalStateException("Utility class");
     }
@@ -35,54 +45,64 @@ public final class ParameterInjector {
     /**
      * Injects {@code @Parameter}-annotated fields of {@code target} from {@code section}.
      *
-     * @param target   any object whose declared fields (including inherited ones) may carry {@link Parameter}
-     * @param section  the YAML section to read values from ({@code null} is treated as an empty section)
-     * @param itemName the item's namespaced ID, used only in warning messages
-     * @return {@code true} if all required parameters were satisfied, {@code false} otherwise
+     * @param target   the object to inject into
+     * @param section  the root YAML section ({@code null} treated as empty)
+     * @param itemName the item's namespaced ID, used only in log messages
+     * @return {@code true} if all required parameters were satisfied
      */
     public static boolean inject(Object target, @Nullable ConfigurationSection section, String itemName) {
         for (Field field : collectFields(target.getClass())) {
             Parameter param = field.getAnnotation(Parameter.class);
             if (param == null) continue;
 
-            Object raw = section != null ? section.get(param.key()) : null;
+            ConfigurationSection readFrom = resolveSection(section, param, itemName);
+
+            // If the sub-section is absent and the field isn't required, leave the default.
+            if (readFrom == null) {
+                if (param.required() && !param.path().isEmpty()) {
+                    Log.itemSkip(SUBSYSTEM, itemName,
+                            "required sub-section '{}' is missing (needed by parameter '{}')",
+                            param.path(), param.key());
+                    return false;
+                }
+                continue;
+            }
+
+            Object raw   = readFrom.get(param.key());
             Object value = ConfigUtils.coerceNumber(raw, param.type());
 
             try {
                 field.setAccessible(true);
 
                 if (param.type().isInstance(value)) {
-                    field.set(target, enforceRange(value, param, field.getName(), itemName));
+                    field.set(target, enforceRange(value, param, itemName));
                     continue;
                 }
 
-                // Value is null or the wrong type - leave the field default in place.
+                // Value is null or wrong type - leave default in place unless required.
                 if (value == null && !param.required()) continue;
 
                 // Value is present but wrong type - null the field so behaviour is predictable.
                 field.set(target, null);
 
                 if (value != null) {
-                    ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                        "[Config] Item '{}' - parameter '{}' has wrong type: expected {}, got {}",
-                        itemName, param.key(),
-                        param.type().getSimpleName(), value.getClass().getSimpleName()
-                    );
+                    Log.itemWarn(SUBSYSTEM, itemName,
+                            "parameter '{}' has wrong type: expected {}, got {}",
+                            qualifiedKey(param), param.type().getSimpleName(),
+                            value.getClass().getSimpleName());
                 }
 
                 if (param.required()) {
-                    ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-                        "[Config] Item '{}' - required parameter '{}' is missing or invalid; skipping.",
-                        itemName, param.key()
-                    );
+                    Log.itemSkip(SUBSYSTEM, itemName,
+                            "required parameter '{}' is missing or has the wrong type",
+                            qualifiedKey(param));
                     return false;
                 }
 
             } catch (ReflectiveOperationException e) {
-                ItemsAdderAdditions.instance().getSLF4JLogger().error(
-                    "[Config] Failed to inject field '{}' on {}",
-                    field.getName(), target.getClass().getSimpleName(), e
-                );
+                Log.error(SUBSYSTEM,
+                        "Failed to inject field '" + field.getName() + "' on "
+                        + target.getClass().getSimpleName() + " for item '" + itemName + "'", e);
                 return false;
             }
         }
@@ -91,19 +111,30 @@ public final class ParameterInjector {
     }
 
     /**
-     * Clamps {@code value} to the {@code [min, max]} range declared on {@code param},
-     * if the annotation has a non-trivial range (i.e. {@code min != max}).
-     *
-     * <p>Logs a warning when clamping occurs so the server admin can fix the config.
-     *
-     * @return the (possibly clamped) value - always the same type as the input
+     * Resolves the section to read the parameter value from.
+     * Returns {@code null} when the configured sub-section doesn't exist in YAML.
      */
-    private static Object enforceRange(
-            Object value,
+    @Nullable
+    private static ConfigurationSection resolveSection(
+            @Nullable ConfigurationSection root,
             Parameter param,
-            String fieldName,
             String itemName
     ) {
+        if (param.path().isEmpty())
+            return root;
+
+        if (root == null)
+            return null;
+
+        ConfigurationSection sub = root.getConfigurationSection(param.path());
+        return sub; // null when absent - caller decides whether to fail
+    }
+
+    /**
+     * Clamps a numeric value to the range declared in {@code param} when
+     * {@code min != max}.
+     */
+    private static Object enforceRange(Object value, Parameter param, String itemName) {
         if (param.min() == param.max())
             return value;
 
@@ -118,21 +149,24 @@ public final class ParameterInjector {
             return value;
 
         double clamped = Math.clamp(d, lo, hi);
-        ItemsAdderAdditions.instance().getSLF4JLogger().warn(
-            "[Config] Item '{}' - parameter '{}' value {} is out of range [{}, {}]; clamping to {}.",
-            itemName, fieldName, d, lo, hi, clamped
-        );
+        Log.itemWarn("Config", itemName,
+                "parameter '{}' value {} is out of range [{}, {}] - clamping to {}",
+                qualifiedKey(param), d, lo, hi, clamped);
 
         return ConfigUtils.coerceNumber(clamped, param.type());
     }
 
     /**
+     * Returns a human-readable key for log messages, e.g. {@code "sound.name"} when
+     * {@code path = "sound", key = "name"}, or just {@code "name"} when path is empty.
+     */
+    private static String qualifiedKey(Parameter param) {
+        return param.path().isEmpty() ? param.key() : param.path() + "." + param.key();
+    }
+
+    /**
      * Collects all declared fields from {@code clazz} and every superclass up to
-     * (but not including) {@link Object}.
-     *
-     * <p>Fields from the most-derived class are listed first so that subclass
-     * declarations shadow superclass ones if they share a name (which should not
-     * happen in practice, but is the safe ordering).
+     * (but not including) {@link Object}. Most-derived class fields are listed first.
      */
     private static List<Field> collectFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
@@ -141,7 +175,6 @@ public final class ParameterInjector {
             fields.addAll(Arrays.asList(cursor.getDeclaredFields()));
             cursor = cursor.getSuperclass();
         }
-
         return fields;
     }
 }
