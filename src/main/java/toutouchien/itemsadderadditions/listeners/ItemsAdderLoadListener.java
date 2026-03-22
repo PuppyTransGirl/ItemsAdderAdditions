@@ -6,9 +6,9 @@ import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
-import toutouchien.itemsadderadditions.utils.Log;
 import toutouchien.itemsadderadditions.creative.PacketListener;
 import toutouchien.itemsadderadditions.creative.RegistryInjector;
+import toutouchien.itemsadderadditions.utils.Log;
 
 import java.util.List;
 

@@ -13,7 +13,6 @@ import net.minecraft.world.entity.decoration.painting.PaintingVariant;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.CraftServer;
 import org.jspecify.annotations.NullMarked;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.utils.Log;
 
 import java.lang.reflect.Field;

@@ -1,17 +1,10 @@
 package toutouchien.itemsadderadditions.actions;
 
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
-import toutouchien.itemsadderadditions.utils.Log;
-import toutouchien.itemsadderadditions.actions.executors.ActionBarAction;
-import toutouchien.itemsadderadditions.actions.executors.OpenInventoryAction;
-import toutouchien.itemsadderadditions.actions.executors.PlayAnimationAction;
-import toutouchien.itemsadderadditions.actions.executors.SwingHandAction;
-import toutouchien.itemsadderadditions.actions.executors.TeleportAction;
-import toutouchien.itemsadderadditions.actions.executors.TitleAction;
-import toutouchien.itemsadderadditions.actions.executors.ToastAction;
-import toutouchien.itemsadderadditions.actions.executors.VeinminerAction;
+import toutouchien.itemsadderadditions.actions.executors.*;
 import toutouchien.itemsadderadditions.actions.loading.ActionLoader;
 import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
+import toutouchien.itemsadderadditions.utils.Log;
 
 /**
  * Entry point for the actions system.
