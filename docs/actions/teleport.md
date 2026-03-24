@@ -1,0 +1,12 @@
+# Teleport
+
+```yaml
+teleport:
+  x: 100.5
+  y: 64.0
+  z: -50.5
+  yaw: 90.0 # Optional (Defaults to the player's current yaw)
+  pitch: 0.0 # Optional (Defaults to the player's current pitch)
+  world: "world_nether" # Optional (Defaults to the player's current world)
+```
+

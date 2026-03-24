@@ -1,0 +1,27 @@
+# Contact Damage
+
+```yaml
+contact_damage:
+  amount: 1
+  interval: 10 # Optional (Default value: 20) - Value in ticks (20 ticks = 1 second)
+  fire_duration: 60 # Optional (Default value: 0) - Value in ticks (20 ticks = 1 second)
+  damage_when_sneaking: false # Optioanl (Default value: true)
+  block_faces: # Optional
+    top: true # Optional (Default value: true)
+    north: false # Optional (Default value: true)
+    south: false # Optional (Default value: true)
+    west: false # Optional (Default value: true)
+    east: false # Optional (Default value: true)
+  potion_effect: # Optional
+    type: NAUSEA
+    amplifier: 0 # Optional (Default value: 1) - Amplifier 0 = Level 1
+    duration: 200 # Optional (Default value: 40) - Value in ticks (20 ticks = 1 second)
+    ambient: false # Optional (Default value: false) - Whether to make the particles more translucent
+    particles: false # Optional (Default value: true) - Whether to show the particles
+    icon: false # Optional (Default value: true) - Whether to show the icon on screen
+  # Add another effect
+  potion_effect_1:
+    ...
+```
+
+For `type`, refer to [this link](https://jd.papermc.io/paper/org/bukkit/potion/PotionEffectType.html#field-summary) for the value

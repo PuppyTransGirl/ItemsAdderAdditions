@@ -1,0 +1,9 @@
+# Actionbar
+
+```yaml
+actionbar:
+  text: "<red>My custom action bar sent to %player_name%"
+```
+
+Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
+
