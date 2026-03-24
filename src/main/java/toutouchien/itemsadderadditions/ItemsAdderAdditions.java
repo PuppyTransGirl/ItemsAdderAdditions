@@ -45,6 +45,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
         registerListeners();
 
         this.bStats = new Metrics(this, BSTATS_PLUGIN_ID);
+
+        this.componentsManager.applyComponents();
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.components.annotations.Property;
+import toutouchien.itemsadderadditions.components.properties.UseCooldownProperty;
 import toutouchien.itemsadderadditions.utils.ConfigUtils;
 import toutouchien.itemsadderadditions.utils.Log;
 import toutouchien.itemsadderadditions.utils.ParameterInjector;
@@ -17,7 +18,7 @@ import java.util.List;
 @NullMarked
 public final class ComponentsManager {
     private static final List<ComponentProperty> PROPERTY_INSTANCES = List.of(
-            new toutouchien.itemsadderadditions.components.properties.UseCooldownProperty()
+            new UseCooldownProperty()
     );
 
     public void applyComponents() {

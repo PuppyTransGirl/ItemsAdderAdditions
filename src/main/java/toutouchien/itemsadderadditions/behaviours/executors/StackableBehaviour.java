@@ -99,7 +99,6 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
             // Format 1: plain list of block IDs
             for (Object entry : list)
                 addStep(entry.toString(), null, namespacedID);
-
         } else if (configData instanceof ConfigurationSection section) {
             if (section.contains("blocks")) {
                 // Format 2: shared-items section (has a "blocks" key at the top level)
@@ -109,7 +108,9 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
                 // Format 3: named steps - every key is a stage name
                 for (String stageKey : section.getKeys(false)) {
                     ConfigurationSection stageSection = section.getConfigurationSection(stageKey);
-                    if (stageSection == null) continue;
+                    if (stageSection == null)
+                        continue;
+
                     String block = stageSection.getString("block");
                     addStep(block, stageSection, namespacedID);
                 }

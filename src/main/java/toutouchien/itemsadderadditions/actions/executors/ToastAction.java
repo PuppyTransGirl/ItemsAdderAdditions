@@ -5,7 +5,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
@@ -49,8 +48,12 @@ public final class ToastAction extends ActionExecutor {
     /** Resolved at configure-time from a plain string or list. */
     private String text = "";
 
+    private String namespacedID;
+
     @Override
     public boolean configure(Object configData, String namespacedID) {
+        this.namespacedID = namespacedID;
+
         if (!super.configure(configData, namespacedID))
             return false;
 
@@ -77,25 +80,14 @@ public final class ToastAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
-        String itemId = item.toLowerCase(Locale.ROOT);
-        ItemStack itemStack = resolveItemStack(itemId);
+        String itemID = item.toLowerCase(Locale.ROOT);
+        ItemStack itemStack = NamespaceUtils.itemByID(namespacedID, itemID);
         if (itemStack == null) {
-            Log.warn("Actions", "toast: unknown item '{}' - check the item key in your config", itemId);
+            Log.warn("Actions", "toast: unknown item '{}' - check the item key in your config", itemID);
             return;
         }
 
         Component title = MM.deserialize(text);
         ToastUtils.sendToast(context.player(), itemStack, title, frame);
-    }
-
-    /**
-     * Resolves {@code itemId} to an {@link ItemStack} via {@link NamespaceUtils},
-     * trying ItemsAdder first then falling back to a vanilla material.
-     */
-    @Nullable
-    private static ItemStack resolveItemStack(String itemId) {
-        // NamespaceUtils handles both "namespace:id" and plain "id" lookups,
-        // and falls back to vanilla Minecraft items automatically.
-        return NamespaceUtils.itemByID("", itemId);
     }
 }

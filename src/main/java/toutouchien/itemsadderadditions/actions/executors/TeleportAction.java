@@ -29,7 +29,6 @@ import toutouchien.itemsadderadditions.utils.Log;
 @NullMarked
 @Action(key = "teleport")
 public final class TeleportAction extends ActionExecutor {
-
     @Parameter(key = "x", type = Double.class, required = true)
     private Double x;
 
@@ -53,9 +52,9 @@ public final class TeleportAction extends ActionExecutor {
         Player player = context.player();
         Location current = player.getLocation();
 
-        float finalYaw   = yaw   != null ? yaw   : current.getYaw();
+        float finalYaw = yaw != null ? yaw : current.getYaw();
         float finalPitch = pitch != null ? pitch : current.getPitch();
-        String worldName = world != null ? world  : player.getWorld().getName();
+        String worldName = world != null ? world : player.getWorld().getName();
 
         World bukkitWorld = Bukkit.getWorld(worldName);
         if (bukkitWorld == null) {

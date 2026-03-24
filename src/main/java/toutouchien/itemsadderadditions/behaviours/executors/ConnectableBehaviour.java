@@ -77,6 +77,9 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     @Parameter(key = "default", type = String.class, required = true)
     private String defaultFurniture;
 
+    @Parameter(key = "straight", type = String.class)
+    @Nullable private String straightFurniture;
+
     // Table-type only
     @Parameter(key = "middle", type = String.class)
     @Nullable private String middleFurniture;
@@ -87,10 +90,10 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     @Parameter(key = "corner", type = String.class)
     @Nullable private String cornerFurniture;
 
-    // Stair-type only
-    @Parameter(key = "straight", type = String.class)
-    @Nullable private String straightFurniture;
+    @Parameter(key = "end", type = String.class)
+    @Nullable private String endFurniture;
 
+    // Stair-type only
     @Parameter(key = "left", type = String.class)
     @Nullable private String leftFurniture;
 
@@ -132,8 +135,8 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         type = resolveType(typeRaw);
 
         if (type == ConnectableType.TABLE) {
-            if (middleFurniture == null || borderFurniture == null || cornerFurniture == null) {
-                Log.itemSkip("Behaviours", namespacedID, "connectable (table) is missing required shape keys: middle, border, corner");
+            if (straightFurniture == null || middleFurniture == null || borderFurniture == null || cornerFurniture == null || endFurniture == null) {
+                Log.itemSkip("Behaviours", namespacedID, "connectable (table) is missing required shape keys: straight, middle, border, corner, end");
                 return false;
             }
         } else {
@@ -244,15 +247,28 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
                         : south ? yawOf(FacingDirection.SOUTH)
                         : west ? yawOf(FacingDirection.WEST)
                         : yawOf(FacingDirection.EAST);
+
+                // When they have only one table in front of them
+                if (north && !south && !west && !east)
+                    yield new PlacementSpec(endFurniture, yaw);
+                else if (!north && south && !west && !east)
+                    yield new PlacementSpec(endFurniture, yaw);
+                else if (!north && !south && west && !east)
+                    yield new PlacementSpec(endFurniture, yaw);
+                else if (!north && !south && !west && east)
+                    yield new PlacementSpec(endFurniture, yaw);
+
+
                 yield new PlacementSpec(borderFurniture, yaw);
             }
 
             case 2 -> {
-                boolean opposite = (north && south) || (west && east);
-                if (opposite) {
+                int opposite = (north && south) ? 1 : ((west && east) ? 0 : -1);
+                if (opposite != -1) {
                     // Two opposite sides -> middle (no meaningful rotation).
-                    yield new PlacementSpec(middleFurniture, 0f);
+                    yield new PlacementSpec(straightFurniture, 90F * opposite);
                 }
+
                 // Two adjacent sides -> corner.
                 // Rotate so the model's "inner corner" faces the open diagonal.
                 float yaw = (north && east) ? yawOf(FacingDirection.NORTH)
@@ -262,8 +278,23 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
                 yield new PlacementSpec(cornerFurniture, yaw);
             }
 
+            case 3 -> {
+                float yaw = 0F;
+                if (north && south && !west && east)
+                    yaw = -90F;
+                else if (north && south && west && !east)
+                    yaw = 90F;
+                else if (north && !south && west && east)
+                    yaw = 180F;
+
+
+                yield new PlacementSpec(borderFurniture, yaw);
+            }
+
             // 3 or 4 sides -> middle
-            default -> new PlacementSpec(middleFurniture, 0f);
+            default -> {
+                yield new PlacementSpec(middleFurniture, 0f);
+            }
         };
     }
 
@@ -381,9 +412,11 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
             return true;
 
         if (type == ConnectableType.TABLE) {
-            return id.equals(middleFurniture)
+            return id.equals(straightFurniture)
+                    || id.equals(middleFurniture)
                     || id.equals(borderFurniture)
-                    || id.equals(cornerFurniture);
+                    || id.equals(cornerFurniture)
+                    || id.equals(endFurniture);
         }
 
         return id.equals(straightFurniture)

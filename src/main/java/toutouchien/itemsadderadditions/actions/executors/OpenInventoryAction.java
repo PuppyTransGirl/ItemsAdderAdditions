@@ -60,7 +60,11 @@ public final class OpenInventoryAction extends ActionExecutor {
             case "loom" -> player.openLoom(player.getLocation(), true);
             case "smithing", "smithing_table" -> player.openSmithingTable(player.getLocation(), true);
             case "stonecutter" -> player.openStonecutter(player.getLocation(), true);
-            default -> Log.warn("Actions", "open_inventory: unsupported type '{}' - valid types: anvil, cartography_table, crafting_table, enchanting_table, ender_chest, grindstone, loom, smithing_table, stonecutter", type);
+            default -> Log.warn(
+                    "Actions",
+                    "open_inventory: unsupported type '{}' - valid types: anvil, cartography_table, crafting_table, enchanting_table, ender_chest, grindstone, loom, smithing_table, stonecutter",
+                    type
+            );
         }
     }
 }
