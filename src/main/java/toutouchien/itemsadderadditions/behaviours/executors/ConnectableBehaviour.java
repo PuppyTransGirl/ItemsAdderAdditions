@@ -127,27 +127,14 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
      */
     private final Map<Location, FacingDirection> canonicalFacing = new HashMap<>();
 
-    @Override
-    public boolean configure(Object configData, String namespacedID) {
-        if (!super.configure(configData, namespacedID))
-            return false;
-
-        type = resolveType(typeRaw);
-
-        if (type == ConnectableType.TABLE) {
-            if (straightFurniture == null || middleFurniture == null || borderFurniture == null || cornerFurniture == null || endFurniture == null) {
-                Log.itemSkip("Behaviours", namespacedID, "connectable (table) is missing required shape keys: straight, middle, border, corner, end");
-                return false;
-            }
-        } else {
-            if (straightFurniture == null || leftFurniture == null || rightFurniture == null
-                    || outerFurniture == null || innerFurniture == null) {
-                Log.itemSkip("Behaviours", namespacedID, "connectable (stair) is missing required shape keys: straight, left, right, outer, inner");
-                return false;
-            }
-        }
-
-        return true;
+    private static Location offsetLocation(Location origin, FacingDirection dir) {
+        Location loc = origin.clone();
+        return switch (dir) {
+            case NORTH -> loc.add(0, 0, -1);
+            case SOUTH -> loc.add(0, 0, 1);
+            case WEST -> loc.add(-1, 0, 0);
+            case EAST -> loc.add(1, 0, 0);
+        };
     }
 
     private static ConnectableType resolveType(@Nullable String raw) {
@@ -214,88 +201,36 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         applyShape(target, spec);
     }
 
-    /**
-     * Table type - four variants based on which cardinal sides have neighbours:
-     *
-     * <table>
-     *   <tr><th>Connected sides</th><th>Variant</th><th>Rotation</th></tr>
-     *   <tr><td>None</td><td>{@code default}</td><td>0°</td></tr>
-     *   <tr><td>1 side</td><td>{@code border}</td><td>facing away from neighbour</td></tr>
-     *   <tr><td>2 adjacent (L)</td><td>{@code corner}</td><td>facing the open corner</td></tr>
-     *   <tr><td>2 opposite / 3+ sides</td><td>{@code middle}</td><td>0°</td></tr>
-     * </table>
-     *
-     * <p>Rotation follows the same {@link FacingDirection} -> yaw convention as the stair type.
-     */
-    private PlacementSpec deriveTableSpec(CustomFurniture self) {
-        Location loc = self.getEntity().getLocation().toBlockLocation();
+    @Override
+    public boolean configure(Object configData, String namespacedID) {
+        if (!super.configure(configData, namespacedID))
+            return false;
 
-        boolean north = findConnectableAt(offsetLocation(loc, FacingDirection.NORTH, 1)) != null;
-        boolean south = findConnectableAt(offsetLocation(loc, FacingDirection.SOUTH, 1)) != null;
-        boolean west = findConnectableAt(offsetLocation(loc, FacingDirection.WEST, 1)) != null;
-        boolean east = findConnectableAt(offsetLocation(loc, FacingDirection.EAST, 1)) != null;
+        type = resolveType(typeRaw);
 
-        int count = (north ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0) + (east ? 1 : 0);
-
-        return switch (count) {
-            case 0 -> new PlacementSpec(defaultFurniture, 0f);
-
-            case 1 -> {
-                // Border: the single open end faces away from the neighbour.
-                // Rotate so the "front" of the model points toward the neighbour.
-                float yaw = north ? yawOf(FacingDirection.NORTH)
-                        : south ? yawOf(FacingDirection.SOUTH)
-                        : west ? yawOf(FacingDirection.WEST)
-                        : yawOf(FacingDirection.EAST);
-
-                // When they have only one table in front of them
-                if (north && !south && !west && !east)
-                    yield new PlacementSpec(endFurniture, yaw);
-                else if (!north && south && !west && !east)
-                    yield new PlacementSpec(endFurniture, yaw);
-                else if (!north && !south && west && !east)
-                    yield new PlacementSpec(endFurniture, yaw);
-                else if (!north && !south && !west && east)
-                    yield new PlacementSpec(endFurniture, yaw);
-
-
-                yield new PlacementSpec(borderFurniture, yaw);
+        if (type == ConnectableType.TABLE) {
+            if (straightFurniture == null || middleFurniture == null || borderFurniture == null
+                    || cornerFurniture == null || endFurniture == null) {
+                Log.itemSkip(
+                        "Behaviours",
+                        namespacedID,
+                        "connectable (table) is missing required shape keys: straight, middle, border, corner, end"
+                );
+                return false;
             }
-
-            case 2 -> {
-                int opposite = (north && south) ? 1 : ((west && east) ? 0 : -1);
-                if (opposite != -1) {
-                    // Two opposite sides -> middle (no meaningful rotation).
-                    yield new PlacementSpec(straightFurniture, 90F * opposite);
-                }
-
-                // Two adjacent sides -> corner.
-                // Rotate so the model's "inner corner" faces the open diagonal.
-                float yaw = (north && east) ? yawOf(FacingDirection.NORTH)
-                        : (north && west) ? yawOf(FacingDirection.WEST)
-                        : (south && west) ? yawOf(FacingDirection.SOUTH)
-                        : yawOf(FacingDirection.EAST); // south && east
-                yield new PlacementSpec(cornerFurniture, yaw);
+        } else {
+            if (straightFurniture == null || leftFurniture == null || rightFurniture == null
+                    || outerFurniture == null || innerFurniture == null) {
+                Log.itemSkip(
+                        "Behaviours",
+                        namespacedID,
+                        "connectable (stair) is missing required shape keys: straight, left, right, outer, inner"
+                );
+                return false;
             }
+        }
 
-            case 3 -> {
-                float yaw = 0F;
-                if (north && south && !west && east)
-                    yaw = -90F;
-                else if (north && south && west && !east)
-                    yaw = 90F;
-                else if (north && !south && west && east)
-                    yaw = 180F;
-
-
-                yield new PlacementSpec(borderFurniture, yaw);
-            }
-
-            // 3 or 4 sides -> middle
-            default -> {
-                yield new PlacementSpec(middleFurniture, 0f);
-            }
-        };
+        return true;
     }
 
     private PlacementSpec deriveStairSpec(CustomFurniture self) {
@@ -315,15 +250,94 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         };
     }
 
+    /**
+     * Table type - four variants based on which cardinal sides have neighbours:
+     *
+     * <table>
+     *   <tr><th>Connected sides</th><th>Variant</th><th>Rotation</th></tr>
+     *   <tr><td>None</td><td>{@code default}</td><td>0°</td></tr>
+     *   <tr><td>1 side</td><td>{@code border}</td><td>facing away from neighbour</td></tr>
+     *   <tr><td>2 adjacent (L)</td><td>{@code corner}</td><td>facing the open corner</td></tr>
+     *   <tr><td>2 opposite / 3+ sides</td><td>{@code middle}</td><td>0°</td></tr>
+     * </table>
+     *
+     * <p>Rotation follows the same {@link FacingDirection} -> yaw convention as the stair type.
+     */
+    @SuppressWarnings("ConstantValue")
+    private PlacementSpec deriveTableSpec(CustomFurniture self) {
+        Location loc = self.getEntity().getLocation().toBlockLocation();
+
+        boolean north = findConnectableAt(offsetLocation(loc, FacingDirection.NORTH)) != null;
+        boolean south = findConnectableAt(offsetLocation(loc, FacingDirection.SOUTH)) != null;
+        boolean west = findConnectableAt(offsetLocation(loc, FacingDirection.WEST)) != null;
+        boolean east = findConnectableAt(offsetLocation(loc, FacingDirection.EAST)) != null;
+
+        int count = (north ? 1 : 0) + (south ? 1 : 0) + (west ? 1 : 0) + (east ? 1 : 0);
+
+        return switch (count) {
+            case 0 -> new PlacementSpec(defaultFurniture, 0f);
+
+            case 1 -> {
+                float yaw;
+                if (north)
+                    yaw = yawOf(FacingDirection.NORTH);
+                else if (south)
+                    yaw = yawOf(FacingDirection.SOUTH);
+                else if (west)
+                    yaw = yawOf(FacingDirection.WEST);
+                else
+                    yaw = yawOf(FacingDirection.EAST);
+
+                yield new PlacementSpec(borderFurniture, yaw);
+            }
+
+            case 2 -> {
+                if (north && south)
+                    yield new PlacementSpec(straightFurniture, 90F);
+
+                if (west && east)
+                    yield new PlacementSpec(straightFurniture, 0F);
+
+                float yaw;
+
+                if (north && east)
+                    yaw = yawOf(FacingDirection.NORTH);
+                else if (north && west)
+                    yaw = yawOf(FacingDirection.WEST);
+                else if (south && west)
+                    yaw = yawOf(FacingDirection.SOUTH);
+                else
+                    yaw = yawOf(FacingDirection.EAST); // south && east
+
+                yield new PlacementSpec(cornerFurniture, yaw);
+            }
+
+            case 3 -> {
+                float yaw;
+                if (!north)
+                    yaw = 0F;
+                else if (!south)
+                    yaw = 180F;
+                else if (!west)
+                    yaw = -90F;
+                else
+                    yaw = 90F;
+
+                yield new PlacementSpec(borderFurniture, yaw);
+            }
+
+            default -> new PlacementSpec(middleFurniture, 0f);
+        };
+    }
+
     private StairShape deriveStairShape(CustomFurniture self, FacingDirection selfFacing) {
         Location selfLoc = self.getEntity().getLocation().toBlockLocation();
 
         // Front neighbour -> outer corner
-        CustomFurniture front = findConnectableAt(offsetLocation(selfLoc, selfFacing, 1));
+        CustomFurniture front = findConnectableAt(offsetLocation(selfLoc, selfFacing));
         if (front != null) {
             FacingDirection frontFacing = facingOf(front);
-            if (isPerpendicular(selfFacing, frontFacing)
-                    && canTakeShape(selfFacing, selfLoc, frontFacing.opposite())) {
+            if (isPerpendicular(selfFacing, frontFacing) && canTakeShape(selfFacing, selfLoc, frontFacing.opposite())) {
                 return frontFacing == selfFacing.counterClockWise()
                         ? StairShape.OUTER_LEFT
                         : StairShape.OUTER_RIGHT;
@@ -331,11 +345,10 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         }
 
         // Back neighbour -> inner corner
-        CustomFurniture back = findConnectableAt(offsetLocation(selfLoc, selfFacing.opposite(), 1));
+        CustomFurniture back = findConnectableAt(offsetLocation(selfLoc, selfFacing.opposite()));
         if (back != null) {
             FacingDirection backFacing = facingOf(back);
-            if (isPerpendicular(selfFacing, backFacing)
-                    && canTakeShape(selfFacing, selfLoc, backFacing)) {
+            if (isPerpendicular(selfFacing, backFacing) && canTakeShape(selfFacing, selfLoc, backFacing)) {
                 return backFacing == selfFacing.counterClockWise()
                         ? StairShape.INNER_LEFT
                         : StairShape.INNER_RIGHT;
@@ -343,8 +356,8 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         }
 
         // Side neighbours -> straight or end-caps
-        boolean hasLeft = findConnectableAt(offsetLocation(selfLoc, selfFacing.counterClockWise(), 1)) != null;
-        boolean hasRight = findConnectableAt(offsetLocation(selfLoc, selfFacing.clockWise(), 1)) != null;
+        boolean hasLeft = findConnectableAt(offsetLocation(selfLoc, selfFacing.counterClockWise())) != null;
+        boolean hasRight = findConnectableAt(offsetLocation(selfLoc, selfFacing.clockWise())) != null;
 
         if (hasLeft && hasRight)
             return StairShape.STRAIGHT;
@@ -353,7 +366,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         if (hasLeft)
             return StairShape.RIGHT;
 
-        // CW  neighbour -> LEFT cap
+        // CW neighbour -> LEFT cap
         if (hasRight)
             return StairShape.LEFT;
 
@@ -365,19 +378,11 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
      * must NOT be another connectable with the same facing as {@code selfFacing}.
      */
     private boolean canTakeShape(FacingDirection selfFacing, Location selfLoc, FacingDirection face) {
-        CustomFurniture neighbour = findConnectableAt(offsetLocation(selfLoc, face, 1));
+        CustomFurniture neighbour = findConnectableAt(offsetLocation(selfLoc, face));
         if (neighbour == null)
             return true;
 
         return facingOf(neighbour) != selfFacing;
-    }
-
-    private void updateNeighboursOf(Location snappedLoc) {
-        for (FacingDirection dir : FacingDirection.values()) {
-            CustomFurniture neighbour = findConnectableAt(offsetLocation(snappedLoc, dir, 1));
-            if (neighbour != null)
-                updateShapeAt(neighbour);
-        }
     }
 
     private void applyShape(CustomFurniture current, PlacementSpec spec) {
@@ -474,14 +479,12 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         return aIsNS != bIsNS;
     }
 
-    private static Location offsetLocation(Location origin, FacingDirection dir, int distance) {
-        Location loc = origin.clone();
-        return switch (dir) {
-            case NORTH -> loc.add(0, 0, -distance);
-            case SOUTH -> loc.add(0, 0, distance);
-            case WEST -> loc.add(-distance, 0, 0);
-            case EAST -> loc.add(distance, 0, 0);
-        };
+    private void updateNeighboursOf(Location snappedLoc) {
+        for (FacingDirection dir : FacingDirection.values()) {
+            CustomFurniture neighbour = findConnectableAt(offsetLocation(snappedLoc, dir));
+            if (neighbour != null)
+                updateShapeAt(neighbour);
+        }
     }
 
     private record PlacementSpec(@Nullable String variantID, float yaw) {}
