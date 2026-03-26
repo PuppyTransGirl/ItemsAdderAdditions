@@ -5,6 +5,7 @@
 ## Actions
 
 * [Actionbar](actions/actionbar.md)
+* [Message](actions/message.md)
 * [Open Inventory](actions/open-inentory.md)
 * [Play Animation](actions/play-animation.md)
 * [Swing Hand](actions/swing-hand.md)

@@ -39,6 +39,7 @@ public final class ActionsManager {
     public ActionsManager() {
         registerBuiltins(
                 new ActionBarAction(),
+                new MessageAction(),
                 new OpenInventoryAction(),
                 new PlayAnimationAction(),
                 new SwingHandAction(),
