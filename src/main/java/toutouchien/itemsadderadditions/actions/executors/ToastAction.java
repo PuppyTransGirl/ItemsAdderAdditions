@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 public final class ToastAction extends ActionExecutor {
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    @Parameter(key = "item", type = String.class, required = true)
-    private String item;
+    @Parameter(key = "icon", type = String.class, required = true)
+    private String icon;
 
     @Parameter(key = "frame", type = String.class)
     private String frame = "goal";
@@ -87,7 +87,7 @@ public final class ToastAction extends ActionExecutor {
         if (!(runOn instanceof Player player))
             return;
 
-        String itemID = item.toLowerCase(Locale.ROOT);
+        String itemID = icon.toLowerCase(Locale.ROOT);
         ItemStack itemStack = NamespaceUtils.itemByID(namespacedID, itemID);
         if (itemStack == null) {
             Log.warn("Actions", "toast: unknown item '{}' - check the item key in your config", itemID);
