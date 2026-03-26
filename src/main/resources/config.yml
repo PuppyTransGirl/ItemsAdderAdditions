@@ -12,3 +12,6 @@ behaviours:
   connectable: true
   contact_damage: true
   stackable: true
+
+features:
+  creative_inventory_integration: false

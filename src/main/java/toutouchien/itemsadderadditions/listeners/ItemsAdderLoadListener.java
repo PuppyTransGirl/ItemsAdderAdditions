@@ -25,9 +25,11 @@ public final class ItemsAdderLoadListener implements Listener {
         plugin.actionsManager().reload();
         plugin.behavioursManager().reload();
 
-        RegistryInjector.injectPaintingVariants(items);
-        PacketListener.updateCache(items);
-        plugin.creativeMenuManager().reload();
+        if (ItemsAdderAdditions.instance().getConfig().getBoolean("features.creative_inventory_integration", false)) {
+            RegistryInjector.injectPaintingVariants(items);
+            PacketListener.updateCache(items);
+            plugin.creativeMenuManager().reload();
+        }
 
         Log.success("IAA", "Reload complete.");
     }
