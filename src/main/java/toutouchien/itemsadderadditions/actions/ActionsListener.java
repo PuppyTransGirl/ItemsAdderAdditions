@@ -103,7 +103,7 @@ public final class ActionsListener implements Listener {
                 namespacedID,
                 TriggerType.COMPLEX_FURNITURE_INTERACT,
                 ActionContext.create(player, TriggerType.COMPLEX_FURNITURE_INTERACT)
-                        .entity(entity)
+                        .complexFurniture(entity)
                         .heldItem(held)
                         .build()
         );
@@ -246,7 +246,7 @@ public final class ActionsListener implements Listener {
         String argument = "entity";
 
         ActionContext.Builder base = ActionContext.create(player, TriggerType.ITEM_INTERACT)
-                .entity(event.getRightClicked())
+                .target(event.getRightClicked())
                 .heldItem(item)
                 .eventArgument(argument);
 
@@ -263,7 +263,7 @@ public final class ActionsListener implements Listener {
                 handType,
                 argument,
                 ActionContext.create(player, handType)
-                        .entity(event.getRightClicked())
+                        .target(event.getRightClicked())
                         .heldItem(item)
                         .eventArgument(argument)
                         .build()
@@ -302,7 +302,7 @@ public final class ActionsListener implements Listener {
                 cs.getNamespacedID(),
                 TriggerType.ITEM_ATTACK,
                 ActionContext.create(player, TriggerType.ITEM_ATTACK)
-                        .entity(event.getEntity())
+                        .target(event.getEntity())
                         .heldItem(tool)
                         .build()
         );
@@ -324,7 +324,7 @@ public final class ActionsListener implements Listener {
                 cs.getNamespacedID(),
                 TriggerType.ITEM_KILL,
                 ActionContext.create(killer, TriggerType.ITEM_KILL)
-                        .entity(dead)
+                        .target(dead)
                         .heldItem(tool)
                         .build()
         );
@@ -530,7 +530,7 @@ public final class ActionsListener implements Listener {
 
         dispatch(itemID, type,
                 ActionContext.create(player, type)
-                        .entity(hitEntity)
+                        .target(hitEntity)
                         .block(event.getHitBlock())
                         .build()
         );

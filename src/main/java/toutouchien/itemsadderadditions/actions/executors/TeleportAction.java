@@ -3,7 +3,7 @@ package toutouchien.itemsadderadditions.actions.executors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionContext;
@@ -49,12 +49,12 @@ public final class TeleportAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
-        Player player = context.player();
-        Location current = player.getLocation();
+        Entity runOn = context.runOn();
+        Location current = runOn.getLocation();
 
         float finalYaw = yaw != null ? yaw : current.getYaw();
         float finalPitch = pitch != null ? pitch : current.getPitch();
-        String worldName = world != null ? world : player.getWorld().getName();
+        String worldName = world != null ? world : runOn.getWorld().getName();
 
         World bukkitWorld = Bukkit.getWorld(worldName);
         if (bukkitWorld == null) {
@@ -62,6 +62,6 @@ public final class TeleportAction extends ActionExecutor {
             return;
         }
 
-        player.teleportAsync(new Location(bukkitWorld, x, y, z, finalYaw, finalPitch));
+        runOn.teleportAsync(new Location(bukkitWorld, x, y, z, finalYaw, finalPitch));
     }
 }

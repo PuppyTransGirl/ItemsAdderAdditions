@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.actions.executors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -51,9 +52,9 @@ public final class TitleAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
-        Player player = context.player();
-        Component titleComp = title != null ? parse(player, title) : Component.empty();
-        Component subtitleComp = subtitle != null ? parse(player, subtitle) : Component.empty();
+        Entity runOn = context.runOn();
+        Component titleComp = title != null ? parse(runOn, title) : Component.empty();
+        Component subtitleComp = subtitle != null ? parse(runOn, subtitle) : Component.empty();
 
         Title.Times times = Title.Times.times(
                 duration(fadeIn),
@@ -61,14 +62,15 @@ public final class TitleAction extends ActionExecutor {
                 duration(fadeOut)
         );
 
-        player.showTitle(Title.title(titleComp, subtitleComp, times));
+        runOn.showTitle(Title.title(titleComp, subtitleComp, times));
     }
 
     private Duration duration(Integer ticks) {
         return Duration.ofMillis(ticks * 50L);
     }
 
-    private Component parse(Player player, String text) {
-        return MM.deserialize(PlaceholderAPIUtils.parsePlaceholders(player, text));
+    private Component parse(Entity runOn, String text) {
+        String input = runOn instanceof Player player ? PlaceholderAPIUtils.parsePlaceholders(player, text) : text;
+        return MM.deserialize(input);
     }
 }

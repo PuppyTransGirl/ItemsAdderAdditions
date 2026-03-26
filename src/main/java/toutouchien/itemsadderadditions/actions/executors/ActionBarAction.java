@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.actions.executors;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.actions.ActionContext;
@@ -30,8 +31,9 @@ public final class ActionBarAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
-        Player player = context.player();
-        Component message = MM.deserialize(PlaceholderAPIUtils.parsePlaceholders(player, text));
-        player.sendActionBar(message);
+        Entity runOn = context.runOn();
+        String input = runOn instanceof Player player ? PlaceholderAPIUtils.parsePlaceholders(player, text) : text;
+        Component message = MM.deserialize(input);
+        runOn.sendActionBar(message);
     }
 }

@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
@@ -48,18 +49,20 @@ public final class OpenInventoryAction extends ActionExecutor {
     @SuppressWarnings("deprecation")
     @Override
     protected void execute(ActionContext context) {
-        Player player = context.player();
+        Entity runOn = context.runOn();
+        if (!(runOn instanceof HumanEntity human))
+            return;
 
         switch (type.toLowerCase(Locale.ROOT)) {
-            case "anvil" -> player.openAnvil(player.getLocation(), true);
-            case "cartography", "cartography_table" -> player.openCartographyTable(player.getLocation(), true);
-            case "crafting_table", "workbench" -> player.openWorkbench(player.getLocation(), true);
-            case "enchanting", "enchanting_table" -> player.openEnchanting(player.getLocation(), true);
-            case "ender_chest" -> player.openInventory(player.getEnderChest());
-            case "grindstone" -> player.openGrindstone(player.getLocation(), true);
-            case "loom" -> player.openLoom(player.getLocation(), true);
-            case "smithing", "smithing_table" -> player.openSmithingTable(player.getLocation(), true);
-            case "stonecutter" -> player.openStonecutter(player.getLocation(), true);
+            case "anvil" -> human.openAnvil(human.getLocation(), true);
+            case "cartography", "cartography_table" -> human.openCartographyTable(human.getLocation(), true);
+            case "crafting_table", "workbench" -> human.openWorkbench(human.getLocation(), true);
+            case "enchanting", "enchanting_table" -> human.openEnchanting(human.getLocation(), true);
+            case "ender_chest" -> human.openInventory(human.getEnderChest());
+            case "grindstone" -> human.openGrindstone(human.getLocation(), true);
+            case "loom" -> human.openLoom(human.getLocation(), true);
+            case "smithing", "smithing_table" -> human.openSmithingTable(human.getLocation(), true);
+            case "stonecutter" -> human.openStonecutter(human.getLocation(), true);
             default -> Log.warn(
                     "Actions",
                     "open_inventory: unsupported type '{}' - valid types: anvil, cartography_table, crafting_table, enchanting_table, ender_chest, grindstone, loom, smithing_table, stonecutter",

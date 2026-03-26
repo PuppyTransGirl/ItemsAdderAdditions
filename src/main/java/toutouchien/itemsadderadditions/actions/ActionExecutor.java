@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.actions;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
@@ -9,6 +10,9 @@ import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.utils.Keyed;
 import toutouchien.itemsadderadditions.utils.ParameterInjector;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @NullMarked
 public abstract class ActionExecutor implements Keyed {
@@ -18,6 +22,9 @@ public abstract class ActionExecutor implements Keyed {
 
     @Parameter(key = "delay", type = Integer.class)
     private int delay = 0;
+
+    @Parameter(key = "target", type = String.class)
+    protected String target = "self";
 
     public final String key() {
         return annotation().key();
@@ -57,8 +64,8 @@ public abstract class ActionExecutor implements Keyed {
      * {@code super.configure(configData, namespacedID)} first to inject base fields
      * ({@code permission}, {@code delay}).
      *
-     * @param configData  the raw YAML value for this action's key (usually a
-     *                    {@link ConfigurationSection}, but may be {@code null})
+     * @param configData   the raw YAML value for this action's key (usually a
+     *                     {@link ConfigurationSection}, but may be {@code null})
      * @param namespacedID the item's namespaced ID, used only in log messages
      * @return {@code true} if configuration succeeded and the executor should be loaded
      */
@@ -71,16 +78,32 @@ public abstract class ActionExecutor implements Keyed {
         if (permission != null && !context.player().hasPermission(permission))
             return;
 
-        if (delay <= 0) {
-            execute(context);
-            return;
+        Set<Entity> entities = new HashSet<>();
+        entities.add(context.player());
+
+        if (target.equalsIgnoreCase("all") && context.target() != null)
+            entities.add(context.target());
+
+        if (target.equalsIgnoreCase("other")) {
+            entities.clear();
+            if (context.target() != null)
+                entities.add(context.target());
         }
 
-        Bukkit.getScheduler().runTaskLater(
-                ItemsAdderAdditions.instance(),
-                () -> execute(context),
-                delay
-        );
+        for (Entity entity : entities) {
+            context.runOn(entity);
+
+            if (delay <= 0) {
+                execute(context);
+                continue;
+            }
+
+            Bukkit.getScheduler().runTaskLater(
+                    ItemsAdderAdditions.instance(),
+                    () -> execute(context),
+                    delay
+            );
+        }
     }
 
     protected abstract void execute(ActionContext context);

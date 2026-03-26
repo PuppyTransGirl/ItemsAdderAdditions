@@ -4,7 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.actions.ActionContext;
@@ -44,8 +45,11 @@ public final class VeinminerAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
+        Entity runOn = context.runOn();
+        if (!(runOn instanceof HumanEntity human))
+            return;
+
         Block origin = context.block();
-        Player player = context.player();
         if (origin == null)
             return;
 
@@ -54,10 +58,10 @@ public final class VeinminerAction extends ActionExecutor {
             return;
 
         Material targetType = origin.getType();
-        ItemStack tool = player.getInventory().getItemInMainHand();
+        ItemStack tool = human.getInventory().getItemInMainHand();
 
-        // No drops means the tool can't mine this material; don't veinmine.
-        if (origin.getDrops(tool, player).isEmpty())
+        // No drops means the tool can't mine this material; don't veinmine
+        if (origin.getDrops(tool, human).isEmpty())
             return;
 
         Set<Block> toBreak = findConnectedBlocks(origin, targetType, maxBlocks);

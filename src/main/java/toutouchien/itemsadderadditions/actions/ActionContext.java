@@ -13,7 +13,8 @@ public final class ActionContext {
     private final Player player;
     private final TriggerType triggerType;
     @Nullable private final Block block;
-    @Nullable private final Entity entity;
+    @Nullable private final Entity target;
+    @Nullable private final Entity complexFurniture;
     @Nullable private final ItemStack heldItem;
     /**
      * The event argument that qualified this trigger, if any
@@ -22,11 +23,14 @@ public final class ActionContext {
      */
     @Nullable private final String eventArgument;
 
+    private Entity runOn;
+
     private ActionContext(Builder builder) {
         this.player = builder.player;
         this.triggerType = builder.triggerType;
         this.block = builder.block;
-        this.entity = builder.entity;
+        this.target = builder.target;
+        this.complexFurniture = builder.complexFurniture;
         this.heldItem = builder.heldItem;
         this.eventArgument = builder.eventArgument;
     }
@@ -49,8 +53,13 @@ public final class ActionContext {
     }
 
     @Nullable
-    public Entity entity() {
-        return entity;
+    public Entity target() {
+        return target;
+    }
+
+    @Nullable
+    public Entity complexFurniture() {
+        return complexFurniture;
     }
 
     @Nullable
@@ -68,11 +77,20 @@ public final class ActionContext {
         return eventArgument;
     }
 
+    public Entity runOn() {
+        return runOn;
+    }
+
+    void runOn(Entity runOn) {
+        this.runOn = runOn;
+    }
+
     public static final class Builder {
         private final Player player;
         private final TriggerType triggerType;
         @Nullable private Block block;
-        @Nullable private Entity entity;
+        @Nullable private Entity target;
+        @Nullable private Entity complexFurniture;
         @Nullable private ItemStack heldItem;
         @Nullable private String eventArgument;
 
@@ -86,8 +104,13 @@ public final class ActionContext {
             return this;
         }
 
-        public Builder entity(@Nullable Entity entity) {
-            this.entity = entity;
+        public Builder target(@Nullable Entity target) {
+            this.target = target;
+            return this;
+        }
+
+        public Builder complexFurniture(@Nullable Entity complexFurniture) {
+            this.complexFurniture = complexFurniture;
             return this;
         }
 

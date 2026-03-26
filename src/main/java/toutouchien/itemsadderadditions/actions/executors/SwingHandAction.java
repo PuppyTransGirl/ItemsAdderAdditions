@@ -1,5 +1,7 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.actions.ActionContext;
@@ -27,6 +29,10 @@ public final class SwingHandAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
+        Entity runOn = context.runOn();
+        if (!(runOn instanceof LivingEntity livingEntity))
+            return;
+
         EquipmentSlot slot;
         try {
             slot = EquipmentSlot.valueOf(hand.toUpperCase(Locale.ROOT));
@@ -34,6 +40,6 @@ public final class SwingHandAction extends ActionExecutor {
             return; // invalid value already warned at load time by ParameterInjector
         }
 
-        context.player().swingHand(slot);
+        livingEntity.swingHand(slot);
     }
 }

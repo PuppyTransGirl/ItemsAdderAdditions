@@ -3,6 +3,8 @@ package toutouchien.itemsadderadditions.actions.executors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.actions.ActionContext;
@@ -61,13 +63,14 @@ public final class ToastAction extends ActionExecutor {
             return false;
 
         Object raw = section.get("text");
-        if (raw instanceof List<?> list) {
-            text = list.stream().map(Object::toString).collect(Collectors.joining("\n"));
-        } else if (raw instanceof String s) {
-            text = s;
-        } else {
-            Log.itemSkip("Actions", namespacedID, "toast: 'text' is missing or not a string/list");
-            return false;
+        switch (raw) {
+            case List<?> list -> text = list.stream().map(Object::toString).collect(Collectors.joining("\n"));
+            case String s -> text = s;
+
+            case null, default -> {
+                Log.itemSkip("Actions", namespacedID, "toast: 'text' is missing or not a string/list");
+                return false;
+            }
         }
 
         if (text.isBlank()) {
@@ -80,6 +83,10 @@ public final class ToastAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
+        Entity runOn = context.runOn();
+        if (!(runOn instanceof Player player))
+            return;
+
         String itemID = item.toLowerCase(Locale.ROOT);
         ItemStack itemStack = NamespaceUtils.itemByID(namespacedID, itemID);
         if (itemStack == null) {
@@ -88,6 +95,6 @@ public final class ToastAction extends ActionExecutor {
         }
 
         Component title = MM.deserialize(text);
-        ToastUtils.sendToast(context.player(), itemStack, title, frame);
+        ToastUtils.sendToast(player, itemStack, title, frame);
     }
 }

@@ -28,7 +28,7 @@ public final class PlayAnimationAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
-        Entity entity = context.entity();
+        Entity entity = context.complexFurniture();
         if (entity == null)
             return;
 
