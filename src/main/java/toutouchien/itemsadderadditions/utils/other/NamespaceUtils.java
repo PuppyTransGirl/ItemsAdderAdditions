@@ -15,42 +15,46 @@ public final class NamespaceUtils {
         throw new IllegalStateException("Utility class");
     }
 
-    @Nullable
-    public static ItemStack itemByID(String currentNamespace, String id) {
-        CustomStack idCustomStack = CustomStack.getInstance(id);
-        if (idCustomStack != null)
-            return idCustomStack.getItemStack();
+    public static String normalizeID(String currentNamespace, String id) {
+        return id.contains(":") ? id : currentNamespace + ":" + id;
+    }
 
-        CustomStack namespaceIDCustomStack = CustomStack.getInstance(currentNamespace + ":" + id);
-        if (namespaceIDCustomStack != null)
-            return namespaceIDCustomStack.getItemStack();
+    public static String namespace(String namespacedID) {
+        return namespacedID.substring(0, namespacedID.indexOf(':'));
+    }
 
-        String noNamespaceID = id.substring(id.indexOf(":") + 1);
-        for (CustomStack customStack : ItemsAdder.getAllItems()) {
-            if (customStack.getId().equals(noNamespaceID))
-                return customStack.getItemStack();
-        }
-
-        ItemType minecraftItemType = Registry.ITEM.get(Key.key("minecraft:" + noNamespaceID));
-        return minecraftItemType == null ? null : minecraftItemType.createItemStack();
+    public static String id(String namespacedID) {
+        return namespacedID.substring(namespacedID.indexOf(':') + 1);
     }
 
     @Nullable
     public static CustomStack customItemByID(String currentNamespace, String id) {
-        CustomStack idCustomStack = CustomStack.getInstance(id);
-        if (idCustomStack != null)
-            return idCustomStack;
+        String normalizedId = normalizeID(currentNamespace, id);
 
-        CustomStack namespaceIDCustomStack = CustomStack.getInstance(currentNamespace + ":" + id);
-        if (namespaceIDCustomStack != null)
-            return namespaceIDCustomStack;
+        CustomStack customStack = CustomStack.getInstance(normalizedId);
+        if (customStack != null)
+            return customStack;
 
-        String noNamespaceID = id.substring(id.indexOf(":") + 1);
-        for (CustomStack customStack : ItemsAdder.getAllItems()) {
-            if (customStack.getId().equals(noNamespaceID))
-                return customStack;
+        String path = Key.key(normalizedId).value();
+        for (CustomStack stack : ItemsAdder.getAllItems()) {
+            if (stack.getNamespacedID().equals(normalizedId) || stack.getId().equals(path)) {
+                return stack;
+            }
         }
 
         return null;
+    }
+
+    @Nullable
+    public static ItemStack itemByID(String currentNamespace, String id) {
+        CustomStack customStack = customItemByID(currentNamespace, id);
+        if (customStack != null)
+            return customStack.getItemStack();
+
+        String normalizedId = normalizeID(currentNamespace, id);
+        Key key = Key.key(normalizedId);
+
+        ItemType minecraftItemType = Registry.ITEM.get(key);
+        return minecraftItemType == null ? null : minecraftItemType.createItemStack();
     }
 }

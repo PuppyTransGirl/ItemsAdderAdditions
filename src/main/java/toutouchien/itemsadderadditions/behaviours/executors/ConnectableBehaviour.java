@@ -15,6 +15,7 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
 import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.NamespaceUtils;
 
 import java.util.*;
 
@@ -207,6 +208,19 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
             return false;
 
         type = resolveType(typeRaw);
+
+        String namespace = NamespaceUtils.namespace(namespacedID);
+
+        defaultFurniture = normalizeConfiguredID(namespace, defaultFurniture);
+        straightFurniture = normalizeConfiguredID(namespace, straightFurniture);
+        middleFurniture = normalizeConfiguredID(namespace, middleFurniture);
+        borderFurniture = normalizeConfiguredID(namespace, borderFurniture);
+        cornerFurniture = normalizeConfiguredID(namespace, cornerFurniture);
+        endFurniture = normalizeConfiguredID(namespace, endFurniture);
+        leftFurniture = normalizeConfiguredID(namespace, leftFurniture);
+        rightFurniture = normalizeConfiguredID(namespace, rightFurniture);
+        outerFurniture = normalizeConfiguredID(namespace, outerFurniture);
+        innerFurniture = normalizeConfiguredID(namespace, innerFurniture);
 
         if (type == ConnectableType.TABLE) {
             if (straightFurniture == null || middleFurniture == null || borderFurniture == null
@@ -485,6 +499,14 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
             if (neighbour != null)
                 updateShapeAt(neighbour);
         }
+    }
+
+    @Nullable
+    private String normalizeConfiguredID(String namespace, @Nullable String id) {
+        if (id == null)
+            return null;
+
+        return id.contains(":") ? id : namespace + ":" + id;
     }
 
     private record PlacementSpec(@Nullable String variantID, float yaw) {}
