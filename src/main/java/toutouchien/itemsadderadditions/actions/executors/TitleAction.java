@@ -1,12 +1,12 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
+import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
@@ -35,11 +35,11 @@ import java.time.Duration;
 public final class TitleAction extends ActionExecutor {
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
-    @Parameter(key = "title", type = String.class)
-    @Nullable private String title;
+    @Parameter(key = "title", type = String.class, required = true)
+    private String title;
 
-    @Parameter(key = "subtitle", type = String.class)
-    @Nullable private String subtitle;
+    @Parameter(key = "subtitle", type = String.class, required = true)
+    private String subtitle;
 
     @Parameter(key = "fade_in", type = Integer.class, min = 0, max = 1200)
     private Integer fadeIn = 10;
@@ -53,8 +53,8 @@ public final class TitleAction extends ActionExecutor {
     @Override
     protected void execute(ActionContext context) {
         Entity runOn = context.runOn();
-        Component titleComp = title != null ? parse(runOn, title) : Component.empty();
-        Component subtitleComp = subtitle != null ? parse(runOn, subtitle) : Component.empty();
+        Component titleComp = parse(runOn, title);
+        Component subtitleComp = parse(runOn, subtitle);
 
         Title.Times times = Title.Times.times(
                 duration(fadeIn),
@@ -71,6 +71,6 @@ public final class TitleAction extends ActionExecutor {
 
     private Component parse(Entity runOn, String text) {
         String input = runOn instanceof Player player ? PlaceholderAPIUtils.parsePlaceholders(player, text) : text;
-        return MM.deserialize(input);
+        return FontImageWrapper.replaceFontImages(MM.deserialize(input));
     }
 }

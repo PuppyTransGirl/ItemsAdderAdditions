@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
+import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
@@ -7,6 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
@@ -53,7 +55,7 @@ public final class ToastAction extends ActionExecutor {
     private String namespacedID;
 
     @Override
-    public boolean configure(Object configData, String namespacedID) {
+    public boolean configure(@Nullable Object configData, String namespacedID) {
         this.namespacedID = namespacedID;
 
         if (!super.configure(configData, namespacedID))
@@ -94,7 +96,7 @@ public final class ToastAction extends ActionExecutor {
             return;
         }
 
-        Component title = MM.deserialize(text);
+        Component title = FontImageWrapper.replaceFontImages(MM.deserialize(text));
         ToastUtils.sendToast(player, itemStack, title, frame);
     }
 }

@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
+import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Entity;
@@ -33,7 +34,7 @@ public final class ActionBarAction extends ActionExecutor {
     protected void execute(ActionContext context) {
         Entity runOn = context.runOn();
         String input = runOn instanceof Player player ? PlaceholderAPIUtils.parsePlaceholders(player, text) : text;
-        Component message = MM.deserialize(input);
+        Component message = FontImageWrapper.replaceFontImages(MM.deserialize(input));
         runOn.sendActionBar(message);
     }
 }
