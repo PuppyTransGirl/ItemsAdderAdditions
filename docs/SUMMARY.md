@@ -7,7 +7,7 @@
 * [Actionbar](actions/actionbar.md)
 * [Clear Item](actions/clear-item.md)
 * [Message](actions/message.md)
-* [Open Inventory](actions/open-inentory.md)
+* [Open Inventory](actions/open-inventory.md)
 * [Play Animation](actions/play-animation.md)
 * [Swing Hand](actions/swing-hand.md)
 * [Teleport](actions/teleport.md)
