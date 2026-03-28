@@ -9,6 +9,7 @@ import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.utils.Log;
 
@@ -151,16 +152,40 @@ public final class CreativeMenuManager {
         if (hasIcon(config, base))
             return namespace + ":item/ia_auto/" + id + "_icon";
 
+        String model = getDeclaredModel(config, base);
+        if (model != null)
+            return normalizeModelPath(model, namespace);
+
+        return namespace + ":item/ia_auto/" + id;
+    }
+
+    @Nullable
+    private static String getDeclaredModel(FileConfiguration config, String base) {
         String graphicsModel = config.getString(base + ".graphics.model");
         if (graphicsModel != null && !graphicsModel.isBlank())
-            return normalizeModelPath(graphicsModel, namespace);
+            return graphicsModel;
 
         String resourceModel = config.getString(base + ".resource.model_path");
         boolean generate = config.getBoolean(base + ".resource.generate", true);
         if (resourceModel != null && !resourceModel.isBlank() && !generate)
-            return normalizeModelPath(resourceModel, namespace);
+            return resourceModel;
 
-        return namespace + ":item/ia_auto/" + id;
+        String templateId = config.getString(base + ".variant_of");
+        if (templateId == null || templateId.isBlank())
+            return null;
+
+        String templateBase = "items." + templateId;
+
+        graphicsModel = config.getString(templateBase + ".graphics.model");
+        if (graphicsModel != null && !graphicsModel.isBlank())
+            return graphicsModel;
+
+        resourceModel = config.getString(templateBase + ".resource.model_path");
+        generate = config.getBoolean(templateBase + ".resource.generate", true);
+        if (resourceModel != null && !resourceModel.isBlank() && !generate)
+            return resourceModel;
+
+        return null;
     }
 
     /**
