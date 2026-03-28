@@ -9,6 +9,7 @@ import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.creative.PacketListener;
 import toutouchien.itemsadderadditions.creative.RegistryInjector;
 import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.VersionUtils;
 
 import java.util.List;
 
@@ -25,10 +26,12 @@ public final class ItemsAdderLoadListener implements Listener {
         plugin.actionsManager().reload();
         plugin.behavioursManager().reload();
 
-        if (ItemsAdderAdditions.instance().getConfig().getBoolean("features.creative_inventory_integration", false)) {
-            RegistryInjector.injectPaintingVariants(items);
-            PacketListener.updateCache(items);
-            plugin.creativeMenuManager().reload();
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_11)) {
+            if (ItemsAdderAdditions.instance().getConfig().getBoolean("features.creative_inventory_integration", false)) {
+                RegistryInjector.injectPaintingVariants(items);
+                PacketListener.updateCache(items);
+                plugin.creativeMenuManager().reload();
+            }
         }
 
         Log.success("IAA", "Reload complete.");

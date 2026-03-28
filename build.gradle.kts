@@ -12,7 +12,7 @@ val placeholderApiVersion: String by project
 val bStatsVersion: String by project
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.0-beta"
+version = "1.0.0-beta-2"
 
 repositories {
     mavenCentral()
@@ -41,7 +41,7 @@ paperweight {
 
 tasks {
     runServer {
-        minecraftVersion(minecraftVersion)
+        minecraftVersion("1.20.6")
 
         jvmArgs(
             "-Xmx4096M",
