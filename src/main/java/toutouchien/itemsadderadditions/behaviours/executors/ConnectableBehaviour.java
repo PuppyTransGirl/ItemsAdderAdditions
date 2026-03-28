@@ -302,7 +302,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
                 else
                     yaw = yawOf(FacingDirection.EAST);
 
-                yield new PlacementSpec(borderFurniture, yaw);
+                yield new PlacementSpec(endFurniture, yaw);
             }
 
             case 2 -> {
