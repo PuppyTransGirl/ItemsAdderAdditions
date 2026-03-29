@@ -5,4 +5,4 @@ play_emote:
     name: "wave"
 ```
 
-Play an emote when an event occurs on a target.
+Make a target play an emote when an event occurs.
