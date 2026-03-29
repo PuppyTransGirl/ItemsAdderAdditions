@@ -11,7 +11,7 @@ import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
-import toutouchien.itemsadderadditions.utils.PlaceholderAPIUtils;
+import toutouchien.itemsadderadditions.utils.other.PlaceholderAPIUtils;
 
 import java.time.Duration;
 

@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils.other;
+package toutouchien.itemsadderadditions.utils;
 
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;

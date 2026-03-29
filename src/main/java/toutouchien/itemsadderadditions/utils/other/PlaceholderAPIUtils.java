@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils;
+package toutouchien.itemsadderadditions.utils.other;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.util.TriState;
@@ -21,6 +21,7 @@ public final class PlaceholderAPIUtils {
                     Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")
             );
         }
+
         return placeholderAPILoaded == TriState.TRUE
                 ? PlaceholderAPI.setPlaceholders(player, text)
                 : text;

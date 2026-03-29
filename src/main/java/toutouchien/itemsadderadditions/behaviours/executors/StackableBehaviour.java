@@ -19,8 +19,8 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
-import toutouchien.itemsadderadditions.utils.Log;
-import toutouchien.itemsadderadditions.utils.other.SoundUtils;
+import toutouchien.itemsadderadditions.utils.SoundUtils;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.ArrayList;
 import java.util.List;

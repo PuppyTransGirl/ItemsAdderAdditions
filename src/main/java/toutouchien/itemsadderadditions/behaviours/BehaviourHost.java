@@ -2,7 +2,7 @@ package toutouchien.itemsadderadditions.behaviours;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
-import toutouchien.itemsadderadditions.utils.ItemCategory;
+import toutouchien.itemsadderadditions.utils.other.ItemCategory;
 
 /**
  * Immutable snapshot of an item's identity, passed to

@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils;
+package toutouchien.itemsadderadditions.utils.other;
 
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.configuration.file.FileConfiguration;

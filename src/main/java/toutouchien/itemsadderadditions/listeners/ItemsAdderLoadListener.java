@@ -8,8 +8,8 @@ import org.bukkit.event.Listener;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.creative.PacketListener;
 import toutouchien.itemsadderadditions.creative.RegistryInjector;
-import toutouchien.itemsadderadditions.utils.Log;
-import toutouchien.itemsadderadditions.utils.other.VersionUtils;
+import toutouchien.itemsadderadditions.utils.VersionUtils;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
 

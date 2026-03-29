@@ -1,18 +1,24 @@
-package toutouchien.itemsadderadditions.utils.other;
+package toutouchien.itemsadderadditions.utils;
 
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class ItemUtils {
-    public static int removeItemsFromInventory(HumanEntity human, ItemStack item, int amountToRemove) {
-        if (human == null || item == null || amountToRemove <= 0) return 0;
+    private ItemUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 
+    public static void removeItemsFromInventory(HumanEntity human, ItemStack item, int amountToRemove) {
         int removed = 0;
-        ItemStack[] contents = human.getInventory().getContents();
+        @Nullable ItemStack[] contents = human.getInventory().getContents();
 
         for (int i = 0; i < contents.length && removed < amountToRemove; i++) {
             ItemStack stack = contents[i];
-            if (stack == null) continue;
+            if (stack == null)
+                continue;
 
             if (stack.equals(item)) {
                 int stackAmount = stack.getAmount();
@@ -26,7 +32,5 @@ public class ItemUtils {
                     stack.setAmount(stackAmount - toRemove);
             }
         }
-
-        return removed;
     }
 }

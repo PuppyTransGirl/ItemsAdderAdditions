@@ -9,8 +9,8 @@ import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
-import toutouchien.itemsadderadditions.utils.other.ItemUtils;
-import toutouchien.itemsadderadditions.utils.other.NamespaceUtils;
+import toutouchien.itemsadderadditions.utils.ItemUtils;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 
 /**
  * Removes a specific ItemsAdder item from the inventory of the target human entity.

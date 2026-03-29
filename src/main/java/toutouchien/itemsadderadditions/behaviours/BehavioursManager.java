@@ -5,8 +5,8 @@ import toutouchien.itemsadderadditions.behaviours.executors.ConnectableBehaviour
 import toutouchien.itemsadderadditions.behaviours.executors.ContactDamageBehaviour;
 import toutouchien.itemsadderadditions.behaviours.executors.StackableBehaviour;
 import toutouchien.itemsadderadditions.behaviours.loading.BehaviourLoader;
-import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
-import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 /**
  * Entry point for the behaviours system.

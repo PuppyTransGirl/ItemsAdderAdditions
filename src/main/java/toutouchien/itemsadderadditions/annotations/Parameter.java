@@ -1,5 +1,8 @@
 package toutouchien.itemsadderadditions.annotations;
 
+import toutouchien.itemsadderadditions.utils.other.ConfigUtils;
+import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,7 +14,7 @@ import java.lang.annotation.Target;
  * <p>When present on a field inside an {@link toutouchien.itemsadderadditions.actions.ActionExecutor},
  * {@link toutouchien.itemsadderadditions.behaviours.BehaviourExecutor}, or
  * {@link toutouchien.itemsadderadditions.components.ComponentProperty},
- * {@link toutouchien.itemsadderadditions.utils.ParameterInjector} will read the
+ * {@link ParameterInjector} will read the
  * corresponding YAML key and inject the value into the field.
  *
  * <h3>Nested keys via {@code path}</h3>
@@ -67,7 +70,9 @@ public @interface Parameter {
      */
     String path() default "";
 
-    /** Expected Java type. Number types are auto-converted by {@link toutouchien.itemsadderadditions.utils.ConfigUtils}. */
+    /**
+     * Expected Java type. Number types are auto-converted by {@link ConfigUtils}.
+     */
     Class<?> type();
 
     /**

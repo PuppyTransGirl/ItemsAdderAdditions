@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils;
+package toutouchien.itemsadderadditions.utils.other;
 
 /**
  * Implemented by any executor type that identifies itself with a YAML config key.

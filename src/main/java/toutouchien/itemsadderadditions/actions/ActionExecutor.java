@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
-import toutouchien.itemsadderadditions.utils.Keyed;
-import toutouchien.itemsadderadditions.utils.ParameterInjector;
+import toutouchien.itemsadderadditions.utils.other.Keyed;
+import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
 
 import java.util.HashSet;
 import java.util.Set;

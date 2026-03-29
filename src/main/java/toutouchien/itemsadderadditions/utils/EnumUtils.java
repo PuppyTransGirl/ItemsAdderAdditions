@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils.other;
+package toutouchien.itemsadderadditions.utils;
 
 import com.google.common.base.Preconditions;
 import org.jspecify.annotations.NullMarked;

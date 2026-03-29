@@ -8,9 +8,9 @@ import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
-import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
-import toutouchien.itemsadderadditions.utils.ItemCategory;
-import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
+import toutouchien.itemsadderadditions.utils.other.ItemCategory;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 /**
  * Reads every CustomStack's YAML config, finds the {@code behaviours:} section,
@@ -31,7 +31,7 @@ import toutouchien.itemsadderadditions.utils.Log;
  * </pre>
  *
  * <p>Keys present in {@code behaviours:} that are not registered in
- * {@link toutouchien.itemsadderadditions.utils.ExecutorRegistry} are skipped silently - this covers all
+ * {@link ExecutorRegistry} are skipped silently - this covers all
  * ItemsAdder built-in behaviour keys ({@code furniture}, {@code complex_furniture},
  * {@code gun}, etc.) as well as keys from other plugins.
  */

@@ -14,8 +14,8 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
-import toutouchien.itemsadderadditions.utils.Log;
-import toutouchien.itemsadderadditions.utils.other.NamespaceUtils;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.*;
 

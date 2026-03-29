@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils.other;
+package toutouchien.itemsadderadditions.utils;
 
 import net.kyori.adventure.key.Key;
 import org.bukkit.Registry;

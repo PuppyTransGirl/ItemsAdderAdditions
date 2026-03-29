@@ -9,6 +9,7 @@
 * [Message](actions/message.md)
 * [Open Inventory](actions/open-inventory.md)
 * [Play Animation](actions/play-animation.md)
+* [Play Emote](actions/play-emote.md)
 * [Swing Hand](actions/swing-hand.md)
 * [Teleport](actions/teleport.md)
 * [Title](actions/title.md)

@@ -20,8 +20,8 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
-import toutouchien.itemsadderadditions.utils.ItemCategory;
-import toutouchien.itemsadderadditions.utils.other.PotionUtils;
+import toutouchien.itemsadderadditions.utils.PotionUtils;
+import toutouchien.itemsadderadditions.utils.other.ItemCategory;
 
 import java.util.*;
 import java.util.function.Predicate;

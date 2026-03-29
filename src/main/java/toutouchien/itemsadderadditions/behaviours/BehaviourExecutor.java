@@ -5,8 +5,8 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
-import toutouchien.itemsadderadditions.utils.Keyed;
-import toutouchien.itemsadderadditions.utils.ParameterInjector;
+import toutouchien.itemsadderadditions.utils.other.Keyed;
+import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
 
 /**
  * Base class for all custom item behaviours.

@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
-import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 /**
  * Intercepts the {@code set_creative_mode_slot} (0x37) packet before it is decoded.

@@ -11,8 +11,8 @@ import toutouchien.itemsadderadditions.creative.BytePacketListener;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.creative.PacketListener;
 import toutouchien.itemsadderadditions.listeners.ItemsAdderLoadListener;
-import toutouchien.itemsadderadditions.utils.Log;
-import toutouchien.itemsadderadditions.utils.other.VersionUtils;
+import toutouchien.itemsadderadditions.utils.VersionUtils;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
 

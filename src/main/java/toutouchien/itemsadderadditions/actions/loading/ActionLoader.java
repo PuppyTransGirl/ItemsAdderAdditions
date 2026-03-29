@@ -9,9 +9,9 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.TriggerKey;
 import toutouchien.itemsadderadditions.actions.TriggerType;
-import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
-import toutouchien.itemsadderadditions.utils.ItemCategory;
-import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
+import toutouchien.itemsadderadditions.utils.other.ItemCategory;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.Map;
 import java.util.Set;

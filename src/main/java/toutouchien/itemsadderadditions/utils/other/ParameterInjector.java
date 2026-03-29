@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils;
+package toutouchien.itemsadderadditions.utils.other;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.jspecify.annotations.NullMarked;
@@ -53,7 +53,8 @@ public final class ParameterInjector {
     public static boolean inject(Object target, @Nullable ConfigurationSection section, String itemName) {
         for (Field field : collectFields(target.getClass())) {
             Parameter param = field.getAnnotation(Parameter.class);
-            if (param == null) continue;
+            if (param == null)
+                continue;
 
             ConfigurationSection readFrom = resolveSection(section, param, itemName);
 
@@ -68,7 +69,7 @@ public final class ParameterInjector {
                 continue;
             }
 
-            Object raw   = readFrom.get(param.key());
+            Object raw = readFrom.get(param.key());
             Object value = ConfigUtils.coerceNumber(raw, param.type());
 
             try {
@@ -80,7 +81,8 @@ public final class ParameterInjector {
                 }
 
                 // Value is null or wrong type - leave default in place unless required.
-                if (value == null && !param.required()) continue;
+                if (value == null && !param.required())
+                    continue;
 
                 // Value is present but wrong type - null the field so behaviour is predictable.
                 field.set(target, null);
@@ -102,7 +104,7 @@ public final class ParameterInjector {
             } catch (ReflectiveOperationException e) {
                 Log.error(SUBSYSTEM,
                         "Failed to inject field '" + field.getName() + "' on "
-                        + target.getClass().getSimpleName() + " for item '" + itemName + "'", e);
+                                + target.getClass().getSimpleName() + " for item '" + itemName + "'", e);
                 return false;
             }
         }
@@ -175,6 +177,7 @@ public final class ParameterInjector {
             fields.addAll(Arrays.asList(cursor.getDeclaredFields()));
             cursor = cursor.getSuperclass();
         }
+
         return fields;
     }
 }

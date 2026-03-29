@@ -8,10 +8,10 @@ import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.components.annotations.Property;
 import toutouchien.itemsadderadditions.components.properties.UseCooldownProperty;
-import toutouchien.itemsadderadditions.utils.ConfigUtils;
-import toutouchien.itemsadderadditions.utils.Log;
-import toutouchien.itemsadderadditions.utils.ParameterInjector;
-import toutouchien.itemsadderadditions.utils.ReflectionUtils;
+import toutouchien.itemsadderadditions.utils.other.ConfigUtils;
+import toutouchien.itemsadderadditions.utils.other.Log;
+import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
+import toutouchien.itemsadderadditions.utils.other.ReflectionUtils;
 
 import java.util.List;
 

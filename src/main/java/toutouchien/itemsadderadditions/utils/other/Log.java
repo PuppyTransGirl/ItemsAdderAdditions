@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils;
+package toutouchien.itemsadderadditions.utils.other;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -169,7 +169,9 @@ public final class Log {
      * SLF4J-style {@code {}} placeholder substitution.
      */
     static String format(String template, @Nullable Object... args) {
-        if (args.length == 0) return template;
+        if (args.length == 0)
+            return template;
+
         StringBuilder sb = new StringBuilder(template.length() + 32);
         int argIdx = 0;
         int cursor = 0;
@@ -179,11 +181,13 @@ public final class Log {
                 sb.append(template, cursor, template.length());
                 break;
             }
+
             sb.append(template, cursor, next);
             Object arg = args[argIdx++];
             sb.append(arg == null ? "null" : arg);
             cursor = next + 2;
         }
+
         return sb.toString();
     }
 }

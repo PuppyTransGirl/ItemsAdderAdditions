@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils;
+package toutouchien.itemsadderadditions.utils.other;
 
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;

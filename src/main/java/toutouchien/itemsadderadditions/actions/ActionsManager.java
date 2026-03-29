@@ -3,8 +3,8 @@ package toutouchien.itemsadderadditions.actions;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.executors.*;
 import toutouchien.itemsadderadditions.actions.loading.ActionLoader;
-import toutouchien.itemsadderadditions.utils.ExecutorRegistry;
-import toutouchien.itemsadderadditions.utils.Log;
+import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 /**
  * Entry point for the actions system.
@@ -43,6 +43,7 @@ public final class ActionsManager {
                 new MessageAction(),
                 new OpenInventoryAction(),
                 new PlayAnimationAction(),
+                new PlayEmoteAction(),
                 new SwingHandAction(),
                 new TeleportAction(),
                 new TitleAction(),

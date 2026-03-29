@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils.other;
+package toutouchien.itemsadderadditions.utils;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -85,6 +85,7 @@ public final class SoundUtils {
         Object raw = section.get(key, def);
         if (raw instanceof Number n)
             return n.floatValue();
+
         return def;
     }
 }

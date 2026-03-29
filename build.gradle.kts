@@ -41,7 +41,7 @@ paperweight {
 
 tasks {
     runServer {
-        minecraftVersion("1.20.6")
+        minecraftVersion(minecraftVersion)
 
         jvmArgs(
             "-Xmx4096M",
