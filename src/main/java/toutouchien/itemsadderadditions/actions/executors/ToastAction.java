@@ -14,8 +14,8 @@ import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.utils.NamespaceUtils;
+import toutouchien.itemsadderadditions.utils.ToastUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
-import toutouchien.itemsadderadditions.utils.other.ToastUtils;
 
 import java.util.List;
 import java.util.Locale;

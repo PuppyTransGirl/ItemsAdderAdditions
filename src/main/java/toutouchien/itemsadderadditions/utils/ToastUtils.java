@@ -1,66 +1,74 @@
 package toutouchien.itemsadderadditions.utils;
 
+import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
+import net.minecraft.advancements.*;
+import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 
-import java.util.Locale;
-import java.util.UUID;
+import java.time.Instant;
+import java.util.*;
 
 public final class ToastUtils {
+    private static final Identifier TOAST_ID = Identifier.fromNamespaceAndPath("itemsadderadditions", "toast_notification");
+    private static final AdvancementRequirements REQUIREMENTS = new AdvancementRequirements(
+            List.of(List.of("trigger"))
+    );
+
     private ToastUtils() {
         throw new IllegalStateException("Utility class");
     }
 
     public static void sendToast(Player player, ItemStack itemStack, Component title, String frame) {
-        String json = """
-                    {
-                        "criteria": {
-                          "trigger": {
-                            "trigger": "minecraft:impossible"
-                          }
-                        },
-                        "display": {
-                            "icon": {
-                                "id": "%s",
-                                "count": "%s",
-                                "components": %s
-                            },
-                            "title": %s,
-                            "description": "This isn't shown",
-                            "frame": "%s",
-                            "show_toast": true,
-                            "announce_to_chat": false,
-                            "hidden": true
-                        },
-                        "requirements": [
-                          [
-                            "trigger"
-                          ]
-                        ]
-                    }
-                """.formatted(
-                "minecraft:" + itemStack.getType().name().toLowerCase(Locale.ROOT),
-                itemStack.getAmount(),
-                Bukkit.getUnsafe().serializeItemAsJson(itemStack).getAsJsonObject("components").toString(),
-                JSONComponentSerializer.json().serialize(title),
-                frame
+        AdvancementType type = AdvancementType.valueOf(frame.toUpperCase(Locale.ROOT));
+        DisplayInfo displayInfo = new DisplayInfo(
+                CraftItemStack.asNMSCopy(itemStack),
+                PaperAdventure.asVanilla(title),
+                net.minecraft.network.chat.Component.empty(),
+                Optional.empty(),
+                type,
+                true,
+                false,
+                true
         );
 
-        NamespacedKey key = new NamespacedKey(ItemsAdderAdditions.instance(), UUID.randomUUID().toString());
-        Bukkit.getUnsafe().loadAdvancement(
-                key, json
+        Advancement advancement = new Advancement(
+                Optional.empty(),
+                Optional.of(displayInfo),
+                AdvancementRewards.EMPTY,
+                Collections.emptyMap(),
+                REQUIREMENTS,
+                false,
+                Optional.empty()
         );
 
-        player.getAdvancementProgress(Bukkit.getAdvancement(key)).awardCriteria("trigger");
+        AdvancementHolder holder = new AdvancementHolder(TOAST_ID, advancement);
 
-        Bukkit.getScheduler().runTaskLater(ItemsAdderAdditions.instance(), () -> {
-            player.getAdvancementProgress(Bukkit.getAdvancement(key)).revokeCriteria("trigger");
-            Bukkit.getUnsafe().removeAdvancement(key);
-        }, 10L);
+        AdvancementProgress progress = ReflectionUtils.newAdvancementProgress(
+                Map.of("trigger", new CriterionProgress(Instant.now()))
+        );
+
+        ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
+
+        connection.send(new ClientboundUpdateAdvancementsPacket(
+                false,
+                List.of(holder),
+                Collections.emptySet(),
+                Map.of(TOAST_ID, progress),
+                true
+        ));
+
+        connection.send(new ClientboundUpdateAdvancementsPacket(
+                false,
+                Collections.emptyList(),
+                Set.of(TOAST_ID),
+                Map.of(),
+                false
+        ));
     }
 }
