@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions.actions;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.jspecify.annotations.NullMarked;
@@ -25,6 +26,9 @@ public abstract class ActionExecutor implements Keyed {
 
     @Parameter(key = "target", type = String.class)
     protected String target = "self";
+
+    @Parameter(key = "target_radius", type = Double.class)
+    protected double targetRadius = 0;
 
     public final String key() {
         return annotation().key();
@@ -88,6 +92,19 @@ public abstract class ActionExecutor implements Keyed {
             entities.clear();
             if (context.target() != null)
                 entities.add(context.target());
+        }
+
+        if (target.equalsIgnoreCase("radius") && targetRadius != 0) {
+            entities.clear();
+            Location center;
+            if (context.target() != null)
+                center = context.target().getLocation();
+            else if (context.block() != null)
+                center = context.block().getLocation();
+            else
+                center = context.player().getLocation();
+
+            entities.addAll(center.getNearbyEntities(targetRadius / 2, targetRadius / 2, targetRadius / 2));
         }
 
         for (Entity entity : entities) {
