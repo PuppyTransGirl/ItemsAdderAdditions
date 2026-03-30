@@ -17,4 +17,4 @@ behaviours:
   stackable: true
 
 features:
-  creative_inventory_integration: false
+  creative_inventory_integration: true
