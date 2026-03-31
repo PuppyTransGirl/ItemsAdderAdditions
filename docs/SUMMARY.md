@@ -4,6 +4,7 @@
 
 ## Actions
 
+* [Action Parameters](actions/parameters.md)
 * [Actionbar](actions/actionbar.md)
 * [Clear Item](actions/clear-item.md)
 * [Message](actions/message.md)
@@ -21,3 +22,7 @@
 * [Connectable](behaviours/connectable.md)
 * [Contact Damage](behaviours/contact-damage.md)
 * [Stackable](behaviours/stackable.md)
+
+## Features
+
+* [Creative Inventory Integration](features/creative-inventory-integration.md)
