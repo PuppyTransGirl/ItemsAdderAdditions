@@ -1,7 +1,6 @@
 # Creative Inventory Integration
 
-**Credits** – This feature was originally coded by **Misieur**  
-([His Github](https://github.com/Misieur)).
+**Credits** - This feature was originally coded by **Misieur** ([His Github](https://github.com/Misieur)).
 
 {% hint style="warn" %}
 **Requires Paper 1.21.11 or higher.** The feature is silently disabled on older versions.
