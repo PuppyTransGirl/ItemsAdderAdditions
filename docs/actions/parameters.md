@@ -24,7 +24,7 @@ Wait this many ticks before executing the action. 20 ticks = 1 second. Defaults 
 ```yaml
 message:
   text: "<gold>Loading..."
-  delay: 40  # 2 seconds after the trigger
+  delay: 40 # 2 seconds after the trigger
 ```
 
 ### `target`
