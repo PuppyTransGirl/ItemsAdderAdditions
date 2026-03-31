@@ -30,7 +30,7 @@ The feature is controlled in `config.yml`:
 
 ```yaml
 features:
-    creative_inventory_integration: true
+  creative_inventory_integration: true
 ```
 
 Set to `false` to disable it entirely. The plugin will not generate any resource pack files or inject any registry
@@ -43,9 +43,9 @@ On first setup the plugin automatically adds itself to ItemsAdder's resource pac
 ```yaml
 # In ItemsAdder/config.yml (managed automatically)
 resource-pack:
-    zip:
-        merge_other_plugins_resourcepacks_folders:
-            - ItemsAdderAdditions/resourcepack
+  zip:
+    merge_other_plugins_resourcepacks_folders:
+      - ItemsAdderAdditions/resourcepack
 ```
 
 If for any reason this entry is missing (e.g. the file wasn't writable), you can add it manually. The plugin logs a

@@ -58,14 +58,13 @@ actionbar:
 ## Full example
 
 ```yaml
-items:
-  my_item:
-    events:
-      interact:
-        right:
-          actionbar:
-            text: "<aqua>Right-clicked!"
-            permission: "myserver.vip" # Only players with this permission will be able to trigger this
-            delay: 10 # Half a second delay
-            target: self # Apply to the clicker only
+my_item:
+  events:
+    interact:
+      right:
+        actionbar:
+          text: "<aqua>Right-clicked!"
+          permission: "myserver.vip" # Only players with this permission will be able to trigger this
+          delay: 10 # Half a second delay
+          target: self # Apply to the clicker only
 ```
