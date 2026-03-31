@@ -1,18 +1,14 @@
 # Creative Inventory Integration
 
-> **Requires Paper 1.21.11 or higher.** The feature is silently disabled on older versions.
+**Credits** – This feature was originally coded by **Misieur**  
+([His Github](https://github.com/Misieur)).
+
+{% hint style="warn" %}
+**Requires Paper 1.21.11 or higher.** The feature is silently disabled on older versions.
+{% endhint %}
 
 This feature automatically adds every custom item registered by ItemsAdder into the vanilla creative menu. No manual
 configuration per item is needed - it picks up everything ItemsAdder loads.
-
-## How it works
-
-The integration hijacks the vanilla painting item. Each custom painting "variant" registered in the server's registry
-appears as a separate entry in the Decorations tab, and ItemsAdderAdditions overrides the painting's item model so each
-entry renders with the correct custom item icon instead of the default painting texture.
-
-This is fully client-side - once the resource pack is applied the icons look exactly as they do in ItemsAdder's own
-menus.
 
 ## Setup
 
@@ -22,11 +18,11 @@ The plugin handles everything automatically on first run. You just need to do tw
 2. **Reconnect** to the server (or have players reconnect). The creative menu updates when the client joins, not during
    a reload.
 
-That's it. After this, the Decorations tab will contain all your custom items.
+That's it. After this, the creative inventory will contain all your custom items.
 
 {% hint style="info" %}
-Every time you add or remove custom items via ItemsAdder, restart the server and run `/iazip` again to see the updated
-list.
+Every time you add or remove custom items via ItemsAdder, restart the server and run `/iazip` again to see them in your
+creative inventory.
 {% endhint %}
 
 ## Enabling / disabling

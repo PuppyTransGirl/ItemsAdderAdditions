@@ -7,6 +7,11 @@ Everything is configured directly inside your existing ItemsAdder item/block YAM
 
 ## What's included
 
+### 🎨 Features
+
+* [Creative Inventory Integration](features/creative-inventory-integration.md) - Automatically populate the vanilla
+  creative menu with all your custom items *(requires 1.21.11+)*
+
 ### ⚡ Actions
 
 Actions let you run effects when a player interacts with a custom item, block, or furniture. Attach them to any
@@ -36,28 +41,23 @@ Behaviours change how a custom block or furniture works in the world. They attac
 * [Contact Damage](behaviours/contact-damage.md) - Deal damage to players/entities that touch the block
 * [Stackable](behaviours/stackable.md) - Stack one custom block on top of another to form a multi-step structure
 
-### 🎨 Features
-
-* [Creative Inventory Integration](features/creative-inventory-integration.md) - Automatically populate the vanilla
-  creative menu with all your custom items *(requires 1.21.11+)*
-
 ## Basic action example
 
 Here's a quick example of how to attach an action to a custom item inside your ItemsAdder YAML:
 
 ```yaml
 items:
-    my_sword:
-        # ... your item config ...
-        events:
-            interact:
-                right:
-                    actionbar:
-                        text: "<green>You right-clicked!"
-                    permission: "myplugin.use" # Optional - see Action Parameters
+  my_sword:
+    # ... your item config ...
+    events:
+      interact:
+        right:
+          actionbar:
+            text: "<green>You right-clicked!"
+            permission: "myplugin.use" # Optional - see Action Parameters
 ```
 
-> Actions are loaded automatically after every `/iareload`. No restart needed.
+Actions are loaded automatically after every `/iareload`. No restart needed.
 
 ## Requirements
 

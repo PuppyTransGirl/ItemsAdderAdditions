@@ -2,6 +2,10 @@
 
 * [ItemsAdderAdditions](README.md)
 
+## Features
+
+* [Creative Inventory Integration](features/creative-inventory-integration.md)
+
 ## Actions
 
 * [Action Parameters](actions/parameters.md)
@@ -22,7 +26,3 @@
 * [Connectable](behaviours/connectable.md)
 * [Contact Damage](behaviours/contact-damage.md)
 * [Stackable](behaviours/stackable.md)
-
-## Features
-
-* [Creative Inventory Integration](features/creative-inventory-integration.md)

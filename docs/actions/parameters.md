@@ -13,8 +13,8 @@ If set, the action only fires if the player has this permission node. Players wi
 
 ```yaml
 actionbar:
-    text: "<green>Hello!"
-    permission: "myplugin.greet"
+  text: "<green>Hello!"
+  permission: "myplugin.greet"
 ```
 
 ### `delay`
@@ -23,8 +23,8 @@ Wait this many ticks before executing the action. 20 ticks = 1 second. Defaults 
 
 ```yaml
 message:
-    text: "<gold>Loading..."
-    delay: 40  # 2 seconds after the trigger
+  text: "<gold>Loading..."
+  delay: 40  # 2 seconds after the trigger
 ```
 
 ### `target`
@@ -40,8 +40,8 @@ Controls who the action is applied to. Defaults to `self`.
 
 ```yaml
 message:
-    text: "<red>You hit someone!"
-    target: other
+  text: "<red>You hit someone!"
+  target: other
 ```
 
 ### `target_radius`
@@ -50,22 +50,22 @@ Only used when `target: radius`. Defines the diameter of the sphere (in blocks) 
 
 ```yaml
 actionbar:
-    text: "<yellow>Area effect!"
-    target: radius
-    target_radius: 10
+  text: "<yellow>Area effect!"
+  target: radius
+  target_radius: 10
 ```
 
 ## Full example
 
 ```yaml
 items:
-    my_item:
-        events:
-            interact:
-                right:
-                    actionbar:
-                        text: "<aqua>Right-clicked!"
-                        permission: "myserver.vip" # Only players with this permission will be able to trigger this
-                        delay: 10 # Half a second delay
-                        target: self # Apply to the clicker only
+  my_item:
+    events:
+      interact:
+        right:
+          actionbar:
+            text: "<aqua>Right-clicked!"
+            permission: "myserver.vip" # Only players with this permission will be able to trigger this
+            delay: 10 # Half a second delay
+            target: self # Apply to the clicker only
 ```
