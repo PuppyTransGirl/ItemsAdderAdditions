@@ -64,3 +64,8 @@ Actions are loaded automatically after every `/iareload`. No restart needed.
 * **ItemsAdder** (latest recommended)
 * **Paper** 1.20.6 or higher
 * Creative Inventory Integration requires **1.21.11 or higher**
+
+## Optional example pack
+
+A simple pack that shows some of the features of ItemsAdderAdditions. You can download it by following the link.
+[Pack download link](https://github.com/bruhhhwarrior/iaadditions/releases/latest)
