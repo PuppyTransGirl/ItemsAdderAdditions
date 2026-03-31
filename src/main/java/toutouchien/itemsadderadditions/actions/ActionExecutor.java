@@ -108,16 +108,18 @@ public abstract class ActionExecutor implements Keyed {
         }
 
         for (Entity entity : entities) {
-            context.runOn(entity);
-
             if (delay <= 0) {
+                context.runOn(entity);
                 execute(context);
                 continue;
             }
 
             Bukkit.getScheduler().runTaskLater(
                     ItemsAdderAdditions.instance(),
-                    () -> execute(context),
+                    () -> {
+                        context.runOn(entity);
+                        execute(context);
+                    },
                     delay
             );
         }
