@@ -7,6 +7,7 @@ import toutouchien.itemsadderadditions.actions.ActionsListener;
 import toutouchien.itemsadderadditions.actions.ActionsManager;
 import toutouchien.itemsadderadditions.behaviours.BehavioursManager;
 import toutouchien.itemsadderadditions.components.ComponentsManager;
+import toutouchien.itemsadderadditions.converter.ConverterV100V101;
 import toutouchien.itemsadderadditions.creative.BytePacketListener;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.creative.PacketListener;
@@ -39,6 +40,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
+        runConverters();
+
         this.bStats = new Metrics(this, BSTATS_PLUGIN_ID);
 
         this.actionsManager = new ActionsManager();
@@ -57,6 +60,10 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
         if (this.getConfig().getBoolean("update-checker.enabled", true))
             new UpdateChecker(this, MODRINTH_PROJECT_ID);
+    }
+
+    private void runConverters() {
+        ConverterV100V101.run();
     }
 
     @Override
