@@ -1,6 +1,5 @@
 package toutouchien.itemsadderadditions.actions;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -9,11 +8,13 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
+import toutouchien.itemsadderadditions.utils.Task;
 import toutouchien.itemsadderadditions.utils.other.Keyed;
 import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @NullMarked
 public abstract class ActionExecutor implements Keyed {
@@ -114,13 +115,15 @@ public abstract class ActionExecutor implements Keyed {
                 continue;
             }
 
-            Bukkit.getScheduler().runTaskLater(
-                    ItemsAdderAdditions.instance(),
-                    () -> {
+            Task.runDelayed(
+                    task -> {
                         context.runOn(entity);
                         execute(context);
                     },
-                    delay
+                    ItemsAdderAdditions.instance(),
+                    entity,
+                    delay * 50L,
+                    TimeUnit.MILLISECONDS
             );
         }
     }

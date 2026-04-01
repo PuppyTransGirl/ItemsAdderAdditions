@@ -11,12 +11,14 @@ import toutouchien.itemsadderadditions.creative.BytePacketListener;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.creative.PacketListener;
 import toutouchien.itemsadderadditions.listeners.ItemsAdderLoadListener;
+import toutouchien.itemsadderadditions.updatechecker.UpdateChecker;
 import toutouchien.itemsadderadditions.utils.VersionUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
 
 public class ItemsAdderAdditions extends JavaPlugin {
+    private static final String MODRINTH_PROJECT_ID = "z7nRcGQf";
     private static final int BSTATS_PLUGIN_ID = 30264;
 
     private static ItemsAdderAdditions instance;
@@ -37,6 +39,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
+        this.bStats = new Metrics(this, BSTATS_PLUGIN_ID);
+
         this.actionsManager = new ActionsManager();
         this.behavioursManager = new BehavioursManager();
         if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_11)) {
@@ -51,7 +55,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
         registerListeners();
 
-        this.bStats = new Metrics(this, BSTATS_PLUGIN_ID);
+        if (this.getConfig().getBoolean("update-checker.enabled", true))
+            new UpdateChecker(this, MODRINTH_PROJECT_ID);
     }
 
     @Override

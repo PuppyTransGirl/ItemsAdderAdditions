@@ -120,27 +120,12 @@ public abstract class BehaviourExecutor implements Keyed {
      * Called once after {@link Parameter}
      * fields have been injected.
      *
-     * <p>Typical usage:
-     * <ul>
-     *   <li>Register this executor as a Bukkit {@link org.bukkit.event.Listener}:
-     *       {@code Bukkit.getPluginManager().registerEvents(this, host.plugin())}</li>
-     *   <li>Start a repeating scheduler task:
-     *       {@code Bukkit.getScheduler().runTaskTimer(host.plugin(), this::tick, 0L, interval)}</li>
-     * </ul>
-     *
      * @param host the item's identity and plugin reference
      */
     protected abstract void onLoad(BehaviourHost host);
 
     /**
      * Called before this executor is discarded (reload or shutdown).
-     *
-     * <p>Typical usage:
-     * <ul>
-     *   <li>Unregister listeners: {@code HandlerList.unregisterAll(this)}</li>
-     *   <li>Cancel scheduled tasks: {@code task.cancel()}</li>
-     *   <li>Clear per-player state maps: {@code cooldowns.clear()}</li>
-     * </ul>
      *
      * @param host the same host that was passed to {@link #onLoad}
      */

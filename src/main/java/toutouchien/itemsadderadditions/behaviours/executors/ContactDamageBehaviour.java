@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.behaviours.executors;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -13,7 +14,6 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.scheduler.BukkitTask;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.annotations.Parameter;
@@ -21,9 +21,11 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
 import toutouchien.itemsadderadditions.utils.PotionUtils;
+import toutouchien.itemsadderadditions.utils.Task;
 import toutouchien.itemsadderadditions.utils.other.ItemCategory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 /**
@@ -97,7 +99,7 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
      */
     private boolean topFaceActive;
 
-    @Nullable private BukkitTask task;
+    @Nullable private ScheduledTask task;
     @Nullable private String namespacedID;
     @Nullable private ItemCategory category;
 
@@ -151,7 +153,7 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
     protected void onLoad(BehaviourHost host) {
         this.namespacedID = host.namespacedID();
         this.category = host.category();
-        task = Bukkit.getScheduler().runTaskTimer(host.plugin(), this::tick, 100L, 2L);
+        task = Task.syncRepeat(task -> this.tick(), host.plugin(), 100L * 50L, 2L * 50L, TimeUnit.MILLISECONDS);
     }
 
     @Override

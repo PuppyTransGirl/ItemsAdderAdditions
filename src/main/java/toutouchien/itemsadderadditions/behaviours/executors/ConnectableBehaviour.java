@@ -15,6 +15,7 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
 import toutouchien.itemsadderadditions.utils.NamespaceUtils;
+import toutouchien.itemsadderadditions.utils.Task;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.*;
@@ -170,16 +171,18 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
 
         if (type == ConnectableType.STAIR)
             canonicalFacing.put(loc, yawToFacing(placed.getEntity().getYaw()));
+        Task.sync(
+                task -> {
+                    CustomFurniture current = CustomFurniture.byAlreadySpawned(loc.getBlock());
+                    if (current == null || !isOwnFurniture(current)) return;
 
-        Bukkit.getScheduler().runTask(host.plugin(), () -> {
-            CustomFurniture current = CustomFurniture.byAlreadySpawned(loc.getBlock());
-            if (current == null || !isOwnFurniture(current)) return;
+                    updateShapeAt(current);
 
-            updateShapeAt(current);
-
-            // Wait one more tick for replaceFurniture() to settle, then update neighbours.
-            Bukkit.getScheduler().runTask(host.plugin(), () -> updateNeighboursOf(loc));
-        });
+                    // Wait one more tick for replaceFurniture() to settle, then update neighbours.
+                    Task.sync(task1 -> updateNeighboursOf(loc), host.plugin());
+                },
+                host.plugin()
+        );
     }
 
     @EventHandler
@@ -192,7 +195,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         canonicalFacing.remove(loc);
 
         // Defer one tick so the entity is fully gone before neighbours recalculate.
-        Bukkit.getScheduler().runTask(host.plugin(), () -> updateNeighboursOf(loc));
+        Task.sync(task -> updateNeighboursOf(loc), host.plugin());
     }
 
     private void updateShapeAt(CustomFurniture target) {
@@ -415,7 +418,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
             current.replaceFurniture(targetID);
             current.getEntity().setRotation(targetYaw, 0);
         } finally {
-            Bukkit.getScheduler().runTask(host.plugin(), () -> updating.remove(loc));
+            Task.sync(task -> updating.remove(loc), host.plugin());
         }
     }
 
