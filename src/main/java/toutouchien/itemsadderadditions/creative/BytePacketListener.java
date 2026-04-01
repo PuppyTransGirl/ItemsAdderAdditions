@@ -36,15 +36,15 @@ import toutouchien.itemsadderadditions.utils.other.Log;
  * </ol>
  *
  * <p>Must be injected <em>after</em> {@link PacketListener#inject()} so that
- * {@code "itemsadder_additions_packet_listener"} is already in the pipeline.
+ * {@code "iaadditions_packet_listener"} is already in the pipeline.
  */
 public final class BytePacketListener {
     public static void inject() {
         ChannelInitializeListenerHolder.addListener(
-                Key.key("itemsadder_additions", "byte_packet_listener"),
+                Key.key("iaadditions", "byte_packet_listener"),
                 channel -> channel.pipeline().addBefore(
                         "decoder",
-                        "itemsadder_additions_byte_packet_listener",
+                        "iaadditions_byte_packet_listener",
                         new ByteChannelDupeHandler()
                 )
         );
@@ -158,7 +158,7 @@ public final class BytePacketListener {
 
         private static PacketListener.ChannelDupeHandler getDupeHandler(ChannelHandlerContext ctx) {
             return (PacketListener.ChannelDupeHandler) ctx.pipeline()
-                    .get("itemsadder_additions_packet_listener");
+                    .get("iaadditions_packet_listener");
         }
 
         private static boolean isPlay(ChannelHandlerContext ctx) {

@@ -44,6 +44,7 @@ public final class ActionsManager {
                 new OpenInventoryAction(),
                 new PlayAnimationAction(),
                 new PlayEmoteAction(),
+                new ShootFireballAction(),
                 new SwingHandAction(),
                 new TeleportAction(),
                 new TitleAction(),

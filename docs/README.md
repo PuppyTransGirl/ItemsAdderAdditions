@@ -22,6 +22,7 @@ ItemsAdder item under the `events:` section.
 * [Message](actions/message.md) - Send a chat message
 * [Open Inventory](actions/open-inventory.md) - Open a vanilla workstation GUI
 * [Play Animation](actions/play-animation.md) - Trigger a complex furniture animation
+* [Shoot Fireball](actions/shoot-fireball.md) - Shoot a fireball
 * [Play Emote](actions/play-emote.md) - Make a player perform an emote
 * [Swing Hand](actions/swing-hand.md) - Swing the player's main or off hand
 * [Teleport](actions/teleport.md) - Teleport the player to fixed coordinates

@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.*;
 
 public final class ToastUtils {
-    private static final Identifier TOAST_ID = Identifier.fromNamespaceAndPath("itemsadderadditions", "toast_notification");
+    private static final Identifier TOAST_ID = Identifier.fromNamespaceAndPath("iaadditions", "toast_notification");
     private static final AdvancementRequirements REQUIREMENTS = new AdvancementRequirements(
             List.of(List.of("trigger"))
     );

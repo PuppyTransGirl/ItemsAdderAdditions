@@ -1,3 +1,6 @@
+features:
+  creative_inventory_integration: true
+
 actions:
   actionbar: true
   clear_item: true
@@ -5,6 +8,7 @@ actions:
   open_inventory: true
   play_animation: true
   play_emote: true
+  shoot_fireball: true
   swing_hand: true
   teleport: true
   title: true
@@ -15,9 +19,6 @@ behaviours:
   connectable: true
   contact_damage: true
   stackable: true
-
-features:
-  creative_inventory_integration: true
 
 update-checker:
   enabled: true

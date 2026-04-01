@@ -242,7 +242,7 @@ public final class CreativeMenuManager {
     }
 
     private void writeBlankPaintingTexture() {
-        File out = resourcePackFile("assets/itemsadder_additions/textures/painting/placeholder.png");
+        File out = resourcePackFile("assets/iaadditions/textures/painting/placeholder.png");
         if (out.exists())
             return;
 

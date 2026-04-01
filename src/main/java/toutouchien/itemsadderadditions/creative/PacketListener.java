@@ -44,15 +44,15 @@ public final class PacketListener {
      * Must be called from {@code onEnable} before any player connects.
      *
      * <p>Must be called <em>before</em> {@link BytePacketListener#inject()} so that
-     * {@code "itemsadder_additions_packet_listener"} already exists in the pipeline
+     * {@code "iaadditions_packet_listener"} already exists in the pipeline
      * when {@code BytePacketListener} looks it up.
      */
     public static void inject() {
         ChannelInitializeListenerHolder.addListener(
-            Key.key("itemsadder_additions", "packet_listener"),
+            Key.key("iaadditions", "packet_listener"),
             channel -> channel.pipeline().addBefore(
                 "decoder",
-                "itemsadder_additions_packet_listener",
+                "iaadditions_packet_listener",
                 new ChannelDupeHandler()
             )
         );
