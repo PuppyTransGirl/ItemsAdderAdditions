@@ -18,3 +18,7 @@ behaviours:
 
 features:
   creative_inventory_integration: true
+
+update-checker:
+  enabled: true
+  on-join: true
