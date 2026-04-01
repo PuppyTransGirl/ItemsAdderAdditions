@@ -30,6 +30,9 @@ public class UpdateCheckerListener implements Listener {
         if (!player.hasPermission(pluginName + ".update-checker"))
             return;
 
-        player.sendMessage("PLACEHOLDER".formatted(this.currentVersion, this.latestVersion));
+        player.sendRichMessage("""
+                <gradient:#AC52D4:#6C3484>ItemsAdderAdditions</gradient><#999999>)</#999999> <#B0AEC1>There is a new version: <#F27474>%s</#F27474> → <#7AF291>%s</#7AF291></#B0AEC1>
+                <#B0AEC1>Download link: <#AC52D4><click:open_url:"https://modrinth.com/plugin/itemsadderadditions">https://modrinth.com/plugin/itemsadderadditions</click></#AC52D4></#B0AEC1>
+                """.formatted(this.currentVersion, this.latestVersion));
     }
 }

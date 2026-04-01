@@ -30,7 +30,6 @@ import org.jspecify.annotations.Nullable;
  */
 @NullMarked
 public final class Log {
-
     // ItemsAdder palette - taken verbatim from en.yml
     private static final TextColor C_PREFIX_START = TextColor.fromHexString("#ac52d4");
     private static final TextColor C_PREFIX_END = TextColor.fromHexString("#6c3484");

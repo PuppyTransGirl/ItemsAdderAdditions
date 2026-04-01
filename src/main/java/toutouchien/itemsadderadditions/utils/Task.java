@@ -27,7 +27,7 @@ public final class Task {
 
     private static long millisToCeilTicks(long millis) {
         long ticks = (millis + 49) / 50; // ceil to next tick
-        return Math.max(1L, ticks);
+        return Math.max(0L, ticks);
     }
 
     /**
@@ -61,7 +61,7 @@ public final class Task {
         Preconditions.checkNotNull(plugin, "plugin cannot be null");
         Preconditions.checkNotNull(timeUnit, "timeUnit cannot be null");
 
-        long millis = Math.max(1L, timeUnit.toMillis(delay));
+        long millis = Math.max(0L, timeUnit.toMillis(delay));
         long ticks = millisToCeilTicks(millis);
         return Bukkit.getGlobalRegionScheduler().runDelayed(plugin, consumer, ticks);
     }
@@ -84,8 +84,8 @@ public final class Task {
         Preconditions.checkNotNull(plugin, "plugin cannot be null");
         Preconditions.checkNotNull(timeUnit, "timeUnit cannot be null");
 
-        long delayMillis = Math.max(1L, timeUnit.toMillis(delay));
-        long intervalMillis = Math.max(1L, timeUnit.toMillis(interval));
+        long delayMillis = Math.max(0L, timeUnit.toMillis(delay));
+        long intervalMillis = Math.max(0L, timeUnit.toMillis(interval));
         long delayTicks = millisToCeilTicks(delayMillis);
         long intervalTicks = millisToCeilTicks(intervalMillis);
 
@@ -122,7 +122,7 @@ public final class Task {
         Preconditions.checkNotNull(plugin, "plugin cannot be null");
         Preconditions.checkNotNull(timeUnit, "timeUnit cannot be null");
 
-        long d = Math.max(1L, delay);
+        long d = Math.max(0L, delay);
         return Bukkit.getAsyncScheduler().runDelayed(plugin, consumer, d, timeUnit);
     }
 
@@ -143,8 +143,8 @@ public final class Task {
         Preconditions.checkNotNull(plugin, "plugin cannot be null");
         Preconditions.checkNotNull(timeUnit, "timeUnit cannot be null");
 
-        long d = Math.max(1L, delay);
-        long i = Math.max(1L, interval);
+        long d = Math.max(0L, delay);
+        long i = Math.max(0L, interval);
         return Bukkit.getAsyncScheduler().runAtFixedRate(plugin, consumer, d, i, timeUnit);
     }
 
@@ -189,7 +189,7 @@ public final class Task {
         Preconditions.checkNotNull(location, "location cannot be null");
         Preconditions.checkNotNull(timeUnit, "timeUnit cannot be null");
 
-        long millis = Math.max(1L, timeUnit.toMillis(delay));
+        long millis = Math.max(0L, timeUnit.toMillis(delay));
         long ticks = millisToCeilTicks(millis);
         return Bukkit.getRegionScheduler().runDelayed(
                 plugin,
@@ -221,8 +221,8 @@ public final class Task {
         Preconditions.checkNotNull(location, "location cannot be null");
         Preconditions.checkNotNull(timeUnit, "timeUnit cannot be null");
 
-        long initialMillis = Math.max(1L, timeUnit.toMillis(initialDelay));
-        long periodMillis = Math.max(1L, timeUnit.toMillis(period));
+        long initialMillis = Math.max(0L, timeUnit.toMillis(initialDelay));
+        long periodMillis = Math.max(0L, timeUnit.toMillis(period));
         long initialTicks = millisToCeilTicks(initialMillis);
         long periodTicks = millisToCeilTicks(periodMillis);
 
@@ -273,7 +273,7 @@ public final class Task {
         Preconditions.checkNotNull(entity, "entity cannot be null");
         Preconditions.checkNotNull(timeUnit, "timeUnit cannot be null");
 
-        long millis = Math.max(1L, timeUnit.toMillis(delay));
+        long millis = Math.max(0L, timeUnit.toMillis(delay));
         long ticks = millisToCeilTicks(millis);
         return entity.getScheduler().runDelayed(plugin, consumer, null, ticks);
     }
@@ -300,8 +300,8 @@ public final class Task {
         Preconditions.checkNotNull(entity, "entity cannot be null");
         Preconditions.checkNotNull(timeUnit, "timeUnit cannot be null");
 
-        long initialMillis = Math.max(1L, timeUnit.toMillis(initialDelay));
-        long periodMillis = Math.max(1L, timeUnit.toMillis(period));
+        long initialMillis = Math.max(0L, timeUnit.toMillis(initialDelay));
+        long periodMillis = Math.max(0L, timeUnit.toMillis(period));
         long initialTicks = millisToCeilTicks(initialMillis);
         long periodTicks = millisToCeilTicks(periodMillis);
 
