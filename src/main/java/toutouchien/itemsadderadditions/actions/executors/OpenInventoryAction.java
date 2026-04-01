@@ -1,13 +1,21 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
+import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.MenuType;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
+import toutouchien.itemsadderadditions.utils.VersionUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
+import toutouchien.itemsadderadditions.utils.other.PlaceholderAPIUtils;
 
 import java.util.Locale;
 
@@ -27,32 +35,56 @@ import java.util.Locale;
 @NullMarked
 @Action(key = "open_inventory")
 public final class OpenInventoryAction extends ActionExecutor {
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+
     @Parameter(key = "type", type = String.class, required = true)
     private String type;
 
-    /**
-     * Note on deprecated API usage:
-     * The Paper API introduced non-deprecated alternatives for opening the
-     * workbench/enchanting GUIs in 1.21.4+.
-     * <p>
-     * However, ItemsAdder supports Minecraft server
-     * versions from 1.20.6 up to 1.21.11. Those older server versions (pre-1.21.4)
-     * do not have the newer non-deprecated methods, so we must call the older,
-     * deprecated methods (`Player#openWorkbench` and `Player#openEnchanting`) to remain
-     * compatible across the full supported range.
-     * <p>
-     * Using deprecated methods here is an intentional compatibility decision:
-     * - It ensures the addon runs on servers where the newer API doesn't exist.
-     * - When/if ItemsAdder drops support for < 1.21.4, these calls should be updated
-     * to the non-deprecated API and the deprecation suppressions can be removed.
-     */
-    @SuppressWarnings("deprecation")
+    @Parameter(key = "title", type = String.class)
+    @Nullable private String title;
+
     @Override
     protected void execute(ActionContext context) {
         Entity runOn = context.runOn();
         if (!(runOn instanceof HumanEntity human))
             return;
 
+        // Setting the title before 1.21.4 is unstable
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_4))
+            openInventoryNew(human);
+        else
+            openInventoryOld(human);
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void openInventoryNew(HumanEntity human) {
+        Component menuTitle = null;
+
+        if (title != null) {
+            String input = human instanceof Player player ? PlaceholderAPIUtils.parsePlaceholders(player, title) : title;
+            menuTitle = FontImageWrapper.replaceFontImages(MM.deserialize(input));
+        }
+
+        switch (type.toLowerCase(Locale.ROOT)) {
+            case "anvil" -> MenuType.ANVIL.create(human, menuTitle).open();
+            case "cartography", "cartography_table" -> MenuType.CARTOGRAPHY_TABLE.create(human, menuTitle).open();
+            case "crafting_table", "workbench" -> MenuType.CRAFTING.create(human, menuTitle).open();
+            case "enchanting", "enchanting_table" -> MenuType.ENCHANTMENT.create(human, menuTitle).open();
+            case "ender_chest" -> human.openInventory(human.getEnderChest());
+            case "grindstone" -> MenuType.GRINDSTONE.create(human, menuTitle).open();
+            case "loom" -> MenuType.LOOM.create(human, menuTitle).open();
+            case "smithing", "smithing_table" -> MenuType.SMITHING.create(human, menuTitle).open();
+            case "stonecutter" -> MenuType.STONECUTTER.create(human, menuTitle).open();
+            default -> Log.warn(
+                    "Actions",
+                    "open_inventory: unsupported type '{}' - valid types: anvil, cartography_table, crafting_table, enchanting_table, ender_chest, grindstone, loom, smithing_table, stonecutter",
+                    type
+            );
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void openInventoryOld(HumanEntity human) {
         switch (type.toLowerCase(Locale.ROOT)) {
             case "anvil" -> human.openAnvil(human.getLocation(), true);
             case "cartography", "cartography_table" -> human.openCartographyTable(human.getLocation(), true);

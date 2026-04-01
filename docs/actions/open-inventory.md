@@ -1,8 +1,13 @@
 # Open Inventory
 
+{% hint style="warn" %}
+Requires Paper 1.21.4 or higher for the title parameter.
+{% endhint %}
+
 ```yaml
 open_inventory:
   type: "anvil"
+  title: "<blue>My awesome custom anvil" # Optional
 ```
 
 Supported types:
@@ -16,3 +21,5 @@ Supported types:
 * `loom`
 * `smithing`, `smithing_table`
 * `stonecutter`
+
+Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
