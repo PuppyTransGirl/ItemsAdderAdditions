@@ -1,3 +1,7 @@
+---
+description: Shoot a fireball
+---
+
 # Shoot Fireball
 
 ```yaml

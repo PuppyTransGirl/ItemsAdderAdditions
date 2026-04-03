@@ -1,3 +1,7 @@
+---
+description: Break connected blocks of the same type
+---
+
 # Veinminer
 
 ```yaml

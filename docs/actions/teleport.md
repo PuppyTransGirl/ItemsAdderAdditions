@@ -1,3 +1,7 @@
+---
+description: Teleport an entity to fixed coordinates
+---
+
 # Teleport
 
 ```yaml

@@ -18,16 +18,16 @@ Actions let you run effects when a player interacts with a custom item, block, o
 ItemsAdder item under the `events:` section.
 
 * [Actionbar](actions/actionbar.md) - Send a message to the action bar
-* [Clear Item](actions/clear-item.md) - Remove items from the player's inventory
-* [Ignite](actions/ignite.md) - Sets an entity on fire
+* [Clear Item](actions/clear-item.md) - Remove items from an entity's inventory
+* [Ignite](actions/ignite.md) - Set an entity on fire
 * [Message](actions/message.md) - Send a chat message
 * [Mythic Mobs Skill](actions/mythic-mobs-skill.md) - Cast a Mythic Mobs skill
 * [Open Inventory](actions/open-inventory.md) - Open a vanilla workstation GUI
 * [Play Animation](actions/play-animation.md) - Trigger a complex furniture animation
-* [Shoot Fireball](actions/shoot-fireball.md) - Shoot a fireball
 * [Play Emote](actions/play-emote.md) - Make a player perform an emote
-* [Swing Hand](actions/swing-hand.md) - Swing the player's main or off hand
-* [Teleport](actions/teleport.md) - Teleport the player to fixed coordinates
+* [Shoot Fireball](actions/shoot-fireball.md) - Shoot a fireball
+* [Swing Hand](actions/swing-hand.md) - Swing the entity's main or off hand
+* [Teleport](actions/teleport.md) - Teleport an entity to fixed coordinates
 * [Title](actions/title.md) - Show a title on screen
 * [Toast](actions/toast.md) - Show an advancement-style toast notification
 * [Veinminer](actions/veinminer.md) - Break connected blocks of the same type
@@ -39,9 +39,8 @@ the [Action Parameters](actions/parameters.md) page.
 
 Behaviours change how a custom block or furniture works in the world. They attach at the item level and run passively.
 
-* [Connectable](behaviours/connectable.md) - Automatically change shape when placed next to matching blocks (like stairs
-  or tables)
-* [Contact Damage](behaviours/contact-damage.md) - Deal damage to players/entities that touch the block
+* [Connectable](behaviours/connectable.md) - Automatically change shape when placed next to matching blocks (like stairs or tables)
+* [Contact Damage](behaviours/contact-damage.md) - Deal damage to players that touch the block
 * [Stackable](behaviours/stackable.md) - Stack one custom block on top of another to form a multi-step structure
 
 ## Basic action example

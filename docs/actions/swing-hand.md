@@ -1,3 +1,7 @@
+---
+description: Swing an entity's main or off hand
+---
+
 # Swing Hand
 
 ```yaml

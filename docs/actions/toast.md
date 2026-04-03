@@ -1,3 +1,7 @@
+---
+description: Show an advancement-style toast notification
+---
+
 # Toast
 
 ```yaml

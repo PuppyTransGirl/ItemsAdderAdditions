@@ -8,7 +8,7 @@ import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 
 /**
- * Sets an entity on fire.
+ * Set an entity on fire.
  * <p>
  * Example:
  * <pre>{@code

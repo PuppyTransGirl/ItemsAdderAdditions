@@ -1,3 +1,7 @@
+---
+description: Deal damage to players that touch the block
+---
+
 # Contact Damage
 
 ```yaml

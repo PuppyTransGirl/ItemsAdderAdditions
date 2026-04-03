@@ -1,3 +1,7 @@
+---
+description: Make a player perform an emote
+---
+
 # Play Emote
 
 ```yaml

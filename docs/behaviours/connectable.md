@@ -1,3 +1,7 @@
+---
+description: Automatically change shape when placed next to matching blocks (like stairs or tables)
+---
+
 # Connectable
 
 {% tabs %}

@@ -1,3 +1,7 @@
+---
+description: Cast a Mythic Mobs skill
+---
+
 # Mythic Mobs Skill
 
 ```yaml

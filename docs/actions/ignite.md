@@ -1,3 +1,7 @@
+---
+description: Set an entity on fire
+---
+
 # Ignite
 
 ```yaml

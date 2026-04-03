@@ -1,3 +1,7 @@
+---
+description: Send a message to the action bar
+---
+
 # Actionbar
 
 ```yaml

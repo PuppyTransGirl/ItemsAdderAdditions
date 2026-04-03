@@ -1,3 +1,7 @@
+---
+description: Open a vanilla workstation GUI
+---
+
 # Open Inventory
 
 {% hint style="warn" %}

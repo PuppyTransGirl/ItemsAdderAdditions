@@ -1,3 +1,7 @@
+---
+description: Stack one custom block on top of another to form a multi-step structure
+---
+
 # Stackable
 
 {% tabs %}

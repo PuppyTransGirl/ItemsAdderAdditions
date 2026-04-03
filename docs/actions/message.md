@@ -1,3 +1,7 @@
+---
+description: Send a chat message
+---
+
 # Message
 
 ```yaml

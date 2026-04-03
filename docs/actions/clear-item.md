@@ -1,3 +1,7 @@
+---
+description: Remove items from an entity's inventory
+---
+
 # Clear Item
 
 ```yaml

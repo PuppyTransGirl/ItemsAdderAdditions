@@ -1,3 +1,7 @@
+---
+description: Trigger a complex furniture animation
+---
+
 # Play Animation
 
 ```yaml
