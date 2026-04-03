@@ -24,8 +24,9 @@ import toutouchien.itemsadderadditions.utils.other.Log;
  * {@code behaviours} section, e.g.:
  * <pre>{@code
  * behaviours:
- *   stackable:      false
+ *   connectable:    false
  *   contact_damage: false
+ *   stackable:      false
  * }</pre>
  */
 public final class BehavioursManager {
