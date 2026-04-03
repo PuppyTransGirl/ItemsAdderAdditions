@@ -11,6 +11,7 @@
 * [Action Parameters](actions/parameters.md)
 * [Actionbar](actions/actionbar.md)
 * [Clear Item](actions/clear-item.md)
+* [Ignite](actions/ignite.md)
 * [Message](actions/message.md)
 * [Mythic Mobs Skill](actions/mythic-mobs-skill.md)
 * [Open Inventory](actions/open-inventory.md)

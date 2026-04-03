@@ -40,6 +40,7 @@ public final class ActionsManager {
         registerBuiltins(
                 new ActionBarAction(),
                 new ClearItemAction(),
+                new IgniteAction(),
                 new MessageAction(),
                 new MythicMobsSkillAction(),
                 new OpenInventoryAction(),

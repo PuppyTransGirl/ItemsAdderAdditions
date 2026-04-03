@@ -19,6 +19,7 @@ ItemsAdder item under the `events:` section.
 
 * [Actionbar](actions/actionbar.md) - Send a message to the action bar
 * [Clear Item](actions/clear-item.md) - Remove items from the player's inventory
+* [Ignite](actions/ignite.md) - Sets an entity on fire
 * [Message](actions/message.md) - Send a chat message
 * [Mythic Mobs Skill](actions/mythic-mobs-skill.md) - Cast a Mythic Mobs skill
 * [Open Inventory](actions/open-inventory.md) - Open a vanilla workstation GUI
