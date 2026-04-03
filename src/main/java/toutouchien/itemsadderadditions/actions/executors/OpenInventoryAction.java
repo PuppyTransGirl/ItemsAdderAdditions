@@ -14,8 +14,8 @@ import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.utils.VersionUtils;
+import toutouchien.itemsadderadditions.utils.hook.PlaceholderAPIUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
-import toutouchien.itemsadderadditions.utils.other.PlaceholderAPIUtils;
 
 import java.util.Locale;
 

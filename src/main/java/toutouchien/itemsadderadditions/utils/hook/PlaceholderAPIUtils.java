@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils.other;
+package toutouchien.itemsadderadditions.utils.hook;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.util.TriState;

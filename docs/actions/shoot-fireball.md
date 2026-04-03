@@ -3,7 +3,7 @@
 ```yaml
 shoot_fireball:
   power: 1
-  speed: 2.0 # Optional (Default value: 1)
+  speed: 2.0 # Optional (Default value: 1.0)
   fire: false # Optional (Default value: true)
 ```
 

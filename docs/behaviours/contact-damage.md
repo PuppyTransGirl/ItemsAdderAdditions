@@ -2,7 +2,7 @@
 
 ```yaml
 contact_damage:
-  amount: 1
+  amount: 1.0
   interval: 10 # Optional (Default value: 20) - Value in ticks (20 ticks = 1 second)
   fire_duration: 60 # Optional (Default value: 0) - Value in ticks (20 ticks = 1 second)
   damage_when_sneaking: false # Optioanl (Default value: true)

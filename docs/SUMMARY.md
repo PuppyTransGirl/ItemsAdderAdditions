@@ -12,6 +12,7 @@
 * [Actionbar](actions/actionbar.md)
 * [Clear Item](actions/clear-item.md)
 * [Message](actions/message.md)
+* [Mythic Mobs Skill](actions/mythic-mobs-skill.md)
 * [Open Inventory](actions/open-inventory.md)
 * [Play Animation](actions/play-animation.md)
 * [Play Emote](actions/play-emote.md)
