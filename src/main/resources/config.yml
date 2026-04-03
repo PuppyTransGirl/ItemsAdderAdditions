@@ -4,7 +4,9 @@ features:
 actions:
   actionbar: true
   clear_item: true
+  ignite: true
   message: true
+  mythic_mobs_skill: true
   open_inventory: true
   play_animation: true
   play_emote: true

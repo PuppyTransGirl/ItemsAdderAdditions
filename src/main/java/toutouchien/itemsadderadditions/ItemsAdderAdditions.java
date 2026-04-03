@@ -8,6 +8,7 @@ import toutouchien.itemsadderadditions.actions.ActionsManager;
 import toutouchien.itemsadderadditions.behaviours.BehavioursManager;
 import toutouchien.itemsadderadditions.components.ComponentsManager;
 import toutouchien.itemsadderadditions.converter.ConverterV100V101;
+import toutouchien.itemsadderadditions.converter.ConverterV101V102;
 import toutouchien.itemsadderadditions.creative.BytePacketListener;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.creative.PacketListener;
@@ -64,6 +65,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
     private void runConverters() {
         ConverterV100V101.run();
+        ConverterV101V102.run();
     }
 
     @Override

@@ -56,8 +56,7 @@ public class ConverterV100V101 {
             }
         }
 
-        if (dirty) {
+        if (dirty)
             ItemsAdderAdditions.instance().saveConfig();
-        }
     }
 }
