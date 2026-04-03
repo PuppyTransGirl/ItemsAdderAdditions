@@ -8,7 +8,7 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.utils.hook.MythicMobsUtils;
 
 /**
- * Sends a message with MiniMessage support.
+ * Cast a Mythic Mobs skill.
  * <p>
  * Example:
  * <pre>{@code

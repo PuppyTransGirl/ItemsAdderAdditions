@@ -41,6 +41,7 @@ public final class ActionsManager {
                 new ActionBarAction(),
                 new ClearItemAction(),
                 new MessageAction(),
+                new MythicMobsSkillAction(),
                 new OpenInventoryAction(),
                 new PlayAnimationAction(),
                 new PlayEmoteAction(),
