@@ -12,7 +12,7 @@ val placeholderApiVersion: String by project
 val bStatsVersion: String by project
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
