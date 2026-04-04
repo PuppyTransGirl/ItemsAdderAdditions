@@ -31,16 +31,16 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class Log {
     // ItemsAdder palette - taken verbatim from en.yml
-    private static final TextColor C_PREFIX_START = TextColor.fromHexString("#ac52d4");
-    private static final TextColor C_PREFIX_END = TextColor.fromHexString("#6c3484");
+    private static final TextColor C_PREFIX_START = TextColor.fromHexString("#AC52D4");
+    private static final TextColor C_PREFIX_END = TextColor.fromHexString("#6C3484");
     private static final TextColor C_BRACKET = TextColor.fromHexString("#999999");
-    private static final TextColor C_SUBSYSTEM = TextColor.fromHexString("#4dd2ff");
-    private static final TextColor C_TEXT = TextColor.fromHexString("#ffffff");
-    private static final TextColor C_HIGHLIGHT = TextColor.fromHexString("#ffe14d");
+    private static final TextColor C_SUBSYSTEM = TextColor.fromHexString("#4DD2FF");
+    private static final TextColor C_TEXT = TextColor.fromHexString("#FFFFFF");
+    private static final TextColor C_HIGHLIGHT = TextColor.fromHexString("#FFE14D");
     private static final TextColor C_MUTED = TextColor.fromHexString("#999999");
-    private static final TextColor C_SUCCESS = TextColor.fromHexString("#4dff4d");
-    private static final TextColor C_WARN = TextColor.fromHexString("#ffe14d");
-    private static final TextColor C_ERROR = TextColor.fromHexString("#ff4d4d");
+    private static final TextColor C_SUCCESS = TextColor.fromHexString("#4DFF4D");
+    private static final TextColor C_WARN = TextColor.fromHexString("#FFE14D");
+    private static final TextColor C_ERROR = TextColor.fromHexString("#FF4D4D");
 
     private Log() {
         throw new IllegalStateException("Utility class");
@@ -68,6 +68,10 @@ public final class Log {
 
     public static void error(String subsystem, String message, Throwable cause) {
         logger().error(line(subsystem, message, C_ERROR), cause);
+    }
+
+    public static void debug(String subsystem, String message, Object... args) {
+        logger().info(line(subsystem, format(message, args), C_TEXT));
     }
 
     /**
@@ -134,7 +138,7 @@ public final class Log {
      * purple-gradient bracket, gray closing paren, colored subsystem in brackets.
      */
     private static Component prefix(String subsystem) {
-        // "IAAdditions" as a gradient from #ac52d4 to #6c3484
+        // "IAAdditions" as a gradient from #AC52D4 to #6C3484
         Component bracket = gradientText("IAAdditions");
         // ")" in gray
         Component paren = t(")", C_BRACKET);

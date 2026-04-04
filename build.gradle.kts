@@ -11,6 +11,8 @@ val itemsAdderApiVersion: String by project
 val placeholderApiVersion: String by project
 val mythicMobsVersion: String by project
 val bStatsVersion: String by project
+val customBlockDataVersion: String by project
+val morePersistentDataTypesVersion: String by project
 
 group = "toutouchien.itemsadderadditions"
 version = "1.0.2"
@@ -36,6 +38,10 @@ dependencies {
 
     // Dependencies
     implementation("org.bstats:bstats-bukkit:${bStatsVersion}")
+
+    // Storage behaviour: shaded so they don't conflict with other plugins using these libs
+    implementation("com.jeff-media:custom-block-data:${customBlockDataVersion}")
+    implementation("com.jeff-media:MorePersistentDataTypes:${morePersistentDataTypesVersion}")
 }
 
 paperweight {
@@ -85,7 +91,16 @@ tasks {
     shadowJar {
         archiveFileName.set("${project.name}-${project.version}.jar")
 
+        // Original relocation
         relocate("org.bstats", "${project.group}.libs.org.bstats")
+
+        // Storage behaviour libraries — relocated so they don't conflict with other plugins
+        // that may shade these same libs at a different version.
+        relocate("com.jeff_media.customblockdata", "${project.group}.libs.com.jeff_media.customblockdata")
+        relocate(
+            "com.jeff_media.morepersistentdatatypes",
+            "${project.group}.libs.com.jeff_media.morepersistentdatatypes"
+        )
     }
 
     processResources {
