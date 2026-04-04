@@ -94,8 +94,6 @@ tasks {
         // Original relocation
         relocate("org.bstats", "${project.group}.libs.org.bstats")
 
-        // Storage behaviour libraries — relocated so they don't conflict with other plugins
-        // that may shade these same libs at a different version.
         relocate("com.jeff_media.customblockdata", "${project.group}.libs.com.jeff_media.customblockdata")
         relocate(
             "com.jeff_media.morepersistentdatatypes",

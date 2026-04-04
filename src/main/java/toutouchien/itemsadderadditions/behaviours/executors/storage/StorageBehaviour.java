@@ -87,8 +87,8 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     @Nullable
     private static ItemStack[] extractAndClearFromHand(Player player, NamespacedKey key) {
         PlayerInventory inv = player.getInventory();
-        // Survival: ItemsAdder consumed the item before CustomBlockPlaceEvent fired — nothing to write back.
-        // Creative: the user explicitly wants PDC data preserved on the item — also nothing to write back.
+        // Survival: ItemsAdder consumed the item before CustomBlockPlaceEvent fired - nothing to write back.
+        // Creative: the user explicitly wants PDC data preserved on the item - also nothing to write back.
         // Either way: just read and return; never modify the hand item here.
 
         ItemStack[] stored = StorageInventoryManager.extractFromItem(inv.getItemInMainHand(), key);
@@ -527,7 +527,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
             // Must happen BEFORE closeInventory(): that call fires InventoryCloseEvent
             // synchronously, which would invoke onInventoryClose → openSessions.remove() while we
-            // are still iterating — causing a ConcurrentModificationException.  Removing first
+            // are still iterating - causing a ConcurrentModificationException.  Removing first
             // means onInventoryClose finds no session for this player and returns immediately.
             it.remove();
             session.player().closeInventory();
