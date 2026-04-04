@@ -4,6 +4,7 @@ import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,6 +22,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -137,8 +139,13 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
             Log.warn("Storage", "Unknown storage type '{}' for '{}'. Valid: STORAGE, SHULKER, DISPOSAL. Defaulting to STORAGE.", typeName, namespacedID);
         }
 
-        String rawTitle = (titleRaw != null && !titleRaw.isBlank()) ? titleRaw : namespacedID;
-        this.title = MiniMessage.miniMessage().deserialize(rawTitle);
+        Component component = CustomStack.getInstance(namespacedID).itemName();
+        if (component.color() == NamedTextColor.WHITE)
+            component = component.color(NamedTextColor.DARK_GRAY);
+
+        this.title = (titleRaw != null)
+                ? MiniMessage.miniMessage().deserialize(titleRaw)
+                : component;
 
         StorageInventoryManager.ensureCustomBlockDataRegistered(plugin);
         if (storageType == StorageType.SHULKER)
@@ -449,7 +456,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
             }
         }
 
-        Inventory inv = Bukkit.createInventory(null, rows * 9, title);
+        Inventory inv = Bukkit.createInventory(new StorageInventoryHolder(), rows * 9, title);
 
         ItemStack[] stored = switch (storageType) {
             case STORAGE, SHULKER -> block != null
@@ -526,7 +533,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
             }
 
             // Must happen BEFORE closeInventory(): that call fires InventoryCloseEvent
-            // synchronously, which would invoke onInventoryClose → openSessions.remove() while we
+            // synchronously, which would invoke onInventoryClose -> openSessions.remove() while we
             // are still iterating - causing a ConcurrentModificationException.  Removing first
             // means onInventoryClose finds no session for this player and returns immediately.
             it.remove();
@@ -534,33 +541,36 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         }
     }
 
+    private static final EnumSet<InventoryAction> SHULKER_BLOCKED_ACTIONS = EnumSet.of(
+            InventoryAction.PLACE_ONE,
+            InventoryAction.PLACE_SOME,
+            InventoryAction.PLACE_ALL,
+            InventoryAction.SWAP_WITH_CURSOR,
+            InventoryAction.MOVE_TO_OTHER_INVENTORY,
+            InventoryAction.COLLECT_TO_CURSOR
+    );
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player))
-            return;
-
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!(event.getView().getTopInventory().getHolder(false) instanceof StorageInventoryHolder)) return;
         Inventory topInv = event.getView().getTopInventory();
-        if (!OPEN_STORAGE_INVENTORIES.contains(topInv))
-            return;
 
         boolean blocked = switch (event.getAction()) {
             case PLACE_ONE, PLACE_SOME, PLACE_ALL, SWAP_WITH_CURSOR ->
-                    event.getClickedInventory() == topInv && isShulkerStorageItem(event.getCursor());
-
+                    event.getRawSlot() < topInv.getSize() && isShulkerStorageItem(event.getCursor());
             case MOVE_TO_OTHER_INVENTORY ->
-                    event.getClickedInventory() != topInv && isShulkerStorageItem(event.getCurrentItem());
-
+                    event.getRawSlot() >= topInv.getSize() && isShulkerStorageItem(event.getCurrentItem());
+            case COLLECT_TO_CURSOR ->
+                    isShulkerStorageItem(event.getCursor());
             case HOTBAR_SWAP -> {
-                if (event.getClickedInventory() != topInv)
-                    yield false;
-
+                if (event.getRawSlot() >= topInv.getSize()) yield false;
                 int hotbarSlot = event.getHotbarButton();
                 ItemStack hotbarItem = hotbarSlot >= 0
                         ? player.getInventory().getItem(hotbarSlot)
                         : player.getInventory().getItemInOffHand();
                 yield isShulkerStorageItem(hotbarItem);
             }
-
             default -> false;
         };
 
@@ -572,17 +582,11 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player))
-            return;
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!(event.getView().getTopInventory().getHolder(false) instanceof StorageInventoryHolder)) return;
+        if (!isShulkerStorageItem(event.getOldCursor())) return;
 
-        Inventory topInv = event.getView().getTopInventory();
-        if (!OPEN_STORAGE_INVENTORIES.contains(topInv))
-            return;
-
-        if (!isShulkerStorageItem(event.getOldCursor()))
-            return;
-
-        int topSize = topInv.getSize();
+        int topSize = event.getView().getTopInventory().getSize();
         for (int rawSlot : event.getRawSlots()) {
             if (rawSlot < topSize) {
                 event.setCancelled(true);
