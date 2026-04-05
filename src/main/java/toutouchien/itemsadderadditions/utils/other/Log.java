@@ -138,13 +138,9 @@ public final class Log {
      * purple-gradient bracket, gray closing paren, colored subsystem in brackets.
      */
     private static Component prefix(String subsystem) {
-        // "IAAdditions" as a gradient from #AC52D4 to #6C3484
         Component bracket = gradientText("IAAdditions");
-        // ")" in gray
         Component paren = t(")", C_BRACKET);
-        // " [Subsystem]" in light blue
         Component sub = t(" [" + subsystem + "]", C_SUBSYSTEM);
-        // " " separator
         return bracket.append(paren).append(sub).append(t(" ", C_TEXT));
     }
 

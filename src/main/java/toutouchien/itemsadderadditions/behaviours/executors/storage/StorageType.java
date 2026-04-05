@@ -1,7 +1,7 @@
 package toutouchien.itemsadderadditions.behaviours.executors.storage;
 
 /**
- * Defines the behaviour mode of a {@link StorageBehaviour} instance.
+ * Defines the behaviour mode of a {@link toutouchien.itemsadderadditions.behaviours.executors.StorageBehaviour} instance.
  *
  * <ul>
  *   <li>{@link #STORAGE}  - Shared container; inventory is saved to the block/furniture location.</li>

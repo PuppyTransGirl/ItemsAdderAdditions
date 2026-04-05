@@ -95,7 +95,7 @@ public final class StorageInventoryManager {
         return meta.getPersistentDataContainer().get(key, DataType.ITEM_STACK_ARRAY);
     }
 
-    public static void populateInventory(Inventory inventory, @Nullable ItemStack[] contents) {
+    public static void populateInventory(Inventory inventory, @Nullable ItemStack @Nullable [] contents) {
         if (contents == null)
             return;
 

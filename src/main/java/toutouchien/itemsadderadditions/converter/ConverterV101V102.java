@@ -9,7 +9,10 @@ public class ConverterV101V102 {
     private static final Map<String, Object> DEFAULTS = Map.ofEntries(
             // actions
             Map.entry("actions.ignite", true),
-            Map.entry("actions.mythic_mobs_skill", true)
+            Map.entry("actions.mythic_mobs_skill", true),
+
+            // behaviours
+            Map.entry("behaviours.storage", true)
     );
 
     public static void run() {

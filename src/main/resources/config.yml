@@ -21,6 +21,7 @@ behaviours:
   connectable: true
   contact_damage: true
   stackable: true
+  storage: true
 
 update-checker:
   enabled: true

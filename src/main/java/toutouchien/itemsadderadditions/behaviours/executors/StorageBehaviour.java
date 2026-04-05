@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.behaviours.executors.storage;
+package toutouchien.itemsadderadditions.behaviours.executors;
 
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
@@ -37,6 +37,10 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
+import toutouchien.itemsadderadditions.behaviours.executors.storage.StorageInventoryHolder;
+import toutouchien.itemsadderadditions.behaviours.executors.storage.StorageInventoryManager;
+import toutouchien.itemsadderadditions.behaviours.executors.storage.StorageSession;
+import toutouchien.itemsadderadditions.behaviours.executors.storage.StorageType;
 import toutouchien.itemsadderadditions.utils.other.ItemCategory;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
@@ -462,6 +466,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
             case STORAGE, SHULKER -> block != null
                     ? StorageInventoryManager.loadFromBlock(block, contentsKey, plugin)
                     : StorageInventoryManager.loadFromEntity(entity, contentsKey);
+
             case DISPOSAL -> null;
         };
 
@@ -552,19 +557,28 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getView().getTopInventory().getHolder(false) instanceof StorageInventoryHolder)) return;
+        if (!(event.getWhoClicked() instanceof Player player))
+            return;
+
+        if (!(event.getView().getTopInventory().getHolder(false) instanceof StorageInventoryHolder))
+            return;
+
         Inventory topInv = event.getView().getTopInventory();
 
         boolean blocked = switch (event.getAction()) {
             case PLACE_ONE, PLACE_SOME, PLACE_ALL, SWAP_WITH_CURSOR ->
                     event.getRawSlot() < topInv.getSize() && isShulkerStorageItem(event.getCursor());
+
             case MOVE_TO_OTHER_INVENTORY ->
                     event.getRawSlot() >= topInv.getSize() && isShulkerStorageItem(event.getCurrentItem());
+
             case COLLECT_TO_CURSOR ->
                     isShulkerStorageItem(event.getCursor());
+
             case HOTBAR_SWAP -> {
-                if (event.getRawSlot() >= topInv.getSize()) yield false;
+                if (event.getRawSlot() >= topInv.getSize())
+                    yield false;
+
                 int hotbarSlot = event.getHotbarButton();
                 ItemStack hotbarItem = hotbarSlot >= 0
                         ? player.getInventory().getItem(hotbarSlot)
@@ -576,21 +590,26 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
         if (blocked) {
             event.setCancelled(true);
-            Log.info("Storage", "[NestGuard] Blocked " + player.getName() + " from placing a SHULKER storage item inside a storage GUI.");
+            Log.debug("Storage", "[NestGuard] Blocked " + player.getName() + " from placing a SHULKER storage item inside a storage GUI.");
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getView().getTopInventory().getHolder(false) instanceof StorageInventoryHolder)) return;
-        if (!isShulkerStorageItem(event.getOldCursor())) return;
+        if (!(event.getWhoClicked() instanceof Player player))
+            return;
+
+        if (!(event.getView().getTopInventory().getHolder(false) instanceof StorageInventoryHolder))
+            return;
+
+        if (!isShulkerStorageItem(event.getOldCursor()))
+            return;
 
         int topSize = event.getView().getTopInventory().getSize();
         for (int rawSlot : event.getRawSlots()) {
             if (rawSlot < topSize) {
                 event.setCancelled(true);
-                Log.info("Storage", "[NestGuard] Blocked " + player.getName() + " from dragging a SHULKER storage item into a storage GUI.");
+                Log.debug("Storage", "[NestGuard] Blocked " + player.getName() + " from dragging a SHULKER storage item into a storage GUI.");
                 return;
             }
         }

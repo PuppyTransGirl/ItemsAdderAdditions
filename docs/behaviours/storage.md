@@ -4,8 +4,7 @@ description: Add persistent storage containers to custom Blocks, Furniture, and 
 
 # Storage
 
-Turns any custom block or furniture into a storage container. Three independent modes
-are available, each with different persistence semantics.
+Turns any custom block or furniture into a storage container. Three modes are available.
 
 | Type       | Behaviour                                                                |
 |------------|--------------------------------------------------------------------------|
@@ -18,40 +17,31 @@ are available, each with different persistence semantics.
 {% tabs %}
 {% tab title="STORAGE" %}
 ```yaml
-items:
-  my_chest:
-    # ...
-    behaviours:
-      storage:
-        type: STORAGE
-        rows: 3 # Optional (Default: 3)
-        title: "<gold>Community Chest</gold>" # Optional
+behaviours:
+  storage:
+    type: STORAGE
+    rows: 3 # Optional (Default: 3)
+    title: "<gold>Community Chest</gold>" # Optional (Defaults to the block/furniture's name)
 ```
 {% endtab %}
 
 {% tab title="SHULKER" %}
 ```yaml
-items:
-  my_shulker:
-    # ...
-    behaviours:
-      storage:
-        type: SHULKER
-        rows: 3 # Optional (Default: 3)
-        title: "<dark_purple>Portable Storage</dark_purple>" # Optional
+behaviours:
+  storage:
+    type: SHULKER
+    rows: 3 # Optional (Default: 3)
+    title: "<dark_purple>Portable Storage</dark_purple>" # Optional (Defaults to the block/furniture's name)
 ```
 > {% endtab %}
 
 {% tab title="DISPOSAL" %}
 ```yaml
-items:
-  my_trash_can:
-    # ...
-    behaviours:
-      storage:
-        type: DISPOSAL
-        rows: 1 # Optional (Default: 3)
-        title: "<red>Trash Can</red>" # Optional
+behaviours:
+  storage:
+    type: DISPOSAL
+    rows: 1 # Optional (Default: 3)
+    title: "<red>Trash Can</red>" # Optional (Defaults to the block/furniture's name)
 ```
 {% endtab %}
 {% endtabs %}
