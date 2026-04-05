@@ -68,6 +68,14 @@ public class ItemsAdderAdditions extends JavaPlugin {
         ConverterV101V102.run();
     }
 
+    public void reload() {
+        Log.info("Reload", "Reloading ItemsAdderAdditions...");
+
+        this.reloadConfig();
+
+        Log.info("Reload", "ItemsAdderAdditions reloaded");
+    }
+
     @Override
     public void onDisable() {
         this.bStats.shutdown();
@@ -78,8 +86,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
 
         List.of(
-            new ActionsListener(),
-            new ItemsAdderLoadListener()
+                new ActionsListener(),
+                new ItemsAdderLoadListener()
         ).forEach(listener -> pm.registerEvents(listener, this));
 
         BytePacketListener.inject();

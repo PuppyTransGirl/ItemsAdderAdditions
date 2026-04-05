@@ -7,6 +7,8 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Centralized logger matching ItemsAdder's visual style.
  *
@@ -42,6 +44,8 @@ public final class Log {
     private static final TextColor C_WARN = TextColor.fromHexString("#FFE14D");
     private static final TextColor C_ERROR = TextColor.fromHexString("#FF4D4D");
 
+    private static AtomicBoolean debug = new AtomicBoolean(false);
+
     private Log() {
         throw new IllegalStateException("Utility class");
     }
@@ -71,6 +75,9 @@ public final class Log {
     }
 
     public static void debug(String subsystem, String message, Object... args) {
+        if (!debug.get())
+            return;
+
         logger().info(line(subsystem, format(message, args), C_TEXT));
     }
 
@@ -125,6 +132,14 @@ public final class Log {
         logger().info(prefix(subsystem)
                 .append(highlight(key))
                 .append(t(" is disabled in config - skipping.", C_MUTED)));
+    }
+
+    public static void toggleDebug() {
+        debug.set(!debug.get());
+    }
+
+    public static boolean debug() {
+        return debug.get();
     }
 
     private static Component line(String subsystem, String message, TextColor color) {

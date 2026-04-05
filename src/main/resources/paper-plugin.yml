@@ -1,6 +1,7 @@
 name: ItemsAdderAdditions
 version: '${version}'
 main: toutouchien.itemsadderadditions.ItemsAdderAdditions
+bootstrapper: toutouchien.itemsadderadditions.ItemsAdderAdditionsBootstrap
 api-version: '${minMinecraftVersion}'
 authors: [ PuppyTransGirl ]
 
