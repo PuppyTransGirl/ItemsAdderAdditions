@@ -1,5 +1,5 @@
 {
   "title": "Behaviours",
-  "icon": "Square-Bolt",
+  "icon": "Square Bolt",
   "pages": ["connectable", "...", "storage"]
 }
