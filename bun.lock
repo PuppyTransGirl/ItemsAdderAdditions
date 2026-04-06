@@ -5,6 +5,7 @@
     "": {
       "name": "docs",
       "dependencies": {
+        "@orama/orama": "^3.1.18",
         "fumadocs-core": "16.7.10",
         "fumadocs-mdx": "14.2.11",
         "fumadocs-ui": "16.7.10",
