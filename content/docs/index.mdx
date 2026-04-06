@@ -4,30 +4,17 @@ icon: House
 ---
 
 **ItemsAdderAdditions** extends [ItemsAdder](https://itemsadder.com/) with extra actions, behaviours, and
-quality-of-life features — configured directly inside your existing YAML files.
+quality-of-life features - configured directly inside your existing YAML files. No restart needed, just `/iareload`.
+
+## Download
 
 <Cards>
-  <Card title="Features" href="/docs/features/creative-inventory-integration" description="Quality-of-life enhancements like populating the vanilla creative menu with your custom items." />
-  <Card title="Actions" href="/docs/actions/parameters" description="Run effects when players interact with custom items, blocks, or furniture." />
-  <Card title="Behaviours" href="/docs/behaviours/connectable" description="Change how custom blocks and furniture behave passively in the world." />
+  <Card title="Modrinth" href="https://modrinth.com/plugin/itemsadderadditions" description="Download on Modrinth" />
+  <Card title="SpigotMC" href="https://www.spigotmc.org/resources/itemsadderadditions.133918/" description="Download on SpigotMC" />
 </Cards>
-
-## Basic example
-```yaml
-items:
-  my_sword:
-    events:
-      interact:
-        right:
-          actionbar:
-            text: "<green>You right-clicked!"
-            permission: "myplugin.use"
-```
-
-Actions reload automatically with `/iareload` — no restart needed.
 
 ## Requirements
 
-- **ItemsAdder** (latest recommended) — **Paper** 1.20.6+
+- **ItemsAdder** (latest recommended) - **Paper** 1.20.6+
 - Creative Inventory Integration requires **Paper 1.21.11+**
 - [Example pack](https://github.com/bruhhhwarrior/iaadditions/releases/latest)
