@@ -3,10 +3,105 @@
 @import 'fumadocs-ui/css/preset.css';
 
 html {
-  scrollbar-gutter: stable;
+    scrollbar-gutter: stable;
 }
 
 html > body[data-scroll-locked] {
-  margin-right: 0px !important;
-  --removed-body-scroll-bar-size: 0px !important;
+    margin-right: 0px !important;
+    --removed-body-scroll-bar-size: 0px !important;
+}
+
+:root {
+    --brand-light: #AC52D4;
+    --brand-dark: #6C3484;
+    --brand-gradient: linear-gradient(135deg, var(--brand-light), var(--brand-dark));
+}
+
+.prose a,
+[data-docs-body] a {
+    color: var(--brand-light);
+    text-decoration-color: color-mix(in srgb, var(--brand-light) 40%, transparent);
+    transition: color 0.15s, text-decoration-color 0.15s;
+}
+.prose a:hover,
+[data-docs-body] a:hover {
+    color: var(--brand-dark);
+    text-decoration-color: var(--brand-dark);
+}
+
+[data-nav-title],
+nav a[href="/"] {
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+}
+
+[data-sidebar] [data-active="true"],
+[data-sidebar] [aria-current="page"] {
+    background: color-mix(in srgb, var(--brand-light) 12%, transparent) !important;
+    color: var(--brand-light) !important;
+    border-inline-start-color: var(--brand-light) !important;
+}
+
+[data-sidebar] a:hover:not([data-active="true"]) {
+    color: var(--brand-light);
+}
+
+
+[data-toc] ol,
+.nd-toc ol {
+    border-inline-start: 1px solid color-mix(in srgb, var(--brand-light) 25%, transparent);
+    padding-inline-start: 0;
+    list-style: none;
+    margin: 0;
+}
+
+[data-toc] li,
+.nd-toc li {
+    padding-inline-start: 1rem;
+}
+
+[data-toc] li li,
+.nd-toc li li {
+    padding-inline-start: 1.5rem;
+}
+
+[data-toc] a,
+.nd-toc a {
+    color: color-mix(in srgb, currentColor 60%, transparent);
+    font-size: 0.8125rem;
+    display: block;
+    padding-block: 0.2rem;
+    transition: color 0.15s;
+}
+
+[data-toc] a[aria-selected="true"],
+[data-toc] a[data-active="true"],
+.nd-toc a[aria-selected="true"],
+.nd-toc a[data-active="true"] {
+    color: var(--brand-light) !important;
+    font-weight: 600;
+    border-inline-start: 2px solid var(--brand-light);
+    margin-inline-start: -1px;
+    padding-inline-start: calc(1rem - 2px);
+}
+
+[data-toc] a:hover,
+.nd-toc a:hover {
+    color: var(--brand-light);
+}
+
+[data-search-bar] kbd,
+button[data-search] {
+    border-color: color-mix(in srgb, var(--brand-light) 30%, transparent);
+}
+
+::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--brand-dark) 40%, transparent);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--brand-dark);
 }
