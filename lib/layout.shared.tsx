@@ -8,7 +8,7 @@ export function baseOptions(): BaseLayoutProps {
             title: (
                 <>
                     <Image
-                        src="/icon_128x128.png"       // put your icon in the /public folder
+                        src="/icon_36x36.png"
                         alt={appName}
                         width={36}
                         height={36}
