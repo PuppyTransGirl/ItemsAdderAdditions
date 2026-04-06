@@ -1,0 +1,20 @@
+{
+  "title": "Actions",
+  "pages": [
+    "parameters",
+    "actionbar",
+    "clear-item",
+    "ignite",
+    "message",
+    "mythic-mobs-skill",
+    "open-inventory",
+    "play-animation",
+    "play-emote",
+    "shoot-fireball",
+    "swing-hand",
+    "teleport",
+    "title",
+    "toast",
+    "veinminer"
+  ]
+}

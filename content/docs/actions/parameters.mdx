@@ -1,0 +1,73 @@
+---
+title: Action Parameters
+description: Universal parameters shared by every action — permission gating, delays, and targeting.
+---
+
+Every action — regardless of type — supports a set of shared parameters. These let you gate actions behind permissions,
+add delays, and control who the action is applied to.
+
+You can mix and match any of them on the same action.
+
+## Parameters
+
+### `permission`
+
+If set, the action only fires if the player has this permission node. Players without it are silently ignored.
+
+```yaml
+actionbar:
+  text: "<green>Hello!"
+  permission: "myplugin.greet"
+```
+
+### `delay`
+
+Wait this many ticks before executing the action. 20 ticks = 1 second. Defaults to `0` (instant).
+
+```yaml
+message:
+  text: "<gold>Loading..."
+  delay: 40 # 2 seconds after the trigger
+```
+
+### `target`
+
+Controls who the action is applied to. Defaults to `self`.
+
+| Value    | Description                                                                            |
+|----------|----------------------------------------------------------------------------------------|
+| `self`   | The player who triggered the event *(default)*                                         |
+| `other`  | The entity the player is interacting with (e.g. the one being attacked)                |
+| `all`    | Both the triggering player **and** the target entity                                   |
+| `radius` | All entities within a sphere around the interaction point — requires `target_radius`   |
+
+```yaml
+message:
+  text: "<red>You hit someone!"
+  target: other
+```
+
+### `target_radius`
+
+Only used when `target: radius`. Defines the diameter of the sphere (in blocks) centred on the interaction point.
+
+```yaml
+actionbar:
+  text: "<yellow>Area effect!"
+  target: radius
+  target_radius: 10
+```
+
+## Full example
+
+```yaml
+my_item:
+  events:
+    interact:
+      right:
+        actionbar:
+          text: "<aqua>Right-clicked!"
+          permission: "myserver.vip" # Only players with this permission will trigger this
+          delay: 10                  # Half a second delay
+          target: self               # Apply to the clicker only
+```

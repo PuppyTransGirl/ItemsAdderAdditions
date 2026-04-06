@@ -1,0 +1,46 @@
+---
+title: Storage
+description: Add persistent storage containers to custom Blocks, Furniture, and Complex Furniture
+---
+
+Turns any custom block or furniture into a storage container. Three modes are available.
+
+| Type       | Behaviour                                                                 |
+|------------|---------------------------------------------------------------------------|
+| `STORAGE`  | Shared container — all players see the same inventory                     |
+| `SHULKER`  | Contents travel inside the item when broken and are restored on re-place  |
+| `DISPOSAL` | Trash can — contents are silently deleted when the GUI is closed          |
+
+## Configuration
+
+<Tabs items={['STORAGE', 'SHULKER', 'DISPOSAL']}>
+  <Tab value="STORAGE">
+    ```yaml
+    behaviours:
+      storage:
+        type: STORAGE
+        rows: 3 # Optional (Default: 3)
+        title: "<gold>Community Chest</gold>" # Optional (Defaults to the block/furniture's name)
+    ```
+  </Tab>
+  <Tab value="SHULKER">
+    ```yaml
+    behaviours:
+      storage:
+        type: SHULKER
+        rows: 3 # Optional (Default: 3)
+        title: "<dark_purple>Portable Storage</dark_purple>" # Optional (Defaults to the block/furniture's name)
+    ```
+  </Tab>
+  <Tab value="DISPOSAL">
+    ```yaml
+    behaviours:
+      storage:
+        type: DISPOSAL
+        rows: 1 # Optional (Default: 3)
+        title: "<red>Trash Can</red>" # Optional (Defaults to the block/furniture's name)
+    ```
+  </Tab>
+</Tabs>
+
+Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.

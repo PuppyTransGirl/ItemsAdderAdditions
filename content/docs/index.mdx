@@ -1,13 +1,77 @@
 ---
-title: Hello World
-description: Your first document
+title: ItemsAdderAdditions
+description: A companion plugin for ItemsAdder that extends its feature set with extra actions, behaviours, and quality-of-life features.
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+**ItemsAdderAdditions** is a companion plugin for [ItemsAdder](https://itemsadder.com/) that extends its feature set
+with extra actions, behaviours, and quality-of-life features that aren't available out of the box.
 
-## What is Next?
+Everything is configured directly inside your existing ItemsAdder item/block YAML files — no separate files to manage.
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
-</Cards>
+## What's included
+
+### 🎨 Features
+
+- [Creative Inventory Integration](/docs/features/creative-inventory-integration) — Automatically populate the vanilla creative menu with all your custom items *(requires 1.21.11+)*
+
+### ⚡ Actions
+
+Actions let you run effects when a player interacts with a custom item, block, or furniture. Attach them to any
+ItemsAdder item under the `events:` section.
+
+- [Actionbar](/docs/actions/actionbar) — Send a message to the action bar
+- [Clear Item](/docs/actions/clear-item) — Remove items from an entity's inventory
+- [Ignite](/docs/actions/ignite) — Set an entity on fire
+- [Message](/docs/actions/message) — Send a chat message
+- [Mythic Mobs Skill](/docs/actions/mythic-mobs-skill) — Cast a Mythic Mobs skill
+- [Open Inventory](/docs/actions/open-inventory) — Open a vanilla workstation GUI
+- [Play Animation](/docs/actions/play-animation) — Trigger a complex furniture animation
+- [Play Emote](/docs/actions/play-emote) — Make a player perform an emote
+- [Shoot Fireball](/docs/actions/shoot-fireball) — Shoot a fireball
+- [Swing Hand](/docs/actions/swing-hand) — Swing the entity's main or off hand
+- [Teleport](/docs/actions/teleport) — Teleport an entity to fixed coordinates
+- [Title](/docs/actions/title) — Show a title on screen
+- [Toast](/docs/actions/toast) — Show an advancement-style toast notification
+- [Veinminer](/docs/actions/veinminer) — Break connected blocks of the same type
+
+All actions share a set of universal parameters (permission gate, delay, targeting) documented on
+the [Action Parameters](/docs/actions/parameters) page.
+
+### 🧱 Behaviours
+
+Behaviours change how a custom block or furniture works in the world. They attach at the item level and run passively.
+
+- [Connectable](/docs/behaviours/connectable) — Automatically change shape when placed next to matching blocks (like stairs or tables)
+- [Contact Damage](/docs/behaviours/contact-damage) — Deal damage to players that touch the block
+- [Stackable](/docs/behaviours/stackable) — Stack one custom block on top of another to form a multi-step structure
+- [Storage](/docs/behaviours/storage) — Add persistent storage containers to custom blocks and furniture
+
+## Basic action example
+
+Here's a quick example of how to attach an action to a custom item inside your ItemsAdder YAML:
+
+```yaml
+items:
+  my_sword:
+    # ... your item config ...
+    events:
+      interact:
+        right:
+          actionbar:
+            text: "<green>You right-clicked!"
+            permission: "myplugin.use" # Optional - see Action Parameters
+```
+
+Actions are loaded automatically after every `/iareload`. No restart needed.
+
+## Requirements
+
+- **ItemsAdder** (latest recommended)
+- **Paper** 1.20.6 or higher
+- Creative Inventory Integration requires **1.21.11 or higher**
+
+## Optional example pack
+
+A simple pack that shows some of the features of ItemsAdderAdditions.
+
+[Pack download link](https://github.com/bruhhhwarrior/iaadditions/releases/latest)

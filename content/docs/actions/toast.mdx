@@ -1,0 +1,18 @@
+---
+title: Toast
+description: Show an advancement-style toast notification
+---
+
+```yaml
+toast:
+  icon: my_item
+  text:
+    - "<white>My <gradient:#AC52D4:#6C3484>ItemsAdderAdditions"
+    - "<#E6FBFE><bold>Custom Toast"
+  frame: "task" # Optional (Default value: goal)
+```
+
+For `icon`, use a vanilla item from [this list](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary)
+or a custom item with `namespace:value` or just `value`.
+
+For `frame`, the possible values are `task`, `goal`, and `challenge`.
