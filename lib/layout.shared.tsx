@@ -10,8 +10,8 @@ export function baseOptions(): BaseLayoutProps {
                     <Image
                         src="/icon_128x128.png"       // put your icon in the /public folder
                         alt={appName}
-                        width={24}
-                        height={24}
+                        width={48}
+                        height={48}
                         className="rounded-sm"
                     />
                     {appName}

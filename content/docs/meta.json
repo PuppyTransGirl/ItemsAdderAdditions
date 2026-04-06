@@ -1,5 +1,4 @@
 {
   "title": "ItemsAdderAdditions",
-  "icon": "House",
   "pages": ["index", "features", "actions", "behaviours"]
 }
