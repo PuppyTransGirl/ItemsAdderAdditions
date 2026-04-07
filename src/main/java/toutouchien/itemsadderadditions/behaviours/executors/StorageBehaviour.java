@@ -27,6 +27,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -182,6 +183,9 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
+            return;
+
+        if (event.getHand() != EquipmentSlot.HAND)
             return;
 
         Block block = event.getClickedBlock();
@@ -417,22 +421,14 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         if (!(event.getPlayer() instanceof Player player))
             return;
 
-        StorageSession session = openSessions.remove(player.getUniqueId());
-        if (session == null)
+        Inventory inventory = event.getInventory();
+        if (!(inventory.getHolder(false) instanceof StorageInventoryHolder holder))
             return;
 
-        if (session.type() == StorageType.DISPOSAL)
-            return;
+        Block block = holder.location().getBlock();
+        ItemStack[] contents = inventory.getContents();
 
-        boolean isShared = session.type() == StorageType.STORAGE || session.type() == StorageType.SHULKER;
-        if (isShared && !isLastViewer(session)) {
-            Log.debug("Storage", "[InventoryClose] " + player.getName() + " closed inventory, but others are still viewing.");
-            return;
-        }
-
-        Log.debug("Storage", "[InventoryClose] " + player.getName() + " was the last viewer. Saving contents.");
-        OPEN_STORAGE_INVENTORIES.remove(session.inventory());
-        saveSessionContents(session);
+        StorageInventoryManager.saveToBlock(block, contents, contentsKey, plugin);
     }
 
     private void openForBlock(Player player, Block block) {
@@ -460,7 +456,9 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
             }
         }
 
-        Inventory inv = Bukkit.createInventory(new StorageInventoryHolder(), rows * 9, title);
+        StorageInventoryHolder holder = new StorageInventoryHolder(block.getLocation());
+        Inventory inv = Bukkit.createInventory(holder, rows * 9, title);
+        holder.inventory(inv);
 
         ItemStack[] stored = switch (storageType) {
             case STORAGE, SHULKER -> block != null
