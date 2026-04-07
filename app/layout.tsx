@@ -8,6 +8,20 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+    metadataBase: new URL('https://itemsadderadditions.com'),
+    title: {
+        template: '%s | ItemsAdderAdditions',
+        default: 'ItemsAdderAdditions',
+    },
+    description: 'Extends ItemsAdder with extra actions, behaviours, and QoL features - configured inside your existing YAML files.',
+    openGraph: {
+        siteName: 'ItemsAdderAdditions',
+        url: 'https://itemsadderadditions.com',
+        type: 'website',
+    },
+/*    twitter: {
+        card: 'summary_large_image',
+    },*/
     icons: {
         icon: '/favicon.ico',
         shortcut: '/favicon.ico',

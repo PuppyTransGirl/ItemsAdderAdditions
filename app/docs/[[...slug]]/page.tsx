@@ -21,6 +21,15 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     const MDX = page.data.body;
     const markdownUrl = getPageMarkdownUrl(page).url;
 
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline: page.data.title,
+        description: page.data.description,
+        url: `https://itemsadderadditions.com/docs/${params.slug?.join('/') ?? ''}`,
+
+    };
+
     return (
         <DocsPage
             toc={page.data.toc}
@@ -43,6 +52,10 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
                     })}
                 />
             </DocsBody>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
         </DocsPage>
     );
 }
