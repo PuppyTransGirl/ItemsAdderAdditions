@@ -13,7 +13,7 @@ export const metadata: Metadata = {
         template: '%s | ItemsAdderAdditions',
         default: 'ItemsAdderAdditions',
     },
-    description: 'Extends ItemsAdder with extra actions, behaviours, and QoL features - configured inside your existing YAML files.',
+    description: 'Extends ItemsAdder with extra actions, behaviours, and features - configured inside your existing YAML files.',
     openGraph: {
         siteName: 'ItemsAdderAdditions',
         url: 'https://itemsadderadditions.com',
