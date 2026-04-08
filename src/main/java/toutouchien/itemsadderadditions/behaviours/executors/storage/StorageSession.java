@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.behaviours.executors.storage;
 
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -31,7 +32,7 @@ public record StorageSession(
      * Returns the world location of the backing holder (block or entity).
      * Used for proximity checks when a block/furniture is broken while a GUI is open.
      */
-    public org.bukkit.Location holderLocation() {
+    public Location holderLocation() {
         if (block != null)
             return block.getLocation();
 
