@@ -69,12 +69,6 @@ import java.util.Set;
 @SuppressWarnings("unused")
 @NullMarked
 public final class ActionLoader {
-    private final ExecutorRegistry<ActionExecutor> registry;
-
-    public ActionLoader(ExecutorRegistry<ActionExecutor> registry) {
-        this.registry = registry;
-    }
-
     private static final Map<String, TriggerType> ITEM_TRIGGERS = Map.ofEntries(
             // Interact
             Map.entry("interact", TriggerType.ITEM_INTERACT),
@@ -117,11 +111,9 @@ public final class ActionLoader {
             Map.entry("bucket_empty", TriggerType.ITEM_BUCKET_EMPTY),
             Map.entry("bucket_fill", TriggerType.ITEM_BUCKET_FILL)
     );
-
     private static final Map<String, TriggerType> BLOCK_TRIGGERS = Map.of(
             "interact", TriggerType.BLOCK_INTERACT
     );
-
     private static final Map<String, TriggerType> FURNITURE_TRIGGERS = Map.ofEntries(
             Map.entry("interact", TriggerType.FURNITURE_INTERACT),
             Map.entry("interact_mainhand", TriggerType.FURNITURE_INTERACT_MAINHAND),
@@ -157,9 +149,20 @@ public final class ActionLoader {
             Map.entry("bucket_empty", TriggerType.FURNITURE_BUCKET_EMPTY),
             Map.entry("bucket_fill", TriggerType.FURNITURE_BUCKET_FILL)
     );
-
     private static final Map<String, TriggerType> COMPLEX_FURNITURE_TRIGGERS = Map.of(
             "interact", TriggerType.COMPLEX_FURNITURE_INTERACT
+    );
+    /**
+     * Trigger names that carry an event argument for the ITEM category.
+     */
+    private static final Set<String> ITEM_ARGUMENTIZED = Set.of(
+            "interact", "interact_mainhand", "interact_offhand"
+    );
+    /**
+     * Trigger names that carry an event argument for the FURNITURE category.
+     */
+    private static final Set<String> FURNITURE_ARGUMENTIZED = Set.of(
+            "interact", "interact_mainhand", "interact_offhand"
     );
 
     /*
@@ -179,30 +182,19 @@ public final class ActionLoader {
      * the trigger name to the appropriate set below.
      * No other loader code changes are required.
      */
-
-    /**
-     * Trigger names that carry an event argument for the ITEM category.
-     */
-    private static final Set<String> ITEM_ARGUMENTIZED = Set.of(
-            "interact", "interact_mainhand", "interact_offhand"
-    );
-
-    /**
-     * Trigger names that carry an event argument for the FURNITURE category.
-     */
-    private static final Set<String> FURNITURE_ARGUMENTIZED = Set.of(
-            "interact", "interact_mainhand", "interact_offhand"
-    );
-
     /**
      * Trigger names that carry an event argument for the BLOCK category.
      */
     private static final Set<String> BLOCK_ARGUMENTIZED = Set.of();
-
     /**
      * Trigger names that carry an event argument for the COMPLEX_FURNITURE category.
      */
     private static final Set<String> COMPLEX_FURNITURE_ARGUMENTIZED = Set.of();
+    private final ExecutorRegistry<ActionExecutor> registry;
+
+    public ActionLoader(ExecutorRegistry<ActionExecutor> registry) {
+        this.registry = registry;
+    }
 
     public void load() {
         ActionBindings.clear();

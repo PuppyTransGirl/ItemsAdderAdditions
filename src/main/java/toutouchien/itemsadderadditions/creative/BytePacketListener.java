@@ -51,6 +51,18 @@ public final class BytePacketListener {
     }
 
     private static final class ByteChannelDupeHandler extends ChannelDuplexHandler {
+        private static PacketListener.ChannelDupeHandler getDupeHandler(ChannelHandlerContext ctx) {
+            return (PacketListener.ChannelDupeHandler) ctx.pipeline()
+                    .get("iaadditions_packet_listener");
+        }
+
+        private static boolean isPlay(ChannelHandlerContext ctx) {
+            Channel channel = ctx.channel();
+            Connection connection = (Connection) channel.pipeline().get("packet_handler");
+            return connection != null
+                    && connection.getPacketListener() instanceof ServerGamePacketListenerImpl;
+        }
+
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             if (isPlay(ctx) && msg instanceof ByteBuf byteBuf) {
@@ -154,18 +166,6 @@ public final class BytePacketListener {
             }
 
             super.channelRead(ctx, msg);
-        }
-
-        private static PacketListener.ChannelDupeHandler getDupeHandler(ChannelHandlerContext ctx) {
-            return (PacketListener.ChannelDupeHandler) ctx.pipeline()
-                    .get("iaadditions_packet_listener");
-        }
-
-        private static boolean isPlay(ChannelHandlerContext ctx) {
-            Channel channel = ctx.channel();
-            Connection connection = (Connection) channel.pipeline().get("packet_handler");
-            return connection != null
-                    && connection.getPacketListener() instanceof ServerGamePacketListenerImpl;
         }
     }
 }

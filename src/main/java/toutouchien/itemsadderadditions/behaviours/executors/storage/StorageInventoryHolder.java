@@ -6,8 +6,8 @@ import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
 public final class StorageInventoryHolder implements InventoryHolder {
-    private Inventory inventory;
     private final Location location;
+    private Inventory inventory;
 
     public StorageInventoryHolder(Location location) {
         this.location = location;

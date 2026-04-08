@@ -67,6 +67,18 @@ public final class ActionsListener implements Listener {
         };
     }
 
+    /**
+     * Returns {@code true} when the interact event should be processed.
+     * Air-clicks are always allowed. Block-clicks are allowed unless the block
+     * interaction was explicitly denied by another listener.
+     */
+    private static boolean isInteractAllowed(PlayerInteractEvent event) {
+        Action action = event.getAction();
+        if (action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR)
+            return true;
+        return event.useInteractedBlock() != Event.Result.DENY;
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onComplexFurnitureInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
@@ -211,18 +223,6 @@ public final class ActionsListener implements Listener {
                         .eventArgument(argument)
                         .build()
         );
-    }
-
-    /**
-     * Returns {@code true} when the interact event should be processed.
-     * Air-clicks are always allowed. Block-clicks are allowed unless the block
-     * interaction was explicitly denied by another listener.
-     */
-    private static boolean isInteractAllowed(PlayerInteractEvent event) {
-        Action action = event.getAction();
-        if (action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR)
-            return true;
-        return event.useInteractedBlock() != Event.Result.DENY;
     }
 
     /**
