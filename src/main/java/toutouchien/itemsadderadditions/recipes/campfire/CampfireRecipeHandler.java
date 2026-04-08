@@ -97,9 +97,9 @@ public class CampfireRecipeHandler {
      * Unregisters all campfire recipes this handler has registered.
      */
     public void unregisterAll() {
-        for (NamespacedKey key : registeredKeys) {
+        for (NamespacedKey key : registeredKeys)
             Bukkit.removeRecipe(key);
-        }
+
         registeredKeys.clear();
     }
 
