@@ -74,23 +74,18 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
             return false;
 
         // Build active faces from parameters
-        if (topFaceActive)
-            activeFaces.add(BlockFace.UP);
-        if (northFaceActive)
-            activeFaces.add(BlockFace.NORTH);
-        if (southFaceActive)
-            activeFaces.add(BlockFace.SOUTH);
-        if (westFaceActive)
-            activeFaces.add(BlockFace.WEST);
-        if (eastFaceActive)
-            activeFaces.add(BlockFace.EAST);
+        if (topFaceActive) activeFaces.add(BlockFace.UP);
+        if (northFaceActive) activeFaces.add(BlockFace.NORTH);
+        if (southFaceActive) activeFaces.add(BlockFace.SOUTH);
+        if (westFaceActive) activeFaces.add(BlockFace.WEST);
+        if (eastFaceActive) activeFaces.add(BlockFace.EAST);
 
         // Parse potion effects from nested sections
         for (String key : section.getKeys(false)) {
             if (!key.startsWith("potion_effect"))
                 continue;
-            PotionEffect pe = PotionUtils.parsePotion(
-                    section.getConfigurationSection(key));
+
+            PotionEffect pe = PotionUtils.parsePotion(section.getConfigurationSection(key));
             if (pe != null)
                 potionEffects.add(pe);
         }
@@ -101,11 +96,14 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
     @Override
     protected void onLoad(BehaviourHost host) {
         this.category = host.category();
-        this.detector = new ContactDetector(
-                host.namespacedID(), activeFaces, topFaceActive);
+        this.detector = new ContactDetector(host.namespacedID(), activeFaces, topFaceActive);
         task = Task.syncRepeat(
-                t -> tick(), host.plugin(), 100L * 50L, 2L * 50L,
-                TimeUnit.MILLISECONDS);
+                t -> tick(),
+                host.plugin(),
+                100L * 50L,
+                2L * 50L,
+                TimeUnit.MILLISECONDS
+        );
     }
 
     @Override
@@ -114,6 +112,7 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
             task.cancel();
             task = null;
         }
+
         detector = null;
         category = null;
         touchingLastTick.clear();
@@ -126,8 +125,7 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
         Set<UUID> touchingThisTick = new HashSet<>();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!isTouching(player)
-                    || (player.isSneaking() && !damageWhenSneaking)) {
+            if (!isTouching(player) || (player.isSneaking() && !damageWhenSneaking)) {
                 if (touchingLastTick.contains(player.getUniqueId()))
                     player.setMaximumNoDamageTicks(20);
                 continue;
@@ -137,9 +135,12 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
 
             if (interval < 20)
                 player.setMaximumNoDamageTicks(interval);
+
             player.damage(amount, DAMAGE_SOURCE);
+
             if (fireDuration > 0)
                 player.setFireTicks(fireDuration);
+
             potionEffects.forEach(player::addPotionEffect);
         }
 
