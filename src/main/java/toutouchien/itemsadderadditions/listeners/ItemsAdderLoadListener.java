@@ -32,6 +32,8 @@ public final class ItemsAdderLoadListener implements Listener {
             plugin.creativeMenuManager().reload();
         }
 
+        plugin.recipeManager().reload();
+
         Log.success("IAA", "Reload complete.");
     }
 }

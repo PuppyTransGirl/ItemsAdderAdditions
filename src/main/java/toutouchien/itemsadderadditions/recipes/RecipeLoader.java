@@ -63,6 +63,7 @@ public class RecipeLoader {
                         namespace,
                         recipes.getConfigurationSection("campfire_cooking")
                 );
+
                 stonecutterHandler.load(
                         namespace,
                         recipes.getConfigurationSection("stonecutter")
@@ -80,12 +81,12 @@ public class RecipeLoader {
         File[] children = dir.listFiles();
         if (children == null) return result;
         for (File f : children) {
-            if (f.isDirectory()) {
+            if (f.isDirectory())
                 result.addAll(collectYamlFiles(f));
-            } else if (f.getName().endsWith(".yml")) {
+            else if (f.getName().endsWith(".yml"))
                 result.add(f);
-            }
         }
+
         return result;
     }
 }

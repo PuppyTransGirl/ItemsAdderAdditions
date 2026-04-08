@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions.recipes;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import toutouchien.itemsadderadditions.recipes.campfire.CampfireRecipeHandler;
 import toutouchien.itemsadderadditions.recipes.stonecutter.StonecutterRecipeHandler;
 import toutouchien.itemsadderadditions.utils.other.Log;
@@ -39,21 +40,11 @@ public class RecipeManager {
         loader.loadAll();
 
         // Sync recipe book for all online players
-        Bukkit.getOnlinePlayers().forEach(p ->
-                p.updateInventory()
-        );
+        Bukkit.getOnlinePlayers().forEach(Player::updateInventory);
     }
 
     private void unregisterAll() {
         campfireHandler.unregisterAll();
         stonecutterHandler.unregisterAll();
-    }
-
-    public CampfireRecipeHandler campfireHandler() {
-        return campfireHandler;
-    }
-
-    public StonecutterRecipeHandler stonecutterHandler() {
-        return stonecutterHandler;
     }
 }
