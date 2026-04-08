@@ -19,9 +19,6 @@ import java.util.List;
  */
 public class CampfireRecipeHandler {
     private static final String LOG_TAG = "CampfireRecipe";
-    /**
-     * Key prefix used for all NamespacedKeys we register, to allow clean removal.
-     */
     public static final String KEY_PREFIX = "iaa_campfire_";
 
     private final List<NamespacedKey> registeredKeys = new ArrayList<>();
@@ -48,7 +45,7 @@ public class CampfireRecipeHandler {
                 continue;
             }
             String ingredientValue = ingredientSection.getString("item");
-            RecipeChoice ingredient = RecipeItemResolver.resolve(ingredientValue, namespace, LOG_TAG);
+            RecipeChoice ingredient = RecipeItemResolver.resolve(namespace, ingredientValue, LOG_TAG);
             if (ingredient == null) continue;
 
             ConfigurationSection resultSection = entry.getConfigurationSection("result");
@@ -117,9 +114,15 @@ public class CampfireRecipeHandler {
         }
 
         ItemStack item = NamespaceUtils.itemByID(namespace, itemValue);
+
+        // Fallback to minecraft: namespace for bare vanilla names
+        if (item == null && !itemValue.contains(":")) {
+            item = NamespaceUtils.itemByID("minecraft", itemValue);
+        }
+
         if (item == null) {
-            Log.warn(LOG_TAG, "Could not resolve result item: " + itemValue
-                    + " (namespace: " + namespace + ")");
+            Log.warn(LOG_TAG, "Could not resolve result item: '" + itemValue
+                    + "' (namespace: " + namespace + ")");
             return null;
         }
 

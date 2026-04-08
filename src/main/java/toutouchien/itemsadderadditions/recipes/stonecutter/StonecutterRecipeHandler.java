@@ -108,9 +108,15 @@ public class StonecutterRecipeHandler {
         }
 
         ItemStack item = NamespaceUtils.itemByID(namespace, itemValue);
+
+        // Fallback to minecraft: namespace for bare vanilla names
+        if (item == null && !itemValue.contains(":")) {
+            item = NamespaceUtils.itemByID("minecraft", itemValue);
+        }
+
         if (item == null) {
-            Log.warn(LOG_TAG, "Could not resolve result item: " + itemValue
-                    + " (namespace: " + namespace + ")");
+            Log.warn(LOG_TAG, "Could not resolve result item: '" + itemValue
+                    + "' (namespace: " + namespace + ")");
             return null;
         }
 
