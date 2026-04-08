@@ -62,11 +62,11 @@ public final class CoreProtectUtils {
      * @param user     The player name responsible for the change.
      * @param location The location of the container being modified.
      */
-    public static void logContainerTransaction(String user, Location location) {
+    public static void logInteraction(String user, Location location) {
         CoreProtectAPI api = getAPI();
         if (api == null)
             return;
 
-        api.logContainerTransaction(user, location);
+        api.logInteraction(user, location);
     }
 }

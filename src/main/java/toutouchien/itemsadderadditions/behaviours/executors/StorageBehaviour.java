@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -27,10 +28,7 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
-import toutouchien.itemsadderadditions.behaviours.executors.storage.BlockCoord;
-import toutouchien.itemsadderadditions.behaviours.executors.storage.ShulkerDropTracker;
-import toutouchien.itemsadderadditions.behaviours.executors.storage.StorageGuiGuard;
-import toutouchien.itemsadderadditions.behaviours.executors.storage.StorageSessionManager;
+import toutouchien.itemsadderadditions.behaviours.executors.storage.*;
 import toutouchien.itemsadderadditions.utils.other.ItemCategory;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
@@ -220,22 +218,20 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         if (session == null) return;
         if (session.type() == StorageType.DISPOSAL) return;
 
-        sessionManager.saveSessionContents(session, player.getName());
+        sessionManager.saveSessionContents(session);
     }
 
     @Nullable
     private ItemStack[] extractFromHand(Player player) {
         ItemStack[] stored = StorageInventoryManager.extractFromItem(
                 player.getInventory().getItemInMainHand(), contentsKey);
+
         if (stored != null) return stored;
         return StorageInventoryManager.extractFromItem(
                 player.getInventory().getItemInOffHand(), contentsKey);
     }
 
-    private static void dropItems(
-            org.bukkit.Location loc,
-            @Nullable ItemStack @Nullable [] contents
-    ) {
+    private static void dropItems(Location loc, @Nullable ItemStack @Nullable [] contents) {
         if (contents == null) return;
         for (ItemStack item : contents)
             if (item != null && item.getType() != org.bukkit.Material.AIR)

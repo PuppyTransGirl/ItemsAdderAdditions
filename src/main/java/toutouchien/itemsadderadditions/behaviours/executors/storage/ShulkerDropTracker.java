@@ -15,6 +15,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.behaviours.executors.StorageBehaviour;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.HashMap;
@@ -52,7 +53,7 @@ public final class ShulkerDropTracker implements Listener {
         this.namespacedID = namespacedID;
         this.contentsNamespacedKey = contentsKey;
         this.uniqueIdKey = uniqueIdKey;
-        this.contentsKey = null; // unused field — see below
+        this.contentsKey = null; // unused field - see below
     }
 
     public void stageDrop(Location loc, ItemStack[] contents) {
@@ -72,7 +73,7 @@ public final class ShulkerDropTracker implements Listener {
 
     /**
      * Pre-captures SHULKER furniture item contents before ItemsAdder consumes the hand item.
-     * Must fire at {@link EventPriority#LOWEST} — before ItemsAdder processes the click.
+     * Must fire at {@link EventPriority#LOWEST} - before ItemsAdder processes the click.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onFurniturePlacePreCapture(PlayerInteractEvent event) {
@@ -110,7 +111,7 @@ public final class ShulkerDropTracker implements Listener {
             injectIfNonEmpty(droppedItem, contents);
             return;
         }
-        Log.debug("ShulkerDropTracker", "No matching item in drops yet — waiting for ItemSpawnEvent.");
+        Log.debug("ShulkerDropTracker", "No matching item in drops yet - waiting for ItemSpawnEvent.");
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -131,7 +132,7 @@ public final class ShulkerDropTracker implements Listener {
 
     private void injectIfNonEmpty(Item target, ItemStack[] contents) {
         if (!hasAnyContent(contents)) {
-            Log.debug("ShulkerDropTracker", "Contents all air — item left clean.");
+            Log.debug("ShulkerDropTracker", "Contents all air - item left clean.");
             return;
         }
         ItemStack stack = target.getItemStack().clone();

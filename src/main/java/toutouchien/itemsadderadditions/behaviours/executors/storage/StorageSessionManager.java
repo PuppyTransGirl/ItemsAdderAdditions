@@ -46,15 +46,14 @@ public final class StorageSessionManager {
 
     public void openForBlock(Player player, Block block) {
         Inventory inv = resolveInventory(block.getLocation(), block, null);
-        openSessions.put(player.getUniqueId(),
-                new StorageSession(player, inv, block, null, storageType));
+        openSessions.put(player.getUniqueId(), new StorageSession(player, inv, block, null, storageType));
         player.openInventory(inv);
+        CoreProtectUtils.logInteraction(player.getName(), block.getLocation());
     }
 
     public void openForEntity(Player player, Entity entity) {
         Inventory inv = resolveInventory(entity.getLocation(), null, entity);
-        openSessions.put(player.getUniqueId(),
-                new StorageSession(player, inv, null, entity, storageType));
+        openSessions.put(player.getUniqueId(), new StorageSession(player, inv, null, entity, storageType));
         player.openInventory(inv);
     }
 
@@ -63,15 +62,11 @@ public final class StorageSessionManager {
         return openSessions.remove(uuid);
     }
 
-    public Map<UUID, StorageSession> sessions() {
-        return Collections.unmodifiableMap(openSessions);
-    }
-
     public void clear() {
         Set<Inventory> flushed = new HashSet<>();
         for (StorageSession session : openSessions.values()) {
             if (!flushed.contains(session.inventory())) {
-                saveSessionContents(session, null);
+                saveSessionContents(session);
                 flushed.add(session.inventory());
             }
             session.player().closeInventory();
@@ -79,20 +74,16 @@ public final class StorageSessionManager {
         openSessions.clear();
     }
 
-    public void saveSessionContents(StorageSession session, @Nullable String actorName) {
+    public void saveSessionContents(StorageSession session) {
         ItemStack[] contents = session.inventory().getContents();
 
         if (session.isBlock()) {
-            if (actorName != null)
-                CoreProtectUtils.logContainerTransaction(actorName, session.block().getLocation());
             StorageInventoryManager.saveToBlock(session.block(), contents, contentsKey, plugin);
         } else if (session.isFurniture()) {
-            if (actorName != null)
-                CoreProtectUtils.logContainerTransaction(actorName, session.entity().getLocation());
             StorageInventoryManager.saveToEntity(session.entity(), contents, contentsKey);
         } else {
             Log.warn("StorageSessionManager",
-                    "Session for {} has neither block nor entity — contents not saved!",
+                    "Session for {} has neither block nor entity - contents not saved!",
                     session.player().getName());
         }
     }
@@ -111,13 +102,11 @@ public final class StorageSessionManager {
             StorageSession session = it.next().getValue();
             Location holderLoc = session.holderLocation();
 
-            boolean sameWorld = holderLoc.getWorld() != null
-                    && holderLoc.getWorld().equals(loc.getWorld());
+            boolean sameWorld = holderLoc.getWorld() != null && holderLoc.getWorld().equals(loc.getWorld());
             if (!sameWorld || holderLoc.distanceSquared(loc) > 2.25) continue;
 
-            if (session.type() != StorageType.DISPOSAL
-                    && !alreadySaved.contains(session.inventory())) {
-                saveSessionContents(session, session.player().getName());
+            if (session.type() != StorageType.DISPOSAL && !alreadySaved.contains(session.inventory())) {
+                saveSessionContents(session);
                 alreadySaved.add(session.inventory());
 
                 if (preloadCache != null && session.isBlock() && session.block() != null)
