@@ -17,7 +17,6 @@ import java.util.List;
  * Triggers the full reload cycle whenever ItemsAdder finishes loading its data.
  */
 public final class ItemsAdderLoadListener implements Listener {
-
     @EventHandler
     public void onItemsAdderLoad(ItemsAdderLoadDataEvent event) {
         ItemsAdderAdditions plugin = ItemsAdderAdditions.instance();

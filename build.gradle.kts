@@ -96,7 +96,10 @@ tasks {
         relocate("org.bstats", "${project.group}.libs.org.bstats")
 
         relocate("com.jeff_media.customblockdata", "${project.group}.libs.com.jeff_media.customblockdata")
-        relocate("com.jeff_media.morepersistentdatatypes", "${project.group}.libs.com.jeff_media.morepersistentdatatypes")
+        relocate(
+            "com.jeff_media.morepersistentdatatypes",
+            "${project.group}.libs.com.jeff_media.morepersistentdatatypes"
+        )
     }
 
     processResources {

@@ -27,7 +27,6 @@ import java.util.Locale;
  */
 @NullMarked
 public final class SoundUtils {
-
     private SoundUtils() {
         throw new IllegalStateException("Utility class");
     }
@@ -37,7 +36,7 @@ public final class SoundUtils {
      *
      * @param section the YAML section to read from ({@code null} -> returns {@code null})
      * @return the parsed sound, or {@code null} if {@code name} is absent/blank or
-     *         {@code source} is not a recognised {@link Sound.Source} name
+     * {@code source} is not a recognised {@link Sound.Source} name
      */
     @Nullable
     public static Sound parseSound(@Nullable ConfigurationSection section) {
@@ -56,7 +55,7 @@ public final class SoundUtils {
             return null;
 
         float volume = readFloat(section, "volume", 1.0f);
-        float pitch  = readFloat(section, "pitch",  1.0f);
+        float pitch = readFloat(section, "pitch", 1.0f);
 
         return Sound.sound(Key.key(keyStr), source, volume, pitch);
     }
@@ -66,7 +65,7 @@ public final class SoundUtils {
      *
      * @return the matched source, or {@code null} if the string is unrecognised
      */
-    public static Sound. @Nullable Source parseSource(@Nullable String raw) {
+    public static Sound.@Nullable Source parseSource(@Nullable String raw) {
         if (raw == null || raw.isBlank())
             return Sound.Source.MASTER;
 

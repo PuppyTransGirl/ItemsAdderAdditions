@@ -16,6 +16,7 @@ public final class StorageInventoryHolder implements InventoryHolder {
     public void inventory(Inventory inventory) {
         this.inventory = inventory;
     }
+
     public Location location() {
         return this.location;
     }

@@ -58,7 +58,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Parameter {
-    /** Key in the YAML config section (or sub-section if {@link #path} is set). */
+    /**
+     * Key in the YAML config section (or sub-section if {@link #path} is set).
+     */
     String key();
 
     /**

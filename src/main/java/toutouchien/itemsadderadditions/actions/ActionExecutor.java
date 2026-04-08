@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 
 @NullMarked
 public abstract class ActionExecutor implements Keyed {
-
     @Parameter(key = "permission", type = String.class)
     @Nullable private String permission;
 

@@ -49,7 +49,9 @@ public final class ToastAction extends ActionExecutor {
     @Parameter(key = "frame", type = String.class)
     private String frame = "goal";
 
-    /** Resolved at configure-time from a plain string or list. */
+    /**
+     * Resolved at configure-time from a plain string or list.
+     */
     private String text = "";
 
     private String namespacedID;

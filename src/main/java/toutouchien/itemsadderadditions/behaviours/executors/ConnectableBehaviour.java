@@ -27,7 +27,6 @@ import java.util.Set;
 @NullMarked
 @Behaviour(key = "connectable")
 public final class ConnectableBehaviour extends BehaviourExecutor implements Listener {
-
     @Parameter(key = "type", type = String.class) @Nullable private String typeRaw;
     @Parameter(key = "default", type = String.class, required = true) private String defaultFurniture;
     @Parameter(key = "straight", type = String.class) @Nullable private String straightFurniture;

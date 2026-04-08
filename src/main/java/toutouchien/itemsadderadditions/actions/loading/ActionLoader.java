@@ -267,7 +267,7 @@ public final class ActionLoader {
      *   actionbar:      &lt;- action key directly under the trigger (no qualifier)
      *     text: "..."
      * </pre>
-     *
+     * <p>
      * Detection: if any direct child key is a registered action prototype, the whole
      * section is treated as a wildcard and stored under the null-argument
      * {@link TriggerKey}. Otherwise every child key is treated as an argument qualifier.
@@ -295,7 +295,7 @@ public final class ActionLoader {
                 // A plain scalar under an argumentized trigger - likely a config mistake.
                 Log.itemWarn("Actions", itemName,
                         "expected a sub-section under trigger '{}', got a plain value for key '{}' " +
-                        "(did you forget an event argument like 'right:' or 'left_shift:'?)",
+                                "(did you forget an event argument like 'right:' or 'left_shift:'?)",
                         type, argument);
                 continue;
             }

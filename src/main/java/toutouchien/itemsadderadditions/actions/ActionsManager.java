@@ -27,7 +27,6 @@ import toutouchien.itemsadderadditions.utils.other.Log;
  * }</pre>
  */
 public final class ActionsManager {
-
     /**
      * Config key prefix matching the {@code actions:} section in config.yml.
      */

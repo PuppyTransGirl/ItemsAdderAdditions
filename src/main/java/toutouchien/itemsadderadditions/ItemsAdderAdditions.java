@@ -13,6 +13,7 @@ import toutouchien.itemsadderadditions.creative.BytePacketListener;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.creative.PacketListener;
 import toutouchien.itemsadderadditions.listeners.ItemsAdderLoadListener;
+import toutouchien.itemsadderadditions.recipes.RecipeManager;
 import toutouchien.itemsadderadditions.updatechecker.UpdateChecker;
 import toutouchien.itemsadderadditions.utils.VersionUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
@@ -29,6 +30,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
     private BehavioursManager behavioursManager;
     private ComponentsManager componentsManager;
     private CreativeMenuManager creativeMenuManager;
+    private RecipeManager recipeManager;
 
     private Metrics bStats;
 
@@ -56,6 +58,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
         } else {
             Log.info("CreativeMenu", "Disabled - version has to be 1.21.11 or higher.");
         }
+
+        this.recipeManager = new RecipeManager();
 
         registerListeners();
 
@@ -108,6 +112,10 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
     public CreativeMenuManager creativeMenuManager() {
         return creativeMenuManager;
+    }
+
+    public RecipeManager recipeManager() {
+        return recipeManager;
     }
 
     public static ItemsAdderAdditions instance() {

@@ -49,12 +49,12 @@ public final class PacketListener {
      */
     public static void inject() {
         ChannelInitializeListenerHolder.addListener(
-            Key.key("iaadditions", "packet_listener"),
-            channel -> channel.pipeline().addBefore(
-                "decoder",
-                "iaadditions_packet_listener",
-                new ChannelDupeHandler()
-            )
+                Key.key("iaadditions", "packet_listener"),
+                channel -> channel.pipeline().addBefore(
+                        "decoder",
+                        "iaadditions_packet_listener",
+                        new ChannelDupeHandler()
+                )
         );
     }
 

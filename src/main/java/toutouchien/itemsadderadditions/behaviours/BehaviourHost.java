@@ -19,7 +19,6 @@ import toutouchien.itemsadderadditions.utils.other.ItemCategory;
  */
 @NullMarked
 public record BehaviourHost(String namespacedID, ItemCategory category, JavaPlugin plugin) {
-
     /**
      * Returns the namespace portion of the namespaced ID (everything before {@code ':'}).
      * For example, {@code "my_pack:my_item"} -> {@code "my_pack"}.

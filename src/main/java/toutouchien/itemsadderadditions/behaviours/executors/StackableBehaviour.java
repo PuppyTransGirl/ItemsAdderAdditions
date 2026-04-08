@@ -148,9 +148,9 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
 
     private static List<String> normalizeIds(List<String> ids) {
         return ids.stream()
-            .map(id -> id.toLowerCase(Locale.ROOT))
-            .map(id -> id.contains(":") ? id : "minecraft:" + id)
-            .toList();
+                .map(id -> id.toLowerCase(Locale.ROOT))
+                .map(id -> id.contains(":") ? id : "minecraft:" + id)
+                .toList();
     }
 
     @Override
@@ -182,8 +182,8 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
         CustomStack customStack = CustomStack.byItemStack(item);
 
         String heldId = customStack != null
-            ? customStack.getNamespacedID()
-            : "minecraft:" + item.getType().name().toLowerCase(Locale.ROOT);
+                ? customStack.getNamespacedID()
+                : "minecraft:" + item.getType().name().toLowerCase(Locale.ROOT);
 
         // Walk the step chain: the clicked block must match either the base block
         // (namespacedID) or a previous step's result block before we consider a step.
