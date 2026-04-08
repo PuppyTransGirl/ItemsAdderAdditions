@@ -10,6 +10,7 @@ val minMinecraftVersion: String by project
 val itemsAdderApiVersion: String by project
 val placeholderApiVersion: String by project
 val mythicMobsVersion: String by project
+val coreProtectVersion: String by project
 val bStatsVersion: String by project
 val customBlockDataVersion: String by project
 val morePersistentDataTypesVersion: String by project
@@ -26,6 +27,7 @@ repositories {
     maven("https://maven.devs.beer/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://mvn.lumine.io/repository/maven-public/")
+    maven("https://maven.playpro.com/")
 }
 
 dependencies {
@@ -35,13 +37,12 @@ dependencies {
     compileOnly("dev.lone:api-itemsadder:${itemsAdderApiVersion}")
     compileOnly("me.clip:placeholderapi:${placeholderApiVersion}")
     compileOnly("io.lumine:Mythic-Dist:${mythicMobsVersion}")
+    compileOnly("net.coreprotect:coreprotect:${coreProtectVersion}")
 
     // Dependencies
-    implementation("org.bstats:bstats-bukkit:${bStatsVersion}")
-
-    // Storage behaviour: shaded so they don't conflict with other plugins using these libs
     implementation("com.jeff-media:custom-block-data:${customBlockDataVersion}")
     implementation("com.jeff-media:MorePersistentDataTypes:${morePersistentDataTypesVersion}")
+    implementation("org.bstats:bstats-bukkit:${bStatsVersion}")
 }
 
 paperweight {
