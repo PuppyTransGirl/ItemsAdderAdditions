@@ -68,7 +68,6 @@ public class RecipeLoader {
                         namespace,
                         recipes.getConfigurationSection("stonecutter")
                 );
-
             } catch (Exception e) {
                 Log.warn(LOG_TAG, "Failed to parse file: " + file.getPath()
                         + " - " + e.getMessage());
