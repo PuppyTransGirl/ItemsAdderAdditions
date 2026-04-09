@@ -51,7 +51,7 @@ public final class NamespaceUtils {
         if (customStack != null)
             return customStack.getItemStack();
 
-        String normalizedId = normalizeID(currentNamespace, id);
+        String normalizedId = normalizeID("minecraft", id);
         Key key = Key.key(normalizedId);
 
         ItemType minecraftItemType = Registry.ITEM.get(key);

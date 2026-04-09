@@ -1,13 +1,13 @@
 package toutouchien.itemsadderadditions.recipes.stonecutter;
 
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.crafting.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.StonecuttingRecipe;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
-import toutouchien.itemsadderadditions.recipes.RecipeItemResolver;
 import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
@@ -16,13 +16,13 @@ import java.util.List;
 
 /**
  * Parses the {@code recipes.stonecutter} YAML section and registers
- * {@link StonecuttingRecipe} entries into the server.
+ * {@link StonecutterRecipe} entries into the server.
  */
 public class StonecutterRecipeHandler {
     private static final String LOG_TAG = "StonecutterRecipe";
     public static final String KEY_PREFIX = "iaa_stonecutter_";
 
-    private final List<NamespacedKey> registeredKeys = new ArrayList<>();
+    private final List<ResourceKey<Recipe<?>>> registeredKeys = new ArrayList<>();
 
     /**
      * Parses the {@code stonecutter} sub-section of a namespace YAML file.
@@ -45,8 +45,9 @@ public class StonecutterRecipeHandler {
                 Log.warn(LOG_TAG, "Missing 'ingredient' for " + namespace + ":" + recipeId);
                 continue;
             }
+
             String ingredientValue = ingredientSection.getString("item");
-            RecipeChoice ingredient = RecipeItemResolver.resolve(namespace, ingredientValue, LOG_TAG);
+            ItemStack ingredient = NamespaceUtils.itemByID(namespace, ingredientValue);
             if (ingredient == null) continue;
 
             ConfigurationSection resultSection = entry.getConfigurationSection("result");
@@ -54,42 +55,48 @@ public class StonecutterRecipeHandler {
                 Log.warn(LOG_TAG, "Missing 'result' for " + namespace + ":" + recipeId);
                 continue;
             }
+
             ItemStack result = resolveResult(resultSection, namespace, recipeId);
             if (result == null) continue;
 
-            String permission = entry.getString("permission", null);
-            register(namespace, recipeId, ingredient, result, permission);
+            register(namespace, recipeId, ingredient, result);
         }
     }
 
     private void register(
             String namespace,
-            String recipeId,
-            RecipeChoice ingredient,
-            ItemStack result,
-            String permission
+            String recipeID,
+            ItemStack ingredient,
+            ItemStack result
     ) {
-        NamespacedKey key = new NamespacedKey(
-                ItemsAdderAdditions.instance(),
-                KEY_PREFIX + namespace + "_" + recipeId
+        Identifier identifier = Identifier.fromNamespaceAndPath(
+                "iaadditions",
+                "iaa_stonecutter_" + namespace + "_" + recipeID
+        );
+        ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, identifier);
+
+        StonecutterRecipe recipe = new StonecutterRecipe(
+                "",
+                Ingredient.of(CraftItemStack.asNMSCopy(ingredient).getItem()),
+                CraftItemStack.asNMSCopy(result)
         );
 
-        Bukkit.removeRecipe(key);
+        RecipeManager recipeManager = MinecraftServer.getServer().getRecipeManager();
+        recipeManager.addRecipe(new RecipeHolder<>(
+                key, recipe
+        ));
 
-        StonecuttingRecipe recipe = new StonecuttingRecipe(key, result, ingredient);
-
-        Bukkit.addRecipe(recipe);
         registeredKeys.add(key);
 
-        Log.info(LOG_TAG, "Registered stonecutter recipe: " + namespace + ":" + recipeId);
+        Log.info(LOG_TAG, "Registered stonecutter recipe: " + namespace + ":" + recipeID);
     }
 
     /**
      * Unregisters all stonecutter recipes this handler has registered.
      */
     public void unregisterAll() {
-        for (NamespacedKey key : registeredKeys)
-            Bukkit.removeRecipe(key);
+        for (ResourceKey<Recipe<?>> key : registeredKeys)
+            MinecraftServer.getServer().getRecipeManager().removeRecipe(key);
 
         registeredKeys.clear();
     }
@@ -108,20 +115,13 @@ public class StonecutterRecipeHandler {
         }
 
         ItemStack item = NamespaceUtils.itemByID(namespace, itemValue);
-
-        // Fallback to minecraft: namespace for bare vanilla names
-        if (item == null && !itemValue.contains(":")) {
-            item = NamespaceUtils.itemByID("minecraft", itemValue);
-        }
-
         if (item == null) {
             Log.warn(LOG_TAG, "Could not resolve result item: '" + itemValue
                     + "' (namespace: " + namespace + ")");
             return null;
         }
 
-        ItemStack result = item.clone();
-        result.setAmount(amount);
-        return result;
+        item.setAmount(amount);
+        return item;
     }
 }
