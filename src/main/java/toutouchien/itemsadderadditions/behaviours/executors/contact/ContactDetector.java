@@ -81,8 +81,10 @@ public final class ContactDetector {
 
             for (BlockFace face : activeFaces) {
                 if (face == BlockFace.UP) continue;
+
                 Block neighbour = origin.getRelative(face);
                 if (!isTarget.test(neighbour)) continue;
+
                 double cx = neighbour.getX() + 0.5;
                 double cz = neighbour.getZ() + 0.5;
                 if (Math.abs(px - cx) <= THRESHOLD && Math.abs(pz - cz) <= THRESHOLD)

@@ -29,34 +29,17 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
     private static final DamageSource DAMAGE_SOURCE =
             DamageSource.builder(DamageType.CACTUS).build();
 
-    @Parameter(key = "amount", type = Double.class, required = true,
-            min = 0.5, max = 100.0)
-    private Double amount;
-
-    @Parameter(key = "interval", type = Integer.class, min = 1, max = 200)
-    private Integer interval = 20;
-
-    @Parameter(key = "fire_duration", type = Integer.class, min = 0, max = 200)
-    private Integer fireDuration = 0;
-
-    @Parameter(key = "damage_when_sneaking", type = Boolean.class)
-    private Boolean damageWhenSneaking = true;
+    @Parameter(key = "amount", type = Double.class, required = true, min = 0.5, max = 100.0) private Double amount;
+    @Parameter(key = "interval", type = Integer.class, min = 1, max = 200) private Integer interval = 20;
+    @Parameter(key = "fire_duration", type = Integer.class, min = 0, max = 200) private Integer fireDuration = 0;
+    @Parameter(key = "damage_when_sneaking", type = Boolean.class) private Boolean damageWhenSneaking = true;
 
     // Block faces - read from "block_faces" sub-section
-    @Parameter(key = "top", path = "block_faces", type = Boolean.class)
-    private boolean topFaceActive = true;
-
-    @Parameter(key = "north", path = "block_faces", type = Boolean.class)
-    private boolean northFaceActive = true;
-
-    @Parameter(key = "south", path = "block_faces", type = Boolean.class)
-    private boolean southFaceActive = true;
-
-    @Parameter(key = "west", path = "block_faces", type = Boolean.class)
-    private boolean westFaceActive = true;
-
-    @Parameter(key = "east", path = "block_faces", type = Boolean.class)
-    private boolean eastFaceActive = true;
+    @Parameter(key = "top", path = "block_faces", type = Boolean.class) private boolean topFaceActive = true;
+    @Parameter(key = "north", path = "block_faces", type = Boolean.class) private boolean northFaceActive = true;
+    @Parameter(key = "south", path = "block_faces", type = Boolean.class) private boolean southFaceActive = true;
+    @Parameter(key = "west", path = "block_faces", type = Boolean.class) private boolean westFaceActive = true;
+    @Parameter(key = "east", path = "block_faces", type = Boolean.class) private boolean eastFaceActive = true;
 
     private final EnumSet<BlockFace> activeFaces = EnumSet.noneOf(BlockFace.class);
     private final List<PotionEffect> potionEffects = new ArrayList<>();
@@ -64,12 +47,13 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
     private @Nullable ScheduledTask task;
     private @Nullable ContactDetector detector;
     private @Nullable ItemCategory category;
-    private final Set<UUID> touchingLastTick = new HashSet<>();
+    private final Map<UUID, Integer> touchingLastTick = new HashMap<>();
 
     @Override
     public boolean configure(Object configData, String namespacedID) {
         if (!(configData instanceof ConfigurationSection section))
             return false;
+
         if (!super.configure(configData, namespacedID))
             return false;
 
@@ -122,16 +106,16 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
         if (detector == null || category == null)
             return;
 
-        Set<UUID> touchingThisTick = new HashSet<>();
+        Map<UUID, Integer> touchingThisTick = new HashMap<>();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!isTouching(player) || (player.isSneaking() && !damageWhenSneaking)) {
-                if (touchingLastTick.contains(player.getUniqueId()))
+                if (touchingLastTick.containsKey(player.getUniqueId()) && interval < 20)
                     player.setMaximumNoDamageTicks(20);
                 continue;
             }
 
-            touchingThisTick.add(player.getUniqueId());
+            touchingThisTick.put(player.getUniqueId(), player.getMaximumNoDamageTicks());
 
             if (interval < 20)
                 player.setMaximumNoDamageTicks(interval);
@@ -145,7 +129,7 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
         }
 
         touchingLastTick.clear();
-        touchingLastTick.addAll(touchingThisTick);
+        touchingLastTick.putAll(touchingThisTick);
     }
 
     private boolean isTouching(Player player) {
