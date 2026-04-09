@@ -59,7 +59,10 @@ public class ItemsAdderAdditions extends JavaPlugin {
             Log.info("CreativeMenu", "Disabled - version has to be 1.21.11 or higher.");
         }
 
-        this.recipeManager = new RecipeManager();
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_11))
+            this.recipeManager = new RecipeManager();
+        else
+            Log.info("RecipeManager", "Disabled - version has to be 1.21.11 or higher.");
 
         registerListeners();
 
