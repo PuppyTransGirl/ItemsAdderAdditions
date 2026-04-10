@@ -15,7 +15,6 @@ import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.patches.PatchManager;
 import toutouchien.itemsadderadditions.recipes.RecipeManager;
 import toutouchien.itemsadderadditions.updatechecker.UpdateChecker;
-import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
 
@@ -79,11 +78,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
     }
 
     public void reload() {
-        Log.info("Reload", "Reloading ItemsAdderAdditions...");
-
         this.reloadConfig();
-
-        Log.info("Reload", "ItemsAdderAdditions reloaded");
     }
 
     @Override
