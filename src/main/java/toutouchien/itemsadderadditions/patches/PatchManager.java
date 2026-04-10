@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.patches;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
 import toutouchien.itemsadderadditions.patches.impl.AddEnchantmentPatch;
+import toutouchien.itemsadderadditions.patches.impl.CooldownCapturePatch;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.lang.instrument.Instrumentation;
@@ -14,7 +15,8 @@ import java.util.stream.Collectors;
 
 public class PatchManager {
     private static final List<ClassPatch> PATCHES = List.of(
-            new AddEnchantmentPatch()
+            new AddEnchantmentPatch(),
+            new CooldownCapturePatch()
     );
 
     public static void applyAll() {

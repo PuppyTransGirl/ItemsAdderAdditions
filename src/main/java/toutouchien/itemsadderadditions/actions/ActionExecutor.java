@@ -1,13 +1,16 @@
 package toutouchien.itemsadderadditions.actions;
 
+import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
+import toutouchien.itemsadderadditions.cooldown.CooldownBridge;
 import toutouchien.itemsadderadditions.utils.Task;
 import toutouchien.itemsadderadditions.utils.other.Keyed;
 import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
@@ -78,6 +81,18 @@ public abstract class ActionExecutor implements Keyed {
     public final void run(ActionContext context) {
         if (permission != null && !context.player().hasPermission(permission))
             return;
+
+        ItemStack heldItem = context.heldItem();
+        if (heldItem != null) {
+            CustomStack customStack = CustomStack.byItemStack(heldItem);
+
+            if (customStack != null) {
+                int itemHash = customStack.getNamespacedID().hashCode();
+
+                if (CooldownBridge.isOnCooldown(context.player(), itemHash))
+                    return;
+            }
+        }
 
         Set<Entity> entities = new HashSet<>();
         entities.add(context.player());
