@@ -15,8 +15,19 @@ public final class NamespaceUtils {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * Normalizes an ID by adding the current namespace if missing and converting to lowercase.
+     * This ensures compatibility with Key.key() which requires lowercase characters.
+     */
     public static String normalizeID(String currentNamespace, String id) {
-        return id.contains(":") ? id : currentNamespace + ":" + id;
+        // Convert to lowercase to avoid Key parsing errors
+        String lowerId = id.toLowerCase();
+        String lowerNamespace = currentNamespace.toLowerCase();
+
+        if (lowerId.contains(":"))
+            return lowerId; // Already contains namespace
+
+        return lowerNamespace + ":" + lowerId;
     }
 
     public static String namespace(String namespacedID) {
@@ -37,9 +48,8 @@ public final class NamespaceUtils {
 
         String path = Key.key(normalizedId).value();
         for (CustomStack stack : ItemsAdder.getAllItems()) {
-            if (stack.getNamespacedID().equals(normalizedId) || stack.getId().equals(path)) {
+            if (stack.getNamespacedID().equals(normalizedId) || stack.getId().equals(path))
                 return stack;
-            }
         }
 
         return null;
@@ -47,14 +57,19 @@ public final class NamespaceUtils {
 
     @Nullable
     public static ItemStack itemByID(String currentNamespace, String id) {
-        CustomStack customStack = customItemByID(currentNamespace, id);
-        if (customStack != null)
-            return customStack.getItemStack();
-
+        // First check if it's a Minecraft item
         String normalizedId = normalizeID("minecraft", id);
         Key key = Key.key(normalizedId);
 
         ItemType minecraftItemType = Registry.ITEM.get(key);
-        return minecraftItemType == null ? null : minecraftItemType.createItemStack();
+        if (minecraftItemType != null)
+            return minecraftItemType.createItemStack();
+
+        // If not a Minecraft item, check for custom item
+        CustomStack customStack = customItemByID(currentNamespace, id);
+        if (customStack != null)
+            return customStack.getItemStack();
+
+        return null;
     }
 }
