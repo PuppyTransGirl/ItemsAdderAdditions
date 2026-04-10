@@ -93,6 +93,13 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
     private final List<StackStep> steps = new ArrayList<>();
     private String namespacedID = "";
 
+    private static List<String> normalizeIds(List<String> ids) {
+        return ids.stream()
+                .map(id -> id.toLowerCase(Locale.ROOT))
+                .map(id -> id.contains(":") ? id : "minecraft:" + id)
+                .toList();
+    }
+
     @Override
     public boolean configure(Object configData, String namespacedID) {
         if (configData instanceof List<?> list) {
@@ -144,13 +151,6 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
         }
 
         steps.add(step);
-    }
-
-    private static List<String> normalizeIds(List<String> ids) {
-        return ids.stream()
-                .map(id -> id.toLowerCase(Locale.ROOT))
-                .map(id -> id.contains(":") ? id : "minecraft:" + id)
-                .toList();
     }
 
     @Override

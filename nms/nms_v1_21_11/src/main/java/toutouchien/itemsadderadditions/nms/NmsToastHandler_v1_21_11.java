@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.utils;
+package toutouchien.itemsadderadditions.nms;
 
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
@@ -10,22 +10,50 @@ import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import toutouchien.itemsadderadditions.nms.api.INmsToastHandler;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.time.Instant;
 import java.util.*;
 
-public final class ToastUtils {
+public final class NmsToastHandler_v1_21_11 implements INmsToastHandler {
     private static final Identifier TOAST_ID = Identifier.fromNamespaceAndPath("iaadditions", "toast_notification");
-    private static final AdvancementRequirements REQUIREMENTS = new AdvancementRequirements(
-            List.of(List.of("trigger"))
-    );
+    private static final AdvancementRequirements REQUIREMENTS = new AdvancementRequirements(List.of(List.of("trigger")));
+    private static final MethodHandle ADVANCEMENT_PROGRESS_CTOR;
 
-    private ToastUtils() {
-        throw new IllegalStateException("Utility class");
+    static {
+        try {
+            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
+                    AdvancementProgress.class,
+                    MethodHandles.lookup()
+            );
+            ADVANCEMENT_PROGRESS_CTOR = lookup.findConstructor(
+                    AdvancementProgress.class,
+                    MethodType.methodType(void.class, Map.class)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to initialize ADVANCEMENT_PROGRESS_CTOR", e
+            );
+        }
     }
 
-    public static void sendToast(Player player, ItemStack itemStack, Component title, String frame) {
+    private static AdvancementProgress newAdvancementProgress(Map<String, CriterionProgress> criteria) {
+        try {
+            return (AdvancementProgress) ADVANCEMENT_PROGRESS_CTOR.invokeExact(criteria);
+        } catch (Throwable e) {
+            throw new RuntimeException(
+                    "Failed to invoke AdvancementProgress constructor", e
+            );
+        }
+    }
+
+    @Override
+    public void sendToast(Player player, ItemStack itemStack, Component title, String frame) {
         AdvancementType type = AdvancementType.valueOf(frame.toUpperCase(Locale.ROOT));
+
         DisplayInfo displayInfo = new DisplayInfo(
                 CraftItemStack.asNMSCopy(itemStack),
                 PaperAdventure.asVanilla(title),
@@ -49,11 +77,12 @@ public final class ToastUtils {
 
         AdvancementHolder holder = new AdvancementHolder(TOAST_ID, advancement);
 
-        AdvancementProgress progress = ReflectionUtils.newAdvancementProgress(
+        AdvancementProgress progress = newAdvancementProgress(
                 Map.of("trigger", new CriterionProgress(Instant.now()))
         );
 
-        ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
+        ServerGamePacketListenerImpl connection =
+                ((CraftPlayer) player).getHandle().connection;
 
         connection.send(new ClientboundUpdateAdvancementsPacket(
                 false,

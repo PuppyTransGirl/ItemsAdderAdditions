@@ -9,13 +9,12 @@ import toutouchien.itemsadderadditions.behaviours.BehavioursManager;
 import toutouchien.itemsadderadditions.components.ComponentsManager;
 import toutouchien.itemsadderadditions.converter.ConverterV100V101;
 import toutouchien.itemsadderadditions.converter.ConverterV101V102;
-import toutouchien.itemsadderadditions.creative.BytePacketListener;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
-import toutouchien.itemsadderadditions.creative.PacketListener;
 import toutouchien.itemsadderadditions.listeners.ItemsAdderLoadListener;
+import toutouchien.itemsadderadditions.nms.api.NmsManager;
+import toutouchien.itemsadderadditions.patches.PatchManager;
 import toutouchien.itemsadderadditions.recipes.RecipeManager;
 import toutouchien.itemsadderadditions.updatechecker.UpdateChecker;
-import toutouchien.itemsadderadditions.utils.VersionUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
@@ -34,9 +33,15 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
     private Metrics bStats;
 
+    public static ItemsAdderAdditions instance() {
+        return instance;
+    }
+
     @Override
     public void onLoad() {
         instance = this;
+
+        PatchManager.applyAll();
     }
 
     @Override
@@ -47,24 +52,22 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
         this.bStats = new Metrics(this, BSTATS_PLUGIN_ID);
 
+        NmsManager.initialize(this.getComponentLogger());
+
         this.actionsManager = new ActionsManager();
         this.behavioursManager = new BehavioursManager();
-        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_11)) {
-            this.componentsManager = new ComponentsManager();
-            this.creativeMenuManager = new CreativeMenuManager();
+//            this.componentsManager = new ComponentsManager();
+//            this.componentsManager.applyComponents();
 
-            this.creativeMenuManager.setup();
-            this.componentsManager.applyComponents();
-        } else {
-            Log.info("CreativeMenu", "Disabled - version has to be 1.21.11 or higher.");
-        }
-
-        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_11))
-            this.recipeManager = new RecipeManager();
-        else
-            Log.info("RecipeManager", "Disabled - version has to be 1.21.11 or higher.");
+        this.recipeManager = new RecipeManager();
 
         registerListeners();
+
+        if (NmsManager.instance().handler().creativeMenu() != null) {
+            this.creativeMenuManager = new CreativeMenuManager();
+            this.creativeMenuManager.setup();
+            NmsManager.instance().handler().creativeMenu().injectListeners(this);
+        }
 
         if (this.getConfig().getBoolean("update-checker.enabled", true))
             new UpdateChecker(this, MODRINTH_PROJECT_ID);
@@ -87,6 +90,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
     public void onDisable() {
         this.bStats.shutdown();
         getServer().getScheduler().cancelTasks(this);
+
+        NmsManager.shutdown();
     }
 
     private void registerListeners() {
@@ -96,9 +101,6 @@ public class ItemsAdderAdditions extends JavaPlugin {
                 new ActionsListener(),
                 new ItemsAdderLoadListener()
         ).forEach(listener -> pm.registerEvents(listener, this));
-
-        BytePacketListener.inject();
-        PacketListener.inject();
     }
 
     public ActionsManager actionsManager() {
@@ -119,9 +121,5 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
     public RecipeManager recipeManager() {
         return recipeManager;
-    }
-
-    public static ItemsAdderAdditions instance() {
-        return instance;
     }
 }

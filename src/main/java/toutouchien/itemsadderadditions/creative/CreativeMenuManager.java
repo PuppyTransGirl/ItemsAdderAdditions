@@ -63,65 +63,6 @@ public final class CreativeMenuManager {
     private static final String IA_MERGE_PATH = "ItemsAdderAdditions/resourcepack";
     private static final String MERGE_SETTING_ITEMSADDER = "resource-pack.zip.merge_other_plugins_resourcepacks_folders";
 
-    public void setup() {
-        configureItemsAdder();
-        writeBlankPaintingTexture();
-    }
-
-    public void reload() {
-        Collection<CustomStack> items = ItemsAdder.getAllItems();
-        int count = generatePaintingJson(items);
-
-        Log.success("CreativeMenu", "Generated {} entries - run /iazip to apply resource pack changes.", count);
-    }
-
-    /**
-     * Builds {@code assets/minecraft/items/painting.json} and writes it to our
-     * resource pack folder.
-     *
-     * @return the number of items written into the select cases
-     */
-    private int generatePaintingJson(Collection<CustomStack> items) {
-        JsonObject root = new JsonObject();
-        JsonObject selectModel = new JsonObject();
-        selectModel.addProperty("type", "minecraft:select");
-        selectModel.addProperty("property", "minecraft:component");
-        selectModel.addProperty("component", "minecraft:painting/variant");
-
-        JsonArray cases = new JsonArray();
-        int count = 0;
-
-        for (CustomStack item : items) {
-            if (shouldSkip(item))
-                continue;
-
-            String modelKey = resolveModel(item);
-
-            JsonObject caseObj = new JsonObject();
-            caseObj.addProperty("when", variantKey(item));
-
-            JsonObject caseModel = new JsonObject();
-            caseModel.addProperty("type", "minecraft:model");
-            caseModel.addProperty("model", modelKey);
-            caseObj.add("model", caseModel);
-
-            cases.add(caseObj);
-            count++;
-        }
-
-        selectModel.add("cases", cases);
-
-        // Vanilla painting as fallback so unmodified paintings still render
-        JsonObject fallback = new JsonObject();
-        fallback.addProperty("type", "minecraft:model");
-        fallback.addProperty("model", "minecraft:item/painting");
-        selectModel.add("fallback", fallback);
-
-        root.add("model", selectModel);
-        writeJson(resourcePackFile("assets/minecraft/items/painting.json"), root);
-        return count;
-    }
-
     /**
      * Returns the model key to use for {@code item} in {@code painting.json}.
      *
@@ -241,6 +182,78 @@ public final class CreativeMenuManager {
         return path.contains(":") ? path : namespace + ":" + path;
     }
 
+    /**
+     * Returns the painting variant key for {@code item}.
+     * <strong>Must match the {@code ResourceLocation} used in {@link RegistryInjector}.</strong>
+     */
+    private static String variantKey(CustomStack item) {
+        return "ia_creative:" + item.getNamespace() + "_" + item.getId();
+    }
+
+    private static File resourcePackFile(String relativePath) {
+        return new File(ItemsAdderAdditions.instance().getDataFolder(),
+                "resourcepack/" + relativePath);
+    }
+
+    public void setup() {
+        configureItemsAdder();
+        writeBlankPaintingTexture();
+    }
+
+    public void reload() {
+        Collection<CustomStack> items = ItemsAdder.getAllItems();
+        int count = generatePaintingJson(items);
+
+        Log.success("CreativeMenu", "Generated {} entries - run /iazip to apply resource pack changes.", count);
+    }
+
+    /**
+     * Builds {@code assets/minecraft/items/painting.json} and writes it to our
+     * resource pack folder.
+     *
+     * @return the number of items written into the select cases
+     */
+    private int generatePaintingJson(Collection<CustomStack> items) {
+        JsonObject root = new JsonObject();
+        JsonObject selectModel = new JsonObject();
+        selectModel.addProperty("type", "minecraft:select");
+        selectModel.addProperty("property", "minecraft:component");
+        selectModel.addProperty("component", "minecraft:painting/variant");
+
+        JsonArray cases = new JsonArray();
+        int count = 0;
+
+        for (CustomStack item : items) {
+            if (shouldSkip(item))
+                continue;
+
+            String modelKey = resolveModel(item);
+
+            JsonObject caseObj = new JsonObject();
+            caseObj.addProperty("when", variantKey(item));
+
+            JsonObject caseModel = new JsonObject();
+            caseModel.addProperty("type", "minecraft:model");
+            caseModel.addProperty("model", modelKey);
+            caseObj.add("model", caseModel);
+
+            cases.add(caseObj);
+            count++;
+        }
+
+        selectModel.add("cases", cases);
+
+        // Vanilla painting as fallback so unmodified paintings still render
+        JsonObject fallback = new JsonObject();
+        fallback.addProperty("type", "minecraft:model");
+        fallback.addProperty("model", "minecraft:item/painting");
+        selectModel.add("fallback", fallback);
+
+        root.add("model", selectModel);
+        writeJson(resourcePackFile("assets/minecraft/items/painting.json"), root);
+        return count;
+    }
+
     private void writeBlankPaintingTexture() {
         File out = resourcePackFile("assets/iaadditions/textures/painting/placeholder.png");
         if (out.exists())
@@ -284,19 +297,6 @@ public final class CreativeMenuManager {
         } catch (IOException e) {
             Log.error("CreativeMenu", "Failed to save ItemsAdder/config.yml", e);
         }
-    }
-
-    /**
-     * Returns the painting variant key for {@code item}.
-     * <strong>Must match the {@code ResourceLocation} used in {@link RegistryInjector}.</strong>
-     */
-    private static String variantKey(CustomStack item) {
-        return "ia_creative:" + item.getNamespace() + "_" + item.getId();
-    }
-
-    private static File resourcePackFile(String relativePath) {
-        return new File(ItemsAdderAdditions.instance().getDataFolder(),
-                "resourcepack/" + relativePath);
     }
 
     private boolean writeJson(File file, JsonObject json) {

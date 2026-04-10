@@ -39,6 +39,10 @@ import java.util.*;
 @Behaviour(key = "storage")
 public final class StorageBehaviour extends BehaviourExecutor implements Listener {
     private static final Set<String> SHULKER_ITEM_IDS = Collections.synchronizedSet(new HashSet<>());
+    /**
+     * Block contents pre-loaded before CustomBlockData's MONITOR listener deletes PDC on break.
+     */
+    private final Map<BlockCoord, ItemStack[]> preloadedBlockContents = new HashMap<>();
 
     @Parameter(key = "type", type = String.class, required = true) private String typeName;
     @Parameter(key = "rows", type = Integer.class, min = 1, max = 6) private int rows = 3;
@@ -49,15 +53,16 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     private ItemCategory category = ItemCategory.BLOCK;
     private NamespacedKey contentsKey;
     private JavaPlugin plugin;
-
-    /**
-     * Block contents pre-loaded before CustomBlockData's MONITOR listener deletes PDC on break.
-     */
-    private final Map<BlockCoord, ItemStack[]> preloadedBlockContents = new HashMap<>();
-
     private StorageSessionManager sessionManager;
     private ShulkerDropTracker shulkerDropTracker;
     private StorageGuiGuard guiGuard;
+
+    private static void dropItems(Location loc, @Nullable ItemStack @Nullable [] contents) {
+        if (contents == null) return;
+        for (ItemStack item : contents)
+            if (item != null && item.getType() != org.bukkit.Material.AIR)
+                loc.getWorld().dropItemNaturally(loc, item);
+    }
 
     @Override
     protected void onLoad(BehaviourHost host) {
@@ -176,7 +181,6 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onFurnitureInteract(FurnitureInteractEvent event) {
         if (!event.getNamespacedID().equals(namespacedID)) return;
-        if (category != ItemCategory.FURNITURE && category != ItemCategory.COMPLEX_FURNITURE) return;
         if (event.getPlayer().isSneaking()) return;
 
         event.setCancelled(true);
@@ -229,12 +233,5 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         if (stored != null) return stored;
         return StorageInventoryManager.extractFromItem(
                 player.getInventory().getItemInOffHand(), contentsKey);
-    }
-
-    private static void dropItems(Location loc, @Nullable ItemStack @Nullable [] contents) {
-        if (contents == null) return;
-        for (ItemStack item : contents)
-            if (item != null && item.getType() != org.bukkit.Material.AIR)
-                loc.getWorld().dropItemNaturally(loc, item);
     }
 }

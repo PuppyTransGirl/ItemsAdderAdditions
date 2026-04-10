@@ -1,5 +1,5 @@
 plugins {
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
+    id("java")
     id("xyz.jpenilla.run-paper") version "3.0.2"
     id("com.gradleup.shadow") version "9.3.1"
     id("maven-publish")
@@ -11,12 +11,13 @@ val itemsAdderApiVersion: String by project
 val placeholderApiVersion: String by project
 val mythicMobsVersion: String by project
 val coreProtectVersion: String by project
+val byteBuddyAgentVersion: String by project
 val bStatsVersion: String by project
 val customBlockDataVersion: String by project
 val morePersistentDataTypesVersion: String by project
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.4"
+version = "1.0.4-test-1"
 
 repositories {
     mavenCentral()
@@ -31,7 +32,26 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("${minecraftVersion}-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+
+    // Dependencies inside Paper NMS
+    compileOnly("commons-io:commons-io:2.21.0")
+    compileOnly("org.ow2.asm:asm:9.9.1")
+    compileOnly("org.ow2.asm:asm-commons:9.9.1")
+
+    // NMS modules
+    implementation(project(":nms:api"))
+    implementation(project(":nms:nms_v26_1_1"))
+    implementation(project(":nms:nms_v1_21_11"))
+    implementation(project(":nms:nms_v1_21_10"))
+    implementation(project(":nms:nms_v1_21_8"))
+    implementation(project(":nms:nms_v1_21_7"))
+    implementation(project(":nms:nms_v1_21_6"))
+    implementation(project(":nms:nms_v1_21_5"))
+    implementation(project(":nms:nms_v1_21_4"))
+    implementation(project(":nms:nms_v1_21_3"))
+    implementation(project(":nms:nms_v1_21_1"))
+    implementation(project(":nms:nms_v1_20_6"))
 
     // Plugins
     compileOnly("dev.lone:api-itemsadder:${itemsAdderApiVersion}")
@@ -39,14 +59,13 @@ dependencies {
     compileOnly("io.lumine:Mythic-Dist:${mythicMobsVersion}")
     compileOnly("net.coreprotect:coreprotect:${coreProtectVersion}")
 
+    // Other
+    compileOnly("net.bytebuddy:byte-buddy-agent:${byteBuddyAgentVersion}")
+
     // Dependencies
     implementation("com.jeff-media:custom-block-data:${customBlockDataVersion}")
     implementation("com.jeff-media:MorePersistentDataTypes:${morePersistentDataTypesVersion}")
     implementation("org.bstats:bstats-bukkit:${bStatsVersion}")
-}
-
-paperweight {
-    addServerDependencyTo = configurations.named(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME).map { setOf(it) }
 }
 
 tasks {
@@ -62,10 +81,10 @@ tasks {
         )
 
         downloadPlugins {
-            modrinth("LuckPerms", "v5.5.17-bukkit")
-            github("jpenilla", "TabTPS", "v1.3.29", "tabtps-paper-1.3.29.jar")
-            modrinth("ServerLogViewer-Paper", "1.0.0")
-            modrinth("PlaceholderAPI", placeholderApiVersion)
+//            modrinth("LuckPerms", "v5.5.17-bukkit")
+//            modrinth("TabTPS", "1.3.30")
+//            modrinth("ServerLogViewer-Paper", "1.0.0")
+//            modrinth("PlaceholderAPI", placeholderApiVersion)
         }
     }
 
@@ -140,4 +159,14 @@ publishing {
     repositories {
         mavenLocal()
     }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(21)
 }

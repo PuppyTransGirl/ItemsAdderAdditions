@@ -27,6 +27,8 @@ import java.util.Set;
 @NullMarked
 @Behaviour(key = "connectable")
 public final class ConnectableBehaviour extends BehaviourExecutor implements Listener {
+    private final Set<Location> updating = new HashSet<>();
+    private final Map<Location, FacingDirection> canonicalFacing = new HashMap<>();
     @Parameter(key = "type", type = String.class) @Nullable private String typeRaw;
     @Parameter(key = "default", type = String.class, required = true) private String defaultFurniture;
     @Parameter(key = "straight", type = String.class) @Nullable private String straightFurniture;
@@ -38,12 +40,18 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     @Parameter(key = "right", type = String.class) @Nullable private String rightFurniture;
     @Parameter(key = "outer", type = String.class) @Nullable private String outerFurniture;
     @Parameter(key = "inner", type = String.class) @Nullable private String innerFurniture;
-
     private ConnectableType type = ConnectableType.STAIR;
     private BehaviourHost host;
 
-    private final Set<Location> updating = new HashSet<>();
-    private final Map<Location, FacingDirection> canonicalFacing = new HashMap<>();
+    private static float normalizeYaw(float yaw) {
+        return ((yaw % 360) + 360) % 360;
+    }
+
+    @Nullable
+    private static String norm(String namespace, @Nullable String id) {
+        if (id == null) return null;
+        return id.contains(":") ? id : namespace + ":" + id;
+    }
 
     @Override
     public boolean configure(Object configData, String namespacedID) {
@@ -196,15 +204,5 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         Location loc = f.getEntity().getLocation().toBlockLocation();
         FacingDirection c = canonicalFacing.get(loc);
         return c != null ? c : FacingDirection.fromYaw(f.getEntity().getYaw());
-    }
-
-    private static float normalizeYaw(float yaw) {
-        return ((yaw % 360) + 360) % 360;
-    }
-
-    @Nullable
-    private static String norm(String namespace, @Nullable String id) {
-        if (id == null) return null;
-        return id.contains(":") ? id : namespace + ":" + id;
     }
 }

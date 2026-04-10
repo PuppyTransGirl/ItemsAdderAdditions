@@ -6,9 +6,7 @@ import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
-import toutouchien.itemsadderadditions.creative.PacketListener;
-import toutouchien.itemsadderadditions.creative.RegistryInjector;
-import toutouchien.itemsadderadditions.utils.VersionUtils;
+import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
@@ -20,20 +18,21 @@ public final class ItemsAdderLoadListener implements Listener {
     @EventHandler
     public void onItemsAdderLoad(ItemsAdderLoadDataEvent event) {
         ItemsAdderAdditions plugin = ItemsAdderAdditions.instance();
+        NmsManager nmsManager = NmsManager.instance();
+
         List<CustomStack> items = ItemsAdder.getAllItems();
 
         plugin.actionsManager().reload();
         plugin.behavioursManager().reload();
 
-        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_11)) {
-            if (ItemsAdderAdditions.instance().getConfig().getBoolean("features.creative_inventory_integration", true)) {
-                RegistryInjector.injectPaintingVariants(items);
-                PacketListener.updateCache(items);
-                plugin.creativeMenuManager().reload();
-            }
-
-            plugin.recipeManager().reload();
+        if (ItemsAdderAdditions.instance().getConfig().getBoolean("features.creative_inventory_integration", true)
+                && nmsManager.handler().creativeMenu() != null) {
+            nmsManager.handler().creativeMenu().injectPaintingVariants(items);
+            nmsManager.handler().creativeMenu().updatePaintingCache(items);
+            plugin.creativeMenuManager().reload();
         }
+
+        plugin.recipeManager().reload();
 
         Log.success("IAA", "Reload complete.");
     }

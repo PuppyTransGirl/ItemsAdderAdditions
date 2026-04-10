@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.creative;
+package toutouchien.itemsadderadditions.nms.creative;
 
 import dev.lone.itemsadder.api.CustomStack;
 import io.netty.buffer.ByteBuf;
@@ -18,41 +18,32 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
+import org.bukkit.plugin.Plugin;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
-/**
- * Intercepts the {@code set_creative_mode_slot} (0x37) packet before it is decoded.
- *
- * <p>When a player picks a custom item from the creative Decorations tab, the client
- * sends a painting with a custom {@code painting_variant} component. This handler:
- * <ol>
- *   <li>Identifies that the item is one of our registered painting variants.</li>
- *   <li>Rewrites the packet to send the base material item (no painting component)
- *       so the server doesn't reject an unknown variant.</li>
- *   <li>Schedules a 1-tick task that replaces the base item in the slot with the
- *       full ItemsAdder custom item (including all NBT components), then syncs
- *       the inventory back to the client.</li>
- * </ol>
- *
- * <p>Must be injected <em>after</em> {@link PacketListener#inject()} so that
- * {@code "iaadditions_packet_listener"} is already in the pipeline.
- */
-public final class BytePacketListener {
-    public static void inject() {
+public final class BytePacketListener_v1_21_5 {
+    public static void inject(Plugin plugin) {
         ChannelInitializeListenerHolder.addListener(
                 Key.key("iaadditions", "byte_packet_listener"),
                 channel -> channel.pipeline().addBefore(
                         "decoder",
                         "iaadditions_byte_packet_listener",
-                        new ByteChannelDupeHandler()
+                        new ByteChannelDupeHandler(plugin)
                 )
         );
     }
 
     private static final class ByteChannelDupeHandler extends ChannelDuplexHandler {
-        private static PacketListener.ChannelDupeHandler getDupeHandler(ChannelHandlerContext ctx) {
-            return (PacketListener.ChannelDupeHandler) ctx.pipeline()
+        private final Plugin plugin;
+
+        ByteChannelDupeHandler(Plugin plugin) {
+            this.plugin = plugin;
+        }
+
+        private static PacketListener_v1_21_5.ChannelDupeHandler getDupeHandler(
+                ChannelHandlerContext ctx
+        ) {
+            return (PacketListener_v1_21_5.ChannelDupeHandler) ctx.pipeline()
                     .get("iaadditions_packet_listener");
         }
 
@@ -73,7 +64,7 @@ public final class BytePacketListener {
                     FriendlyByteBuf buf = new FriendlyByteBuf(byteBuf);
                     int packetId = buf.readVarInt();
 
-                    if (packetId == 0x37) { // set_creative_mode_slot
+                    if (packetId == 0x36) {
                         short slot = buf.readShort();
 
                         if (slot != -1) {
@@ -93,39 +84,30 @@ public final class BytePacketListener {
 
                                     int componentTypeId = buf.readVarInt();
                                     if (componentTypeId == dataComponentRegistry.getId(DataComponents.PAINTING_VARIANT)) {
-
-                                        // Holder<PaintingVariant> is encoded as VarInt(registry_id + 1)
-                                        // where 0 means inline/direct. Subtract 1 to get the real registry ID.
                                         int dataLength = buf.readVarInt();
                                         int dataStart = buf.readerIndex();
                                         int paintingId = VarInt.read(buf.slice(dataStart, dataLength)) - 1;
 
-                                        PacketListener.ChannelDupeHandler dupeHandler = getDupeHandler(ctx);
+                                        PacketListener_v1_21_5.ChannelDupeHandler dupeHandler = getDupeHandler(ctx);
                                         if (dupeHandler != null) {
                                             CustomStack customItem = dupeHandler.paintingItems.get(paintingId);
                                             if (customItem != null) {
-                                                // Replace the painting with just the base material so
-                                                // the server processes a valid, known item type.
                                                 int baseItemId = itemRegistry.getId(
                                                         CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem()
                                                 );
 
                                                 ByteBuf newPacket = ctx.alloc().buffer();
                                                 FriendlyByteBuf out = new FriendlyByteBuf(newPacket);
-                                                out.writeVarInt(0x37);
+                                                out.writeVarInt(0x36);
                                                 out.writeShort(slot);
-                                                out.writeVarInt(1); // count
+                                                out.writeVarInt(1);
                                                 out.writeVarInt(baseItemId);
-                                                out.writeVarInt(0); // no components to add
-                                                out.writeVarInt(0); // no components to remove
+                                                out.writeVarInt(0);
+                                                out.writeVarInt(0);
 
                                                 ctx.fireChannelRead(newPacket);
                                                 handled = true;
 
-                                                // The rewritten packet sets a plain base item in the
-                                                // slot. Once the server has processed it, we replace
-                                                // it with the full ItemsAdder ItemStack (with all NBT)
-                                                // and sync the inventory back to the client.
                                                 ServerPlayer player = dupeHandler.getPlayer(ctx);
                                                 if (player != null) {
                                                     final int finalSlot = slot;
@@ -133,10 +115,8 @@ public final class BytePacketListener {
                                                     nmsItem.setCount(itemCount);
 
                                                     player.getBukkitEntity().getScheduler().runDelayed(
-                                                            ItemsAdderAdditions.instance(),
+                                                            plugin,
                                                             t -> {
-                                                                // Set directly via the slot to avoid
-                                                                // clobbering the stateId counter.
                                                                 player.inventoryMenu.getSlot(finalSlot).set(nmsItem);
                                                                 player.inventoryMenu.sendAllDataToRemote();
                                                             },
@@ -155,8 +135,6 @@ public final class BytePacketListener {
                     Log.error("CreativeMenu", "Failed to parse set_creative_mode_slot (0x37)", e);
                 }
 
-                // Release the original buffer when we handled it; otherwise reset so
-                // the subsequent super.channelRead call can read from the beginning.
                 if (handled) {
                     byteBuf.release();
                     return;

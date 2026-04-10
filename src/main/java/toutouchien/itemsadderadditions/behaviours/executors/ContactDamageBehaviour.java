@@ -28,26 +28,22 @@ import java.util.concurrent.TimeUnit;
 public final class ContactDamageBehaviour extends BehaviourExecutor {
     private static final DamageSource DAMAGE_SOURCE =
             DamageSource.builder(DamageType.CACTUS).build();
-
+    private final EnumSet<BlockFace> activeFaces = EnumSet.noneOf(BlockFace.class);
+    private final List<PotionEffect> potionEffects = new ArrayList<>();
+    private final Map<UUID, Integer> touchingLastTick = new HashMap<>();
     @Parameter(key = "amount", type = Double.class, required = true, min = 0.5, max = 100.0) private Double amount;
     @Parameter(key = "interval", type = Integer.class, min = 1, max = 200) private Integer interval = 20;
     @Parameter(key = "fire_duration", type = Integer.class, min = 0, max = 200) private Integer fireDuration = 0;
     @Parameter(key = "damage_when_sneaking", type = Boolean.class) private Boolean damageWhenSneaking = true;
-
     // Block faces - read from "block_faces" sub-section
     @Parameter(key = "top", path = "block_faces", type = Boolean.class) private boolean topFaceActive = true;
     @Parameter(key = "north", path = "block_faces", type = Boolean.class) private boolean northFaceActive = true;
     @Parameter(key = "south", path = "block_faces", type = Boolean.class) private boolean southFaceActive = true;
     @Parameter(key = "west", path = "block_faces", type = Boolean.class) private boolean westFaceActive = true;
     @Parameter(key = "east", path = "block_faces", type = Boolean.class) private boolean eastFaceActive = true;
-
-    private final EnumSet<BlockFace> activeFaces = EnumSet.noneOf(BlockFace.class);
-    private final List<PotionEffect> potionEffects = new ArrayList<>();
-
     private @Nullable ScheduledTask task;
     private @Nullable ContactDetector detector;
     private @Nullable ItemCategory category;
-    private final Map<UUID, Integer> touchingLastTick = new HashMap<>();
 
     @Override
     public boolean configure(Object configData, String namespacedID) {
@@ -138,8 +134,7 @@ public final class ContactDamageBehaviour extends BehaviourExecutor {
 
         return switch (category) {
             case BLOCK, ITEM, FURNITURE -> detector.isTouchingBlock(player);
-            case COMPLEX_FURNITURE ->
-                    detector.isTouchingComplexFurniture(player);
+            case COMPLEX_FURNITURE -> detector.isTouchingComplexFurniture(player);
         };
     }
 }

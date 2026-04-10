@@ -32,6 +32,20 @@ public class RecipeLoader {
         this.stonecutterHandler = stonecutterHandler;
     }
 
+    private static List<File> collectYamlFiles(File dir) {
+        List<File> result = new ArrayList<>();
+        File[] children = dir.listFiles();
+        if (children == null) return result;
+        for (File f : children) {
+            if (f.isDirectory())
+                result.addAll(collectYamlFiles(f));
+            else if (f.getName().endsWith(".yml"))
+                result.add(f);
+        }
+
+        return result;
+    }
+
     /**
      * Scans all YAML files and loads every custom recipe type.
      */
@@ -73,19 +87,5 @@ public class RecipeLoader {
                         + " - " + e.getMessage());
             }
         }
-    }
-
-    private static List<File> collectYamlFiles(File dir) {
-        List<File> result = new ArrayList<>();
-        File[] children = dir.listFiles();
-        if (children == null) return result;
-        for (File f : children) {
-            if (f.isDirectory())
-                result.addAll(collectYamlFiles(f));
-            else if (f.getName().endsWith(".yml"))
-                result.add(f);
-        }
-
-        return result;
     }
 }

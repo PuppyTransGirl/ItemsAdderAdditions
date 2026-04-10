@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.creative;
+package toutouchien.itemsadderadditions.nms.creative;
 
 import dev.lone.itemsadder.api.CustomStack;
 import io.papermc.paper.adventure.PaperAdventure;
@@ -7,9 +7,9 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.decoration.painting.PaintingVariant;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.decoration.PaintingVariant;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.CraftServer;
 import org.jspecify.annotations.NullMarked;
@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Optional;
 
 @NullMarked
-public final class RegistryInjector {
-    private RegistryInjector() {
+public final class RegistryInjector_v1_21_5 {
+    private RegistryInjector_v1_21_5() {
         throw new IllegalStateException("Static class");
     }
 
@@ -40,7 +40,7 @@ public final class RegistryInjector {
         int injected = 0;
         try {
             for (CustomStack item : items) {
-                Identifier key = Identifier.fromNamespaceAndPath(
+                ResourceLocation key = ResourceLocation.fromNamespaceAndPath(
                         "ia_creative",
                         item.getNamespace() + "_" + item.getId()
                 );

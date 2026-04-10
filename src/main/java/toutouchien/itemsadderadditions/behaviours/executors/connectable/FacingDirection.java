@@ -7,6 +7,14 @@ import org.jspecify.annotations.NullMarked;
 public enum FacingDirection {
     NORTH, SOUTH, WEST, EAST;
 
+    public static FacingDirection fromYaw(float yaw) {
+        yaw = ((yaw % 360) + 360) % 360;
+        if (yaw >= 315 || yaw < 45) return SOUTH;
+        if (yaw < 135) return WEST;
+        if (yaw < 225) return NORTH;
+        return EAST;
+    }
+
     public FacingDirection opposite() {
         return switch (this) {
             case NORTH -> SOUTH;
@@ -37,14 +45,6 @@ public enum FacingDirection {
             case WEST -> loc.add(-1, 0, 0);
             case EAST -> loc.add(1, 0, 0);
         };
-    }
-
-    public static FacingDirection fromYaw(float yaw) {
-        yaw = ((yaw % 360) + 360) % 360;
-        if (yaw >= 315 || yaw < 45) return SOUTH;
-        if (yaw < 135) return WEST;
-        if (yaw < 225) return NORTH;
-        return EAST;
     }
 
     public float toYaw() {

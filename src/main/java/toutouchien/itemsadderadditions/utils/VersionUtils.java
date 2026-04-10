@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 @SuppressWarnings("java:S115")
 public enum VersionUtils {
     UNKNOWN(Integer.MAX_VALUE),
+    v26_1_1(775),
     v1_21_11(774),
     v1_21_10(773),
     v1_21_8(772),

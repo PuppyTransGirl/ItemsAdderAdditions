@@ -1,6 +1,7 @@
 name: ItemsAdderAdditions
 version: '${version}'
 main: toutouchien.itemsadderadditions.ItemsAdderAdditions
+loader: toutouchien.itemsadderadditions.ItemsAdderAdditionsLoader
 bootstrapper: toutouchien.itemsadderadditions.ItemsAdderAdditionsBootstrap
 api-version: '${minMinecraftVersion}'
 authors: [ PuppyTransGirl ]
@@ -8,7 +9,7 @@ authors: [ PuppyTransGirl ]
 dependencies:
   server:
     ItemsAdder:
-      load: BEFORE
+      load: AFTER
       required: true
 
     PlaceholderAPI:

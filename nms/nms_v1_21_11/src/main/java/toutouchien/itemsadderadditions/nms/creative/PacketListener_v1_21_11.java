@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.creative;
+package toutouchien.itemsadderadditions.nms.creative;
 
 import dev.lone.itemsadder.api.CustomStack;
 import io.netty.channel.ChannelDuplexHandler;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
-public final class PacketListener {
+public final class PacketListener_v1_21_11 {
     /**
      * Painting variant registry integer ID -> ItemsAdder CustomStack.
      *
@@ -35,7 +35,7 @@ public final class PacketListener {
      */
     static final Map<Integer, CustomStack> PAINTING_ITEMS = new ConcurrentHashMap<>();
 
-    private PacketListener() {
+    private PacketListener_v1_21_11() {
         throw new IllegalStateException("Static class");
     }
 
@@ -43,9 +43,9 @@ public final class PacketListener {
      * Registers the {@link ChannelDupeHandler} on every future player connection.
      * Must be called from {@code onEnable} before any player connects.
      *
-     * <p>Must be called <em>before</em> {@link BytePacketListener#inject()} so that
+     * <p>Must be called <em>before</em> {@link BytePacketListener_v1_21_11#inject(Plugin)} so that
      * {@code "iaadditions_packet_listener"} already exists in the pipeline
-     * when {@code BytePacketListener} looks it up.
+     * when {@code BytePacketListener_v1_21_11} looks it up.
      */
     public static void inject() {
         ChannelInitializeListenerHolder.addListener(

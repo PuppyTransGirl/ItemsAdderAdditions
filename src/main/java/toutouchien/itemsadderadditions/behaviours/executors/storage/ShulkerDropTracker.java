@@ -56,6 +56,13 @@ public final class ShulkerDropTracker implements Listener {
         this.contentsKey = null; // unused field - see below
     }
 
+    private static boolean hasAnyContent(@Nullable ItemStack[] contents) {
+        if (contents == null) return false;
+        for (ItemStack item : contents)
+            if (item != null && item.getType() != org.bukkit.Material.AIR) return true;
+        return false;
+    }
+
     public void stageDrop(Location loc, ItemStack[] contents) {
         pendingShulkerDrops.put(BlockCoord.of(loc), contents);
         Log.debug("ShulkerDropTracker", "Staged shulker drop at " + loc);
@@ -140,12 +147,5 @@ public final class ShulkerDropTracker implements Listener {
         StorageInventoryManager.stampUniqueId(stack, uniqueIdKey);
         target.setItemStack(stack);
         Log.debug("ShulkerDropTracker", "Injected contents and stamped UID into item.");
-    }
-
-    private static boolean hasAnyContent(@Nullable ItemStack[] contents) {
-        if (contents == null) return false;
-        for (ItemStack item : contents)
-            if (item != null && item.getType() != org.bukkit.Material.AIR) return true;
-        return false;
     }
 }

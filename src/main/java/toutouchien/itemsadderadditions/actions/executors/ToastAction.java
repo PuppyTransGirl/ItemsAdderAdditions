@@ -13,8 +13,8 @@ import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
+import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.utils.NamespaceUtils;
-import toutouchien.itemsadderadditions.utils.ToastUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
@@ -99,6 +99,6 @@ public final class ToastAction extends ActionExecutor {
         }
 
         Component title = FontImageWrapper.replaceFontImages(MM.deserialize(text));
-        ToastUtils.sendToast(player, itemStack, title, frame);
+        NmsManager.instance().handler().toasts().sendToast(player, itemStack, title, frame);
     }
 }
