@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jspecify.annotations.NullMarked;
@@ -48,7 +49,7 @@ import javax.imageio.ImageIO;
  *       merged into ItemsAdder's pack via
  *       {@code merge_other_plugins_resourcepacks_folders}.
  *       Takes effect after {@code /iazip} + resource-pack reload.</li>
- *   <li><b>NMS registry injection</b> - {@link RegistryInjector} injects
+ *   <li><b>NMS registry injection</b> - RegistryInjector injects
  *       custom {@code PaintingVariant} entries at runtime on every
  *       {@code ItemsAdderLoadDataEvent}. Because {@code painting_variant} is a
  *       frozen registry that the client also holds, variants are only visible in
@@ -72,9 +73,15 @@ public final class CreativeMenuManager {
      *       {@code <ns>:item/ia_auto/<id>_icon}<br>
      *       IA generates this flat GUI-oriented model for every item that
      *       declares an icon.</li>
-     *   <li>{@code graphics.model} present ->
+     *   <li>{@code graphics.parent}, {@code graphics.texture}, or
+     *       {@code graphics.textures} present ->
+     *       {@code <ns>:item/ia_auto/<id>}<br>
+     *       IA generates a per-item model for texture-driven items,
+     *       including {@code variant_of} items that only override textures.</li>
+     *   <li>{@code graphics.model} present on the item itself ->
      *       the declared model path (physical file in the content pack).</li>
-     *   <li>{@code resource.model_path} with {@code generate: false} ->
+     *   <li>{@code resource.model_path} with {@code generate: false}
+     *       present on the item itself ->
      *       the declared model path (physical file in the content pack).</li>
      *   <li>Everything else ->
      *       {@code <ns>:item/ia_auto/<id>}<br>
@@ -93,11 +100,27 @@ public final class CreativeMenuManager {
         if (hasIcon(config, base))
             return namespace + ":item/ia_auto/" + id + "_icon";
 
+        if (usesGeneratedGraphics(config, base))
+            return namespace + ":item/ia_auto/" + id;
+
         String model = getDeclaredModel(config, base);
         if (model != null)
             return normalizeModelPath(model, namespace);
 
         return namespace + ":item/ia_auto/" + id;
+    }
+
+    private static boolean usesGeneratedGraphics(FileConfiguration config, String base) {
+        String parent = config.getString(base + ".graphics.parent");
+        if (parent != null && !parent.isBlank())
+            return true;
+
+        String texture = config.getString(base + ".graphics.texture");
+        if (texture != null && !texture.isBlank())
+            return true;
+
+        ConfigurationSection textures = config.getConfigurationSection(base + ".graphics.textures");
+        return textures != null && !textures.getKeys(false).isEmpty();
     }
 
     @Nullable
@@ -108,21 +131,6 @@ public final class CreativeMenuManager {
 
         String resourceModel = config.getString(base + ".resource.model_path");
         boolean generate = config.getBoolean(base + ".resource.generate", true);
-        if (resourceModel != null && !resourceModel.isBlank() && !generate)
-            return resourceModel;
-
-        String templateId = config.getString(base + ".variant_of");
-        if (templateId == null || templateId.isBlank())
-            return null;
-
-        String templateBase = "items." + templateId;
-
-        graphicsModel = config.getString(templateBase + ".graphics.model");
-        if (graphicsModel != null && !graphicsModel.isBlank())
-            return graphicsModel;
-
-        resourceModel = config.getString(templateBase + ".resource.model_path");
-        generate = config.getBoolean(templateBase + ".resource.generate", true);
         if (resourceModel != null && !resourceModel.isBlank() && !generate)
             return resourceModel;
 
@@ -184,7 +192,7 @@ public final class CreativeMenuManager {
 
     /**
      * Returns the painting variant key for {@code item}.
-     * <strong>Must match the {@code ResourceLocation} used in {@link RegistryInjector}.</strong>
+     * <strong>Must match the {@code ResourceLocation} used in RegistryInjector.</strong>
      */
     private static String variantKey(CustomStack item) {
         return "ia_creative:" + item.getNamespace() + "_" + item.getId();
