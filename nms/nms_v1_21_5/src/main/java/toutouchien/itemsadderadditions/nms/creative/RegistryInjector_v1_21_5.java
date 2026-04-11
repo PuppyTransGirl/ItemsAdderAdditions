@@ -51,7 +51,7 @@ public final class RegistryInjector_v1_21_5 {
                 PaintingVariant variant = new PaintingVariant(
                         1, 1, key,
                         Optional.of(PaperAdventure.asVanilla(item.itemName())),
-                        Optional.of(Component.literal(item.getNamespace()))
+                        Optional.of(Component.literal(item.getNamespacedID()))
                 );
 
                 Registry.register(mappedRegistry, key, variant);

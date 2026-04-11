@@ -81,10 +81,8 @@ public abstract class ActionExecutor implements Keyed {
         ItemStack heldItem = context.heldItem();
         if (heldItem != null) {
             CustomStack customStack = CustomStack.byItemStack(heldItem);
-
             if (customStack != null) {
                 int itemHash = customStack.getNamespacedID().hashCode();
-
                 if (CooldownBridge.isOnCooldown(context.player(), itemHash))
                     return;
             }
