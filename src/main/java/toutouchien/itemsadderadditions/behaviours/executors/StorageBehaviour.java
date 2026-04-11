@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.behaviours.executors;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.*;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -10,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,6 +31,7 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
 import toutouchien.itemsadderadditions.behaviours.executors.storage.*;
+import toutouchien.itemsadderadditions.utils.SoundUtils;
 import toutouchien.itemsadderadditions.utils.other.ItemCategory;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
@@ -48,6 +51,9 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     @Parameter(key = "rows", type = Integer.class, min = 1, max = 6) private int rows = 3;
     @Parameter(key = "title", type = String.class) @Nullable private String titleRaw;
 
+    @Nullable private Sound openSound;
+    @Nullable private Sound closeSound;
+
     private StorageType storageType = StorageType.STORAGE;
     private String namespacedID = "";
     private ItemCategory category = ItemCategory.BLOCK;
@@ -62,6 +68,42 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         for (ItemStack item : contents)
             if (item != null && item.getType() != org.bukkit.Material.AIR)
                 loc.getWorld().dropItemNaturally(loc, item);
+    }
+
+    @Override
+    public boolean configure(Object configData, String namespacedID) {
+        if (!super.configure(configData, namespacedID)) return false;
+        if (!(configData instanceof ConfigurationSection section)) return false;
+
+        if (section.contains("open_sound")) {
+            ConfigurationSection soundSection = section.getConfigurationSection("open_sound");
+            Sound parsed = SoundUtils.parseSound(soundSection);
+            if (parsed == null && soundSection != null) {
+                String src = soundSection.getString("source", "");
+                if (!src.isBlank() && SoundUtils.parseSource(src) == null) {
+                    Log.warn("Behaviours", "storage: invalid open_sound source '{}' - valid values: master, music, record, weather, block, hostile, neutral, player, ambient, voice, ui", src);
+                    return false;
+                }
+            }
+
+            openSound = parsed;
+        }
+
+        if (section.contains("close_sound")) {
+            ConfigurationSection soundSection = section.getConfigurationSection("close_sound");
+            Sound parsed = SoundUtils.parseSound(soundSection);
+            if (parsed == null && soundSection != null) {
+                String src = soundSection.getString("source", "");
+                if (!src.isBlank() && SoundUtils.parseSource(src) == null) {
+                    Log.warn("Behaviours", "storage: invalid close_sound source '{}' - valid values: master, music, record, weather, block, hostile, neutral, player, ambient, voice, ui", src);
+                    return false;
+                }
+            }
+
+            closeSound = parsed;
+        }
+
+        return true;
     }
 
     @Override
@@ -83,7 +125,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
         Component title = buildTitle();
 
-        sessionManager = new StorageSessionManager(rows, title, storageType, contentsKey, plugin);
+        sessionManager = new StorageSessionManager(rows, title, storageType, contentsKey, plugin, openSound, closeSound);
         shulkerDropTracker = new ShulkerDropTracker(namespacedID, contentsKey, uniqueIdKey);
         guiGuard = new StorageGuiGuard(SHULKER_ITEM_IDS);
 
@@ -222,7 +264,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         if (session == null) return;
         if (session.type() == StorageType.DISPOSAL) return;
 
-        sessionManager.saveSessionContents(session);
+        sessionManager.saveSessionContents(session, true);
     }
 
     @Nullable

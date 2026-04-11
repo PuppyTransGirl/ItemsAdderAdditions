@@ -21,14 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 @NullMarked
 public abstract class ActionExecutor implements Keyed {
-    @Parameter(key = "target", type = String.class)
-    protected String target = "self";
-    @Parameter(key = "target_radius", type = Double.class)
-    protected double targetRadius = 0;
-    @Parameter(key = "permission", type = String.class)
-    @Nullable private String permission;
-    @Parameter(key = "delay", type = Integer.class)
-    private int delay = 0;
+    @Parameter(key = "target", type = String.class) protected String target = "self";
+    @Parameter(key = "target_radius", type = Double.class) protected double targetRadius = 0;
+    @Parameter(key = "permission", type = String.class) @Nullable private String permission;
+    @Parameter(key = "delay", type = Integer.class) private int delay = 0;
 
     public final String key() {
         return annotation().key();

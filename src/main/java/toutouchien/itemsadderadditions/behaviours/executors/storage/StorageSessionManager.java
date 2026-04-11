@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.behaviours.executors.storage;
 
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,19 +30,25 @@ public final class StorageSessionManager {
     private final StorageType storageType;
     private final NamespacedKey contentsKey;
     private final JavaPlugin plugin;
+    @Nullable private final Sound openSound;
+    @Nullable private final Sound closeSound;
 
     public StorageSessionManager(
             int rows,
             Component title,
             StorageType storageType,
             NamespacedKey contentsKey,
-            JavaPlugin plugin
+            JavaPlugin plugin,
+            Sound openSound,
+            Sound closeSound
     ) {
         this.rows = rows;
         this.title = title;
         this.storageType = storageType;
         this.contentsKey = contentsKey;
         this.plugin = plugin;
+        this.openSound = openSound;
+        this.closeSound = closeSound;
     }
 
     public void openForBlock(Player player, Block block) {
@@ -49,12 +56,16 @@ public final class StorageSessionManager {
         openSessions.put(player.getUniqueId(), new StorageSession(player, inv, block, null, storageType));
         player.openInventory(inv);
         CoreProtectUtils.logInteraction(player.getName(), block.getLocation());
+
+        executeOpen(block.getLocation(), true);
     }
 
     public void openForEntity(Player player, Entity entity) {
         Inventory inv = resolveInventory(entity.getLocation(), null, entity);
         openSessions.put(player.getUniqueId(), new StorageSession(player, inv, null, entity, storageType));
         player.openInventory(inv);
+
+        executeOpen(entity.getLocation(), true);
     }
 
     @Nullable
@@ -66,15 +77,17 @@ public final class StorageSessionManager {
         Set<Inventory> flushed = new HashSet<>();
         for (StorageSession session : openSessions.values()) {
             if (!flushed.contains(session.inventory())) {
-                saveSessionContents(session);
+                saveSessionContents(session, false);
                 flushed.add(session.inventory());
             }
+
             session.player().closeInventory();
         }
+
         openSessions.clear();
     }
 
-    public void saveSessionContents(StorageSession session) {
+    public void saveSessionContents(StorageSession session, boolean playSound) {
         ItemStack[] contents = session.inventory().getContents();
 
         if (session.isBlock()) {
@@ -86,6 +99,8 @@ public final class StorageSessionManager {
                     "Session for {} has neither block nor entity - contents not saved!",
                     session.player().getName());
         }
+
+        executeClose(session.holderLocation(), playSound);
     }
 
     /**
@@ -106,7 +121,7 @@ public final class StorageSessionManager {
             if (!sameWorld || holderLoc.distanceSquared(loc) > 2.25) continue;
 
             if (session.type() != StorageType.DISPOSAL && !alreadySaved.contains(session.inventory())) {
-                saveSessionContents(session);
+                saveSessionContents(session, false);
                 alreadySaved.add(session.inventory());
 
                 if (preloadCache != null && session.isBlock() && session.block() != null)
@@ -117,6 +132,8 @@ public final class StorageSessionManager {
             it.remove();
             session.player().closeInventory();
         }
+
+        executeClose(loc, true);
     }
 
     private Inventory resolveInventory(
@@ -154,5 +171,16 @@ public final class StorageSessionManager {
                 return s.inventory();
         }
         return null;
+    }
+
+    private void executeOpen(Location location, boolean playSound) {
+        if (playSound)
+            location.getWorld().playSound(openSound, location.x(), location.y(), location.z());
+    }
+
+    private void executeClose(Location location, boolean playSound) {
+        if (playSound)
+            location.getWorld().playSound(closeSound, location.x(), location.y(), location.z());
+
     }
 }
