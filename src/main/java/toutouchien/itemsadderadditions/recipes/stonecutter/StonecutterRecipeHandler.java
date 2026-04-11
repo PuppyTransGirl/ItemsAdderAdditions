@@ -29,6 +29,7 @@ public class StonecutterRecipeHandler {
             return null;
         }
 
+        item = item.clone();
         item.setAmount(amount);
         return item;
     }
@@ -57,7 +58,13 @@ public class StonecutterRecipeHandler {
 
             String ingredientValue = ingredientSection.getString("item");
             ItemStack ingredient = NamespaceUtils.itemByID(namespace, ingredientValue);
-            if (ingredient == null) continue;
+            if (ingredient == null) {
+                Log.warn(LOG_TAG, "Could not resolve ingredient item: '" + ingredientValue
+                        + "' (namespace: " + namespace + ")");
+                continue;
+            }
+
+            ingredient = ingredient.clone();
 
             ConfigurationSection resultSection = entry.getConfigurationSection("result");
             if (resultSection == null) {
@@ -72,10 +79,13 @@ public class StonecutterRecipeHandler {
                     .handler()
                     .stonecutterRecipes()
                     .register(namespace, recipeId, ingredient, result);
+
+            StonecutterPatchBridge.register(ingredient, result);
         }
     }
 
     public void unregisterAll() {
         NmsManager.instance().handler().stonecutterRecipes().unregisterAll();
+        StonecutterPatchBridge.clear();
     }
 }
