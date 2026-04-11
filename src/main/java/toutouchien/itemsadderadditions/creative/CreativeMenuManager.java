@@ -36,8 +36,8 @@ import javax.imageio.ImageIO;
  *
  * <h2>Model path strategy</h2>
  * ItemsAdder generates a model for every item at
- * {@code <ns>:item/ia_auto/<id>} in the compiled resource pack. These are
- * the authoritative paths - we reference them directly. For items that declare a
+ * {@code <ns>:item/ia_auto/<id>} in the compiled resource pack. These are the
+ * authoritative paths - we reference them directly. For items that declare a
  * {@code graphics.icon} / {@code resource.icon}, IA additionally generates
  * {@code <ns>:item/ia_auto/<id>_icon}, which uses a flat GUI-appropriate
  * representation.
@@ -49,46 +49,46 @@ import javax.imageio.ImageIO;
  *       merged into ItemsAdder's pack via
  *       {@code merge_other_plugins_resourcepacks_folders}.
  *       Takes effect after {@code /iazip} + resource-pack reload.</li>
- *   <li><b>NMS registry injection</b> - RegistryInjector injects
- *       custom {@code PaintingVariant} entries at runtime on every
+ *   <li><b>NMS registry injection</b> - RegistryInjector injects custom
+ *       {@code PaintingVariant} entries at runtime on every
  *       {@code ItemsAdderLoadDataEvent}. Because {@code painting_variant} is a
- *       frozen registry that the client also holds, variants are only visible in
- *       the creative menu after the client reconnects (or the server restarts
- *       with a data pack that pre-registers them).</li>
+ *       frozen registry that the client also holds, variants are only visible
+ *       in the creative menu after the client reconnects (or the server
+ *       restarts with a data pack that pre-registers them).</li>
  * </ol>
  */
 @NullMarked
 public final class CreativeMenuManager {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON =
+            new GsonBuilder().setPrettyPrinting().create();
 
-    private static final String IA_MERGE_PATH = "ItemsAdderAdditions/resourcepack";
-    private static final String MERGE_SETTING_ITEMSADDER = "resource-pack.zip.merge_other_plugins_resourcepacks_folders";
+    private static final String IA_MERGE_PATH =
+            "ItemsAdderAdditions/resourcepack";
+    private static final String MERGE_SETTING_ITEMSADDER =
+            "resource-pack.zip.merge_other_plugins_resourcepacks_folders";
 
     /**
      * Returns the model key to use for {@code item} in {@code painting.json}.
      *
      * <p>Resolution order:
      * <ol>
-     *   <li>{@code graphics.icon} / {@code resource.icon} present ->
+     *   <li>{@code graphics.icon} / {@code resource.icon} present on the item
+     *       or its template ->
      *       {@code <ns>:item/ia_auto/<id>_icon}<br>
      *       IA generates this flat GUI-oriented model for every item that
      *       declares an icon.</li>
-     *   <li>{@code graphics.parent}, {@code graphics.texture}, or
-     *       {@code graphics.textures} present ->
-     *       {@code <ns>:item/ia_auto/<id>}<br>
-     *       IA generates a per-item model for texture-driven items,
-     *       including {@code variant_of} items that only override textures.</li>
      *   <li>{@code graphics.model} present on the item itself ->
-     *       the declared model path (physical file in the content pack).</li>
-     *   <li>{@code resource.model_path} with {@code generate: false}
-     *       present on the item itself ->
-     *       the declared model path (physical file in the content pack).</li>
-     *   <li>Everything else ->
-     *       {@code <ns>:item/ia_auto/<id>}<br>
-     *       IA generates this model for ALL items - it is the correct path
-     *       for items using {@code graphics.texture}, {@code graphics.parent +
-     *       graphics.textures}, {@code resource.generate: true}, and all
-     *       category defaults.</li>
+     *       the declared model path.</li>
+     *   <li>{@code resource.model_path} with {@code generate: false} present on
+     *       the item itself -> the declared model path.</li>
+     *   <li>Generated graphics present on the item itself
+     *       ({@code graphics.parent}, {@code graphics.texture},
+     *       {@code graphics.textures}, or generated {@code resource.*}) ->
+     *       {@code <ns>:item/ia_auto/<id>}.</li>
+     *   <li>{@code variant_of} template declares {@code graphics.model} or
+     *       {@code resource.model_path} with {@code generate: false} ->
+     *       the inherited declared model path.</li>
+     *   <li>Everything else -> {@code <ns>:item/ia_auto/<id>}.</li>
      * </ol>
      */
     private static String resolveModel(CustomStack item) {
@@ -97,61 +97,127 @@ public final class CreativeMenuManager {
         String namespace = item.getNamespace();
         String id = item.getId();
 
-        if (hasIcon(config, base))
+        if (hasIcon(config, base)) {
             return namespace + ":item/ia_auto/" + id + "_icon";
-
-        if (usesGeneratedGraphics(config, base))
-            return namespace + ":item/ia_auto/" + id;
+        }
 
         String model = getDeclaredModel(config, base);
-        if (model != null)
+        if (model != null) {
             return normalizeModelPath(model, namespace);
+        }
 
         return namespace + ":item/ia_auto/" + id;
     }
 
-    private static boolean usesGeneratedGraphics(FileConfiguration config, String base) {
-        String parent = config.getString(base + ".graphics.parent");
-        if (parent != null && !parent.isBlank())
-            return true;
+    @Nullable
+    private static String getDeclaredModel(FileConfiguration config,
+                                           String base) {
+        String ownModel = getOwnDeclaredModel(config, base);
+        if (ownModel != null) {
+            return ownModel;
+        }
 
-        String texture = config.getString(base + ".graphics.texture");
-        if (texture != null && !texture.isBlank())
-            return true;
+        /*
+         * If the concrete item defines generated graphics on itself, we must
+         * use its IA-generated ia_auto model instead of inheriting the
+         * template's shared graphics.model.
+         */
+        if (usesGeneratedModelOnSelf(config, base)) {
+            return null;
+        }
 
-        ConfigurationSection textures = config.getConfigurationSection(base + ".graphics.textures");
-        return textures != null && !textures.getKeys(false).isEmpty();
+        String templateBase = getTemplateBase(config, base);
+        if (templateBase == null) {
+            return null;
+        }
+
+        return getOwnDeclaredModel(config, templateBase);
     }
 
     @Nullable
-    private static String getDeclaredModel(FileConfiguration config, String base) {
+    private static String getOwnDeclaredModel(FileConfiguration config,
+                                              String base) {
         String graphicsModel = config.getString(base + ".graphics.model");
-        if (graphicsModel != null && !graphicsModel.isBlank())
+        if (graphicsModel != null && !graphicsModel.isBlank()) {
             return graphicsModel;
+        }
 
         String resourceModel = config.getString(base + ".resource.model_path");
         boolean generate = config.getBoolean(base + ".resource.generate", true);
-        if (resourceModel != null && !resourceModel.isBlank() && !generate)
+        if (resourceModel != null && !resourceModel.isBlank() && !generate) {
             return resourceModel;
+        }
 
         return null;
     }
 
     /**
+     * Returns {@code true} if the concrete item defines generated graphics on
+     * itself and therefore should resolve to its own IA-generated
+     * {@code ia_auto/<id>} model rather than inheriting a template model.
+     */
+    private static boolean usesGeneratedModelOnSelf(FileConfiguration config,
+                                                    String base) {
+        String parent = config.getString(base + ".graphics.parent");
+        if (parent != null && !parent.isBlank()) {
+            return true;
+        }
+
+        String texture = config.getString(base + ".graphics.texture");
+        if (texture != null && !texture.isBlank()) {
+            return true;
+        }
+
+        ConfigurationSection textures =
+                config.getConfigurationSection(base + ".graphics.textures");
+        if (textures != null && !textures.getKeys(false).isEmpty()) {
+            return true;
+        }
+
+        String resourceModel = config.getString(base + ".resource.model_path");
+        if (resourceModel != null
+                && !resourceModel.isBlank()
+                && config.getBoolean(base + ".resource.generate", true)) {
+            return true;
+        }
+
+        /*
+         * Legacy / explicit configs may set resource.generate: true on the
+         * concrete item without a local graphics.model. In that case, prefer
+         * the generated ia_auto model rather than inheriting the template's
+         * declared model.
+         */
+        return config.contains(base + ".resource.generate")
+                && config.getBoolean(base + ".resource.generate", true);
+    }
+
+    @Nullable
+    private static String getTemplateBase(FileConfiguration config,
+                                          String base) {
+        String templateId = config.getString(base + ".variant_of");
+        if (templateId == null || templateId.isBlank()) {
+            return null;
+        }
+
+        return "items." + templateId;
+    }
+
+    /**
      * Returns {@code true} if {@code base} declares {@code graphics.icon} /
-     * {@code resource.icon}, or if it is a {@code variant_of} a template that does.
-     * IA generates a {@code ia_auto/<id>_icon} model in either case.
+     * {@code resource.icon}, or if it is a {@code variant_of} a template that
+     * does. IA generates a {@code ia_auto/<id>_icon} model in either case.
      */
     private static boolean hasIcon(FileConfiguration config, String base) {
         String icon = config.getString(base + ".graphics.icon",
                 config.getString(base + ".resource.icon"));
-        if (icon != null && !icon.isBlank())
+        if (icon != null && !icon.isBlank()) {
             return true;
+        }
 
-        // Follow one level of variant_of to pick up inherited icon.
         String templateId = config.getString(base + ".variant_of");
-        if (templateId == null || templateId.isBlank())
+        if (templateId == null || templateId.isBlank()) {
             return false;
+        }
 
         String templateBase = "items." + templateId;
         String templateIcon = config.getString(templateBase + ".graphics.icon",
@@ -160,8 +226,8 @@ public final class CreativeMenuManager {
     }
 
     /**
-     * Returns {@code true} for items that should not appear in the creative menu:
-     * internal IA items (namespaces starting with {@code _}) and template items.
+     * Returns {@code true} for items that should not appear in the creative
+     * menu: template items.
      */
     private static boolean shouldSkip(CustomStack item) {
         FileConfiguration config = item.getConfig();
@@ -169,14 +235,17 @@ public final class CreativeMenuManager {
     }
 
     /**
-     * Strips any trailing {@code .json} or {@code .png} extension from {@code path}.
+     * Strips any trailing {@code .json} or {@code .png} extension from
+     * {@code path}.
      */
     private static String stripExtension(String path) {
-        if (path.endsWith(".json"))
+        if (path.endsWith(".json")) {
             return path.substring(0, path.length() - 5);
+        }
 
-        if (path.endsWith(".png"))
+        if (path.endsWith(".png")) {
             return path.substring(0, path.length() - 4);
+        }
 
         return path;
     }
@@ -192,7 +261,8 @@ public final class CreativeMenuManager {
 
     /**
      * Returns the painting variant key for {@code item}.
-     * <strong>Must match the {@code ResourceLocation} used in RegistryInjector.</strong>
+     * <strong>Must match the {@code ResourceLocation} used in
+     * RegistryInjector.</strong>
      */
     private static String variantKey(CustomStack item) {
         return "ia_creative:" + item.getNamespace() + "_" + item.getId();
@@ -212,7 +282,12 @@ public final class CreativeMenuManager {
         Collection<CustomStack> items = ItemsAdder.getAllItems();
         int count = generatePaintingJson(items);
 
-        Log.success("CreativeMenu", "Generated {} entries - run /iazip to apply resource pack changes.", count);
+        Log.success(
+                "CreativeMenu",
+                "Generated {} entries - run /iazip to apply resource pack "
+                        + "changes.",
+                count
+        );
     }
 
     /**
@@ -232,8 +307,9 @@ public final class CreativeMenuManager {
         int count = 0;
 
         for (CustomStack item : items) {
-            if (shouldSkip(item))
+            if (shouldSkip(item)) {
                 continue;
+            }
 
             String modelKey = resolveModel(item);
 
@@ -251,31 +327,36 @@ public final class CreativeMenuManager {
 
         selectModel.add("cases", cases);
 
-        // Vanilla painting as fallback so unmodified paintings still render
         JsonObject fallback = new JsonObject();
         fallback.addProperty("type", "minecraft:model");
         fallback.addProperty("model", "minecraft:item/painting");
         selectModel.add("fallback", fallback);
 
         root.add("model", selectModel);
-        writeJson(resourcePackFile("assets/minecraft/items/painting.json"), root);
+        writeJson(resourcePackFile("assets/minecraft/items/painting.json"),
+                root);
         return count;
     }
 
     private void writeBlankPaintingTexture() {
-        File out = resourcePackFile("assets/iaadditions/textures/painting/placeholder.png");
-        if (out.exists())
+        File out = resourcePackFile(
+                "assets/iaadditions/textures/painting/placeholder.png");
+        if (out.exists()) {
             return;
+        }
 
         try {
             out.getParentFile().mkdirs();
-            BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage image =
+                    new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             image.setRGB(0, 0, 0x00000000);
 
-            if (!ImageIO.write(image, "PNG", out))
+            if (!ImageIO.write(image, "PNG", out)) {
                 throw new IOException("No PNG writer available");
+            }
         } catch (IOException e) {
-            Log.error("CreativeMenu", "Failed to write placeholder painting texture", e);
+            Log.error("CreativeMenu",
+                    "Failed to write placeholder painting texture", e);
         }
     }
 
@@ -286,24 +367,36 @@ public final class CreativeMenuManager {
         );
 
         if (!iaConfig.exists()) {
-            Log.warn("CreativeMenu", "Could not locate ItemsAdder/config.yml - add '{}' to merge_other_plugins_resourcepacks_folders manually", IA_MERGE_PATH);
+            Log.warn(
+                    "CreativeMenu",
+                    "Could not locate ItemsAdder/config.yml - add '{}' to "
+                            + "merge_other_plugins_resourcepacks_folders "
+                            + "manually",
+                    IA_MERGE_PATH
+            );
             return;
         }
 
-        FileConfiguration config = YamlConfiguration.loadConfiguration(iaConfig);
-        List<String> mergeFolders = config.getStringList(MERGE_SETTING_ITEMSADDER);
+        FileConfiguration config =
+                YamlConfiguration.loadConfiguration(iaConfig);
+        List<String> mergeFolders =
+                config.getStringList(MERGE_SETTING_ITEMSADDER);
 
-        if (mergeFolders.contains(IA_MERGE_PATH))
+        if (mergeFolders.contains(IA_MERGE_PATH)) {
             return;
+        }
 
         mergeFolders.add(IA_MERGE_PATH);
         config.set(MERGE_SETTING_ITEMSADDER, mergeFolders);
 
         try {
             config.save(iaConfig);
-            Log.success("CreativeMenu", "Registered '{}' in ItemsAdder's merge list.", IA_MERGE_PATH);
+            Log.success("CreativeMenu",
+                    "Registered '{}' in ItemsAdder's merge list.",
+                    IA_MERGE_PATH);
         } catch (IOException e) {
-            Log.error("CreativeMenu", "Failed to save ItemsAdder/config.yml", e);
+            Log.error("CreativeMenu",
+                    "Failed to save ItemsAdder/config.yml", e);
         }
     }
 
@@ -311,8 +404,9 @@ public final class CreativeMenuManager {
         String content = GSON.toJson(json);
         if (file.exists()) {
             try {
-                if (Files.readString(file.toPath()).equals(content))
+                if (Files.readString(file.toPath()).equals(content)) {
                     return false;
+                }
             } catch (IOException ignored) {
                 // we don't care
             }
@@ -325,7 +419,8 @@ public final class CreativeMenuManager {
             }
             return true;
         } catch (IOException e) {
-            Log.error("CreativeMenu", "Failed to write " + file.getPath(), e);
+            Log.error("CreativeMenu",
+                    "Failed to write " + file.getPath(), e);
             return false;
         }
     }
