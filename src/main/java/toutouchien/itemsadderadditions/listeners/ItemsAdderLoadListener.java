@@ -34,6 +34,6 @@ public final class ItemsAdderLoadListener implements Listener {
 
         plugin.recipeManager().reload();
 
-        Log.success("IAA", "Reload complete.");
+        Log.success("Reload", "Reload complete.");
     }
 }

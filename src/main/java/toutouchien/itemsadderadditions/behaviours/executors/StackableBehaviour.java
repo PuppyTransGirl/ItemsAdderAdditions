@@ -19,6 +19,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 import toutouchien.itemsadderadditions.utils.SoundUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
@@ -93,10 +94,10 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
     private final List<StackStep> steps = new ArrayList<>();
     private String namespacedID = "";
 
-    private static List<String> normalizeIds(List<String> ids) {
+    private static List<String> normalizeIds(List<String> ids, String namespacedID) {
         return ids.stream()
-                .map(id -> id.toLowerCase(Locale.ROOT))
-                .map(id -> id.contains(":") ? id : "minecraft:" + id)
+                .map(id -> NamespaceUtils.normalizeID(
+                        NamespaceUtils.namespace(namespacedID), id))
                 .toList();
     }
 
@@ -127,14 +128,24 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
         return !steps.isEmpty();
     }
 
-    private void addStep(@Nullable String blockId, @Nullable ConfigurationSection section, String fallbackItemID) {
+    private void addStep(
+            @Nullable String blockId,
+            @Nullable ConfigurationSection section,
+            String fallbackItemID
+    ) {
         if (blockId == null || blockId.isBlank()) return;
 
-        StackStep step = new StackStep(blockId);
+        String normalizedBlockId = NamespaceUtils.normalizeID(
+                NamespaceUtils.namespace(fallbackItemID),
+                blockId
+        );
+
+        StackStep step = new StackStep(normalizedBlockId);
 
         if (section != null && section.contains("items")) {
-            step.items.addAll(normalizeIds(section.getStringList("items")));
-            step.decrementAmount = Math.clamp(section.getInt("decrement_amount", 1), 0, 256);
+            step.items.addAll(normalizeIds(section.getStringList("items"), fallbackItemID));
+            step.decrementAmount =
+                    Math.clamp(section.getInt("decrement_amount", 1), 0, 256);
         } else {
             step.items.add(fallbackItemID);
         }
@@ -144,9 +155,17 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
             Sound parsed = SoundUtils.parseSound(soundSection);
             if (parsed == null && soundSection != null) {
                 String src = soundSection.getString("source", "");
-                if (!src.isBlank() && SoundUtils.parseSource(src) == null)
-                    Log.warn("Behaviours", "stackable: invalid sound source '{}' - valid values: master, music, record, weather, block, hostile, neutral, player, ambient, voice", src);
+                if (!src.isBlank() && SoundUtils.parseSource(src) == null) {
+                    Log.warn(
+                            "Behaviours",
+                            "stackable: invalid sound source '{}' - valid values: " +
+                                    "master, music, record, weather, block, hostile, " +
+                                    "neutral, player, ambient, voice",
+                            src
+                    );
+                }
             }
+
             step.sound = parsed;
         }
 
@@ -183,27 +202,24 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
 
         String heldId = customStack != null
                 ? customStack.getNamespacedID()
-                : "minecraft:" + item.getType().name().toLowerCase(Locale.ROOT);
+                : item.getType().name().toLowerCase(Locale.ROOT);
 
-        // Walk the step chain: the clicked block must match either the base block
-        // (namespacedID) or a previous step's result block before we consider a step.
-        String lastResultBlock = "";
+        String lastAcceptedBlock = namespacedID;
         for (StackStep step : steps) {
             String clickedId = customBlock.getNamespacedID();
-            boolean isBaseBlock = clickedId.equals(namespacedID);
-            boolean isPrevResult = !lastResultBlock.isEmpty() && clickedId.equalsIgnoreCase(lastResultBlock);
 
-            if (!isBaseBlock && !isPrevResult) {
-                lastResultBlock = step.resultBlock;
+            boolean matches = clickedId.equals(lastAcceptedBlock);
+            if (!matches) {
+                lastAcceptedBlock = step.resultBlock;
                 continue;
             }
-
-            lastResultBlock = step.resultBlock;
 
             if (step.items.contains(heldId)) {
                 applyStep(event, step, player, item, block);
                 return;
             }
+
+            lastAcceptedBlock = step.resultBlock;
         }
     }
 
