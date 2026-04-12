@@ -32,6 +32,8 @@ export default function StaticSearchDialog(props: SharedProps) {
         initOrama,
     });
 
+    const items = query.data === 'empty' ? [] : query.data ?? [];
+
     return (
         <SearchDialog
             search={search}
@@ -46,7 +48,7 @@ export default function StaticSearchDialog(props: SharedProps) {
                     <SearchDialogInput />
                     <SearchDialogClose />
                 </SearchDialogHeader>
-                <SearchDialogList items={query.data ?? []} />
+                <SearchDialogList items={items} />
             </SearchDialogContent>
         </SearchDialog>
     );
