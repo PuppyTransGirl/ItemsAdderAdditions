@@ -21,6 +21,16 @@ Turns any custom block or furniture into a storage container. Three modes are av
         type: STORAGE
         rows: 3 # Optional (Default: 3)
         title: "<gold>Community Chest</gold>" # Optional (Defaults to the block/furniture's name)
+        open_sound: # Optional
+          name: entity.villager.celebrate # or a custom sound
+          volume: 1.0 # Optional (Default value: 1.0)
+          pitch: 1.0 # Optional (Default value: 1.0)
+          category: MASTER # Optional (Default value: MASTER)
+        close_sound: # Optional
+          name: entity.villager.ambient # or a custom sound
+          volume: 1.0 # Optional (Default value: 1.0)
+          pitch: 1.0 # Optional (Default value: 1.0)
+          category: MASTER # Optional (Default value: MASTER)
     ```
   </Tab>
   <Tab value="SHULKER">
@@ -30,6 +40,16 @@ Turns any custom block or furniture into a storage container. Three modes are av
         type: SHULKER
         rows: 3 # Optional (Default: 3)
         title: "<dark_purple>Portable Storage</dark_purple>" # Optional (Defaults to the block/furniture's name)
+        open_sound: # Optional
+          name: entity.villager.celebrate # or a custom sound
+          volume: 1.0 # Optional (Default value: 1.0)
+          pitch: 1.0 # Optional (Default value: 1.0)
+          category: MASTER # Optional (Default value: MASTER)
+        close_sound: # Optional
+          name: entity.villager.ambient # or a custom sound
+          volume: 1.0 # Optional (Default value: 1.0)
+          pitch: 1.0 # Optional (Default value: 1.0)
+          category: MASTER # Optional (Default value: MASTER)
     ```
   </Tab>
   <Tab value="DISPOSAL">
@@ -39,9 +59,21 @@ Turns any custom block or furniture into a storage container. Three modes are av
         type: DISPOSAL
         rows: 1 # Optional (Default: 3)
         title: "<red>Trash Can</red>" # Optional (Defaults to the block/furniture's name)
+        open_sound: # Optional
+          name: entity.villager.celebrate # or a custom sound
+          volume: 1.0 # Optional (Default value: 1.0)
+          pitch: 1.0 # Optional (Default value: 1.0)
+          category: MASTER # Optional (Default value: MASTER)
+        close_sound: # Optional
+          name: entity.villager.ambient # or a custom sound
+          volume: 1.0 # Optional (Default value: 1.0)
+          pitch: 1.0 # Optional (Default value: 1.0)
+          category: MASTER # Optional (Default value: MASTER)
     ```
   </Tab>
+
 </Tabs>
+For `name`, refer to [this list](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) for the value or a custom sound with `namespace:value`.
 
 Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
 
