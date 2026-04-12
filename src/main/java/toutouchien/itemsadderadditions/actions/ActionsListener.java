@@ -273,6 +273,19 @@ public final class ActionsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+
+        CustomBlock customBlock = CustomBlock.byAlreadyPlaced(event.getBlock());
+        if (customBlock != null) {
+            dispatch(
+                    customBlock.getNamespacedID(),
+                    TriggerType.PLACED_BLOCK_BREAK,
+                    ActionContext.create(player, TriggerType.PLACED_BLOCK_BREAK)
+                            .block(event.getBlock())
+                            .heldItem(player.getInventory().getItemInMainHand())
+                            .build()
+            );
+        }
+
         ItemStack tool = player.getInventory().getItemInMainHand();
         CustomStack cs = CustomStack.byItemStack(tool);
         if (cs == null)

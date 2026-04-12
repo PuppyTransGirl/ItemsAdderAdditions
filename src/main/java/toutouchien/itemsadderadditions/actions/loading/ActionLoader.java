@@ -112,7 +112,8 @@ public final class ActionLoader {
             Map.entry("bucket_fill", TriggerType.ITEM_BUCKET_FILL)
     );
     private static final Map<String, TriggerType> BLOCK_TRIGGERS = Map.of(
-            "interact", TriggerType.BLOCK_INTERACT
+            "interact", TriggerType.BLOCK_INTERACT,
+            "break", TriggerType.PLACED_BLOCK_BREAK
     );
     private static final Map<String, TriggerType> FURNITURE_TRIGGERS = Map.ofEntries(
             Map.entry("interact", TriggerType.FURNITURE_INTERACT),
@@ -216,9 +217,41 @@ public final class ActionLoader {
         if (events == null)
             return 0;
 
+        int count = parseTriggersInSection(events, config, itemID, namespacedID, category);
+
+        // BLOCK items can optionally use:
+        // events:
+        //   placed_block:
+        //     break:
+        //       ...
+        if (category == ItemCategory.BLOCK) {
+            ConfigurationSection placedBlock = events.getConfigurationSection("placed_block");
+            if (placedBlock != null) {
+                count += parseTriggersInSection(
+                        placedBlock,
+                        config,
+                        itemID,
+                        namespacedID,
+                        category
+                );
+            }
+        }
+
+        return count;
+    }
+
+
+    private int parseTriggersInSection(
+            ConfigurationSection section,
+            FileConfiguration config,
+            String itemID,
+            String namespacedID,
+            ItemCategory category
+    ) {
         int count = 0;
-        for (String triggerName : events.getKeys(false)) {
-            ConfigurationSection triggerSection = events.getConfigurationSection(triggerName);
+
+        for (String triggerName : section.getKeys(false)) {
+            ConfigurationSection triggerSection = section.getConfigurationSection(triggerName);
             if (triggerSection == null)
                 continue;
 
@@ -233,7 +266,12 @@ public final class ActionLoader {
             if (isArgumentized(triggerName, category))
                 count += parseArgumentizedTrigger(triggerSection, bindingKey, type, namespacedID);
             else
-                count += parseActionsFromSection(triggerSection, bindingKey, TriggerKey.of(type), namespacedID);
+                count += parseActionsFromSection(
+                        triggerSection,
+                        bindingKey,
+                        TriggerKey.of(type),
+                        namespacedID
+                );
         }
 
         return count;

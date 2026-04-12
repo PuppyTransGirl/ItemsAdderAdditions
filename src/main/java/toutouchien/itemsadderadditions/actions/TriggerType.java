@@ -6,6 +6,10 @@ public enum TriggerType {
      * Right-click on a block.
      */
     BLOCK_INTERACT,
+    /**
+     * A placed custom block is broken.
+     */
+    PLACED_BLOCK_BREAK,
 
     // Item - Interact
     /**
