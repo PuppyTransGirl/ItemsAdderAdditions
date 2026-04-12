@@ -292,7 +292,7 @@ export default function HomePage() {
                         <a href="https://www.spigotmc.org/resources/itemsadderadditions.133918/" target="_blank" rel="noreferrer" className="text-sm font-medium text-fd-primary hover:underline">
                             Download on SpigotMC →
                         </a>
-                        <a href="https://github.com/PuppyTransGirl/ItemsAdderAdditions/releases/latest" target="_blank" rel="noreferrer" className="text-sm font-medium text-fd-primary hover:underline">
+                        <a href="https://github.com/bruhhhwarrior/iaadditions/releases/latest" target="_blank" rel="noreferrer" className="text-sm font-medium text-fd-primary hover:underline">
                             Download example pack →
                         </a>
                         <Link href="/docs" className="text-sm font-medium text-fd-primary hover:underline">
