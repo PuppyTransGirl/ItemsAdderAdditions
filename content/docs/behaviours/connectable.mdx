@@ -6,28 +6,30 @@ description: Automatically change shape when placed next to matching blocks (lik
 <Tabs items={['Stair type', 'Table type']}>
   <Tab value="Stair type">
     ```yaml
-    connectable:
-      type: stair # Optional (Default value: stair)
-      default: connectable_furniture
-      straight: connectable_furniture_straight
-      left: connectable_furniture_left
-      right: connectable_furniture_right
-      outer: connectable_furniture_outer
-      inner: connectable_furniture_inner
+    behaviours:
+      connectable:
+        type: stair # Optional (Default value: stair)
+        default: connectable_furniture
+        straight: connectable_furniture_straight
+        left: connectable_furniture_left
+        right: connectable_furniture_right
+        outer: connectable_furniture_outer
+        inner: connectable_furniture_inner
     ```
 
     ![Connectable Stair type Example](/assets/behaviours_connectable_stair_type_example.png)
   </Tab>
   <Tab value="Table type">
     ```yaml
-    connectable:
-      type: table
-      default: connectable_furniture
-      straight: connectable_furniture_straight
-      middle: connectable_furniture_middle
-      border: connectable_furniture_border
-      corner: connectable_furniture_corner
-      end: connectable_furniture_end
+    behaviours:
+      connectable:
+        type: table
+        default: connectable_furniture
+        straight: connectable_furniture_straight
+        middle: connectable_furniture_middle
+        border: connectable_furniture_border
+        corner: connectable_furniture_corner
+        end: connectable_furniture_end
     ```
 
     ![Connectable Table type Example](/assets/behaviours_connectable_table_type_example.png)
