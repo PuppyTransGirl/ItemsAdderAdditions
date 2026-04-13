@@ -3,7 +3,7 @@ import type {Metadata} from 'next';
 
 export const metadata: Metadata = {
     title: 'ItemsAdderAdditions - Free ItemsAdder Addon for Minecraft Paper Servers',
-    description: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with custom behaviours (contact damage, storage, connectable blocks), actions (messages, titles, MythicMobs skills, veinminer), and features - all configured inside your existing YAML files.',
+    description: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with custom behaviours (contact damage, storage, connectable blocks), actions (messages, titles, MythicMobs skills, veinminer), and features - all configured inside your existing YML files.',
     alternates: {
         canonical: 'https://itemsadderadditions.com',
     },
@@ -78,7 +78,7 @@ const jsonLd = {
             applicationSubCategory: 'Minecraft Plugin',
             operatingSystem: 'Java',
             url: 'https://itemsadderadditions.com',
-            description: 'A free Minecraft server plugin addon that extends ItemsAdder with custom behaviours, actions, and features, configured directly inside existing YAML files.',
+            description: 'A free Minecraft server plugin addon that extends ItemsAdder with custom behaviours, actions, and features, configured directly inside existing YML files.',
             offers: {
                 '@type': 'Offer',
                 price: '0',
@@ -107,7 +107,7 @@ const jsonLd = {
                     name: 'What is ItemsAdderAdditions?',
                     acceptedAnswer: {
                         '@type': 'Answer',
-                        text: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with extra behaviours (such as contact damage, storage containers, connectable blocks, and stackable blocks), actions (messages, titles, veinminer, MythicMobs skills, and more), and quality-of-life features - all configured directly inside your existing YAML files without restarting the server.',
+                        text: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with extra behaviours (such as contact damage, storage containers, connectable blocks, and stackable blocks), actions (messages, titles, veinminer, MythicMobs skills, and more), and quality-of-life features - all configured directly inside your existing YML files without restarting the server.',
                     },
                 },
                 {
@@ -156,7 +156,7 @@ export default function HomePage() {
                 </h1>
                 <p className="max-w-lg text-base md:text-lg text-fd-muted-foreground leading-relaxed">
                     ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with new actions, behaviours, and features -
-                    configured directly inside your existing YAML files. No server restart needed, just <code>/iareload</code>.
+                    configured directly inside your existing YML files. No server restart needed, just <code>/iareload</code>.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3 mt-1">
                     <a
@@ -183,7 +183,7 @@ export default function HomePage() {
                     <p className="text-xl font-semibold leading-snug">Custom logic for blocks and furniture</p>
                     <p className="text-fd-muted-foreground text-sm leading-relaxed">
                         Make ItemsAdder blocks deal contact damage, hold inventories, stack on top of each other, or
-                        connect to adjacent blocks - all from a few lines of YAML inside your existing item config.
+                        connect to adjacent blocks - all from a few lines of YML inside your existing item config.
                     </p>
                     <Link href="/docs/behaviours/connectable" className="text-sm font-medium text-fd-primary hover:underline mt-1">
                         Browse behaviours →
@@ -217,7 +217,7 @@ export default function HomePage() {
 
             <div className="border-t border-fd-border" />
 
-            {/* ── YAML example ── */}
+            {/* ── YML example ── */}
             <section className="w-full max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16 items-center">
                 <div className="flex flex-col gap-4">
                     <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-snug">
@@ -263,7 +263,7 @@ export default function HomePage() {
                     <div className="flex flex-col gap-2">
                         <h3 className="font-semibold text-fd-foreground">Does it add new config files?</h3>
                         <p className="text-sm text-fd-muted-foreground leading-relaxed">
-                            No. Behaviours and actions are configured inside your existing ItemsAdder YAML item definitions.
+                            No. Behaviours and actions are configured inside your existing ItemsAdder YML item definitions.
                         </p>
                     </div>
                     <div className="flex flex-col gap-2">

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
         template: '%s | ItemsAdderAdditions',
         default: 'ItemsAdderAdditions - ItemsAdder Plugin Addon for Minecraft Servers',
     },
-    description: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with custom behaviours, actions, and features - configured directly inside your existing YAML files. No restart needed.',
+    description: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with custom behaviours, actions, and features - configured directly inside your existing YML files. No restart needed.',
     keywords: [
         'ItemsAdder addon',
         'ItemsAdder plugin',
@@ -36,13 +36,13 @@ export const metadata: Metadata = {
         url: 'https://itemsadderadditions.com',
         type: 'website',
         title: 'ItemsAdderAdditions - ItemsAdder Plugin Addon for Minecraft Servers',
-        description: 'Extend ItemsAdder with custom behaviours, actions, and features - configured directly in your existing YAML files. No restart needed.',
+        description: 'Extend ItemsAdder with custom behaviours, actions, and features - configured directly in your existing YML files. No restart needed.',
         locale: 'en_US',
     },
     twitter: {
         card: 'summary_large_image',
         title: 'ItemsAdderAdditions - ItemsAdder Plugin Addon',
-        description: 'Extend ItemsAdder with custom behaviours, actions, and features - configured in your existing YAML files.',
+        description: 'Extend ItemsAdder with custom behaviours, actions, and features - configured in your existing YML files.',
     },
     icons: {
         icon: '/favicon.ico',
