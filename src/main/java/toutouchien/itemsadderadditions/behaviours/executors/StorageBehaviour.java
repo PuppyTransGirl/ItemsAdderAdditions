@@ -258,11 +258,14 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
-        if (!(event.getInventory().getHolder(false) instanceof StorageInventoryHolder)) return;
+        if (!(event.getInventory().getHolder(false) instanceof StorageInventoryHolder holder)) return;
 
         StorageSession session = sessionManager.remove(player.getUniqueId());
         if (session == null) return;
-        if (session.type() == StorageType.DISPOSAL) return;
+        if (session.type() == StorageType.DISPOSAL) {
+            sessionManager.executeClose(holder.location(), true);
+            return;
+        }
 
         sessionManager.saveSessionContents(session, true);
     }

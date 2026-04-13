@@ -133,7 +133,8 @@ public final class StorageSessionManager {
             session.player().closeInventory();
         }
 
-        executeClose(loc, true);
+        if (!alreadySaved.isEmpty())
+            executeClose(loc, true);
     }
 
     private Inventory resolveInventory(
@@ -178,7 +179,7 @@ public final class StorageSessionManager {
             location.getWorld().playSound(openSound, location.x(), location.y(), location.z());
     }
 
-    private void executeClose(Location location, boolean playSound) {
+    public void executeClose(Location location, boolean playSound) {
         if (playSound && closeSound != null)
             location.getWorld().playSound(closeSound, location.x(), location.y(), location.z());
 
