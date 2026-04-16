@@ -160,12 +160,12 @@ export default function HomePage() {
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3 mt-1">
                     <a
-                        href="https://www.spigotmc.org/resources/itemsadderadditions.133918/"
+                        href="https://modrinth.com/plugin/itemsadderadditions"
                         target="_blank"
                         rel="noreferrer"
                         className="rounded-md bg-fd-primary px-5 py-2.5 text-sm font-semibold text-fd-primary-foreground hover:opacity-90 transition-opacity"
                     >
-                        Download on SpigotMC
+                        Download on Modrinth
                     </a>
                     <Link
                         href="/docs"
@@ -289,8 +289,8 @@ export default function HomePage() {
                 <div className="flex flex-col gap-3">
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-fd-muted-foreground">Get started</h2>
                     <div className="flex flex-col gap-1.5">
-                        <a href="https://www.spigotmc.org/resources/itemsadderadditions.133918/" target="_blank" rel="noreferrer" className="text-sm font-medium text-fd-primary hover:underline">
-                            Download on SpigotMC →
+                        <a href="https://modrinth.com/plugin/itemsadderadditions" target="_blank" rel="noreferrer" className="text-sm font-medium text-fd-primary hover:underline">
+                            Download on Modrinth →
                         </a>
                         <a href="https://github.com/bruhhhwarrior/iaadditions/releases/latest" target="_blank" rel="noreferrer" className="text-sm font-medium text-fd-primary hover:underline">
                             Download example pack →
