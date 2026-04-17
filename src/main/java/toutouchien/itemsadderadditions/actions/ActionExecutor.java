@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class ActionExecutor implements Keyed {
     @Parameter(key = "target", type = String.class) protected String target = "self";
     @Parameter(key = "target_radius", type = Double.class) protected double targetRadius = 0;
+    @Parameter(key = "target_in_sight_distance", type = Integer.class) protected int targetInSightDistance;
     @Parameter(key = "permission", type = String.class) @Nullable private String permission;
     @Parameter(key = "delay", type = Integer.class) private int delay = 0;
 
@@ -89,19 +90,18 @@ public abstract class ActionExecutor implements Keyed {
         }
 
         Set<Entity> entities = new HashSet<>();
-        entities.add(context.player());
 
-        if (target.equalsIgnoreCase("all") && context.target() != null)
+        if (target.equalsIgnoreCase("all") && context.target() != null) {
+            entities.add(context.player());
             entities.add(context.target());
+        }
 
         if (target.equalsIgnoreCase("other")) {
-            entities.clear();
             if (context.target() != null)
                 entities.add(context.target());
         }
 
         if (target.equalsIgnoreCase("radius") && targetRadius != 0) {
-            entities.clear();
             Location center;
             if (context.target() != null)
                 center = context.target().getLocation();
@@ -111,6 +111,12 @@ public abstract class ActionExecutor implements Keyed {
                 center = context.player().getLocation();
 
             entities.addAll(center.getNearbyEntities(targetRadius / 2, targetRadius / 2, targetRadius / 2));
+        }
+
+        if (target.equalsIgnoreCase("in_sight") && targetInSightDistance != 0) {
+            Entity targetEntity = context.player().getTargetEntity(targetInSightDistance);
+            if (targetEntity != null)
+                entities.add(targetEntity);
         }
 
         for (Entity entity : entities) {
@@ -139,6 +145,7 @@ public abstract class ActionExecutor implements Keyed {
         Action a = getClass().getAnnotation(Action.class);
         if (a == null)
             throw new IllegalStateException("Missing @Action annotation on: " + getClass().getName());
+
         return a;
     }
 }
