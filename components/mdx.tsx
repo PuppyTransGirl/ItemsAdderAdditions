@@ -1,8 +1,8 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import {Tab, Tabs} from 'fumadocs-ui/components/tabs';
 import type {MDXComponents} from 'mdx/types';
-import { ModrinthIcon, SpigotIcon } from './icons';
-import { VideoGif } from './video-gif';
+import {HangarIcon, ModrinthIcon, SpigotIcon} from './icons';
+import {VideoGif} from './video-gif';
 
 export function getMDXComponents(components?: MDXComponents) {
     return {
@@ -10,7 +10,7 @@ export function getMDXComponents(components?: MDXComponents) {
         Tab,
         Tabs,
         ...components,
-        ModrinthIcon, SpigotIcon,
+        ModrinthIcon, HangarIcon, SpigotIcon,
         VideoGif
     } satisfies MDXComponents;
 }

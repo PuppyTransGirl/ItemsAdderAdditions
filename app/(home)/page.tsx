@@ -269,7 +269,7 @@ export default function HomePage() {
                     <div className="flex flex-col gap-2">
                         <h3 className="font-semibold text-fd-foreground">Is ItemsAdderAdditions free?</h3>
                         <p className="text-sm text-fd-muted-foreground leading-relaxed">
-                            Yes, ItemsAdderAdditions is completely free to download on Modrinth or SpigotMC.
+                            Yes, ItemsAdderAdditions is completely free to download on Modrinth, Hangar, or SpigotMC.
                         </p>
                     </div>
                 </div>
