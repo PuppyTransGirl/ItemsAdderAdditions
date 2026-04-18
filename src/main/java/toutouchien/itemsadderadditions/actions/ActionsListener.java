@@ -11,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -26,6 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.loading.ActionBindings;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.Collection;
 import java.util.List;
@@ -81,35 +81,64 @@ public final class ActionsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onComplexFurnitureInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            Log.debug("Furniture", "Ignoring interact: action={}", event.getAction());
             return;
+        }
 
         Block block = event.getClickedBlock();
-        if (block.getType() != Material.BARRIER)
+        if (block == null) {
+            Log.debug("Furniture", "Ignoring interact: clicked block is null");
             return;
+        }
+
+        if (block.getType() != Material.BARRIER) {
+            Log.debug("Furniture", "Ignoring interact: clicked block is not BARRIER ({}))",
+                    block.getType());
+            return;
+        }
 
         Location location = block.getLocation();
         Collection<Entity> nearbyEntities = block.getWorld().getNearbyEntities(
-                location, 0.1D, 0.1D, 0.1D,
-                entity -> entity.getType() == EntityType.ARMOR_STAND
+                location, 0.1D, 0.1D, 0.1D
         );
-        if (nearbyEntities.isEmpty())
+
+        Log.debug("Furniture", "Found {} nearby entity/entities near barrier at {}, {}, {}",
+                nearbyEntities.size(),
+                location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ());
+
+        if (nearbyEntities.isEmpty()) {
+            Log.debug("Furniture", "Ignoring interact: no nearby entities");
             return;
+        }
 
         CustomEntity customEntity = null;
         for (Entity entity : nearbyEntities) {
             customEntity = CustomEntity.byAlreadySpawned(entity);
-            if (customEntity != null)
+            if (customEntity != null) {
+                Log.debug("Furniture", "Matched custom entity {} for armor stand {}",
+                        customEntity.getNamespacedID(), entity.getUniqueId());
                 break;
+            }
         }
 
-        if (customEntity == null)
+        if (customEntity == null) {
+            Log.debug("Furniture", "Ignoring interact: no custom entity matched");
             return;
+        }
 
         Player player = event.getPlayer();
         String namespacedID = customEntity.getNamespacedID();
         Entity entity = customEntity.getEntity();
         ItemStack held = player.getInventory().getItemInMainHand();
+
+        Log.debug("Furniture",
+                "Dispatching COMPLEX_FURNITURE_INTERACT for {} by player {} with held item {}",
+                namespacedID,
+                player.getName(),
+                held == null ? "null" : held.getType());
 
         dispatch(
                 namespacedID,
@@ -676,8 +705,26 @@ public final class ActionsListener implements Listener {
 
     private void dispatch(String id, TriggerType type, @Nullable String argument, ActionContext context) {
         List<ActionExecutor> executors = ActionBindings.get(id, type, argument);
-        for (ActionExecutor executor : executors)
+
+        Log.debug("Dispatch",
+                "Lookup id={}, type={}, argument={} -> {} executor(s)",
+                id,
+                type,
+                argument,
+                executors.size());
+
+        if (executors.isEmpty()) {
+            Log.debug("Dispatch", "No executors found for id={}, type={}, argument={}",
+                    id,
+                    type,
+                    argument);
+            return;
+        }
+
+        for (ActionExecutor executor : executors) {
+            Log.debug("Dispatch", "Running executor {}", executor.getClass().getSimpleName());
             executor.run(context);
+        }
     }
 
     private void dispatch(String id, TriggerType type, ActionContext context) {

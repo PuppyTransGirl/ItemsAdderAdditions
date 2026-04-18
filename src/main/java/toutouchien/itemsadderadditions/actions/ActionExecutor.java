@@ -13,6 +13,7 @@ import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.cooldown.CooldownBridge;
 import toutouchien.itemsadderadditions.utils.Task;
 import toutouchien.itemsadderadditions.utils.other.Keyed;
+import toutouchien.itemsadderadditions.utils.other.Log;
 import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
 
 import java.util.HashSet;
@@ -76,60 +77,104 @@ public abstract class ActionExecutor implements Keyed {
     }
 
     public final void run(ActionContext context) {
-        if (permission != null && !context.player().hasPermission(permission))
+        Log.debug("Action", "Running action. target={}, delay={}, permission={}, player={}",
+                target, delay, permission, context.player().getName());
+
+        if (permission != null && !context.player().hasPermission(permission)) {
+            Log.debug("Action", "Skipping: player lacks permission '{}'", permission);
             return;
+        }
 
         ItemStack heldItem = context.heldItem();
         if (heldItem != null) {
             CustomStack customStack = CustomStack.byItemStack(heldItem);
             if (customStack != null) {
                 int itemHash = customStack.getNamespacedID().hashCode();
-                if (CooldownBridge.isOnCooldown(context.player(), itemHash))
+                Log.debug("Action", "Held custom item detected: id={}, hash={}",
+                        customStack.getNamespacedID(), itemHash);
+
+                if (CooldownBridge.isOnCooldown(context.player(), itemHash)) {
+                    Log.debug("Action", "Skipping: item is on cooldown for player {}",
+                            context.player().getName());
                     return;
+                }
+            } else {
+                Log.debug("Action", "Held item is not a custom stack");
             }
+        } else {
+            Log.debug("Action", "No held item");
         }
 
         Set<Entity> entities = new HashSet<>();
 
+        if (target.equalsIgnoreCase("self")) {
+            Log.debug("Action", "Resolving target mode 'self'");
+            entities.add(context.player());
+        }
+
         if (target.equalsIgnoreCase("all") && context.target() != null) {
+            Log.debug("Action", "Resolving target mode 'all'");
             entities.add(context.player());
             entities.add(context.target());
         }
 
         if (target.equalsIgnoreCase("other")) {
+            Log.debug("Action", "Resolving target mode 'other'");
             if (context.target() != null)
                 entities.add(context.target());
         }
 
         if (target.equalsIgnoreCase("radius") && targetRadius != 0) {
             Location center;
-            if (context.target() != null)
+            if (context.target() != null) {
                 center = context.target().getLocation();
-            else if (context.block() != null)
+                Log.debug("Action", "Resolving radius center from target entity");
+            } else if (context.block() != null) {
                 center = context.block().getLocation();
-            else
+                Log.debug("Action", "Resolving radius center from block");
+            } else {
                 center = context.player().getLocation();
+                Log.debug("Action", "Resolving radius center from player");
+            }
 
-            entities.addAll(center.getNearbyEntities(targetRadius / 2, targetRadius / 2, targetRadius / 2));
+            var nearby = center.getNearbyEntities(targetRadius / 2, targetRadius / 2, targetRadius / 2);
+            Log.debug("Action", "Found {} nearby entities within radius {}", nearby.size(), targetRadius);
+            entities.addAll(nearby);
         }
 
         if (target.equalsIgnoreCase("in_sight") && targetInSightDistance != 0) {
+            Log.debug("Action", "Resolving target mode 'in_sight' with distance {}",
+                    targetInSightDistance);
             Entity targetEntity = context.player().getTargetEntity(targetInSightDistance);
-            if (targetEntity != null)
+            if (targetEntity != null) {
+                Log.debug("Action", "Found target in sight: {}", targetEntity.getType());
                 entities.add(targetEntity);
+            } else {
+                Log.debug("Action", "No target found in sight");
+            }
         }
 
+        Log.debug("Action", "Resolved {} target entity/entities", entities.size());
+
         for (Entity entity : entities) {
+            Log.debug("Action", "Executing for entity {} (delay={}ms)", entity.getType(),
+                    delay * 50L);
+
             if (delay <= 0) {
                 context.runOn(entity);
                 execute(context);
+                Log.debug("Action", "Executed immediately for entity {}", entity.getType());
                 continue;
             }
 
             Task.runDelayed(
                     task -> {
+                        Log.debug("Action", "Delayed execution started for entity {}",
+                                entity.getType());
                         context.runOn(entity);
                         execute(context);
+                        Log.debug("Action", "Delayed execution finished for entity {}",
+                                entity.getType());
                     },
                     ItemsAdderAdditions.instance(),
                     entity,
