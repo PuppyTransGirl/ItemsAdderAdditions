@@ -76,6 +76,7 @@ public abstract class ActionExecutor implements Keyed {
         return ParameterInjector.inject(this, section, namespacedID);
     }
 
+    @SuppressWarnings("java:S6916")
     public final void run(ActionContext context) {
         Log.debug("Action", "Running action. target={}, delay={}, permission={}, player={}",
                 target, delay, permission, context.player().getName());
@@ -106,52 +107,65 @@ public abstract class ActionExecutor implements Keyed {
         }
 
         Set<Entity> entities = new HashSet<>();
-
-        if (target.equalsIgnoreCase("self")) {
-            Log.debug("Action", "Resolving target mode 'self'");
-            entities.add(context.player());
-        }
-
-        if (target.equalsIgnoreCase("all") && context.target() != null) {
-            Log.debug("Action", "Resolving target mode 'all'");
-            entities.add(context.player());
-            entities.add(context.target());
-        }
-
-        if (target.equalsIgnoreCase("other")) {
-            Log.debug("Action", "Resolving target mode 'other'");
-            if (context.target() != null)
-                entities.add(context.target());
-        }
-
-        if (target.equalsIgnoreCase("radius") && targetRadius != 0) {
-            Location center;
-            if (context.target() != null) {
-                center = context.target().getLocation();
-                Log.debug("Action", "Resolving radius center from target entity");
-            } else if (context.block() != null) {
-                center = context.block().getLocation();
-                Log.debug("Action", "Resolving radius center from block");
-            } else {
-                center = context.player().getLocation();
-                Log.debug("Action", "Resolving radius center from player");
+        switch (target.toLowerCase()) {
+            case "self" -> {
+                Log.debug("Action", "Resolving target mode 'self'");
+                entities.add(context.player());
             }
 
-            var nearby = center.getNearbyEntities(targetRadius / 2, targetRadius / 2, targetRadius / 2);
-            Log.debug("Action", "Found {} nearby entities within radius {}", nearby.size(), targetRadius);
-            entities.addAll(nearby);
-        }
-
-        if (target.equalsIgnoreCase("in_sight") && targetInSightDistance != 0) {
-            Log.debug("Action", "Resolving target mode 'in_sight' with distance {}",
-                    targetInSightDistance);
-            Entity targetEntity = context.player().getTargetEntity(targetInSightDistance);
-            if (targetEntity != null) {
-                Log.debug("Action", "Found target in sight: {}", targetEntity.getType());
-                entities.add(targetEntity);
-            } else {
-                Log.debug("Action", "No target found in sight");
+            case "all" -> {
+                Log.debug("Action", "Resolving target mode 'all'");
+                entities.add(context.player());
+                if (context.target() != null)
+                    entities.add(context.target());
             }
+
+            case "other" -> {
+                Log.debug("Action", "Resolving target mode 'other'");
+                if (context.target() != null)
+                    entities.add(context.target());
+            }
+
+            case "radius" -> {
+                if (targetRadius != 0) {
+                    Location center;
+                    if (context.target() != null) {
+                        center = context.target().getLocation();
+                        Log.debug("Action", "Resolving radius center from target entity");
+                    } else if (context.block() != null) {
+                        center = context.block().getLocation();
+                        Log.debug("Action", "Resolving radius center from block");
+                    } else {
+                        center = context.player().getLocation();
+                        Log.debug("Action", "Resolving radius center from player");
+                    }
+
+                    var nearby = center.getNearbyEntities(
+                            targetRadius / 2,
+                            targetRadius / 2,
+                            targetRadius / 2
+                    );
+                    Log.debug("Action", "Found {} nearby entities within radius {}",
+                            nearby.size(), targetRadius);
+                    entities.addAll(nearby);
+                }
+            }
+
+            case "in_sight" -> {
+                if (targetInSightDistance != 0) {
+                    Log.debug("Action", "Resolving target mode 'in_sight' with distance {}",
+                            targetInSightDistance);
+                    Entity targetEntity = context.player().getTargetEntity(targetInSightDistance);
+                    if (targetEntity != null) {
+                        Log.debug("Action", "Found target in sight: {}", targetEntity.getType());
+                        entities.add(targetEntity);
+                    } else {
+                        Log.debug("Action", "No target found in sight");
+                    }
+                }
+            }
+
+            default -> Log.debug("Action", "Unknown target mode '{}'", target);
         }
 
         Log.debug("Action", "Resolved {} target entity/entities", entities.size());
