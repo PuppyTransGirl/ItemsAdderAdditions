@@ -61,7 +61,7 @@ const ACTIONS: Record<string, FieldDef[]> = {
         { k: 'text', l: 'text (one per line)', t: 'textarea', r: true, p: '<white>Line one\n<bold>Line two' },
         { k: 'frame', l: 'frame', t: 'select', r: false, opts: ['', 'task', 'goal', 'challenge'], h: 'default: goal' },
     ],
-    ignite: [{ k: 'duration', l: 'duration', t: 'number', r: true, p: '200', h: 'ticks — 200 = 10 seconds' }],
+    ignite: [{ k: 'duration', l: 'duration', t: 'number', r: true, p: '200', h: 'ticks - 200 = 10 seconds' }],
     clear_item: [
         { k: 'item', l: 'item', t: 'text', r: true, p: 'namespace:item' },
         { k: 'amount', l: 'amount', t: 'number', r: false, p: '1', h: 'default: 1' },
@@ -181,9 +181,9 @@ function PotionEffectFields({ pe, index, onChange, onRemove }: {
             <Field def={{ k: 'type', l: 'type', t: 'text', r: true, p: 'POISON', h: 'e.g. POISON, WITHER, NAUSEA' }} value={pe.type} onChange={v => onChange('type', v)} />
             <Field def={{ k: 'amplifier', l: 'amplifier', t: 'number', r: false, p: '0', h: '0 = level 1 (default: 0)' }} value={pe.amplifier} onChange={v => onChange('amplifier', v)} />
             <Field def={{ k: 'duration', l: 'duration', t: 'number', r: false, p: '40', h: 'ticks (default: 40)' }} value={pe.duration} onChange={v => onChange('duration', v)} />
-            <Field def={{ k: 'ambient', l: 'ambient', t: 'select', r: false, opts: ['', 'true', 'false'], h: 'default: false — more translucent particles' }} value={pe.ambient} onChange={v => onChange('ambient', v)} />
+            <Field def={{ k: 'ambient', l: 'ambient', t: 'select', r: false, opts: ['', 'true', 'false'], h: 'default: false - more translucent particles' }} value={pe.ambient} onChange={v => onChange('ambient', v)} />
             <Field def={{ k: 'particles', l: 'particles', t: 'select', r: false, opts: ['', 'true', 'false'], h: 'default: true' }} value={pe.particles} onChange={v => onChange('particles', v)} />
-            <Field def={{ k: 'icon', l: 'icon', t: 'select', r: false, opts: ['', 'true', 'false'], h: 'default: true — show HUD icon' }} value={pe.icon} onChange={v => onChange('icon', v)} />
+            <Field def={{ k: 'icon', l: 'icon', t: 'select', r: false, opts: ['', 'true', 'false'], h: 'default: true - show HUD icon' }} value={pe.icon} onChange={v => onChange('icon', v)} />
         </div>
     );
 }
@@ -253,11 +253,13 @@ function generateAction(type: string, values: Record<string, string>): string {
     const delay = (values['delay'] ?? '').trim();
     const target = (values['u_target'] ?? '').trim();
     const radius = (values['target_radius'] ?? '').trim();
+    const inSightDistance = (values['target_in_sight_distance'] ?? '').trim();
     if (perm) lines.push(`${ind}permission: "${perm}"`);
     if (delay && delay !== '0') lines.push(`${ind}delay: ${delay}`);
     if (target) {
         lines.push(`${ind}target: ${target}`);
         if (target === 'radius' && radius) lines.push(`${ind}target_radius: ${radius}`);
+        if (target === 'in_sight' && inSightDistance) lines.push(`${ind}target_in_sight_distance: ${inSightDistance}`);
     }
     return lines.join('\n');
 }
@@ -341,7 +343,7 @@ function generateBehaviour(
             if (decr) lines.push(`${i2}decrement_amount: ${decr}`);
 
         } else {
-            // full mode — named steps
+            // full mode - named steps
             stackSteps.forEach((step, idx) => {
                 if (!step.block.trim()) return;
                 const stepKey = `step_${idx + 1}`;
@@ -373,7 +375,7 @@ export function Builder() {
     const [behaviourType, setBehaviourType] = useState('contact_damage');
     const [values, setValues] = useState<Record<string, string>>({});
     const [extras, setExtras] = useState<Record<string, boolean>>({});
-    const [potions, setPotions] = useState<PotionEffect[]>([emptyPotion()]);
+    const [potions, setPotions] = useState<PotionEffect[]>([]);
     const [stackSteps, setStackSteps] = useState<StackStep[]>([emptyStep()]);
     const [copied, setCopied] = useState(false);
 
@@ -444,9 +446,12 @@ export function Builder() {
                             <div className="flex flex-col gap-3">
                                 <Field def={{ k: 'permission', l: 'permission', t: 'text', r: false, p: 'myplugin.use' }} value={values['permission'] ?? ''} onChange={v => setVal('permission', v)} />
                                 <Field def={{ k: 'delay', l: 'delay', t: 'number', r: false, p: '0', h: '20 ticks = 1 second' }} value={values['delay'] ?? ''} onChange={v => setVal('delay', v)} />
-                                <Field def={{ k: 'u_target', l: 'target', t: 'select', r: false, opts: ['', 'other', 'all', 'radius'], h: 'default: self' }} value={values['u_target'] ?? ''} onChange={v => setVal('u_target', v)} />
+                                <Field def={{ k: 'u_target', l: 'target', t: 'select', r: false, opts: ['', 'other', 'all', 'radius', 'in_sight'], h: 'default: self' }} value={values['u_target'] ?? ''} onChange={v => setVal('u_target', v)} />
                                 {values['u_target'] === 'radius' && (
                                     <Field def={{ k: 'target_radius', l: 'target_radius', t: 'number', r: false, p: '10', h: 'blocks' }} value={values['target_radius'] ?? ''} onChange={v => setVal('target_radius', v)} />
+                                )}
+                                {values['u_target'] === 'in_sight' && (
+                                    <Field def={{ k: 'target_in_sight_distance', l: 'target_in_sight_distance', t: 'number', r: false, p: '10', h: 'blocks' }} value={values['target_in_sight_distance'] ?? ''} onChange={v => setVal('target_in_sight_distance', v)} />
                                 )}
                             </div>
                         </>
@@ -472,18 +477,23 @@ export function Builder() {
                                 </SubSection>
                             )}
                             <Divider />
-                            <SectionLabel>Potion effects</SectionLabel>
-                            <div className="flex flex-col gap-3">
-                                {potions.map((pe, idx) => (
-                                    <PotionEffectFields key={idx} pe={pe} index={idx}
-                                                        onChange={(k, v) => updatePotion(idx, k, v)}
-                                                        onRemove={() => removePotion(idx)} />
-                                ))}
-                                <button onClick={() => setPotions(prev => [...prev, emptyPotion()])}
-                                        className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">
-                                    + Add potion effect
-                                </button>
-                            </div>
+                            <CheckToggle label="Configure potion effects" checked={!!extras['potions']} onChange={v => {
+                                setExtra('potions', v);
+                                if (v && potions.length === 0) setPotions([emptyPotion()]);
+                            }} />
+                            {extras['potions'] && (
+                                <div className="flex flex-col gap-3">
+                                    {potions.map((pe, idx) => (
+                                        <PotionEffectFields key={idx} pe={pe} index={idx}
+                                                            onChange={(k, v) => updatePotion(idx, k, v)}
+                                                            onRemove={() => removePotion(idx)} />
+                                    ))}
+                                    <button onClick={() => setPotions(prev => [...prev, emptyPotion()])}
+                                            className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">
+                                        + Add potion effect
+                                    </button>
+                                </div>
+                            )}
                         </>
                     )}
 
@@ -493,7 +503,7 @@ export function Builder() {
                             <SectionLabel>Parameters</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 <Field def={{ k: 'type', l: 'type', t: 'select', r: true, opts: ['STORAGE', 'SHULKER', 'DISPOSAL'] }} value={values['type'] ?? 'STORAGE'} onChange={v => setVal('type', v)} />
-                                <Field def={{ k: 'rows', l: 'rows', t: 'number', r: false, p: '3', h: '1–6 (default: 3)' }} value={values['rows'] ?? ''} onChange={v => setVal('rows', v)} />
+                                <Field def={{ k: 'rows', l: 'rows', t: 'number', r: false, p: '3', h: '1-6 (default: 3)' }} value={values['rows'] ?? ''} onChange={v => setVal('rows', v)} />
                                 <Field def={{ k: 'title', l: 'title', t: 'text', r: false, p: '<gold>My Storage', h: 'MiniMessage supported' }} value={values['title'] ?? ''} onChange={v => setVal('title', v)} />
                             </div>
                             <Divider />

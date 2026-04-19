@@ -34,12 +34,13 @@ message:
 
 Controls who the action is applied to. Defaults to `self`.
 
-| Value    | Description                                                                            |
-|----------|----------------------------------------------------------------------------------------|
-| `self`   | The player who triggered the event *(default)*                                         |
-| `other`  | The entity the player is interacting with (e.g. the one being attacked)                |
-| `all`    | Both the triggering player **and** the target entity                                   |
-| `radius` | All entities within a sphere around the interaction point - requires `target_radius`   |
+| Value              | Description                                                                                 |
+|--------------------|---------------------------------------------------------------------------------------------| 
+| `self`             | The player who triggered the event *(default)*                                              |
+| `other`            | The entity the player is interacting with (e.g. the one being attacked)                     |
+| `all`              | Both the triggering player **and** the target entity                                        |
+| `radius`           | All entities within a sphere around the interaction point - requires `target_radius`        |
+| `in_sight`         | The entity the player is currently looking at - requires `target_in_sight_distance`         |
 
 ```yaml
 message:
@@ -56,6 +57,17 @@ actionbar:
   text: "<yellow>Area effect!"
   target: radius
   target_radius: 10
+```
+
+### `target_in_sight_distance`
+
+Only used when `target: in_sight`. The maximum number of blocks to ray-cast from the player's eye position when searching for an entity. If no entity is found within that range, the action is skipped entirely.
+
+```yaml
+ignite:
+  duration: 100
+  target: in_sight
+  target_in_sight_distance: 10
 ```
 
 ## Full example

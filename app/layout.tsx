@@ -1,4 +1,5 @@
 import {RootProvider} from 'fumadocs-ui/provider/next';
+import StaticSearchDialog from '@/components/search';
 import './global.css';
 import {Inter} from 'next/font/google';
 import type {Metadata} from 'next';
@@ -70,7 +71,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     return (
         <html lang="en" className={inter.className} suppressHydrationWarning>
         <body className="flex flex-col min-h-screen">
-        <RootProvider>{children}</RootProvider>
+        <RootProvider search={{ SearchDialog: StaticSearchDialog }}>{children}</RootProvider>
         <GoogleAnalytics gaId="G-XJSY3N88FX" />
         </body>
         </html>
