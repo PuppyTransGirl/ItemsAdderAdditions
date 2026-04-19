@@ -3,7 +3,7 @@ package toutouchien.itemsadderadditions.patches.impl;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-import toutouchien.itemsadderadditions.cooldown.CooldownBridge;
+import toutouchien.itemsadderadditions.bridge.CooldownBridge;
 import toutouchien.itemsadderadditions.patches.InjectPoint;
 import toutouchien.itemsadderadditions.patches.MethodInjectPatch;
 

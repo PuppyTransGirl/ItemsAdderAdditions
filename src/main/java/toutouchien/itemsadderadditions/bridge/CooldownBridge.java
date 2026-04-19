@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.cooldown;
+package toutouchien.itemsadderadditions.bridge;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;

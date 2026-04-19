@@ -10,7 +10,8 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
-import toutouchien.itemsadderadditions.cooldown.CooldownBridge;
+import toutouchien.itemsadderadditions.bridge.CooldownBridge;
+import toutouchien.itemsadderadditions.bridge.StatRequirementsBridge;
 import toutouchien.itemsadderadditions.utils.Task;
 import toutouchien.itemsadderadditions.utils.other.Keyed;
 import toutouchien.itemsadderadditions.utils.other.Log;
@@ -97,6 +98,13 @@ public abstract class ActionExecutor implements Keyed {
                 if (CooldownBridge.isOnCooldown(context.player(), itemHash)) {
                     Log.debug("Action", "Skipping: item is on cooldown for player {}",
                             context.player().getName());
+                    return;
+                }
+
+                if (StatRequirementsBridge.isBlocked(context.player(), itemHash)) {
+                    Log.debug("Action",
+                            "Skipping: stat requirements not met for player {} item hash {}",
+                            context.player().getName(), itemHash);
                     return;
                 }
             } else {
