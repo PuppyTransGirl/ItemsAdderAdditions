@@ -25,7 +25,6 @@ export function HangarIcon() {
             style={{
                 clipRule: "evenodd",
                 fillRule: "evenodd",
-                imageRendering: "optimizeQuality",
                 shapeRendering: "geometricPrecision",
                 textRendering: "geometricPrecision",
             }}            id="svg280"
