@@ -138,8 +138,15 @@ public final class PlayerTrySleepBypassPatch extends MethodPatch {
                 ifZCmp(EQ, sleepSucceeded); // jump when no left (success)
                 // Stack: [Either]
 
-                //  Failure: mirror CraftHumanEntity.sleep message sending
-                // this.getHandle().displayClientMessage(problem.getMessage(), true)
+                // Failure: mirror CraftHumanEntity.sleep message sending
+                // this.getHandle().displayClientMessage(problem.message(), true)
+                //
+                // BedSleepingProblem is a Java record; the component accessor is message(),
+                // NOT getMessage() - using getMessage() throws NoSuchMethodError at runtime
+                // and silently swallows the action-bar message (bug fix).
+                //
+                // Also, some problems (OTHER_PROBLEM, EXPLOSION) have a null message, so we
+                // must null-check before calling displayClientMessage (bug fix).
                 Type bedProblemType = Type.getObjectType(
                         "net/minecraft/world/entity/player/Player$BedSleepingProblem"
                 );
@@ -148,10 +155,18 @@ public final class PlayerTrySleepBypassPatch extends MethodPatch {
                 invokeVirtual(eitherType, new Method("left", optionalType, new Type[0]));
                 invokeVirtual(optionalType, new Method("get", Type.getType(Object.class), new Type[0]));
                 checkCast(bedProblemType);
-                invokeVirtual(bedProblemType, new Method("getMessage", componentType, new Type[0]));
+                // Use the record component accessor "message()" - not "getMessage()"
+                invokeVirtual(bedProblemType, new Method("message", componentType, new Type[0]));
                 int msgLocal = newLocal(componentType);
                 storeLocal(msgLocal);
                 // Stack: []
+
+                // Only send the action-bar message if the component is non-null.
+                // Problems like OTHER_PROBLEM and EXPLOSION carry a null message and must
+                // be silently skipped, otherwise displayClientMessage throws an NPE.
+                Label skipMessage = newLabel();
+                loadLocal(msgLocal);
+                visitJumpInsn(Opcodes.IFNULL, skipMessage);
 
                 loadThis();
                 invokeVirtual(craftHumanEntityType, new Method("getHandle", playerType, new Type[0]));
@@ -163,10 +178,11 @@ public final class PlayerTrySleepBypassPatch extends MethodPatch {
                                 new Type[]{componentType, Type.BOOLEAN_TYPE})
                 );
 
+                mark(skipMessage);
                 push(false);
                 returnValue();
 
-                //  Success
+                // Success
                 mark(sleepSucceeded);
                 // Stack: [Either]
                 pop(); // discard the unused Either copy

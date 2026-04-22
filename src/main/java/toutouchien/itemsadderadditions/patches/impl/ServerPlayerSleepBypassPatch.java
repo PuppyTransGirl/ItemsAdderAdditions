@@ -36,7 +36,7 @@ public final class ServerPlayerSleepBypassPatch extends MethodPatch {
                 Label notPossibleNow = new Label(); // daytime → return Either.left(NOT_POSSIBLE_NOW)
                 Label dayCheckPassed = new Label(); // creative or thundering → skip time check
 
-                //  Check: is the block at pos a vanilla BedBlock?
+                // Check: is the block at pos a vanilla BedBlock?
                 // if (this.level().getBlockState(pos).getBlock() instanceof BedBlock) goto continueLabel
                 loadThis();
                 invokeVirtual(
@@ -67,7 +67,7 @@ public final class ServerPlayerSleepBypassPatch extends MethodPatch {
                 instanceOf(Type.getObjectType("net/minecraft/world/level/block/BedBlock"));
                 visitJumpInsn(Opcodes.IFNE, continueLabel);
 
-                //  Daytime / environment guard (mirrors ServerPlayer.startSleepInBed) -
+                // Daytime / environment guard (mirrors ServerPlayer.startSleepInBed)
                 // Obtain the ServerLevel once and keep it in a local for reuse.
                 loadThis();
                 invokeVirtual(
@@ -81,13 +81,8 @@ public final class ServerPlayerSleepBypassPatch extends MethodPatch {
                 int levelLocal = newLocal(Type.getObjectType("net/minecraft/server/level/ServerLevel"));
                 storeLocal(levelLocal);
 
-                // if (this.isCreative()) goto dayCheckPassed
-                loadThis();
-                invokeVirtual(
-                        Type.getObjectType("net/minecraft/world/entity/player/Player"),
-                        new Method("isCreative", Type.BOOLEAN_TYPE, new Type[0])
-                );
-                visitJumpInsn(Opcodes.IFNE, dayCheckPassed);
+                // NOTE: No creative bypass here. Creative players obey the same day/night
+                // rules as survival for custom beds - they should be blocked (not kicked).
 
                 // if (level.isThundering()) goto dayCheckPassed
                 loadLocal(levelLocal);
@@ -120,7 +115,7 @@ public final class ServerPlayerSleepBypassPatch extends MethodPatch {
 
                 visitLabel(dayCheckPassed);
 
-                //  Custom bed path
+                // Custom bed path
                 // Either result = super.startSleepInBed(pos, force);
                 loadThis();
                 loadArg(0);
@@ -149,7 +144,7 @@ public final class ServerPlayerSleepBypassPatch extends MethodPatch {
                 );
                 visitJumpInsn(Opcodes.IFEQ, skipUpdate);
 
-                //  Sleep succeeded - mirror what ServerPlayer.startSleepInBed() normally does
+                // Sleep succeeded - mirror what ServerPlayer.startSleepInBed() normally does
                 // this.level().updateSleepingPlayerList();
                 //
                 // Without this call, SleepStatus.sleepingPlayers is never incremented,
@@ -173,7 +168,7 @@ public final class ServerPlayerSleepBypassPatch extends MethodPatch {
                 visitLabel(skipUpdate);
                 visitInsn(Opcodes.ARETURN);
 
-                //  Daytime rejection: return Either.left(NOT_POSSIBLE_NOW) -
+                // Daytime rejection: return Either.left(NOT_POSSIBLE_NOW)
                 // PlayerTrySleepBypassPatch reads this Either and will send the vanilla
                 // action-bar message to the player before returning false to the caller.
                 visitLabel(notPossibleNow);
@@ -193,7 +188,7 @@ public final class ServerPlayerSleepBypassPatch extends MethodPatch {
                 );
                 visitInsn(Opcodes.ARETURN);
 
-                //  Vanilla bed path: fall through to the original ServerPlayer method body
+                // Vanilla bed path: fall through to the original ServerPlayer method body
                 visitLabel(continueLabel);
             }
         };

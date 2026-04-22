@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,16 +25,25 @@ public final class BedBridge {
 
     private static final String LOG_TAG = "BedBridge";
 
-    /** UUIDs of players currently sleeping in a custom (non-vanilla) bed. */
+    /**
+     * UUIDs of players currently sleeping in a custom (non-vanilla) bed.
+     */
     private static final Set<UUID> CUSTOM_SLEEPERS =
             Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    private BedBridge() {}
+    private static final Map<UUID, Float> SLEEPER_YAWS = new ConcurrentHashMap<>();
 
-    /** Call this right before {@link Player#sleep} for a custom bed. */
-    public static void registerCustomSleeper(UUID uuid) {
+    private BedBridge() {
+    }
+
+    /**
+     * Call this right before {@link Player#sleep} for a custom bed.
+     */
+    public static void registerCustomSleeper(UUID uuid, float yaw) {
         CUSTOM_SLEEPERS.add(uuid);
+        SLEEPER_YAWS.put(uuid, yaw);
         Log.debug(LOG_TAG, "Registered custom sleeper: {}", uuid);
+        Log.debug(LOG_TAG, "Registered custom sleeper: {} yaw={}", uuid, yaw);
     }
 
     /**
@@ -42,9 +52,8 @@ public final class BedBridge {
      */
     public static void unregisterCustomSleeper(UUID uuid) {
         boolean removed = CUSTOM_SLEEPERS.remove(uuid);
-        if (removed) {
+        if (removed)
             Log.debug(LOG_TAG, "Unregistered custom sleeper: {}", uuid);
-        }
     }
 
     /**
@@ -75,7 +84,7 @@ public final class BedBridge {
             // exactly what name to use on this build.
             StringBuilder sb = new StringBuilder(
                     "BedBridge.sleepNotPossibleNow: 'NOT_POSSIBLE_NOW' not found in " +
-                    "Player$BedSleepingProblem. Available constants: "
+                            "Player$BedSleepingProblem. Available constants: "
             );
             for (Enum<?> c : constants) sb.append(c.name()).append(", ");
             Log.error(LOG_TAG, sb.toString().stripTrailing().replaceAll(",$", ""));
@@ -88,7 +97,9 @@ public final class BedBridge {
         }
     }
 
-    /** Calls {@code Either.left(value)} reflectively. */
+    /**
+     * Calls {@code Either.left(value)} reflectively.
+     */
     @Nullable
     private static Object eitherLeft(Object value) {
         try {
@@ -100,6 +111,11 @@ public final class BedBridge {
             return null;
         }
     }
+
+    public static float getSleeperYaw(UUID uuid) {
+        return SLEEPER_YAWS.getOrDefault(uuid, 0F);
+    }
+
 
     public static boolean checkBedExists(Entity entity) {
         if (!(entity instanceof Player player)) {
