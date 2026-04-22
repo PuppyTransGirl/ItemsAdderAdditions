@@ -28,6 +28,8 @@ public class PatchTransformer implements ClassFileTransformer {
         List<ClassPatch> patches = patchesByClass.get(className);
         if (patches == null) return null;
 
+        Log.info("PatchTransformer", "Transforming class: " + className);
+
         try {
             ClassReader reader = new ClassReader(classfileBuffer);
             ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES) {
@@ -39,7 +41,6 @@ public class PatchTransformer implements ClassFileTransformer {
                 }
             };
 
-// PatchTransformer.java
             reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
                 @Override
                 public MethodVisitor visitMethod(
@@ -54,7 +55,7 @@ public class PatchTransformer implements ClassFileTransformer {
                     }
                     return mv;
                 }
-            }, ClassReader.EXPAND_FRAMES); // <-- was 0
+            }, ClassReader.EXPAND_FRAMES);
 
             return writer.toByteArray();
         } catch (Exception e) {

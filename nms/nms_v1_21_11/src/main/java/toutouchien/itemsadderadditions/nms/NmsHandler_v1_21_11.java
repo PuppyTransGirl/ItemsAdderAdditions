@@ -3,10 +3,16 @@ package toutouchien.itemsadderadditions.nms;
 import toutouchien.itemsadderadditions.nms.api.*;
 
 public final class NmsHandler_v1_21_11 implements INmsHandler {
+    private final NmsBedHandler_v1_21_11 bed = new NmsBedHandler_v1_21_11();
     private final NmsCampfireRecipeHandler_v1_21_11 campfireRecipes = new NmsCampfireRecipeHandler_v1_21_11();
     private final NmsCreativeMenuHandler_v1_21_11 creativeMenu = new NmsCreativeMenuHandler_v1_21_11();
     private final NmsStonecutterRecipeHandler_v1_21_11 stonecutterRecipes = new NmsStonecutterRecipeHandler_v1_21_11();
     private final NmsToastHandler_v1_21_11 toasts = new NmsToastHandler_v1_21_11();
+
+    @Override
+    public INmsBedHandler bed() {
+        return bed;
+    }
 
     @Override
     public INmsCampfireRecipeHandler campfireRecipes() {

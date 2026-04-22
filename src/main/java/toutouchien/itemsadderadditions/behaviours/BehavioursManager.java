@@ -1,10 +1,7 @@
 package toutouchien.itemsadderadditions.behaviours;
 
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
-import toutouchien.itemsadderadditions.behaviours.executors.ConnectableBehaviour;
-import toutouchien.itemsadderadditions.behaviours.executors.ContactDamageBehaviour;
-import toutouchien.itemsadderadditions.behaviours.executors.StackableBehaviour;
-import toutouchien.itemsadderadditions.behaviours.executors.StorageBehaviour;
+import toutouchien.itemsadderadditions.behaviours.executors.*;
 import toutouchien.itemsadderadditions.behaviours.loading.BehaviourLoader;
 import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
 import toutouchien.itemsadderadditions.utils.other.Log;
@@ -39,6 +36,7 @@ public final class BehavioursManager {
 
     public BehavioursManager() {
         registerBuiltins(
+                new BedBehaviour(),
                 new ConnectableBehaviour(),
                 new ContactDamageBehaviour(),
                 new StackableBehaviour(),
