@@ -1,5 +1,9 @@
 {
   "title": "Behaviours",
   "icon": "Zap",
-  "pages": ["connectable", "...", "storage"]
+  "pages": [
+    "bed",
+    "...",
+    "storage"
+  ]
 }

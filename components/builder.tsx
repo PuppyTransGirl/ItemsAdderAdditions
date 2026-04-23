@@ -47,8 +47,50 @@ function yamlQuote(val: string): string {
 }
 
 const ACTIONS: Record<string, FieldDef[]> = {
+    actionbar: [{
+        k: 'text',
+        l: 'text',
+        t: 'text',
+        r: true,
+        p: '<red>Action bar text',
+        h: 'MiniMessage & PlaceholderAPI'
+    }],
+    clear_item: [
+        {k: 'item', l: 'item', t: 'text', r: true, p: 'namespace:item'},
+        {k: 'amount', l: 'amount', t: 'number', r: false, p: '1', h: 'default: 1'},
+    ],
+    ignite: [{k: 'duration', l: 'duration', t: 'number', r: true, p: '200', h: 'ticks - 200 = 10 seconds'}],
     message: [{ k: 'text', l: 'text', t: 'text', r: true, p: '<rainbow>Hello %player_name%', h: 'MiniMessage & PlaceholderAPI' }],
-    actionbar: [{ k: 'text', l: 'text', t: 'text', r: true, p: '<red>Action bar text', h: 'MiniMessage & PlaceholderAPI' }],
+    mythic_mobs_skill: [
+        {k: 'skill', l: 'skill name', t: 'text', r: true, p: 'mega_attack'},
+        {k: 'power', l: 'power', t: 'number', r: false, p: '1.0', h: 'default: 1.0'},
+    ],
+    open_inventory: [
+        {
+            k: 'type',
+            l: 'type',
+            t: 'select',
+            r: true,
+            opts: ['anvil', 'cartography_table', 'crafting_table', 'enchanting_table', 'ender_chest', 'grindstone', 'loom', 'smithing_table', 'stonecutter']
+        },
+        {k: 'title', l: 'title', t: 'text', r: false, p: '<blue>Custom title', h: 'Requires Paper 1.21.4+'},
+    ],
+    play_animation: [{k: 'name', l: 'animation name', t: 'text', r: true, p: 'spin'}],
+    play_emote: [{k: 'name', l: 'emote name', t: 'text', r: true, p: 'wave'}],
+    shoot_fireball: [
+        {k: 'power', l: 'power', t: 'number', r: true, p: '1'},
+        {k: 'speed', l: 'speed', t: 'number', r: false, p: '1.0', h: 'default: 1.0'},
+        {k: 'fire', l: 'fire', t: 'select', r: false, opts: ['', 'true', 'false'], h: 'default: true'},
+    ],
+    swing_hand: [{k: 'hand', l: 'hand', t: 'select', r: false, opts: ['hand', 'off_hand']}],
+    teleport: [
+        {k: 'x', l: 'x', t: 'number', r: true, p: '100.5'},
+        {k: 'y', l: 'y', t: 'number', r: true, p: '64.0'},
+        {k: 'z', l: 'z', t: 'number', r: true, p: '-50.5'},
+        {k: 'yaw', l: 'yaw', t: 'number', r: false, p: "player's yaw"},
+        {k: 'pitch', l: 'pitch', t: 'number', r: false, p: "player's pitch"},
+        {k: 'world', l: 'world', t: 'text', r: false, p: "player's world"},
+    ],
     title: [
         { k: 'title', l: 'title', t: 'text', r: true, p: '<bold><gold>Welcome!' },
         { k: 'subtitle', l: 'subtitle', t: 'text', r: false, p: '<gray>Enjoy your stay' },
@@ -61,43 +103,12 @@ const ACTIONS: Record<string, FieldDef[]> = {
         { k: 'text', l: 'text (one per line)', t: 'textarea', r: true, p: '<white>Line one\n<bold>Line two' },
         { k: 'frame', l: 'frame', t: 'select', r: false, opts: ['', 'task', 'goal', 'challenge'], h: 'default: goal' },
     ],
-    ignite: [{ k: 'duration', l: 'duration', t: 'number', r: true, p: '200', h: 'ticks - 200 = 10 seconds' }],
-    clear_item: [
-        { k: 'item', l: 'item', t: 'text', r: true, p: 'namespace:item' },
-        { k: 'amount', l: 'amount', t: 'number', r: false, p: '1', h: 'default: 1' },
-    ],
-    shoot_fireball: [
-        { k: 'power', l: 'power', t: 'number', r: true, p: '1' },
-        { k: 'speed', l: 'speed', t: 'number', r: false, p: '1.0', h: 'default: 1.0' },
-        { k: 'fire', l: 'fire', t: 'select', r: false, opts: ['', 'true', 'false'], h: 'default: true' },
-    ],
-    teleport: [
-        { k: 'x', l: 'x', t: 'number', r: true, p: '100.5' },
-        { k: 'y', l: 'y', t: 'number', r: true, p: '64.0' },
-        { k: 'z', l: 'z', t: 'number', r: true, p: '-50.5' },
-        { k: 'yaw', l: 'yaw', t: 'number', r: false, p: "player's yaw" },
-        { k: 'pitch', l: 'pitch', t: 'number', r: false, p: "player's pitch" },
-        { k: 'world', l: 'world', t: 'text', r: false, p: "player's world" },
-    ],
-    open_inventory: [
-        { k: 'type', l: 'type', t: 'select', r: true, opts: ['anvil', 'cartography_table', 'crafting_table', 'enchanting_table', 'ender_chest', 'grindstone', 'loom', 'smithing_table', 'stonecutter'] },
-        { k: 'title', l: 'title', t: 'text', r: false, p: '<blue>Custom title', h: 'Requires Paper 1.21.4+' },
-    ],
-    play_emote: [{ k: 'name', l: 'emote name', t: 'text', r: true, p: 'wave' }],
-    play_animation: [{ k: 'name', l: 'animation name', t: 'text', r: true, p: 'spin' }],
-    swing_hand: [{ k: 'hand', l: 'hand', t: 'select', r: false, opts: ['hand', 'off_hand'] }],
-    mythic_mobs_skill: [
-        { k: 'skill', l: 'skill name', t: 'text', r: true, p: 'mega_attack' },
-        { k: 'power', l: 'power', t: 'number', r: false, p: '1.0', h: 'default: 1.0' },
-    ],
     veinminer: [{ k: 'max_blocks', l: 'max_blocks', t: 'number', r: true, p: '16' }],
 };
 
 const STAIR_KEYS = ['default', 'straight', 'left', 'right', 'outer', 'inner'];
 const TABLE_KEYS = ['default', 'straight', 'middle', 'border', 'corner', 'end'];
 const SOUND_CATEGORIES = ['MASTER', 'MUSIC', 'RECORD', 'WEATHER', 'BLOCK', 'HOSTILE', 'NEUTRAL', 'PLAYER', 'AMBIENT', 'VOICE'];
-
-// ─── Shared UI ────────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
     return <p className="text-xs font-medium uppercase tracking-wide text-fd-muted-foreground">{children}</p>;
@@ -217,8 +228,6 @@ function StackStepFields({ step, index, onChange, onRemove }: {
     );
 }
 
-// ─── YAML generators ──────────────────────────────────────────────────────────
-
 function soundYamlLines(s: { sound_name: string; sound_volume: string; sound_pitch: string; sound_category: string }, yamlKey: string, ind: string): string[] {
     if (!s.sound_name.trim()) return [];
     const lines = [`${ind}${yamlKey}:`];
@@ -275,6 +284,13 @@ function generateBehaviour(
     const i2 = '    ';
     const i3 = '      ';
     const lines: string[] = ['behaviours:', `${i1}${type}:`];
+
+    if (type === 'bed') {
+        const raw = (values['bed_slots'] ?? '').split('\n').filter(l => l.trim());
+        const slotsToEmit = raw.length > 0 ? raw : ['0,0,0'];
+        lines.push(`${i2}slots:`);
+        slotsToEmit.forEach(s => lines.push(`${i3}- "${s.trim()}"`));
+    }
 
     if (type === 'contact_damage') {
         const amount = (values['amount'] ?? '').trim();
@@ -367,8 +383,6 @@ function generateBehaviour(
     return lines.join('\n');
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function Builder() {
     const [mode, setMode] = useState<'action' | 'behaviour'>('action');
     const [actionType, setActionType] = useState('message');
@@ -424,7 +438,13 @@ export function Builder() {
                         <label className="text-xs font-medium text-fd-muted-foreground">Type</label>
                         <select value={type} onChange={e => switchType(e.target.value)}
                                 className={inputCls}>
-                            {Object.keys(mode === 'action' ? ACTIONS : { contact_damage: 1, storage: 1, stackable: 1, connectable: 1 }).map(k => (
+                            {Object.keys(mode === 'action' ? ACTIONS : {
+                                bed: 1,
+                                connectable: 1,
+                                contact_damage: 1,
+                                storage: 1,
+                                stackable: 1
+                            }).map(k => (
                                 <option key={k} value={k}>{k}</option>
                             ))}
                         </select>
@@ -453,6 +473,27 @@ export function Builder() {
                                 {values['u_target'] === 'in_sight' && (
                                     <Field def={{ k: 'target_in_sight_distance', l: 'target_in_sight_distance', t: 'number', r: false, p: '10', h: 'blocks' }} value={values['target_in_sight_distance'] ?? ''} onChange={v => setVal('target_in_sight_distance', v)} />
                                 )}
+                            </div>
+                        </>
+                    )}
+
+                    {/* bed */}
+                    {mode === 'behaviour' && behaviourType === 'bed' && (
+                        <>
+                            <SectionLabel>Parameters</SectionLabel>
+                            <div className="flex flex-col gap-3">
+                                <Field
+                                    def={{
+                                        k: 'bed_slots',
+                                        l: 'slots (one per line)',
+                                        t: 'textarea',
+                                        r: false,
+                                        p: '0,0,0\n0,0,1',
+                                        h: 'dx,dy,dz offsets in furniture-local space · defaults to "0,0,0"'
+                                    }}
+                                    value={values['bed_slots'] ?? ''}
+                                    onChange={v => setVal('bed_slots', v)}
+                                />
                             </div>
                         </>
                     )}
