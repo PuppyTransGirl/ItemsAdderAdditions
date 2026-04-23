@@ -41,10 +41,9 @@ dependencies {
 
     // NMS modules
     implementation(project(":nms:api"))
-/*    implementation(project(":nms:nms_v26_1_2"))
-    implementation(project(":nms:nms_v26_1_1"))*/
+    implementation(project(":nms:nms_v26_1_2"))
     implementation(project(":nms:nms_v1_21_11"))
-/*    implementation(project(":nms:nms_v1_21_10"))
+    implementation(project(":nms:nms_v1_21_10"))
     implementation(project(":nms:nms_v1_21_8"))
     implementation(project(":nms:nms_v1_21_7"))
     implementation(project(":nms:nms_v1_21_6"))
@@ -52,7 +51,7 @@ dependencies {
     implementation(project(":nms:nms_v1_21_4"))
     implementation(project(":nms:nms_v1_21_3"))
     implementation(project(":nms:nms_v1_21_1"))
-    implementation(project(":nms:nms_v1_20_6"))*/
+    implementation(project(":nms:nms_v1_20_6"))
 
     // Plugins
     compileOnly("dev.lone:api-itemsadder:${itemsAdderApiVersion}")

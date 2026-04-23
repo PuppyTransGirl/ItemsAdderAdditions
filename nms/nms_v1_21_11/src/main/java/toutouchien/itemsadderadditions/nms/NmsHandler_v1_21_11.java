@@ -1,7 +1,9 @@
 package toutouchien.itemsadderadditions.nms;
 
+import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.nms.api.*;
 
+@NullMarked
 public final class NmsHandler_v1_21_11 implements INmsHandler {
     private final NmsBedHandler_v1_21_11 bed = new NmsBedHandler_v1_21_11();
     private final NmsCampfireRecipeHandler_v1_21_11 campfireRecipes = new NmsCampfireRecipeHandler_v1_21_11();
