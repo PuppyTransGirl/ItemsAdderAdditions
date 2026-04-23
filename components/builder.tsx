@@ -53,14 +53,21 @@ const ACTIONS: Record<string, FieldDef[]> = {
         t: 'text',
         r: true,
         p: '<red>Action bar text',
-        h: 'MiniMessage & PlaceholderAPI'
+        h: 'Font Images & MiniMessage & PlaceholderAPI'
     }],
     clear_item: [
         {k: 'item', l: 'item', t: 'text', r: true, p: 'namespace:item'},
         {k: 'amount', l: 'amount', t: 'number', r: false, p: '1', h: 'default: 1'},
     ],
     ignite: [{k: 'duration', l: 'duration', t: 'number', r: true, p: '200', h: 'ticks - 200 = 10 seconds'}],
-    message: [{ k: 'text', l: 'text', t: 'text', r: true, p: '<rainbow>Hello %player_name%', h: 'MiniMessage & PlaceholderAPI' }],
+    message: [{
+        k: 'text',
+        l: 'text',
+        t: 'text',
+        r: true,
+        p: '<rainbow>Hello %player_name%',
+        h: 'Font Images & MiniMessage & PlaceholderAPI'
+    }],
     mythic_mobs_skill: [
         {k: 'skill', l: 'skill name', t: 'text', r: true, p: 'mega_attack'},
         {k: 'power', l: 'power', t: 'number', r: false, p: '1.0', h: 'default: 1.0'},
@@ -545,7 +552,14 @@ export function Builder() {
                             <div className="flex flex-col gap-3">
                                 <Field def={{ k: 'type', l: 'type', t: 'select', r: true, opts: ['STORAGE', 'SHULKER', 'DISPOSAL'] }} value={values['type'] ?? 'STORAGE'} onChange={v => setVal('type', v)} />
                                 <Field def={{ k: 'rows', l: 'rows', t: 'number', r: false, p: '3', h: '1-6 (default: 3)' }} value={values['rows'] ?? ''} onChange={v => setVal('rows', v)} />
-                                <Field def={{ k: 'title', l: 'title', t: 'text', r: false, p: '<gold>My Storage', h: 'MiniMessage supported' }} value={values['title'] ?? ''} onChange={v => setVal('title', v)} />
+                                <Field def={{
+                                    k: 'title',
+                                    l: 'title',
+                                    t: 'text',
+                                    r: false,
+                                    p: '<gold>My Storage',
+                                    h: 'Font Images & MiniMessage & PlaceholderAPI supported'
+                                }} value={values['title'] ?? ''} onChange={v => setVal('title', v)}/>
                             </div>
                             <Divider />
                             <CheckToggle label="Add open_sound" checked={!!extras['open_sound']} onChange={v => setExtra('open_sound', v)} />
