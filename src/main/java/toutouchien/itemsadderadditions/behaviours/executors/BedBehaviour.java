@@ -45,7 +45,7 @@ import java.util.*;
  * }</pre>
  *
  * <p>Each slot is parsed as {@code "dx,dy,dz"} integer block offsets.
- * A HEAD-part vanilla brown bed is temporarily written into the world at the
+ * A HEAD-part vanilla white bed is temporarily written into the world at the
  * chosen slot so that {@link Player#sleep} succeeds and the player's rotation
  * matches the bed facing.  The fake block is restored the moment the player
  * wakes up (or disconnects).</p>

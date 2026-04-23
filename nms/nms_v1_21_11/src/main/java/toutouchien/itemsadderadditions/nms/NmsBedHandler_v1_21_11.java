@@ -16,9 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 1.21.x NMS implementation of {@link INmsBedHandler}.
- *
- * <p>Places a single HEAD-part brown bed directly into the server level so
+ * <p>Places a single HEAD-part white bed directly into the server level so
  * that {@link Player#sleep} has a valid bed block to read the facing from.
  * The original block is restored when {@link #removeFakeBed} is called.</p>
  *
@@ -70,7 +68,7 @@ public final class NmsBedHandler_v1_21_11 implements INmsBedHandler {
         // Persist whatever was there so we can restore it exactly.
         originalStates.put(pos, level.getBlockState(pos));
 
-        BlockState bed = Blocks.BROWN_BED.defaultBlockState()
+        BlockState bed = Blocks.WHITE_BED.defaultBlockState()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING,
                         yawToFacing(location.getYaw()))
                 .setValue(BlockStateProperties.BED_PART, BedPart.HEAD)
