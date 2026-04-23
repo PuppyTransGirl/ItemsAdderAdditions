@@ -9,11 +9,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class StatRequirementsBridge {
-    private StatRequirementsBridge() {}
-
     // true = requirements met, false = blocked
     private static final Map<UUID, Map<Integer, Boolean>> STATE =
             new ConcurrentHashMap<>();
+
+    private StatRequirementsBridge() {
+    }
 
     /**
      * Called from injected bytecode at the entry of ActionsLoader.a(Entity, ItemEventType, nq).
@@ -43,7 +44,7 @@ public final class StatRequirementsBridge {
             int itemHash = namespacedId.hashCode();
 
             STATE.computeIfAbsent(player.getUniqueId(), k -> new ConcurrentHashMap<>())
-                 .put(itemHash, result);
+                    .put(itemHash, result);
 
         } catch (Exception ignored) {
             // if reflection fails we fail-open; the vanilla ItemsAdder check still runs

@@ -35,8 +35,8 @@ public class StatRequirementsCapturePatch extends MethodInjectPatch {
 
     /**
      * At entry the stack is empty. We push:
-     *   this          (arg -1 / load "this")
-     *   entity        (arg 0)
+     * this          (arg -1 / load "this")
+     * entity        (arg 0)
      * then call StatRequirementsBridge.capture(Object, Object).
      */
     @Override

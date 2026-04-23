@@ -53,8 +53,8 @@ public final class StonecutterPatchBridge {
         for (Entry entry : ALLOWED) {
             if (
                     sameItem(input, entry.ingredient) &&
-                    sameItem(result, entry.result) &&
-                    result.getAmount() == entry.result.getAmount()
+                            sameItem(result, entry.result) &&
+                            result.getAmount() == entry.result.getAmount()
             ) {
                 // This is one of our allowed custom stonecutter recipes,
                 // so pretend "isCustomItem" was false for this case only.

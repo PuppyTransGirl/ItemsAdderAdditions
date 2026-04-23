@@ -37,8 +37,8 @@ public abstract class MethodCallRewritePatch extends MethodPatch {
             ) {
                 boolean matches =
                         targetCallOwner().equals(owner) &&
-                        targetCallName().equals(callName) &&
-                        targetCallDescriptor().equals(callDescriptor);
+                                targetCallName().equals(callName) &&
+                                targetCallDescriptor().equals(callDescriptor);
 
                 if (matches) {
                     rewriteCall(

@@ -57,8 +57,8 @@ public final class NmsBedHandler_v1_21_11 implements INmsBedHandler {
     private static Direction yawToFacing(float yaw) {
         float n = ((yaw % 360f) + 360f) % 360f;
         if (n < 45f || n >= 315f) return Direction.SOUTH;
-        if (n < 135f)              return Direction.WEST;
-        if (n < 225f)              return Direction.NORTH;
+        if (n < 135f) return Direction.WEST;
+        if (n < 225f) return Direction.NORTH;
         return Direction.EAST;
     }
 
