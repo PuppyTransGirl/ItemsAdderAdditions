@@ -1,6 +1,5 @@
 package toutouchien.itemsadderadditions.behaviours.executors;
 
-import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.Events.FurnitureBreakEvent;
@@ -232,20 +231,6 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
         if (ce == null || !ce.getNamespacedID().equals(namespacedID)) return;
 
         handleBedInteract(event.getPlayer(), ce.getEntity().getLocation());
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onCustomBlockInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (shouldIgnoreOffHandDuplicate(event)) return;
-
-        Block clicked = event.getClickedBlock();
-        if (clicked == null) return;
-
-        CustomBlock cb = CustomBlock.byAlreadyPlaced(clicked);
-        if (cb == null || !cb.getNamespacedID().equals(namespacedID)) return;
-
-        handleBedInteract(event.getPlayer(), clicked.getLocation());
     }
 
     /**
