@@ -1,7 +1,10 @@
 package toutouchien.itemsadderadditions.patches;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
-import toutouchien.itemsadderadditions.patches.impl.*;
+import toutouchien.itemsadderadditions.patches.impl.AddEnchantmentPatch;
+import toutouchien.itemsadderadditions.patches.impl.CooldownCapturePatch;
+import toutouchien.itemsadderadditions.patches.impl.StatRequirementsCapturePatch;
+import toutouchien.itemsadderadditions.patches.impl.StonecutterSelectiveBypassPatch;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.lang.instrument.Instrumentation;
@@ -16,9 +19,6 @@ public class PatchManager {
     private static final List<ClassPatch> PATCHES = List.of(
             new AddEnchantmentPatch(),
             new CooldownCapturePatch(),
-            new LivingEntityCheckBedExistsPatch(),
-            new PlayerTrySleepBypassPatch(),
-            new ServerPlayerSleepBypassPatch(),
             new StatRequirementsCapturePatch(),
             new StonecutterSelectiveBypassPatch()
     );

@@ -1,120 +1,92 @@
 package toutouchien.itemsadderadditions.nms;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.Location;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.entity.Player;
 import toutouchien.itemsadderadditions.nms.api.INmsBedHandler;
 
-import java.lang.invoke.MethodHandles;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 1.21.x NMS implementation of {@link INmsBedHandler}.
+ *
+ * <p>Places a single HEAD-part brown bed directly into the server level so
+ * that {@link Player#sleep} has a valid bed block to read the facing from.
+ * The original block is restored when {@link #removeFakeBed} is called.</p>
+ *
+ * <p>After placing the bed server-side, a {@code ClientboundBlockUpdatePacket}
+ * with {@code AIR} is sent exclusively to the sleeping player so their client
+ * never renders the bed. Beds are block entities drawn by {@code BedRenderer}
+ * (a BlockEntityRenderer); blockstates model overrides cannot suppress that
+ * renderer, making the fake-packet approach the only reliable way to keep the
+ * bed invisible client-side while still allowing {@link Player#sleep} to work.</p>
  */
 public final class NmsBedHandler_v1_21_11 implements INmsBedHandler {
+    /**
+     * Stores the block state that existed at a position before we replaced it
+     * with a fake bed, keyed by {@link BlockPos} so we can restore it later.
+     */
+    private final Map<BlockPos, BlockState> originalStates = new ConcurrentHashMap<>();
 
-    private static final EntityDataAccessor<Pose> DATA_POSE;
-
-    static {
-        try {
-            // Using privateLookupIn to access the static field DATA_POSE
-            // This bypasses issues where the field might be protected or inaccessible
-            // depending on the specific remapping/version of the server.
-            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
-                    Entity.class,
-                    MethodHandles.lookup()
-            );
-            DATA_POSE = (EntityDataAccessor<Pose>) lookup
-                    .findStaticGetter(Entity.class, "DATA_POSE", EntityDataAccessor.class)
-                    .invokeExact();
-        } catch (Throwable e) {
-            throw new RuntimeException("Failed to initialize DATA_POSE via MethodHandles", e);
-        }
+    private static ServerLevel serverLevel(Location location) {
+        return ((CraftWorld) location.getWorld()).getHandle();
     }
 
-    private static ServerPlayer nms(org.bukkit.entity.Player player) {
-        return ((CraftPlayer) player).getHandle();
+    private static BlockPos blockPos(Location location) {
+        return new BlockPos(
+                location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ()
+        );
     }
 
-    private static void broadcastEntityData(ServerPlayer sp) {
-        List<SynchedEntityData.DataValue<?>> dirtyValues = sp.getEntityData().getNonDefaultValues();
-        if (dirtyValues == null || dirtyValues.isEmpty()) return;
-
-        ClientboundSetEntityDataPacket packet =
-                new ClientboundSetEntityDataPacket(sp.getId(), dirtyValues);
-
-        sp.level().getChunkSource().sendToTrackingPlayers(sp, packet);
+    /**
+     * Converts a Bukkit yaw angle to the nearest cardinal {@link Direction}.
+     *
+     * <p>Bukkit yaw convention: 0° = South (+Z), 90° = West (−X),
+     * 180° = North (−Z), 270° = East (+X).</p>
+     */
+    private static Direction yawToFacing(float yaw) {
+        float n = ((yaw % 360f) + 360f) % 360f;
+        if (n < 45f || n >= 315f) return Direction.SOUTH;
+        if (n < 135f)              return Direction.WEST;
+        if (n < 225f)              return Direction.NORTH;
+        return Direction.EAST;
     }
 
-    private static void sendFakeBedBlock(ServerPlayer sp, BlockPos bedPos, float yaw) {
-        BlockState fakeState = Blocks.WHITE_BED.defaultBlockState()
-                .setValue(BlockStateProperties.HORIZONTAL_FACING, yawToFacing(yaw))
+    @Override
+    public void placeFakeBed(Player player, Location location) {
+        ServerLevel level = serverLevel(location);
+        BlockPos pos = blockPos(location);
+
+        // Persist whatever was there so we can restore it exactly.
+        originalStates.put(pos, level.getBlockState(pos));
+
+        BlockState bed = Blocks.BROWN_BED.defaultBlockState()
+                .setValue(BlockStateProperties.HORIZONTAL_FACING,
+                        yawToFacing(location.getYaw()))
                 .setValue(BlockStateProperties.BED_PART, BedPart.HEAD)
                 .setValue(BlockStateProperties.OCCUPIED, true);
 
-        // sendToTrackingPlayers excludes sp itself — sleeping player is unaffected
-        sp.level()
-                .getChunkSource()
-                .sendToTrackingPlayers(sp, new ClientboundBlockUpdatePacket(bedPos.atY(-64), fakeState));
-    }
-
-    private static void revertBedBlock(ServerPlayer sp, BlockPos bedPos) {
-        ServerLevel level = sp.level();
-        level.getChunkSource()
-                .sendToTrackingPlayers(
-                        sp,
-                        new ClientboundBlockUpdatePacket(bedPos, level.getBlockState(bedPos.atY(-64)))
-                );
+        // Flag 3 = UPDATE_NEIGHBORS | UPDATE_CLIENTS
+        level.setBlock(pos, bed, 3);
     }
 
     @Override
-    public void forceWake(org.bukkit.entity.Player player) {
-        ServerPlayer sp = nms(player);
-        sp.stopSleepInBed(true, false);
-    }
+    public void removeFakeBed(Player player, Location location) {
+        BlockPos pos = blockPos(location);
+        BlockState original = originalStates.remove(pos);
+        if (original == null) return; // already removed or never placed
 
-    private static net.minecraft.core.Direction yawToFacing(float yaw) {
-        float n = ((yaw % 360) + 360) % 360;
-        if (n < 45 || n >= 315) return net.minecraft.core.Direction.SOUTH;
-        if (n < 135) return net.minecraft.core.Direction.WEST;
-        if (n < 225) return net.minecraft.core.Direction.NORTH;
-        return net.minecraft.core.Direction.EAST;
-    }
-
-    @Override
-    public void startDecorativeSleep(org.bukkit.entity.Player player, int x, int y, int z) {
-        ServerPlayer sp = nms(player);
-        BlockPos bedPos = new BlockPos(x, y, z);
-
-        sp.setSleepingPos(bedPos);
-        sendFakeBedBlock(sp, new BlockPos(x, y, z), sp.getBukkitYaw());
-
-/*        // Use our reflected DATA_POSE instead of direct field access
-        sp.getEntityData().set(DATA_POSE, Pose.SLEEPING);
-
-        broadcastEntityData(sp);*/
-    }
-
-    @Override
-    public void stopDecorativeSleep(org.bukkit.entity.Player player) {
-        ServerPlayer sp = nms(player);
-
-        sp.clearSleepingPos();
-
-/*        // Use our reflected DATA_POSE instead of direct field access
-        sp.getEntityData().set(DATA_POSE, Pose.STANDING);
-
-        broadcastEntityData(sp);*/
+        ServerLevel level = serverLevel(location);
+        level.setBlock(pos, original, 3);
     }
 }
