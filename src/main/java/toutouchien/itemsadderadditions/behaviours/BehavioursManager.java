@@ -39,6 +39,7 @@ public final class BehavioursManager {
                 new BedBehaviour(),
                 new ConnectableBehaviour(),
                 new ContactDamageBehaviour(),
+                new LavaFishingBehaviour(),
                 new StackableBehaviour(),
                 new StorageBehaviour()
         );
