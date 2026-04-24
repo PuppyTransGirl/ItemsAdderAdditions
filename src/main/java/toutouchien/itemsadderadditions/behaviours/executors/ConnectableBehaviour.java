@@ -29,8 +29,8 @@ import java.util.Set;
 public final class ConnectableBehaviour extends BehaviourExecutor implements Listener {
     private final Set<Location> updating = new HashSet<>();
     private final Map<Location, FacingDirection> canonicalFacing = new HashMap<>();
-    @Parameter(key = "type", type = String.class) @Nullable private String typeRaw;
-    @Parameter(key = "default", type = String.class, required = true) private String defaultFurniture;
+    @Parameter(key = "type", type = String.class, required = true) @Nullable private String typeRaw;
+    @Parameter(key = "default", type = String.class) private String defaultFurniture;
     @Parameter(key = "straight", type = String.class) @Nullable private String straightFurniture;
     @Parameter(key = "middle", type = String.class) @Nullable private String middleFurniture;
     @Parameter(key = "border", type = String.class) @Nullable private String borderFurniture;
@@ -41,15 +41,19 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     @Parameter(key = "outer", type = String.class) @Nullable private String outerFurniture;
     @Parameter(key = "inner", type = String.class) @Nullable private String innerFurniture;
     private ConnectableType type = ConnectableType.STAIR;
+
     private BehaviourHost host;
+    private String namespacedID;
 
     private static float normalizeYaw(float yaw) {
         return ((yaw % 360) + 360) % 360;
     }
 
     @Nullable
-    private static String norm(String namespace, @Nullable String id) {
-        if (id == null) return null;
+    private String norm(String namespace, @Nullable String id, String suffix) {
+        if (id == null)
+            return suffix.isEmpty() ? namespacedID : namespacedID + "_" + suffix;
+
         return id.contains(":") ? id : namespace + ":" + id;
     }
 
@@ -57,19 +61,21 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     public boolean configure(Object configData, String namespacedID) {
         if (!super.configure(configData, namespacedID)) return false;
 
+        this.namespacedID = namespacedID;
+
         type = ConnectableType.from(typeRaw);
         String ns = NamespaceUtils.namespace(namespacedID);
 
-        defaultFurniture = norm(ns, defaultFurniture);
-        straightFurniture = norm(ns, straightFurniture);
-        middleFurniture = norm(ns, middleFurniture);
-        borderFurniture = norm(ns, borderFurniture);
-        cornerFurniture = norm(ns, cornerFurniture);
-        endFurniture = norm(ns, endFurniture);
-        leftFurniture = norm(ns, leftFurniture);
-        rightFurniture = norm(ns, rightFurniture);
-        outerFurniture = norm(ns, outerFurniture);
-        innerFurniture = norm(ns, innerFurniture);
+        defaultFurniture = norm(ns, defaultFurniture, "");
+        straightFurniture = norm(ns, straightFurniture, "straight");
+        middleFurniture = norm(ns, middleFurniture, "middle");
+        borderFurniture = norm(ns, borderFurniture, "border");
+        cornerFurniture = norm(ns, cornerFurniture, "corner");
+        endFurniture = norm(ns, endFurniture, "end");
+        leftFurniture = norm(ns, leftFurniture, "left");
+        rightFurniture = norm(ns, rightFurniture, "right");
+        outerFurniture = norm(ns, outerFurniture, "outer");
+        innerFurniture = norm(ns, innerFurniture, "inner");
 
         if (type == ConnectableType.TABLE) {
             if (straightFurniture == null || middleFurniture == null
