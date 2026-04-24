@@ -1,6 +1,13 @@
 features:
   creative_inventory_integration: true
 
+behaviours:
+  bed: true
+  connectable: true
+  contact_damage: true
+  stackable: true
+  storage: true
+
 actions:
   actionbar: true
   clear_item: true
@@ -16,13 +23,6 @@ actions:
   title: true
   toast: true
   veinminer: true
-
-behaviours:
-  bed: true
-  connectable: true
-  contact_damage: true
-  stackable: true
-  storage: true
 
 update-checker:
   enabled: true
