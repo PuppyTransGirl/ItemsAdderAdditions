@@ -1,17 +1,15 @@
 package toutouchien.itemsadderadditions.utils.hook;
 
-import io.lumine.mythic.bukkit.MythicBukkit;
-import io.lumine.mythic.core.utils.MythicUtil;
+import io.lumine.mythic.api.MythicProvider;
+import io.lumine.mythic.api.adapters.AbstractPlayer;
+import io.lumine.mythic.api.skills.SkillCaster;
+import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.core.skills.SkillMetadataImpl;
+import io.lumine.mythic.core.skills.SkillTriggers;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
-
-import java.util.Collections;
-import java.util.List;
 
 @NullMarked
 public final class MythicMobsUtils {
@@ -31,12 +29,19 @@ public final class MythicMobsUtils {
         if (mythicMobsLoaded == TriState.FALSE)
             return;
 
-        Location casterLoc = player.getLocation();
-        LivingEntity target = MythicUtil.getTargetedEntity(player);
+        try {
+            var skillManager = MythicProvider.get().getSkillManager();
+            AbstractPlayer abstractPlayer = BukkitAdapter.adapt(player);
+            SkillCaster caster = skillManager.getCaster(abstractPlayer);
 
-        List<Entity> targets = target == null ? null : Collections.singletonList(target);
-        List<Location> targetLocations = target == null ? null : Collections.singletonList(target.getLocation());
-
-        MythicBukkit.inst().getAPIHelper().castSkill(player, skill, player, casterLoc, targets, targetLocations, power);
+            var skillOpt = skillManager.getSkill(skill);
+            if (caster != null && skillOpt.isPresent()) {
+                var mythicSkill = skillOpt.get();
+                var meta = new SkillMetadataImpl(SkillTriggers.API, caster, abstractPlayer, power);
+                mythicSkill.execute(meta);
+            }
+        } catch (Exception e) {
+            Bukkit.getLogger().warning("[MythicMobsUtils] Failed to cast skill " + skill + ": " + e.getMessage());
+        }
     }
 }
