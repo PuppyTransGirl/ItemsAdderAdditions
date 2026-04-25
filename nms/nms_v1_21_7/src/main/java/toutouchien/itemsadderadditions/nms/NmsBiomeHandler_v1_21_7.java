@@ -2,8 +2,8 @@ package toutouchien.itemsadderadditions.nms;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @NullMarked
-public final class NmsBiomeHandler_v1_21_11 implements INmsBiomeHandler {
+public final class NmsBiomeHandler_v1_21_7 implements INmsBiomeHandler {
     /**
      * Cache from Bukkit {@link org.bukkit.block.Biome} -> its NMS {@link Holder}.
      * Populated lazily on first use of each biome.
@@ -102,7 +102,7 @@ public final class NmsBiomeHandler_v1_21_11 implements INmsBiomeHandler {
     private Holder<Biome> resolveHolder(ServerLevel level, org.bukkit.block.Biome biome) {
         ResourceKey<Biome> resourceKey = ResourceKey.create(
                 Registries.BIOME,
-                Identifier.parse(biome.getKey().toString())
+                ResourceLocation.parse(biome.getKey().toString())
         );
 
         return level.registryAccess()

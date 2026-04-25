@@ -7,6 +7,7 @@ import toutouchien.itemsadderadditions.nms.api.*;
 @NullMarked
 public final class NmsHandler_v1_21_3 implements INmsHandler {
     private final NmsBedHandler_v1_21_3 bed = new NmsBedHandler_v1_21_3();
+    private final NmsBiomeHandler_v1_21_3 biome = new NmsBiomeHandler_v1_21_3();
     private final NmsCampfireRecipeHandler_v1_21_3 campfireRecipes = new NmsCampfireRecipeHandler_v1_21_3();
     private final NmsStonecutterRecipeHandler_v1_21_3 stonecutterRecipes = new NmsStonecutterRecipeHandler_v1_21_3();
     private final NmsToastHandler_v1_21_3 toasts = new NmsToastHandler_v1_21_3();
@@ -14,6 +15,11 @@ public final class NmsHandler_v1_21_3 implements INmsHandler {
     @Override
     public NmsBedHandler_v1_21_3 bed() {
         return bed;
+    }
+
+    @Override
+    public NmsBiomeHandler_v1_21_3 biome() {
+        return biome;
     }
 
     @Override

@@ -405,63 +405,63 @@ public enum BlocksShape {
         return collectBiomeQuanta(center, rx, ry, rz, null);
     }
 
-    /**
-     * Returns one representative location per biome quantum (4×4×4 block region)
-     * that belongs to this shape. This is the correct method to use for biome
-     * operations because Minecraft stores biomes at quantum - not block -
-     * resolution.
-     *
-     * <p>A quantum is included when its center point falls inside the shape,
-     * which gives the most faithful discretisation possible at the resolution
-     * Minecraft allows.
-     *
-     * @param center    the origin block position
-     * @param rx        half-extent / base-radius on X (≥ 0)
-     * @param ry        half-extent / cross-height on Y (≥ 0)
-     * @param rz        half-extent / depth on Z (≥ 0)
-     * @param direction normalised look vector - required for directional shapes,
-     *                  ignored (may be {@code null}) for symmetric ones
-     * @return mutable list; one location per included quantum (at quantum origin)
-     */
     public List<Location> collectBiomeQuanta(Location center, int rx, int ry, int rz,
                                              @Nullable Vector direction) {
-        // Snap center's quantum origin (for iteration)
-        int cx = (center.getBlockX() >> 2) << 2;
-        int cy = (center.getBlockY() >> 2) << 2;
-        int cz = (center.getBlockZ() >> 2) << 2;
+        int bx = center.getBlockX();
+        int by = center.getBlockY();
+        int bz = center.getBlockZ();
 
-        // Actual player block center (for shape tests)
-        double bx = center.getBlockX() + 0.5;
-        double by = center.getBlockY() + 0.5;
-        double bz = center.getBlockZ() + 0.5;
+        // For directional shapes, build the iteration box around the actual
+        // world-space extent of the shape along the look vector.
+        // The shape goes from player (depth=0) to depth=rz along dir,
+        // and spreads rx laterally. So the world AABB is:
+        //   min = player - rx in all axes
+        //   max = player + dir*rz + rx in all axes
+        int iterMinX, iterMinY, iterMinZ;
+        int iterMaxX, iterMaxY, iterMaxZ;
 
-        // For directional shapes the bounding box is along the look axis;
-        // use rz as the depth bound and rx as the lateral bound.
-        // We add +1 margin to avoid clipping edge quanta.
-        int qrx, qry, qrz;
         if (isDirectional() && direction != null) {
-            int maxR = Math.max(Math.max(rx, ry), rz);
-            qrx = (maxR + 3) / 4 + 1;
-            qry = (maxR + 3) / 4 + 1;
-            qrz = (maxR + 3) / 4 + 1;
+            // Endpoint of the beam/cone tip in world space
+            int endX = (int) Math.round(bx + direction.getX() * rz);
+            int endY = (int) Math.round(by + direction.getY() * rz);
+            int endZ = (int) Math.round(bz + direction.getZ() * rz);
+            // AABB that covers both origin and endpoint, expanded by lateral radius
+            iterMinX = Math.min(bx, endX) - rx;
+            iterMinY = Math.min(by, endY) - ry;
+            iterMinZ = Math.min(bz, endZ) - rx;
+            iterMaxX = Math.max(bx, endX) + rx;
+            iterMaxY = Math.max(by, endY) + ry;
+            iterMaxZ = Math.max(bz, endZ) + rx;
         } else {
-            qrx = (rx + 3) / 4 + 1;
-            qry = (ry + 3) / 4 + 1;
-            qrz = (rz + 3) / 4 + 1;
+            iterMinX = bx - rx;
+            iterMinY = by - ry;
+            iterMinZ = bz - rz;
+            iterMaxX = bx + rx;
+            iterMaxY = by + ry;
+            iterMaxZ = bz + rz;
         }
 
-        List<Location> quanta = new ArrayList<>();
-        for (int dqx = -qrx; dqx <= qrx; dqx++) {
-            for (int dqy = -qry; dqy <= qry; dqy++) {
-                for (int dqz = -qrz; dqz <= qrz; dqz++) {
-                    int qox = cx + dqx * 4;
-                    int qoy = cy + dqy * 4;
-                    int qoz = cz + dqz * 4;
+        // Snap iteration bounds to quantum grid
+        int qMinX = (iterMinX >> 2) << 2;
+        int qMinY = (iterMinY >> 2) << 2;
+        int qMinZ = (iterMinZ >> 2) << 2;
+        int qMaxX = (iterMaxX >> 2) << 2;
+        int qMaxY = (iterMaxY >> 2) << 2;
+        int qMaxZ = (iterMaxZ >> 2) << 2;
 
+        // Player center as double for precise shape tests
+        double pbx = bx + 0.5;
+        double pby = by + 0.5;
+        double pbz = bz + 0.5;
+
+        List<Location> quanta = new ArrayList<>();
+        for (int qox = qMinX; qox <= qMaxX; qox += 4) {
+            for (int qoy = qMinY; qoy <= qMaxY; qoy += 4) {
+                for (int qoz = qMinZ; qoz <= qMaxZ; qoz += 4) {
                     // Delta from player center to quantum center
-                    double dx = (qox + 1.5) - bx;
-                    double dy = (qoy + 1.5) - by;
-                    double dz = (qoz + 1.5) - bz;
+                    double dx = (qox + 1.5) - pbx;
+                    double dy = (qoy + 1.5) - pby;
+                    double dz = (qoz + 1.5) - pbz;
 
                     if (isInsideDouble(dx, dy, dz, rx, ry, rz, direction)) {
                         quanta.add(new Location(center.getWorld(), qox, qoy, qoz));
