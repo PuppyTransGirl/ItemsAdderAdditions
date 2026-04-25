@@ -45,6 +45,7 @@ public final class ActionsManager {
                 new OpenInventoryAction(),
                 new PlayAnimationAction(),
                 new PlayEmoteAction(),
+                new ReplaceBiomeAction(),
                 new ShootFireballAction(),
                 new SwingHandAction(),
                 new TeleportAction(),

@@ -52,7 +52,7 @@ public final class NamespaceUtils {
             return customStack;
 
         // normalizedId may be a bare id (no colon) when currentNamespace is null,
-        // so Key.key() would throw — skip the path lookup in that case.
+        // so Key.key() would throw - skip the path lookup in that case.
         if (!normalizedId.contains(":"))
             return null;
 

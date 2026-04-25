@@ -56,7 +56,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     private static final String TAG = "BedBehaviour";
 
     /**
-     * UUID → exact sleep {@link Location} (includes yaw used for bed facing).
+     * UUID -> exact sleep {@link Location} (includes yaw used for bed facing).
      * Present from the moment {@link Player#sleep} returns {@code true} until
      * the player actually wakes up.
      */
@@ -193,7 +193,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
         for (UUID uuid : new HashSet<>(sleepers.keySet())) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null && p.isSleeping()) {
-                p.wakeup(false); // triggers PlayerBedLeaveEvent → cleans up
+                p.wakeup(false); // triggers PlayerBedLeaveEvent -> cleans up
             } else {
                 // Player is offline or already awake - clean up manually.
                 Location loc = sleepers.remove(uuid);
@@ -265,7 +265,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
 
             Player p = Bukkit.getPlayer(entry.getKey());
             if (p != null && p.isSleeping()) {
-                p.wakeup(false); // → PlayerBedLeaveEvent → cleanUp
+                p.wakeup(false); // -> PlayerBedLeaveEvent -> cleanUp
             } else {
                 sleepers.remove(entry.getKey());
             }

@@ -72,10 +72,10 @@ public final class JqBridge {
         Object jq = jqInstance;
         if (jq == null) {
             throw new IllegalStateException(
-                    "jq has not been captured yet — ItemsAdder may still be loading");
+                    "jq has not been captured yet - ItemsAdder may still be loading");
         }
 
-        // 1. Resolve the IA custom stack → ItemStack
+        // 1. Resolve the IA custom stack -> ItemStack
         CustomStack cs = CustomStack.getInstance(namespacedId);
         if (cs == null) return false;
         ItemStack itemStack = cs.getItemStack();
@@ -84,14 +84,14 @@ public final class JqBridge {
             // 2. vG : the item registry (class 'a')
             Object aInstance = ensureVGField(jq).get(jq);
 
-            // 3. a.a(ItemStack) → oy
+            // 3. a.a(ItemStack) -> oy
             Object oyInstance = ensureALookupMethod(aInstance).invoke(aInstance, itemStack);
             if (oyInstance == null) return false;
 
             // 4. oy.BD : the behaviour-data container
             Object BD = ensureBDField(oyInstance).get(oyInstance);
 
-            // 5. BD.bg(String) → furniture or block trade-machine behaviour
+            // 5. BD.bg(String) -> furniture or block trade-machine behaviour
             Method bg = ensureBgMethod(BD);
             Object tradeMachine = bg.invoke(BD, "furniture_trade_machine");
             if (tradeMachine == null) {

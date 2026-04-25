@@ -80,7 +80,7 @@ public final class OpenVariantTransformer {
             boolean isBlock,
             @Nullable Entity originalEntity
     ) {
-        // BLOCK → FURNITURE case still needs clearing
+        // BLOCK -> FURNITURE case still needs clearing
         clearHolder(loc, isBlock, originalEntity);
 
         if (config.isFurnitureBased()) {
@@ -114,7 +114,7 @@ public final class OpenVariantTransformer {
                 return entity;
             }
 
-            // BLOCK → FURNITURE (no existing entity to replace)
+            // BLOCK -> FURNITURE (no existing entity to replace)
             Block supportBlock = furnitureSupportBlock(loc, true);
             CustomFurniture spawned = CustomFurniture.spawn(config.id(), supportBlock);
 
@@ -133,7 +133,7 @@ public final class OpenVariantTransformer {
             return entity;
         }
 
-        // BLOCK → BLOCK
+        // BLOCK -> BLOCK
         if (!placeBlock(config.id(), loc)) {
             Log.warn(
                     "OpenVariantTransformer",
@@ -160,7 +160,7 @@ public final class OpenVariantTransformer {
                 CustomFurniture furniture = CustomFurniture.byAlreadySpawned(entity);
 
                 if (furniture != null) {
-                    // Replace back → keeps rotation automatically
+                    // Replace back -> keeps rotation automatically
                     furniture.replaceFurniture(originalId);
                     return furniture.getEntity();
                 }
@@ -184,7 +184,7 @@ public final class OpenVariantTransformer {
             return null;
         }
 
-        // BLOCK → FURNITURE restore
+        // BLOCK -> FURNITURE restore
         Block supportBlock = furnitureSupportBlock(loc, false);
         CustomFurniture restored = CustomFurniture.spawn(originalId, supportBlock);
 

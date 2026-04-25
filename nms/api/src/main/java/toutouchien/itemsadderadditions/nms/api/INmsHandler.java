@@ -7,6 +7,8 @@ import org.jspecify.annotations.Nullable;
 public interface INmsHandler {
     INmsBedHandler bed();
 
+    INmsBiomeHandler biome();
+
     INmsCampfireRecipeHandler campfireRecipes();
 
     @Nullable

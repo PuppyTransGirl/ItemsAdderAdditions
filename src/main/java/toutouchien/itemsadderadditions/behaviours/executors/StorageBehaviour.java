@@ -425,7 +425,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     }
 
     /**
-     * Player right-clicks the open-form <em>block</em> → open the storage GUI
+     * Player right-clicks the open-form <em>block</em> -> open the storage GUI
      * without triggering the transformer a second time.
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -449,7 +449,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     }
 
     /**
-     * Player right-clicks the open-form <em>furniture</em> → open the storage GUI
+     * Player right-clicks the open-form <em>furniture</em> -> open the storage GUI
      * without triggering the transformer a second time.
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
