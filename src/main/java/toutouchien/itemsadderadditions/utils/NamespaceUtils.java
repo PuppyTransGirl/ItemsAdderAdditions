@@ -18,16 +18,21 @@ public final class NamespaceUtils {
     /**
      * Normalizes an ID by adding the current namespace if missing and converting to lowercase.
      * This ensures compatibility with Key.key() which requires lowercase characters.
+     *
+     * @param currentNamespace namespace to prepend when {@code id} has none;
+     *                         may be {@code null}, in which case a bare {@code id}
+     *                         is returned as-is (lowercase).
      */
-    public static String normalizeID(String currentNamespace, String id) {
-        // Convert to lowercase to avoid Key parsing errors
+    public static String normalizeID(@Nullable String currentNamespace, String id) {
         String lowerId = id.toLowerCase();
-        String lowerNamespace = currentNamespace.toLowerCase();
 
         if (lowerId.contains(":"))
             return lowerId; // Already contains namespace
 
-        return lowerNamespace + ":" + lowerId;
+        if (currentNamespace == null)
+            return lowerId; // No namespace to prepend - caller's lookup will handle it
+
+        return currentNamespace.toLowerCase() + ":" + lowerId;
     }
 
     public static String namespace(String namespacedID) {
@@ -39,12 +44,17 @@ public final class NamespaceUtils {
     }
 
     @Nullable
-    public static CustomStack customItemByID(String currentNamespace, String id) {
+    public static CustomStack customItemByID(@Nullable String currentNamespace, String id) {
         String normalizedId = normalizeID(currentNamespace, id);
 
         CustomStack customStack = CustomStack.getInstance(normalizedId);
         if (customStack != null)
             return customStack;
+
+        // normalizedId may be a bare id (no colon) when currentNamespace is null,
+        // so Key.key() would throw — skip the path lookup in that case.
+        if (!normalizedId.contains(":"))
+            return null;
 
         String path = Key.key(normalizedId).value();
         for (CustomStack stack : ItemsAdder.getAllItems()) {
@@ -56,7 +66,7 @@ public final class NamespaceUtils {
     }
 
     @Nullable
-    public static ItemStack itemByID(String currentNamespace, String id) {
+    public static ItemStack itemByID(@Nullable String currentNamespace, String id) {
         // First check if it's a Minecraft item
         String normalizedId = normalizeID("minecraft", id);
         Key key = Key.key(normalizedId);
