@@ -120,3 +120,9 @@ gradle-app.setting
 
 # run-paper
 run/**
+
+# docs
+node_modules/**
+.next/**
+.source/**
+next-env.d.ts
