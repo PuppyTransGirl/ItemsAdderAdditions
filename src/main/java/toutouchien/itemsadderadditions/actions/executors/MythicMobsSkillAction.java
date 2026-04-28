@@ -1,11 +1,16 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.utils.hook.MythicMobsUtils;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Cast a Mythic Mobs skill.
@@ -15,6 +20,9 @@ import toutouchien.itemsadderadditions.utils.hook.MythicMobsUtils;
  * mythic_mobs_skill:
  *   skill: "duplicate"
  *   power: 0.5 # Optional (default: 1.0)
+ *   variables:
+ *     damage: 5
+ *     radius: 3
  * }</pre>
  */
 @SuppressWarnings("unused")
@@ -27,8 +35,30 @@ public final class MythicMobsSkillAction extends ActionExecutor {
     @Parameter(key = "power", type = Float.class)
     private float power = 1F;
 
+    private Map<String, Object> variables = Map.of();
+
+    @Override
+    public boolean configure(@Nullable Object configData, String namespacedID) {
+        if (!super.configure(configData, namespacedID)) return false;
+
+        ConfigurationSection section = configData instanceof ConfigurationSection cs ? cs : null;
+        if (section == null) {
+            variables = Map.of();
+            return true;
+        }
+
+        ConfigurationSection variablesSection = section.getConfigurationSection("variables");
+        if (variablesSection == null) {
+            variables = Map.of();
+            return true;
+        }
+
+        variables = new LinkedHashMap<>(variablesSection.getValues(false));
+        return true;
+    }
+
     @Override
     protected void execute(ActionContext context) {
-        MythicMobsUtils.castSkill(context.player(), skill, power);
+        MythicMobsUtils.castSkill(context.player(), skill, power, variables);
     }
 }

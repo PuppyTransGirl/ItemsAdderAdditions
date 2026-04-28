@@ -10,7 +10,7 @@ import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSele
 import net.kyori.adventure.key.Key;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import toutouchien.itemsadderadditions.bridge.JqBridge;
+import toutouchien.itemsadderadditions.bridge.TradeMachineBridge;
 import toutouchien.itemsadderadditions.utils.CommandUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
@@ -82,7 +82,7 @@ public final class IATradeMachineCommand {
     private static int execute(CommandSender sender, Player target, Key key, boolean silent) {
         String id = key.asString();
         try {
-            boolean opened = JqBridge.openTradeMachine(target, id);
+            boolean opened = TradeMachineBridge.openTradeMachine(target, id);
 
             if (opened) {
                 if (!silent) {

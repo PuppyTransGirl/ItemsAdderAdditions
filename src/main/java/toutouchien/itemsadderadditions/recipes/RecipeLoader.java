@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.recipes;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import toutouchien.itemsadderadditions.recipes.campfire.CampfireRecipeHandler;
+import toutouchien.itemsadderadditions.recipes.crafting.CraftingRecipeHandler;
 import toutouchien.itemsadderadditions.recipes.stonecutter.StonecutterRecipeHandler;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
@@ -21,15 +22,18 @@ public class RecipeLoader {
     private final File itemsAdderContentsDir;
     private final CampfireRecipeHandler campfireHandler;
     private final StonecutterRecipeHandler stonecutterHandler;
+    private final CraftingRecipeHandler craftingHandler;
 
     public RecipeLoader(
             File itemsAdderContentsDir,
             CampfireRecipeHandler campfireHandler,
-            StonecutterRecipeHandler stonecutterHandler
+            StonecutterRecipeHandler stonecutterHandler,
+            CraftingRecipeHandler craftingHandler
     ) {
         this.itemsAdderContentsDir = itemsAdderContentsDir;
         this.campfireHandler = campfireHandler;
         this.stonecutterHandler = stonecutterHandler;
+        this.craftingHandler = craftingHandler;
     }
 
     private static List<File> collectYamlFiles(File dir) {
@@ -81,6 +85,11 @@ public class RecipeLoader {
                 stonecutterHandler.load(
                         namespace,
                         recipes.getConfigurationSection("stonecutter")
+                );
+
+                craftingHandler.load(
+                        namespace,
+                        recipes.getConfigurationSection("crafting")
                 );
             } catch (Exception e) {
                 Log.warn(LOG_TAG, "Failed to parse file: " + file.getPath()

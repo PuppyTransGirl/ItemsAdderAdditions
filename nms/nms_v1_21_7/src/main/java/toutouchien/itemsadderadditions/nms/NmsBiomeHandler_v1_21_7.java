@@ -71,12 +71,12 @@ public final class NmsBiomeHandler_v1_21_7 implements INmsBiomeHandler {
 
                 LevelChunkSection section = chunk.getSection(sectionIndex);
 
-                // Biome quanta coords - all LOCAL to the section (0–3 each axis).
+                // Biome quanta coords - all LOCAL to the section (0-3 each axis).
                 // X and Z are local to the chunk (& 15) then shifted to quantum (>> 2).
                 // Y must be local to the SECTION (& 15), not absolute, then shifted.
-                int localBiomeX = (loc.getBlockX() & 15) >> 2; // 0–3
-                int localBiomeY = (blockY & 15) >> 2; // 0–3 within section
-                int localBiomeZ = (loc.getBlockZ() & 15) >> 2; // 0–3
+                int localBiomeX = (loc.getBlockX() & 15) >> 2; // 0-3
+                int localBiomeY = (blockY & 15) >> 2; // 0-3 within section
+                int localBiomeZ = (loc.getBlockZ() & 15) >> 2; // 0-3
 
                 // Biomes are stored in a PalettedContainer<Holder<Biome>> on the section.
                 // getBiomes() returns PalettedContainerRO; we cast to the mutable subtype.

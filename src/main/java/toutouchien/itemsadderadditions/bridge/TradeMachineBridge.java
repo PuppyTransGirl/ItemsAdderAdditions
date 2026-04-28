@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.bridge;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import toutouchien.itemsadderadditions.patches.impl.TradeMachineCapturePatch;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.lang.reflect.Field;
@@ -11,7 +12,7 @@ import java.util.Map;
 
 /**
  * Stores the single {@code itemsadder.m.jq} (trade-machine handler) instance
- * captured by {@link toutouchien.itemsadderadditions.patches.impl.JqCapturePatch}
+ * captured by {@link TradeMachineCapturePatch}
  * and exposes a safe way to programmatically open a trade-machine GUI.
  *
  * <h3>Reflection strategy</h3>
@@ -19,29 +20,29 @@ import java.util.Map;
  * double-checked lock so the per-call overhead is a single volatile read
  * after the first invocation.
  */
-public final class JqBridge {
+public final class TradeMachineBridge {
 
     private static Object jqInstance;
 
     // cached reflected handles (null until first use)
-    private static Field vGField;       // jq.vG  : the 'a' item registry
-    private static Field vHField;       // jq.vH  : WeakHashMap<Player, ip|id>
-    private static Field BDField;       // oy.BD  : behaviour data map
+    private static Field vGField; // jq.vG  : the 'a' item registry
+    private static Field vHField; // jq.vH  : WeakHashMap<Player, ip|id>
+    private static Field BDField; // oy.BD  : behaviour data map
     private static Method aLookupMethod; // a.a(ItemStack) -> oy
-    private static Method bgMethod;      // oy$BD.bg(String) -> Object
-    private static Method amMethod;      // ix.am(Player) -> void
+    private static Method bgMethod; // oy$BD.bg(String) -> Object
+    private static Method amMethod; // ix.am(Player) -> void
 
-    private JqBridge() {
+    private TradeMachineBridge() {
     }
 
     /**
-     * Called by {@code JqCapturePatch} at the end of the {@code jq} constructor.
+     * Called by {@code TradeMachineCapturePatch} at the end of the {@code jq} constructor.
      * Only the first call is recorded; subsequent ones are no-ops.
      */
     public static void capture(Object jq) {
         if (jqInstance != null) return;
         jqInstance = jq;
-        Log.info("JqBridge", "jq instance captured: " + jq.getClass().getName());
+        Log.info("TradeMachineBridge", "jq instance captured: " + jq.getClass().getName());
     }
 
     public static boolean isReady() {

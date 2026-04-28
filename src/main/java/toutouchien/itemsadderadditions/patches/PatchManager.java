@@ -16,39 +16,64 @@ public class PatchManager {
     private static final List<ClassPatch> PATCHES = List.of(
             new AddEnchantmentPatch(),
             new CooldownCapturePatch(),
-            new JqCapturePatch(),
+            new CraftingRecipeBypassPatch(),
+            new TradeMachineCapturePatch(),
             new StatRequirementsCapturePatch(),
             new StonecutterSelectiveBypassPatch()
     );
 
     public static void applyAll() {
-        Instrumentation inst = null;
-
-        try {
-            inst = ByteBuddyAgent.install();
-        } catch (Exception ignored) {
-
-        }
-
-        if (inst == null) {
-            try {
-                inst = ByteBuddyAgent.install(
-                        ByteBuddyAgent.AttachmentProvider.DEFAULT
-                );
-            } catch (Exception e) {
-                Log.error("Patcher", "All attach methods failed", e);
-                return;
-            }
-        }
+        Instrumentation inst = attachAgent();
+        if (inst == null) return;
 
         Map<String, List<ClassPatch>> byClass = PATCHES.stream()
                 .collect(Collectors.groupingBy(ClassPatch::targetClass));
 
-        // Register transformer for classes not yet loaded
         inst.addTransformer(new PatchTransformer(PATCHES), true);
 
-        // Retransform classes already loaded in ANY classloader
+        Set<String> patched = retransformLoadedClasses(inst, byClass);
+
+        // Log classes whose patches are deferred until first load
+        for (String internalName : byClass.keySet()) {
+            if (!patched.contains(internalName)) {
+                Log.info("Patcher", "Deferred (not loaded yet): "
+                        + internalName.replace('/', '.'));
+            }
+        }
+    }
+
+    /**
+     * Attempts to attach the ByteBuddy agent, falling back to the default
+     * attachment provider if the first attempt fails.
+     *
+     * @return the {@link Instrumentation} instance, or {@code null} if both
+     * attempts fail
+     */
+    private static Instrumentation attachAgent() {
+        try {
+            return ByteBuddyAgent.install();
+        } catch (Exception ignored) {
+            // First attempt failed; try again with the explicit default provider
+        }
+        try {
+            return ByteBuddyAgent.install(ByteBuddyAgent.AttachmentProvider.DEFAULT);
+        } catch (Exception e) {
+            Log.error("Patcher", "All attach methods failed", e);
+            return null;
+        }
+    }
+
+    /**
+     * Retransforms every already-loaded class that has a registered patch.
+     *
+     * @return the set of internal class names that were successfully patched
+     */
+    private static Set<String> retransformLoadedClasses(
+            Instrumentation inst,
+            Map<String, List<ClassPatch>> byClass
+    ) {
         Set<String> patched = new HashSet<>();
+
         for (Class<?> clazz : inst.getAllLoadedClasses()) {
             String internalName = clazz.getName().replace('.', '/');
             if (!byClass.containsKey(internalName)) continue;
@@ -66,12 +91,6 @@ public class PatchManager {
             }
         }
 
-        // Log which targets are still deferred
-        for (String internalName : byClass.keySet()) {
-            if (!patched.contains(internalName)) {
-                Log.info("Patcher",
-                        "Deferred (not loaded yet): " + internalName.replace('/', '.'));
-            }
-        }
+        return patched;
     }
 }

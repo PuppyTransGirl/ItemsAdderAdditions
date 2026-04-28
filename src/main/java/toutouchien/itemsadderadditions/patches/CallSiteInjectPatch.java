@@ -6,15 +6,17 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 public abstract class CallSiteInjectPatch extends MethodPatch {
     protected abstract String targetCallOwner();
-
     protected abstract String targetCallName();
-
     protected abstract CallSiteInjectPoint callSiteInjectPoint();
 
     /**
-     * BEFORE_CALL: arguments are not yet on the stack.
-     * AFTER_CALL:  return value (if any) is on top of the stack - DUP it
-     * first if you need to inspect without consuming it.
+     * Emit the injection bytecode here.
+     *
+     * <ul>
+     *   <li>{@link CallSiteInjectPoint#BEFORE_CALL} — arguments are not yet on the stack.</li>
+     *   <li>{@link CallSiteInjectPoint#AFTER_CALL} — the return value (if any) is on top;
+     *       {@code DUP} it first if you need to inspect without consuming it.</li>
+     * </ul>
      */
     protected abstract void inject(GeneratorAdapter ga);
 
@@ -37,7 +39,9 @@ public abstract class CallSiteInjectPatch extends MethodPatch {
                 if (matches && callSiteInjectPoint() == CallSiteInjectPoint.BEFORE_CALL) {
                     inject(ga);
                 }
+
                 super.visitMethodInsn(opcode, owner, callName, callDescriptor, isInterface);
+
                 if (matches && callSiteInjectPoint() == CallSiteInjectPoint.AFTER_CALL) {
                     inject(ga);
                 }

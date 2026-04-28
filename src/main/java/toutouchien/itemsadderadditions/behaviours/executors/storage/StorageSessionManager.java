@@ -327,7 +327,7 @@ public final class StorageSessionManager {
      */
     public void openForPlayerAtTransformedLocation(Player player, Location loc,
                                                    @Nullable Block block, @Nullable Entity entity) {
-        Inventory inv = resolveInventory(loc, block, entity);   // hits the shared-inventory fast path
+        Inventory inv = resolveInventory(loc, block, entity); // hits the shared-inventory fast path
         StorageSession session = new StorageSession(player, inv, block, entity, storageType);
         openSessions.put(player.getUniqueId(), session);
         player.openInventory(inv);

@@ -59,7 +59,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
 //            this.componentsManager = new ComponentsManager();
 //            this.componentsManager.applyComponents();
 
-        this.recipeManager = new RecipeManager();
+        this.recipeManager = new RecipeManager(this);
 
         registerListeners();
 
