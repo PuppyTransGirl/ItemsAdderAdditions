@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions;
 
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import toutouchien.itemsadderadditions.actions.ActionsListener;
@@ -14,6 +15,7 @@ import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.listeners.ItemsAdderLoadListener;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.patches.PatchManager;
+import toutouchien.itemsadderadditions.patches.Version;
 import toutouchien.itemsadderadditions.recipes.RecipeManager;
 import toutouchien.itemsadderadditions.updatechecker.UpdateChecker;
 
@@ -41,7 +43,14 @@ public class ItemsAdderAdditions extends JavaPlugin {
     public void onLoad() {
         instance = this;
 
-        PatchManager.applyAll();
+        Version version = Version.of(
+                Bukkit.getMinecraftVersion(),
+                getServer().getPluginManager()
+                        .getPlugin("ItemsAdder")
+                        .getPluginMeta().getVersion()
+        );
+
+        PatchManager.applyAll(version);
     }
 
     @Override

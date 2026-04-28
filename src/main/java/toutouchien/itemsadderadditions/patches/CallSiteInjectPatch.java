@@ -13,8 +13,8 @@ public abstract class CallSiteInjectPatch extends MethodPatch {
      * Emit the injection bytecode here.
      *
      * <ul>
-     *   <li>{@link CallSiteInjectPoint#BEFORE_CALL} — arguments are not yet on the stack.</li>
-     *   <li>{@link CallSiteInjectPoint#AFTER_CALL} — the return value (if any) is on top;
+     *   <li>{@link CallSiteInjectPoint#BEFORE_CALL} - arguments are not yet on the stack.</li>
+     *   <li>{@link CallSiteInjectPoint#AFTER_CALL} - the return value (if any) is on top;
      *       {@code DUP} it first if you need to inspect without consuming it.</li>
      * </ul>
      */

@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.patches.impl;
+package toutouchien.itemsadderadditions.patches.impl.ia_4_0_16;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -6,6 +6,8 @@ import org.objectweb.asm.commons.Method;
 import toutouchien.itemsadderadditions.bridge.TradeMachineBridge;
 import toutouchien.itemsadderadditions.patches.InjectPoint;
 import toutouchien.itemsadderadditions.patches.MethodInjectPatch;
+import toutouchien.itemsadderadditions.patches.VersionConstraint;
+import toutouchien.itemsadderadditions.patches.VersionSet;
 
 /**
  * Injects into the {@code jq(Plugin, a)} constructor so that
@@ -17,7 +19,11 @@ import toutouchien.itemsadderadditions.patches.MethodInjectPatch;
  * {@code this.vH} have already been assigned before we hand the reference
  * to the bridge.
  */
-public class TradeMachineCapturePatch extends MethodInjectPatch {
+public class TradeMachineCapturePatch_IA_4_0_16 extends MethodInjectPatch {
+    @Override
+    public VersionConstraint supportedVersions() {
+        return VersionSet.ia("4.0.16", "4.0.17");
+    }
 
     @Override
     public String targetClass() {

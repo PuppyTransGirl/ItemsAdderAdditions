@@ -9,7 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class PatchTransformer implements ClassFileTransformer {
+/**
+ * A {@link ClassFileTransformer} that applies all registered {@link ClassPatch}es
+ * to their target classes as they are loaded by the JVM.
+ *
+ * <p>Patches are pre-grouped by {@link ClassPatch#targetClass()} so each
+ * {@link #transform} invocation pays only a single map lookup per class.
+ */
+public final class PatchTransformer implements ClassFileTransformer {
+
     private final Map<String, List<ClassPatch>> patchesByClass;
 
     public PatchTransformer(List<ClassPatch> patches) {
@@ -36,7 +44,7 @@ public class PatchTransformer implements ClassFileTransformer {
                 @Override
                 protected ClassLoader getClassLoader() {
                     // Use the actual classloader of the class being transformed
-                    // so COMPUTE_FRAMES can resolve its dependencies correctly
+                    // so COMPUTE_FRAMES can correctly resolve its dependencies.
                     return loader != null ? loader : ClassLoader.getSystemClassLoader();
                 }
             };
@@ -59,7 +67,7 @@ public class PatchTransformer implements ClassFileTransformer {
 
             return writer.toByteArray();
         } catch (Exception e) {
-            Log.error("PatchTransFormer", "Failed to transform " + className, e);
+            Log.error("PatchTransformer", "Failed to transform " + className, e);
             return null;
         }
     }

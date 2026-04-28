@@ -9,7 +9,7 @@ authors: [ PuppyTransGirl ]
 dependencies:
   server:
     ItemsAdder:
-      load: AFTER
+      load: BEFORE
       required: true
 
     PlaceholderAPI:

@@ -1,12 +1,15 @@
-package toutouchien.itemsadderadditions.patches.impl;
+package toutouchien.itemsadderadditions.patches.impl.ia_4_0_16;
 
 import org.objectweb.asm.commons.GeneratorAdapter;
-import toutouchien.itemsadderadditions.patches.BytecodeHelper;
-import toutouchien.itemsadderadditions.patches.CallSiteInjectPatch;
-import toutouchien.itemsadderadditions.patches.CallSiteInjectPoint;
+import toutouchien.itemsadderadditions.patches.*;
 import toutouchien.itemsadderadditions.recipes.stonecutter.StonecutterPatchBridge;
 
-public final class StonecutterSelectiveBypassPatch extends CallSiteInjectPatch {
+public final class StonecutterSelectiveBypassPatch_IA_4_0_16 extends CallSiteInjectPatch {
+    @Override
+    public VersionConstraint supportedVersions() {
+        return VersionSet.ia("4.0.16", "4.0.17");
+    }
+
     @Override
     public String targetClass() {
         return "itemsadder/m/tw";

@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.patches.impl;
+package toutouchien.itemsadderadditions.patches.impl.ia_4_0_16;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -6,8 +6,15 @@ import org.objectweb.asm.commons.Method;
 import toutouchien.itemsadderadditions.bridge.CooldownBridge;
 import toutouchien.itemsadderadditions.patches.InjectPoint;
 import toutouchien.itemsadderadditions.patches.MethodInjectPatch;
+import toutouchien.itemsadderadditions.patches.VersionConstraint;
+import toutouchien.itemsadderadditions.patches.VersionSet;
 
-public class CooldownCapturePatch extends MethodInjectPatch {
+public class CooldownCapturePatch_IA_4_0_16 extends MethodInjectPatch {
+    @Override
+    public VersionConstraint supportedVersions() {
+        return VersionSet.ia("4.0.16");
+    }
+
     @Override
     public String targetClass() {
         return "itemsadder/m/lr";
