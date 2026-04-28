@@ -11,6 +11,7 @@ import toutouchien.itemsadderadditions.components.ComponentsManager;
 import toutouchien.itemsadderadditions.converter.ConverterV100V101;
 import toutouchien.itemsadderadditions.converter.ConverterV101V102;
 import toutouchien.itemsadderadditions.converter.ConverterV105V106;
+import toutouchien.itemsadderadditions.converter.ConverterV106V107;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.listeners.ItemsAdderLoadListener;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
@@ -86,6 +87,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
         ConverterV100V101.run();
         ConverterV101V102.run();
         ConverterV105V106.run();
+        ConverterV106V107.run();
     }
 
     public void reload() {
