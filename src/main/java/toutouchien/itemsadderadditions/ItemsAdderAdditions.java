@@ -11,9 +11,6 @@ import toutouchien.itemsadderadditions.converter.ConverterV100V101;
 import toutouchien.itemsadderadditions.converter.ConverterV101V102;
 import toutouchien.itemsadderadditions.converter.ConverterV105V106;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
-import toutouchien.itemsadderadditions.furniture.FurnitureHologramChunkListener;
-import toutouchien.itemsadderadditions.furniture.FurnitureHologramListener;
-import toutouchien.itemsadderadditions.furniture.FurnitureHologramManager;
 import toutouchien.itemsadderadditions.listeners.ItemsAdderLoadListener;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.patches.PatchManager;
@@ -88,7 +85,6 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        FurnitureHologramManager.clearAll();
         this.bStats.shutdown();
         getServer().getScheduler().cancelTasks(this);
 
@@ -100,9 +96,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
         List.of(
                 new ActionsListener(),
-                new ItemsAdderLoadListener(),
-                new FurnitureHologramListener(),
-                new FurnitureHologramChunkListener()
+                new ItemsAdderLoadListener()
         ).forEach(listener -> pm.registerEvents(listener, this));
     }
 
