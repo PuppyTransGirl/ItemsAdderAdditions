@@ -18,6 +18,7 @@ actions:
   veinminer: true
 
 behaviours:
+  bed: true
   connectable: true
   contact_damage: true
   stackable: true

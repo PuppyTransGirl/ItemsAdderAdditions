@@ -1,18 +1,20 @@
-package toutouchien.itemsadderadditions.cooldown;
+package toutouchien.itemsadderadditions.bridge;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class CooldownBridge {
-    private CooldownBridge() {}
-
     // last known result per player/itemHash
     // true = allowed, false = on cooldown
     private static final Map<UUID, Map<Integer, Boolean>> STATE =
             new ConcurrentHashMap<>();
+
+    private CooldownBridge() {
+    }
 
     /**
      * Called from injected bytecode inside lr.b().
@@ -21,7 +23,7 @@ public final class CooldownBridge {
         try {
             LivingEntity le = (LivingEntity) livingEntity;
             STATE.computeIfAbsent(le.getUniqueId(), k -> new ConcurrentHashMap<>())
-                 .put(itemHash, result);
+                    .put(itemHash, result);
         } catch (Exception ignored) {
 
         }

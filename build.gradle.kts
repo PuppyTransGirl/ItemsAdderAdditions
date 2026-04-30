@@ -17,7 +17,7 @@ val customBlockDataVersion: String by project
 val morePersistentDataTypesVersion: String by project
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.6"
+version = "1.0.7"
 
 repositories {
     mavenCentral()
@@ -42,7 +42,6 @@ dependencies {
     // NMS modules
     implementation(project(":nms:api"))
     implementation(project(":nms:nms_v26_1_2"))
-    implementation(project(":nms:nms_v26_1_1"))
     implementation(project(":nms:nms_v1_21_11"))
     implementation(project(":nms:nms_v1_21_10"))
     implementation(project(":nms:nms_v1_21_8"))

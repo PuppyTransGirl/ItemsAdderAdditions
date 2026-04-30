@@ -11,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -26,6 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.loading.ActionBindings;
+import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.Collection;
 import java.util.List;
@@ -68,48 +68,92 @@ public final class ActionsListener implements Listener {
     }
 
     /**
+     * Returns {@code true} when this off-hand interaction should be ignored to
+     * avoid duplicate execution with the main hand.
+     * <p>
+     * We only suppress the off-hand when the main hand already holds a custom
+     * item. This preserves off-hand-only custom item interactions.
+     */
+    private static boolean shouldIgnoreOffHandDuplicate(Player player, EquipmentSlot hand) {
+        if (hand != EquipmentSlot.OFF_HAND) return false;
+
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
+        return !mainHand.isEmpty() && CustomStack.byItemStack(mainHand) != null;
+    }
+
+    /**
      * Returns {@code true} when the interact event should be processed.
      * Air-clicks are always allowed. Block-clicks are allowed unless the block
      * interaction was explicitly denied by another listener.
      */
     private static boolean isInteractAllowed(PlayerInteractEvent event) {
         Action action = event.getAction();
-        if (action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR)
-            return true;
+        if (action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR) return true;
         return event.useInteractedBlock() != Event.Result.DENY;
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onComplexFurnitureInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            Log.debug("Furniture", "Ignoring interact: action={}", event.getAction());
             return;
+        }
 
         Block block = event.getClickedBlock();
-        if (block.getType() != Material.BARRIER)
+        if (block == null) {
+            Log.debug("Furniture", "Ignoring interact: clicked block is null");
             return;
+        }
+
+        if (shouldIgnoreOffHandDuplicate(event.getPlayer(), event.getHand())) return;
+
+        if (block.getType() != Material.BARRIER) {
+            Log.debug("Furniture", "Ignoring interact: clicked block is not BARRIER ({}))",
+                    block.getType());
+            return;
+        }
 
         Location location = block.getLocation();
         Collection<Entity> nearbyEntities = block.getWorld().getNearbyEntities(
-                location, 0.1D, 0.1D, 0.1D,
-                entity -> entity.getType() == EntityType.ARMOR_STAND
+                location, 0.1D, 0.1D, 0.1D
         );
-        if (nearbyEntities.isEmpty())
+
+        Log.debug("Furniture", "Found {} nearby entity/entities near barrier at {}, {}, {}",
+                nearbyEntities.size(),
+                location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ());
+
+        if (nearbyEntities.isEmpty()) {
+            Log.debug("Furniture", "Ignoring interact: no nearby entities");
             return;
+        }
 
         CustomEntity customEntity = null;
         for (Entity entity : nearbyEntities) {
             customEntity = CustomEntity.byAlreadySpawned(entity);
-            if (customEntity != null)
+            if (customEntity != null) {
+                Log.debug("Furniture", "Matched custom entity {} for armor stand {}",
+                        customEntity.getNamespacedID(), entity.getUniqueId());
                 break;
+            }
         }
 
-        if (customEntity == null)
+        if (customEntity == null) {
+            Log.debug("Furniture", "Ignoring interact: no custom entity matched");
             return;
+        }
 
         Player player = event.getPlayer();
         String namespacedID = customEntity.getNamespacedID();
         Entity entity = customEntity.getEntity();
         ItemStack held = player.getInventory().getItemInMainHand();
+
+        Log.debug("Furniture",
+                "Dispatching COMPLEX_FURNITURE_INTERACT for {} by player {} with held item {}",
+                namespacedID,
+                player.getName(),
+                held == null ? "null" : held.getType());
 
         dispatch(
                 namespacedID,
@@ -124,8 +168,7 @@ public final class ActionsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onFurnitureInteract(FurnitureInteractEvent event) {
         CustomFurniture furniture = event.getFurniture();
-        if (furniture == null)
-            return;
+        if (furniture == null) return;
 
         Player player = event.getPlayer();
         String namespacedID = furniture.getNamespacedID();
@@ -147,8 +190,8 @@ public final class ActionsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
-            return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (shouldIgnoreOffHandDuplicate(event.getPlayer(), event.getHand())) return;
 
         ItemStack item = event.getItem();
         CustomStack customStack = item == null ? null : CustomStack.byItemStack(item);
@@ -180,23 +223,20 @@ public final class ActionsListener implements Listener {
     @EventHandler
     public void onItemInteract(PlayerInteractEvent event) {
         String argument = resolveInteractArgument(event);
-        if (argument == null)
-            return; // PHYSICAL or unmappable - not an interact trigger
+        if (argument == null) return; // PHYSICAL or unmappable - not an interact trigger
 
         // PlayerInteractEvent is fired as cancelled when vanilla has nothing to do
         // (e.g. interacting with air), so we cannot use ignoreCancelled = true.
         // We do skip it when the player actually clicked a block and the block
         // interaction was explicitly denied, which means the click did nothing.
-        if (!isInteractAllowed(event))
-            return;
+        if (!isInteractAllowed(event)) return;
+        if (shouldIgnoreOffHandDuplicate(event.getPlayer(), event.getHand())) return;
 
         ItemStack item = event.getItem();
-        if (item == null)
-            return;
+        if (item == null) return;
 
         CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null)
-            return;
+        if (customStack == null) return;
 
         Player player = event.getPlayer();
         String namespacedID = customStack.getNamespacedID();
@@ -233,14 +273,14 @@ public final class ActionsListener implements Listener {
     public void onItemInteractEntity(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         EquipmentSlot hand = event.getHand();
+        if (shouldIgnoreOffHandDuplicate(player, hand)) return;
 
         ItemStack item = hand == EquipmentSlot.HAND
                 ? player.getInventory().getItemInMainHand()
                 : player.getInventory().getItemInOffHand();
 
         CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null)
-            return;
+        if (customStack == null) return;
 
         String namespacedID = customStack.getNamespacedID();
         String argument = "entity";
@@ -288,8 +328,7 @@ public final class ActionsListener implements Listener {
 
         ItemStack tool = player.getInventory().getItemInMainHand();
         CustomStack cs = CustomStack.byItemStack(tool);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -303,13 +342,11 @@ public final class ActionsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onItemAttack(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player player))
-            return;
+        if (!(event.getDamager() instanceof Player player)) return;
 
         ItemStack tool = player.getInventory().getItemInMainHand();
         CustomStack cs = CustomStack.byItemStack(tool);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -325,13 +362,11 @@ public final class ActionsListener implements Listener {
     public void onItemKill(EntityDeathEvent event) {
         LivingEntity dead = event.getEntity();
         Player killer = dead.getKiller();
-        if (killer == null)
-            return;
+        if (killer == null) return;
 
         ItemStack tool = killer.getInventory().getItemInMainHand();
         CustomStack cs = CustomStack.byItemStack(tool);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -347,8 +382,7 @@ public final class ActionsListener implements Listener {
     public void onItemDrop(PlayerDropItemEvent event) {
         ItemStack item = event.getItemDrop().getItemStack();
         CustomStack cs = CustomStack.byItemStack(item);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(cs.getNamespacedID(),
                 TriggerType.ITEM_DROP,
@@ -360,13 +394,11 @@ public final class ActionsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
-        if (!(event.getEntity() instanceof Player player))
-            return;
+        if (!(event.getEntity() instanceof Player player)) return;
 
         ItemStack item = event.getItem().getItemStack();
         CustomStack cs = CustomStack.byItemStack(item);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -451,8 +483,7 @@ public final class ActionsListener implements Listener {
     public void onItemBreak(PlayerItemBreakEvent event) {
         ItemStack item = event.getBrokenItem();
         CustomStack cs = CustomStack.byItemStack(item);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -467,8 +498,7 @@ public final class ActionsListener implements Listener {
     public void onItemConsume(PlayerItemConsumeEvent event) {
         ItemStack item = event.getItem();
         CustomStack cs = CustomStack.byItemStack(item);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         TriggerType type = item.getData(DataComponentTypes.CONSUMABLE).animation() == ItemUseAnimation.DRINK
                 ? TriggerType.ITEM_DRINK
@@ -485,16 +515,13 @@ public final class ActionsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBowShot(EntityShootBowEvent event) {
-        if (!(event.getEntity() instanceof Player player))
-            return;
+        if (!(event.getEntity() instanceof Player player)) return;
 
         ItemStack bow = event.getBow();
-        if (bow == null)
-            return;
+        if (bow == null) return;
 
         CustomStack cs = CustomStack.byItemStack(bow);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -507,13 +534,11 @@ public final class ActionsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onItemThrow(ProjectileLaunchEvent event) {
-        if (!(event.getEntity().getShooter() instanceof Player player))
-            return;
+        if (!(event.getEntity().getShooter() instanceof Player player)) return;
 
         ItemStack item = player.getInventory().getItemInMainHand();
         CustomStack cs = CustomStack.byItemStack(item);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         // Track which item launched this projectile so the hit handler can resolve it.
         projectileItems.put(event.getEntity().getUniqueId(), cs.getNamespacedID());
@@ -530,11 +555,8 @@ public final class ActionsListener implements Listener {
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
         String itemID = projectileItems.remove(event.getEntity().getUniqueId());
-        if (itemID == null)
-            return;
-
-        if (!(event.getEntity().getShooter() instanceof Player player))
-            return;
+        if (itemID == null) return;
+        if (!(event.getEntity().getShooter() instanceof Player player)) return;
 
         Entity hitEntity = event.getHitEntity();
         TriggerType type = hitEntity != null
@@ -556,13 +578,10 @@ public final class ActionsListener implements Listener {
         ItemStack book = slot == -1
                 ? event.getPlayer().getInventory().getItemInOffHand()
                 : event.getPlayer().getInventory().getItem(slot);
-
-        if (book == null)
-            return;
+        if (book == null || book.isEmpty()) return;
 
         CustomStack cs = CustomStack.byItemStack(book);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -579,19 +598,14 @@ public final class ActionsListener implements Listener {
      */
     @EventHandler(ignoreCancelled = true)
     public void onBookRead(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND)
-            return;
-
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
-            return;
+        if (event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         ItemStack item = event.getItem();
-        if (item == null || item.getType() != Material.WRITTEN_BOOK)
-            return;
+        if (item == null || item.getType() != Material.WRITTEN_BOOK) return;
 
         CustomStack cs = CustomStack.byItemStack(item);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -615,8 +629,7 @@ public final class ActionsListener implements Listener {
                 : player.getInventory().getItemInOffHand();
 
         CustomStack cs = CustomStack.byItemStack(rod);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         TriggerType type = switch (event.getState()) {
             case FISHING -> TriggerType.ITEM_FISHING_START;
@@ -627,9 +640,7 @@ public final class ActionsListener implements Listener {
             case IN_GROUND -> TriggerType.ITEM_FISHING_IN_GROUND;
             case LURED -> null;
         };
-
-        if (type == null)
-            return;
+        if (type == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -644,8 +655,7 @@ public final class ActionsListener implements Listener {
     public void onBucketEmpty(PlayerBucketEmptyEvent event) {
         ItemStack bucket = event.getItemStack();
         CustomStack cs = CustomStack.byItemStack(bucket);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -661,8 +671,7 @@ public final class ActionsListener implements Listener {
     public void onBucketFill(PlayerBucketFillEvent event) {
         ItemStack bucket = event.getItemStack();
         CustomStack cs = CustomStack.byItemStack(bucket);
-        if (cs == null)
-            return;
+        if (cs == null) return;
 
         dispatch(
                 cs.getNamespacedID(),
@@ -676,8 +685,26 @@ public final class ActionsListener implements Listener {
 
     private void dispatch(String id, TriggerType type, @Nullable String argument, ActionContext context) {
         List<ActionExecutor> executors = ActionBindings.get(id, type, argument);
-        for (ActionExecutor executor : executors)
+
+        Log.debug("Dispatch",
+                "Lookup id={}, type={}, argument={} -> {} executor(s)",
+                id,
+                type,
+                argument,
+                executors.size());
+
+        if (executors.isEmpty()) {
+            Log.debug("Dispatch", "No executors found for id={}, type={}, argument={}",
+                    id,
+                    type,
+                    argument);
+            return;
+        }
+
+        for (ActionExecutor executor : executors) {
+            Log.debug("Dispatch", "Running executor {}", executor.getClass().getSimpleName());
             executor.run(context);
+        }
     }
 
     private void dispatch(String id, TriggerType type, ActionContext context) {

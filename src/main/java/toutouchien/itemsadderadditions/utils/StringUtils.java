@@ -43,13 +43,22 @@ public final class StringUtils {
 
         int n = Math.max(as.length, bs.length);
         for (int i = 0; i < n; i++) {
-            int ai = i < as.length ? Integer.parseInt(as[i]) : 0;
-            int bi = i < bs.length ? Integer.parseInt(bs[i]) : 0;
+            // Use replaceAll to remove "-" and any text following it in this segment
+            int ai = i < as.length ? parseVersionPart(as[i]) : 0;
+            int bi = i < bs.length ? parseVersionPart(bs[i]) : 0;
 
-            if (ai != bi)
+            if (ai != bi) {
                 return Integer.compare(ai, bi);
+            }
         }
 
         return 0;
+    }
+
+    private static int parseVersionPart(String part) {
+        // Regex: find the first sequence of digits and ignore everything after
+        // Example: "3-beta-3" -> "3"
+        String numericOnly = part.split("\\D")[0];
+        return numericOnly.isEmpty() ? 0 : Integer.parseInt(numericOnly);
     }
 }

@@ -3,7 +3,7 @@ package toutouchien.itemsadderadditions.patches.impl;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-import toutouchien.itemsadderadditions.cooldown.CooldownBridge;
+import toutouchien.itemsadderadditions.bridge.CooldownBridge;
 import toutouchien.itemsadderadditions.patches.InjectPoint;
 import toutouchien.itemsadderadditions.patches.MethodInjectPatch;
 
@@ -33,14 +33,14 @@ public class CooldownCapturePatch extends MethodInjectPatch {
      * Stack at BEFORE_RETURN: boolean result is on top.
      * <p>
      * We need to call:
-     *   CooldownBridge.capture(boolean result, Object livingEntity, int itemHash)
+     * CooldownBridge.capture(boolean result, Object livingEntity, int itemHash)
      * <p>
      * So we:
-     *  1. dup the result (keep it for the return)
-     *  2. load arg 0 (LivingEntity)
-     *  3. load the itemHash from oy arg 1 (field BH, which is an int)
-     *  4. call capture() which returns the boolean back
-     *  5. the return then uses that value
+     * 1. dup the result (keep it for the return)
+     * 2. load arg 0 (LivingEntity)
+     * 3. load the itemHash from oy arg 1 (field BH, which is an int)
+     * 4. call capture() which returns the boolean back
+     * 5. the return then uses that value
      */
     @Override
     protected void inject(GeneratorAdapter ga) {

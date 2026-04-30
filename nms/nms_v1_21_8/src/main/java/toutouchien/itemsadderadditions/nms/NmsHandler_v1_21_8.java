@@ -1,12 +1,20 @@
 package toutouchien.itemsadderadditions.nms;
 
+import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.nms.api.*;
 
+@NullMarked
 public final class NmsHandler_v1_21_8 implements INmsHandler {
+    private final NmsBedHandler_v1_21_8 bed = new NmsBedHandler_v1_21_8();
     private final NmsCampfireRecipeHandler_v1_21_8 campfireRecipes = new NmsCampfireRecipeHandler_v1_21_8();
     private final NmsCreativeMenuHandler_v1_21_8 creativeMenu = new NmsCreativeMenuHandler_v1_21_8();
     private final NmsStonecutterRecipeHandler_v1_21_8 stonecutterRecipes = new NmsStonecutterRecipeHandler_v1_21_8();
     private final NmsToastHandler_v1_21_8 toasts = new NmsToastHandler_v1_21_8();
+
+    @Override
+    public NmsBedHandler_v1_21_8 bed() {
+        return bed;
+    }
 
     @Override
     public INmsCampfireRecipeHandler campfireRecipes() {
