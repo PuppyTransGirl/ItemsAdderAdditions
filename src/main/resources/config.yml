@@ -39,7 +39,8 @@ furniture-holograms:
       offset: "0,1.5,-0.5"
       scale: "1,1,1"
       yaw-rotation: 0
-      brightness: 13
+      block-brightness: 15
+      sky-brightness: 15
       pitch-rotation: 0
       background: "transparent"
       billboard: "fixed"

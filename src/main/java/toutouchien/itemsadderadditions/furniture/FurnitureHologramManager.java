@@ -69,7 +69,8 @@ public final class FurnitureHologramManager {
         boolean shadow = section.getBoolean("shadow", true);
         float yawRotation = (float) section.getDouble("yaw-rotation", 0);
         float pitchRotation = (float) section.getDouble("pitch-rotation", 0);
-        int brightness = section.getInt("brightness", -1);
+        int blockBrightness = section.getInt("block-brightness", -1);
+        int skyBrightness = section.getInt("sky-brightness", -1);
 
         Float storedRotation = getStoredRotation(furniture.getEntity());
         float furnitureYaw = storedRotation != null ? storedRotation : yawToFurnitureRotation(placerYaw != null ? placerYaw : furnitureLoc.getYaw());
@@ -101,8 +102,11 @@ public final class FurnitureHologramManager {
 
         display.setBackgroundColor(parseBackgroundColor(background));
 
-        if (brightness > 0) {
-            display.setBrightness(new Display.Brightness(brightness, brightness));
+        if (blockBrightness >= 0 || skyBrightness >= 0) {
+            display.setBrightness(new Display.Brightness(
+                blockBrightness >= 0 ? blockBrightness : 0,
+                skyBrightness >= 0 ? skyBrightness : 0
+            ));
         }
 
         display.getPersistentDataContainer().set(FURNITURE_KEY, PersistentDataType.STRING, furnitureLoc.toString());
