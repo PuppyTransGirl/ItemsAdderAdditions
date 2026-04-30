@@ -573,21 +573,27 @@ public final class ActionsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBookWrite(PlayerEditBookEvent event) {
-        int slot = event.getSlot();
+        Player player = event.getPlayer();
+        ItemStack book = player.getInventory().getItemInMainHand();
+        ItemStack offhand = player.getInventory().getItemInOffHand();
 
-        ItemStack book = slot == -1
-                ? event.getPlayer().getInventory().getItemInOffHand()
-                : event.getPlayer().getInventory().getItem(slot);
-        if (book == null || book.isEmpty()) return;
+        ItemStack customBook = null;
+        if (book != null && !book.isEmpty()) {
+            CustomStack cs = CustomStack.byItemStack(book);
+            if (cs != null) customBook = book;
+        }
+        if (customBook == null && offhand != null && !offhand.isEmpty()) {
+            CustomStack cs = CustomStack.byItemStack(offhand);
+            if (cs != null) customBook = offhand;
+        }
+        if (customBook == null) return;
 
-        CustomStack cs = CustomStack.byItemStack(book);
-        if (cs == null) return;
-
+        CustomStack cs = CustomStack.byItemStack(customBook);
         dispatch(
                 cs.getNamespacedID(),
                 TriggerType.ITEM_BOOK_WRITE,
-                ActionContext.create(event.getPlayer(), TriggerType.ITEM_BOOK_WRITE)
-                        .heldItem(book)
+                ActionContext.create(player, TriggerType.ITEM_BOOK_WRITE)
+                        .heldItem(customBook)
                         .build()
         );
     }

@@ -11,6 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 
+import java.util.Collections;
+
 @NullMarked
 public final class MythicMobsUtils {
     private static TriState mythicMobsLoaded = TriState.NOT_SET;
@@ -37,7 +39,15 @@ public final class MythicMobsUtils {
             var skillOpt = skillManager.getSkill(skill);
             if (caster != null && skillOpt.isPresent()) {
                 var mythicSkill = skillOpt.get();
-                var meta = new SkillMetadataImpl(SkillTriggers.API, caster, abstractPlayer, power);
+                var meta = new SkillMetadataImpl(
+                    SkillTriggers.API,
+                    caster,
+                    abstractPlayer,
+                    BukkitAdapter.adapt(player.getLocation()),
+                    Collections.singleton(abstractPlayer),
+                    Collections.emptyList(),
+                    power
+                );
                 mythicSkill.execute(meta);
             }
         } catch (Exception e) {

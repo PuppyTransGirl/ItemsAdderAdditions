@@ -1,7 +1,7 @@
 rootProject.name = "ItemsAdderAdditions"
 
 include("nms:api")
-include("nms:nms_v26_1_2")
+// include("nms:nms_v26_1_2") // Nécessite Java 25
 include("nms:nms_v1_21_11")
 include("nms:nms_v1_21_10")
 include("nms:nms_v1_21_8")

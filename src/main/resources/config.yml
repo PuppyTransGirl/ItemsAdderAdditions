@@ -27,3 +27,20 @@ behaviours:
 update-checker:
   enabled: true
   on-join: true
+
+furniture-holograms:
+  enabled: true
+  default-offset: 1.0
+  holograms:
+    workshop_six:fourneau:
+      texts:
+      - "<gradient:#8680ff:#80dbff><bold>ɪᴛᴇᴍꜱᴀᴅᴅᴇʀᴀᴅᴅɪᴛɪᴏɴ<reset>"
+      - "<gray>Holograms furniture<reset>"
+      offset: "0,1.5,-0.5"
+      scale: "1,1,1"
+      yaw-rotation: 0
+      brightness: 13
+      pitch-rotation: 0
+      background: "transparent"
+      billboard: "fixed"
+      shadow: true
