@@ -44,7 +44,7 @@ final class NmsCampfireRecipeHandler_v1_21_1 implements INmsCampfireRecipeHandle
                 .addRecipe(new RecipeHolder<>(identifier, recipe));
 
         registeredKeys.add(identifier);
-        Log.info(LOG_TAG, "Registered campfire recipe: " + namespace + ":" + recipeId);
+        Log.debug(LOG_TAG, "Registered: " + namespace + ":" + recipeId);
     }
 
     @Override

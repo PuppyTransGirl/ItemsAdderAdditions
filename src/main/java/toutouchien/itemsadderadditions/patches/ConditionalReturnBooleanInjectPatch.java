@@ -7,7 +7,6 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 public abstract class ConditionalReturnBooleanInjectPatch extends MethodPatch {
-
     /**
      * Emit bytecode that leaves a boolean on the stack.
      * If that boolean is true, this patch will immediately `return true;`

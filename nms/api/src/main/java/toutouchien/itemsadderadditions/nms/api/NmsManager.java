@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import toutouchien.itemsadderadditions.utils.VersionUtils;
 
 public class NmsManager {
-
     private static NmsManager instance;
 
     private final INmsHandler handler;

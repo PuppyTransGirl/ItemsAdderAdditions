@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 
 public final class VersionSet implements VersionConstraint {
     private final Axis axis;
-    private final Set<String> mcVersions;   // used for MC and BOTH (normalized)
-    private final Set<String> iaVersions;   // used for IA and BOTH (normalized)
-    private final Set<Version> pairs;       // used for BOTH (normalized)
+    private final Set<String> mcVersions; // used for MC and BOTH (normalized)
+    private final Set<String> iaVersions; // used for IA and BOTH (normalized)
+    private final Set<Version> pairs; // used for BOTH (normalized)
 
     private VersionSet(Axis axis, Set<String> mc, Set<String> ia, Set<Version> pairs) {
         this.axis = axis;

@@ -21,11 +21,10 @@ package toutouchien.itemsadderadditions.patches;
  * }</pre>
  */
 public final class VersionRange implements VersionConstraint {
-
-    private final String mcMin;   // null = unbounded
-    private final String mcMax;   // null = unbounded
-    private final String iaMin;   // null = unbounded
-    private final String iaMax;   // null = unbounded
+    private final String mcMin; // null = unbounded
+    private final String mcMax; // null = unbounded
+    private final String iaMin; // null = unbounded
+    private final String iaMax; // null = unbounded
 
     private VersionRange(String mcMin, String mcMax, String iaMin, String iaMax) {
         this.mcMin = mcMin;

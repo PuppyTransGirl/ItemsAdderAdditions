@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 public final class TradeMachineBridge {
-
     private static Object handlerInstance;
 
     private static Field registryField;

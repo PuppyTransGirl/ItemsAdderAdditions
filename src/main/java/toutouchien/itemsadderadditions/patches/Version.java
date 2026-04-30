@@ -1,7 +1,6 @@
 package toutouchien.itemsadderadditions.patches;
 
 public record Version(String minecraft, String itemsAdder) {
-
     public static final Version ANY = new Version("*", "*");
 
     public static Version of(String minecraft, String itemsAdder) {

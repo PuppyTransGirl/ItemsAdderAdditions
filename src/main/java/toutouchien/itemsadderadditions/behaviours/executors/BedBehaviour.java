@@ -73,22 +73,22 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
         // fwd = furniture facing direction vector (local +X maps to this)
         // right = 90° clockwise from fwd in the XZ plane (local +Z maps to this)
         int fwdX, fwdZ, rightX, rightZ;
-        if (n < 45f || n >= 315f) {   // South  (+Z)
+        if (n < 45f || n >= 315f) { // South  (+Z)
             fwdX = 0;
             fwdZ = 1;
             rightX = -1;
             rightZ = 0;
-        } else if (n < 135f) {        // West   (-X)
+        } else if (n < 135f) { // West   (-X)
             fwdX = -1;
             fwdZ = 0;
             rightX = 0;
             rightZ = 1;
-        } else if (n < 225f) {        // North  (-Z)
+        } else if (n < 225f) { // North  (-Z)
             fwdX = 0;
             fwdZ = -1;
             rightX = 1;
             rightZ = 0;
-        } else {                      // East   (+X)
+        } else { // East   (+X)
             fwdX = 1;
             fwdZ = 0;
             rightX = 0;

@@ -25,7 +25,6 @@ import toutouchien.itemsadderadditions.utils.other.Log;
  */
 @NullMarked
 public record OpenVariantConfig(FormType type, String id) {
-
     /**
      * Resolves an {@link OpenVariantConfig} from a namespacedID string, auto-detecting
      * the {@link FormType} via {@link CustomStack#isBlock()}.

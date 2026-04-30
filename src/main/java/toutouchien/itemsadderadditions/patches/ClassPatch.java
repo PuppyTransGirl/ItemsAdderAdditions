@@ -32,7 +32,6 @@ import org.objectweb.asm.MethodVisitor;
  * }</pre>
  */
 public interface ClassPatch {
-
     /**
      * Internal class name of the class to patch, e.g. {@code "itemsadder/m/lm"}.
      */

@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.recipes.crafting.ingredient;
 
+import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -13,57 +14,53 @@ import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Parses a single ingredient entry from YAML into a {@link ParsedIngredient}.
+ * Parses ingredient entries from YAML into {@link ParsedIngredient} instances.
  *
- * <p>Accepted YAML forms:
+ * <p>Accepted YAML forms for <b>char-keyed</b> (shaped / keyed-shapeless) ingredients:
  * <pre>
- * # shorthand - no predicates
  * S: STICK
  * S: "#minecraft:planks"
  * S: "example:my_sword"
  *
- * # long-form - with optional predicates
  * S:
- *   item: "#minecraft:planks"
- *   amount: 2            # stack must have ≥2; the extra is consumed
- *   damage: 5            # deal 5 durability damage after craft
- *   replacement: STICK   # place this back after craft (overrides damage)
- *   ignore_durability: true  # accept the item at any durability level
+ *   item: POTION
+ *   potion_type: minecraft:infested   # NEW
+ *   amount: 2
+ *   damage: 5
+ *   replacement: STICK
+ *   ignore_durability: true
  * </pre>
  *
- * <h3>ignore_durability</h3>
- * <p>Only available in long-form. When {@code true}:
- * <ul>
- *   <li>For <em>custom IA items</em> (resolved via {@link NamespaceUtils}):
- *       the Bukkit recipe is registered with a {@link RecipeChoice.MaterialChoice}
- *       so Bukkit shows the crafting result for any-durability item. The listener
- *       then validates the slot using the original
- *       {@link RecipeChoice.ExactChoice} after stripping the current damage,
- *       which keeps vanilla items of the same material from being accepted.</li>
- *   <li>For <em>vanilla materials</em> and <em>tags</em>
- *       ({@link RecipeChoice.MaterialChoice} is already in use): no change
- *       is needed; the flag is recorded in {@link ParsedIngredient} so the
- *       listener still strips damage before testing (harmless but consistent).</li>
- * </ul>
+ * <p>Accepted YAML form for <b>list-style</b> (anonymous shapeless) ingredients:
+ * <pre>
+ * ingredients:
+ *   - SNOWBALL
+ *   - item: WATER_BUCKET
+ *     replacement: BUCKET
+ * </pre>
  */
 @NullMarked
 public final class IngredientResolver {
-
     private static final String LOG_TAG = "IngredientResolver";
+
+    // Synthetic char keys used when building a map from a list-style section.
+    private static final char[] SYNTHETIC_KEYS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
 
     private IngredientResolver() {
         throw new IllegalStateException("Utility class");
     }
-
     /**
-     * @param namespace The current IA namespace (used to resolve custom items).
-     * @param section   The {@code ingredients} config section.
-     * @param key       The single-character key (e.g. {@code "P"}).
-     * @param recipeId  Used in log messages only.
-     * @return A resolved {@link ParsedIngredient}, or {@code null} on failure.
+     * Resolves one char-keyed ingredient from a {@link ConfigurationSection}.
+     *
+     * @param namespace namespace used to resolve custom items
+     * @param section   the {@code ingredients} config section
+     * @param key       single-character key (e.g. {@code "P"})
+     * @param recipeId  used in log messages only
      */
     @Nullable
     public static ParsedIngredient resolve(
@@ -72,60 +69,141 @@ public final class IngredientResolver {
             String key,
             String recipeId
     ) {
+        Object raw = section.get(key);
+        return parseRawEntry(namespace, raw, key, recipeId);
+    }
+
+    /**
+     * Resolves list-style ingredients (anonymous shapeless format).
+     *
+     * <p>Each list element may be a plain string or a map with {@code item} /
+     * predicate keys. The returned map uses synthetic single-character keys so
+     * the rest of the pipeline stays unchanged.
+     *
+     * @param namespace namespace used to resolve custom items
+     * @param list      the raw YAML list under {@code ingredients}
+     * @param recipeId  used in log messages only
+     * @return ordered map (insertion-order preserved), or {@code null} on error
+     */
+    @Nullable
+    public static Map<Character, ParsedIngredient> resolveList(
+            String namespace,
+            List<?> list,
+            String recipeId
+    ) {
+        if (list.size() > SYNTHETIC_KEYS.length) {
+            Log.warn(LOG_TAG,
+                    "Recipe '{}' has {} list ingredients; max is {}.",
+                    recipeId, list.size(), SYNTHETIC_KEYS.length);
+            return null;
+        }
+
+        Map<Character, ParsedIngredient> result = new LinkedHashMap<>();
+        boolean anyFailed = false;
+
+        for (int i = 0; i < list.size(); i++) {
+            char syntheticKey = SYNTHETIC_KEYS[i];
+            Object raw = list.get(i);
+
+            ParsedIngredient ingredient =
+                    parseRawEntry(namespace, raw, String.valueOf(syntheticKey), recipeId);
+            if (ingredient == null) {
+                anyFailed = true;
+            } else {
+                result.put(syntheticKey, ingredient);
+            }
+        }
+
+        return anyFailed ? null : result;
+    }
+
+    /**
+     * Parses one raw YAML value (String, Map, or ConfigurationSection) into
+     * a {@link ParsedIngredient}. Used by both {@link #resolve} and
+     * {@link #resolveList}.
+     */
+    @Nullable
+    private static ParsedIngredient parseRawEntry(
+            String namespace,
+            @Nullable Object raw,
+            String keyLabel,   // used only in log messages
+            String recipeId
+    ) {
         String itemRef;
         int requiredAmount = 1;
         int damageAmount = 0;
         ItemStack replacement = null;
         boolean ignoreDurability = false;
-
-        Object raw = section.get(key);
+        @Nullable String potionType = null;
 
         if (raw instanceof ConfigurationSection sub) {
             itemRef = sub.getString("item");
             if (itemRef == null) {
                 Log.warn(LOG_TAG,
                         "Ingredient '{}' in recipe '{}' is missing 'item'.",
-                        key, recipeId);
+                        keyLabel, recipeId);
                 return null;
             }
-
             requiredAmount = sub.getInt("amount", 1);
             damageAmount = sub.getInt("damage", 0);
             ignoreDurability = sub.getBoolean("ignore_durability", false);
+            potionType = sub.getString("potion_type", null);
 
             String replacementRef = sub.getString("replacement");
             if (replacementRef != null) {
                 replacement = resolveItem(namespace, replacementRef, recipeId,
-                        "replacement for '" + key + "'");
+                        "replacement for '" + keyLabel + "'");
                 if (replacement == null) return null;
                 damageAmount = 0; // replacement takes precedence
             }
-        } else {
-            itemRef = section.getString(key);
-            if (itemRef == null) {
+
+        } else if (raw instanceof Map<?, ?> map) {
+            // Happens with list-style entries that Bukkit hands back as raw Maps
+            // rather than ConfigurationSection objects.
+            Object itemVal = map.get("item");
+            if (!(itemVal instanceof String ref)) {
                 Log.warn(LOG_TAG,
-                        "Ingredient '{}' in recipe '{}' has an unsupported format.",
-                        key, recipeId);
+                        "Ingredient '{}' in recipe '{}' is missing 'item'.",
+                        keyLabel, recipeId);
                 return null;
             }
+            itemRef = ref;
+
+            if (map.get("amount") instanceof Number n)
+                requiredAmount = n.intValue();
+            if (map.get("damage") instanceof Number n)
+                damageAmount = n.intValue();
+            if (map.get("ignore_durability") instanceof Boolean b)
+                ignoreDurability = b;
+            if (map.get("potion_type") instanceof String pt)
+                potionType = pt;
+
+            if (map.get("replacement") instanceof String replacementRef) {
+                replacement = resolveItem(namespace, replacementRef, recipeId,
+                        "replacement for '" + keyLabel + "'");
+                if (replacement == null) return null;
+                damageAmount = 0;
+            }
+
+        } else if (raw instanceof String ref) {
+            itemRef = ref;
+
+        } else {
+            Log.warn(LOG_TAG,
+                    "Ingredient '{}' in recipe '{}' has an unsupported format.",
+                    keyLabel, recipeId);
+            return null;
         }
 
-        // Resolve the base choice (used for validation in the listener).
-        RecipeChoice validationChoice = resolveChoice(namespace, itemRef, recipeId, key);
+        RecipeChoice validationChoice =
+                resolveChoice(namespace, itemRef, recipeId, keyLabel);
         if (validationChoice == null) return null;
 
-        // The registration choice is what Bukkit actually uses for recipe matching.
-        // For custom items with ignore_durability we upgrade to MaterialChoice so
-        // Bukkit will show the result regardless of current tool durability.
         RecipeChoice registrationChoice = validationChoice;
         if (ignoreDurability && validationChoice instanceof RecipeChoice.ExactChoice exact) {
-            // ExactChoice holds custom IA items whose meta includes damage → use
-            // the item's base material so Bukkit accepts any durability level.
             Material mat = exact.getChoices().get(0).getType();
             registrationChoice = new RecipeChoice.MaterialChoice(mat);
         }
-        // For MaterialChoice (tags / vanilla) ignore_durability is a no-op at
-        // registration time; the listener still strips damage before testing.
 
         return new ParsedIngredient(
                 registrationChoice,
@@ -133,7 +211,8 @@ public final class IngredientResolver {
                 requiredAmount,
                 damageAmount,
                 replacement,
-                ignoreDurability);
+                ignoreDurability,
+                potionType);
     }
 
     @Nullable
@@ -144,13 +223,11 @@ public final class IngredientResolver {
             return resolveTag(itemRef.substring(1), recipeId, key);
         }
 
-        // Try as custom IA item first
-        ItemStack custom = NamespaceUtils.itemByID(namespace, itemRef);
-        if (custom != null) {
-            return new RecipeChoice.ExactChoice(custom);
+        CustomStack customStack = NamespaceUtils.customItemByID(namespace, itemRef);
+        if (customStack != null) {
+            return new RecipeChoice.ExactChoice(customStack.getItemStack());
         }
 
-        // Fall back to vanilla material
         Material mat = Material.matchMaterial(itemRef);
         if (mat != null) {
             return new RecipeChoice.MaterialChoice(mat);
@@ -174,11 +251,9 @@ public final class IngredientResolver {
             return null;
         }
 
-        // Try item registry first, then block registry
         Tag<Material> tag = Bukkit.getTag(Tag.REGISTRY_ITEMS, tagKey, Material.class);
-        if (tag == null) {
+        if (tag == null)
             tag = Bukkit.getTag(Tag.REGISTRY_BLOCKS, tagKey, Material.class);
-        }
 
         if (tag == null || tag.getValues().isEmpty()) {
             Log.warn(LOG_TAG,
@@ -187,16 +262,15 @@ public final class IngredientResolver {
             return null;
         }
 
-        List<Material> materials = new ArrayList<>(tag.getValues());
-        return new RecipeChoice.MaterialChoice(materials);
+        return new RecipeChoice.MaterialChoice(new ArrayList<>(tag.getValues()));
     }
 
     @Nullable
     private static ItemStack resolveItem(
             String namespace, String ref, String recipeId, String context
     ) {
-        ItemStack custom = NamespaceUtils.itemByID(namespace, ref);
-        if (custom != null) return custom;
+        CustomStack customStack = NamespaceUtils.customItemByID(namespace, ref);
+        if (customStack != null) return customStack.getItemStack();
 
         Material mat = Material.matchMaterial(ref);
         if (mat != null) return new ItemStack(mat);

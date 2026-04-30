@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
  * {@link #transform} invocation pays only a single map lookup per class.
  */
 public final class PatchTransformer implements ClassFileTransformer {
-
     private final Map<String, List<ClassPatch>> patchesByClass;
 
     public PatchTransformer(List<ClassPatch> patches) {

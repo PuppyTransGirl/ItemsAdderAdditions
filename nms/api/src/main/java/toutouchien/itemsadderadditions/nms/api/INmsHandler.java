@@ -6,15 +6,19 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public interface INmsHandler {
     INmsBedHandler bed();
-
     INmsBiomeHandler biome();
-
     INmsCampfireRecipeHandler campfireRecipes();
 
-    @Nullable
-    INmsCreativeMenuHandler creativeMenu();
+    INmsCraftingRecipeHandler craftingRecipes();
 
+    @Nullable INmsCreativeMenuHandler creativeMenu();
     INmsStonecutterRecipeHandler stonecutterRecipes();
-
     INmsToastHandler toasts();
+
+    /**
+     * Calls {@code RecipeManager#finalizeRecipeLoading()} once.
+     * Must be invoked by {@code RecipeManager} after <em>all</em> recipe
+     * types have been registered or unregistered.
+     */
+    void finalizeRecipes();
 }

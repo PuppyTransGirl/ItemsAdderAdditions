@@ -32,7 +32,6 @@ import java.util.List;
  */
 @NullMarked
 public enum BlocksShape {
-
     /**
      * Axis-aligned box: all blocks {@code |dx| <= rx, |dy| <= ry, |dz| <= rz}.
      */

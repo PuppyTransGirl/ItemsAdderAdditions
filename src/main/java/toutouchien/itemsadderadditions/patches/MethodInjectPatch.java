@@ -6,7 +6,6 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 public abstract class MethodInjectPatch extends MethodPatch {
-
     protected abstract InjectPoint injectPoint();
 
     /**

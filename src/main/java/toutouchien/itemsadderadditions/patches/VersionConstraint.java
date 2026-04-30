@@ -12,21 +12,20 @@ package toutouchien.itemsadderadditions.patches;
  *
  * <p>Constraints can be composed:
  * <pre>{@code
- * VersionConstraint.always()                         // every version
- * VersionRange.mc("1.20.1", "1.21.3")               // MC range, any IA version
- * VersionRange.ia("3.0.0", "3.5.9")                 // any MC, IA range
+ * VersionConstraint.always() // every version
+ * VersionRange.mc("1.20.1", "1.21.3") // MC range, any IA version
+ * VersionRange.ia("3.0.0", "3.5.9") // any MC, IA range
  * VersionRange.of("1.20.1", "1.21.3",
- *                 "3.0.0", "3.5.9")                 // MC + IA range
- * VersionSet.mc("1.20.4", "1.21.1")                 // exact MC versions
- * VersionSet.of(Version.of("1.20.4", "3.2.0"))      // exact MC + IA pair
- * constraint1.and(constraint2)                        // both must match
- * constraint1.or(constraint2)                         // either must match
- * constraint.negate()                                 // invert
+ *                 "3.0.0", "3.5.9") // MC + IA range
+ * VersionSet.mc("1.20.4", "1.21.1") // exact MC versions
+ * VersionSet.of(Version.of("1.20.4", "3.2.0")) // exact MC + IA pair
+ * constraint1.and(constraint2) // both must match
+ * constraint1.or(constraint2) // either must match
+ * constraint.negate() // invert
  * }</pre>
  */
 @FunctionalInterface
 public interface VersionConstraint {
-
     /**
      * A constraint that always returns {@code true}. Use for patches that apply to every version.
      */

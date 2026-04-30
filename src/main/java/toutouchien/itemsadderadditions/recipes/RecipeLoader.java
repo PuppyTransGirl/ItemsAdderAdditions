@@ -89,11 +89,15 @@ public class RecipeLoader {
 
                 craftingHandler.load(
                         namespace,
-                        recipes.getConfigurationSection("crafting")
+                        recipes.getConfigurationSection("iaa_crafting_table")
+                );
+
+                craftingHandler.load(
+                        namespace,
+                        recipes.getConfigurationSection("iaa_crafting")
                 );
             } catch (Exception e) {
-                Log.warn(LOG_TAG, "Failed to parse file: " + file.getPath()
-                        + " - " + e.getMessage());
+                Log.error(LOG_TAG, "Failed to parse file: " + file.getPath(), e);
             }
         }
     }

@@ -18,6 +18,12 @@ final class NmsStonecutterRecipeHandler_v1_21_11 implements INmsStonecutterRecip
 
     private final List<ResourceKey<Recipe<?>>> registeredKeys = new ArrayList<>();
 
+    @SuppressWarnings("unchecked")
+    private static <T extends RecipeInput> ResourceKey<Recipe<T>> castRecipeKey(
+            ResourceKey<Recipe<?>> key) {
+        return (ResourceKey<Recipe<T>>) (ResourceKey<?>) key;
+    }
+
     @Override
     public void register(
             String namespace,
@@ -37,20 +43,24 @@ final class NmsStonecutterRecipeHandler_v1_21_11 implements INmsStonecutterRecip
                 CraftItemStack.asNMSCopy(result)
         );
 
+        // Use the internal recipes field directly to avoid per-recipe finalization.
         MinecraftServer.getServer()
                 .getRecipeManager()
+                .recipes
                 .addRecipe(new RecipeHolder<>(key, recipe));
 
         registeredKeys.add(key);
-        Log.info(LOG_TAG, "Registered stonecutter recipe: " + namespace + ":" + recipeId);
+        Log.debug(LOG_TAG, "Registered: " + namespace + ":" + recipeId);
     }
 
     @Override
     public void unregisterAll() {
         RecipeManager recipeManager = MinecraftServer.getServer().getRecipeManager();
         for (ResourceKey<Recipe<?>> key : registeredKeys)
-            recipeManager.removeRecipe(key);
+            recipeManager.recipes.removeRecipe(castRecipeKey(key));
 
         registeredKeys.clear();
+        // Finalization is intentionally omitted here - RecipeManager calls
+        // INmsHandler#finalizeRecipes() once after all handlers are done.
     }
 }

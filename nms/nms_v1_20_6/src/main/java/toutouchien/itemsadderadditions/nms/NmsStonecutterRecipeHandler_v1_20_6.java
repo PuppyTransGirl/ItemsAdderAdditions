@@ -42,7 +42,7 @@ final class NmsStonecutterRecipeHandler_v1_20_6 implements INmsStonecutterRecipe
                 .addRecipe(new RecipeHolder<>(identifier, recipe));
 
         registeredKeys.add(identifier);
-        Log.info(LOG_TAG, "Registered stonecutter recipe: " + namespace + ":" + recipeId);
+        Log.debug(LOG_TAG, "Registered: " + namespace + ":" + recipeId);
     }
 
     @Override

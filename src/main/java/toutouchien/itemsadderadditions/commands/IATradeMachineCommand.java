@@ -27,7 +27,6 @@ import java.util.List;
  * <p>Permission: {@code ia.admin.iatrademachine}</p>
  */
 public final class IATradeMachineCommand {
-
     private static final String PREFIX =
             "<gradient:#AC52D4:#6C3484>ItemsAdderAdditions</gradient><#999999>)</#999999> ";
 
