@@ -41,7 +41,7 @@ dependencies {
 
     // NMS modules
     implementation(project(":nms:api"))
-    // implementation(project(":nms:nms_v26_1_2")) // Nécessite Java 25
+    implementation(project(":nms:nms_v26_1_2"))
     implementation(project(":nms:nms_v1_21_11"))
     implementation(project(":nms:nms_v1_21_10"))
     implementation(project(":nms:nms_v1_21_8"))
