@@ -29,7 +29,7 @@ import java.util.Map;
  *
  * S:
  *   item: POTION
- *   potion_type: minecraft:infested   # NEW
+ *   potion_type: minecraft:infested
  *   amount: 2
  *   damage: 5
  *   replacement: STICK
@@ -43,6 +43,16 @@ import java.util.Map;
  *   - item: WATER_BUCKET
  *     replacement: BUCKET
  * </pre>
+ *
+ * <h3>Custom-item fast path</h3>
+ * <p>When an ingredient resolves to an ItemsAdder custom item, its
+ * {@link CustomStack#getNamespacedID()} is stored in
+ * {@link ParsedIngredient#customNamespacedId()} alongside a precomputed
+ * {@link String#hashCode()}.  {@code CraftingRecipeListener.testIngredient}
+ * can then validate the slot via a fast
+ * {@link CustomStack#byItemStack(ItemStack)} + integer hash comparison instead
+ * of the expensive {@link RecipeChoice.ExactChoice#test} path (which calls
+ * {@link ItemStack#isSimilar} and compares full {@code ItemMeta}).
  */
 @NullMarked
 public final class IngredientResolver {
@@ -54,6 +64,7 @@ public final class IngredientResolver {
     private IngredientResolver() {
         throw new IllegalStateException("Utility class");
     }
+
     /**
      * Resolves one char-keyed ingredient from a {@link ConfigurationSection}.
      *
@@ -126,7 +137,7 @@ public final class IngredientResolver {
     private static ParsedIngredient parseRawEntry(
             String namespace,
             @Nullable Object raw,
-            String keyLabel,   // used only in log messages
+            String keyLabel,
             String recipeId
     ) {
         String itemRef;
@@ -154,12 +165,10 @@ public final class IngredientResolver {
                 replacement = resolveItem(namespace, replacementRef, recipeId,
                         "replacement for '" + keyLabel + "'");
                 if (replacement == null) return null;
-                damageAmount = 0; // replacement takes precedence
+                damageAmount = 0;
             }
 
         } else if (raw instanceof Map<?, ?> map) {
-            // Happens with list-style entries that Bukkit hands back as raw Maps
-            // rather than ConfigurationSection objects.
             Object itemVal = map.get("item");
             if (!(itemVal instanceof String ref)) {
                 Log.warn(LOG_TAG,
@@ -169,14 +178,10 @@ public final class IngredientResolver {
             }
             itemRef = ref;
 
-            if (map.get("amount") instanceof Number n)
-                requiredAmount = n.intValue();
-            if (map.get("damage") instanceof Number n)
-                damageAmount = n.intValue();
-            if (map.get("ignore_durability") instanceof Boolean b)
-                ignoreDurability = b;
-            if (map.get("potion_type") instanceof String pt)
-                potionType = pt;
+            if (map.get("amount") instanceof Number n) requiredAmount = n.intValue();
+            if (map.get("damage") instanceof Number n) damageAmount = n.intValue();
+            if (map.get("ignore_durability") instanceof Boolean b) ignoreDurability = b;
+            if (map.get("potion_type") instanceof String pt) potionType = pt;
 
             if (map.get("replacement") instanceof String replacementRef) {
                 replacement = resolveItem(namespace, replacementRef, recipeId,
@@ -195,49 +200,89 @@ public final class IngredientResolver {
             return null;
         }
 
-        RecipeChoice validationChoice =
-                resolveChoice(namespace, itemRef, recipeId, keyLabel);
-        if (validationChoice == null) return null;
-
-        RecipeChoice registrationChoice = validationChoice;
-        if (ignoreDurability && validationChoice instanceof RecipeChoice.ExactChoice exact) {
-            Material mat = exact.getChoices().get(0).getType();
-            registrationChoice = new RecipeChoice.MaterialChoice(mat);
-        }
-
-        return new ParsedIngredient(
-                registrationChoice,
-                validationChoice,
-                requiredAmount,
-                damageAmount,
-                replacement,
-                ignoreDurability,
-                potionType);
+        return buildIngredient(
+                namespace, itemRef, keyLabel, recipeId,
+                requiredAmount, damageAmount, replacement, ignoreDurability, potionType);
     }
 
+    /**
+     * Resolves {@code itemRef} and assembles the final {@link ParsedIngredient}.
+     *
+     * <h3>Custom-item path</h3>
+     * <p>When {@code itemRef} resolves to an ItemsAdder {@link CustomStack}, the
+     * ingredient is built with {@link ParsedIngredient#customNamespacedId()} set
+     * to {@link CustomStack#getNamespacedID()}.  The hash is derived automatically
+     * in {@link ParsedIngredient}'s compact constructor.
+     *
+     * <p>At validation time ({@code CraftingRecipeListener.testIngredient}),
+     * instead of calling {@link RecipeChoice.ExactChoice#test} (which internally
+     * runs {@link ItemStack#isSimilar} - a full {@code ItemMeta} comparison),
+     * the listener calls {@link CustomStack#byItemStack(ItemStack)} and compares
+     * integer hashes first.  Full string equality is only checked on hash
+     * collision (practically never for namespaced IDs).
+     *
+     * <h3>Vanilla path</h3>
+     * <p>{@link ParsedIngredient#customNamespacedId()} is {@code null}, and
+     * validation falls back to {@link ParsedIngredient#validationChoice()}.
+     */
     @Nullable
-    private static RecipeChoice resolveChoice(
-            String namespace, String itemRef, String recipeId, String key
+    private static ParsedIngredient buildIngredient(
+            String namespace,
+            String itemRef,
+            String keyLabel,
+            String recipeId,
+            int requiredAmount,
+            int damageAmount,
+            @Nullable ItemStack replacement,
+            boolean ignoreDurability,
+            @Nullable String potionType
     ) {
         if (itemRef.startsWith("#")) {
-            return resolveTag(itemRef.substring(1), recipeId, key);
+            RecipeChoice tagChoice = resolveTag(itemRef.substring(1), recipeId, keyLabel);
+            if (tagChoice == null) return null;
+            return new ParsedIngredient(
+                    tagChoice, tagChoice,
+                    requiredAmount, damageAmount, replacement,
+                    ignoreDurability, potionType,
+                    null, 0);   // tags are never custom items
         }
 
         CustomStack customStack = NamespaceUtils.customItemByID(namespace, itemRef);
         if (customStack != null) {
-            return new RecipeChoice.ExactChoice(customStack.getItemStack());
+            RecipeChoice exactChoice =
+                    new RecipeChoice.ExactChoice(customStack.getItemStack());
+
+            RecipeChoice registrationChoice = new RecipeChoice.MaterialChoice(
+                    customStack.getItemStack().getType());
+
+            // Store the namespaced ID - hash is derived in the compact constructor
+            String namespacedId = customStack.getNamespacedID();
+
+            return new ParsedIngredient(
+                    registrationChoice,
+                    exactChoice,            // kept for ignoreDurability's ExactChoice test
+                    requiredAmount, damageAmount, replacement,
+                    ignoreDurability, potionType,
+                    namespacedId, 0);       // hash computed automatically
         }
 
         Material mat = Material.matchMaterial(itemRef);
         if (mat != null) {
-            return new RecipeChoice.MaterialChoice(mat);
+            RecipeChoice matChoice = new RecipeChoice.MaterialChoice(mat);
+            return new ParsedIngredient(
+                    matChoice, matChoice,
+                    requiredAmount, damageAmount, replacement,
+                    ignoreDurability, potionType,
+                    null, 0);   // vanilla, no custom ID
         }
 
         Log.warn(LOG_TAG,
                 "Ingredient '{}' in recipe '{}': could not resolve '{}'.",
-                key, recipeId, itemRef);
+                keyLabel, recipeId, itemRef);
         return null;
     }
+
+    // ── private helpers ───────────────────────────────────────────────────────
 
     @Nullable
     private static RecipeChoice resolveTag(

@@ -23,6 +23,17 @@ public final class CraftingRecipeHandler {
     private final INmsCraftingRecipeHandler nms;
     private final List<CraftingRecipeData> predicateRecipes = new ArrayList<>();
 
+    /**
+     * O(1) lookup used by {@code CraftingRecipeListener.matchRecipe()}.
+     *
+     * <p>Previously {@code matchRecipe} iterated the full {@link #predicateRecipes}
+     * list on every {@link org.bukkit.event.inventory.PrepareItemCraftEvent},
+     * {@link org.bukkit.event.inventory.CraftItemEvent}, etc.  With even a
+     * modest number of registered recipes this was the dominant per-event cost.
+     * This map replaces that O(n) scan with an O(1) hash lookup.
+     */
+    private final Map<NamespacedKey, CraftingRecipeData> predicateByKey = new HashMap<>();
+
     public CraftingRecipeHandler(INmsCraftingRecipeHandler nms) {
         this.nms = nms;
     }
@@ -36,13 +47,11 @@ public final class CraftingRecipeHandler {
     private static Map<Character, ParsedIngredient> parseIngredients(
             String namespace, String recipeId, ConfigurationSection entry
     ) {
-        // Try list form first (shapeless anonymous style)
         List<?> rawList = entry.getList("ingredients");
         if (rawList != null) {
             return IngredientResolver.resolveList(namespace, rawList, recipeId);
         }
 
-        // Char-keyed section form
         ConfigurationSection ingredientsSec =
                 entry.getConfigurationSection("ingredients");
         if (ingredientsSec == null) {
@@ -78,9 +87,7 @@ public final class CraftingRecipeHandler {
      * Collects all pattern variants from the entry.
      *
      * <p>A "pattern key" is any key whose name starts with {@code "pattern"}
-     * (case-insensitive), e.g. {@code pattern}, {@code pattern_2},
-     * {@code pattern3}. Each is normalised the same way (unknown chars →
-     * spaces) and returned in the order YAML provides them.
+     * (case-insensitive).
      */
     private static List<String[]> collectPatterns(
             String namespace,
@@ -101,8 +108,7 @@ public final class CraftingRecipeHandler {
                 continue;
             }
 
-            String[] pattern = normalisePattern(lines, ingredients);
-            result.add(pattern);
+            result.add(normalisePattern(lines, ingredients));
         }
 
         if (result.isEmpty()) {
@@ -111,10 +117,6 @@ public final class CraftingRecipeHandler {
         }
 
         return result;
-    }
-
-    public List<CraftingRecipeData> predicateRecipes() {
-        return predicateRecipes;
     }
 
     /**
@@ -140,10 +142,7 @@ public final class CraftingRecipeHandler {
     private static NamespacedKey recipeKey(
             String namespace, String recipeId, String suffix
     ) {
-        return new NamespacedKey(
-                namespace,
-                (recipeId + suffix).toLowerCase()
-        );
+        return new NamespacedKey(namespace, (recipeId + suffix).toLowerCase());
     }
 
     @Nullable
@@ -168,6 +167,19 @@ public final class CraftingRecipeHandler {
         return item;
     }
 
+    public List<CraftingRecipeData> predicateRecipes() {
+        return predicateRecipes;
+    }
+
+    /**
+     * O(1) recipe lookup by {@link NamespacedKey}.
+     * Used by {@code CraftingRecipeListener} instead of the old linear scan.
+     */
+    @Nullable
+    public CraftingRecipeData predicateRecipeByKey(NamespacedKey key) {
+        return predicateByKey.get(key);
+    }
+
     public void load(String namespace, @Nullable ConfigurationSection section) {
         if (section == null) return;
 
@@ -187,17 +199,16 @@ public final class CraftingRecipeHandler {
     public void unregisterAll() {
         nms.unregisterAll();
         predicateRecipes.clear();
+        predicateByKey.clear();   // keep the two collections in sync
     }
 
     /**
      * Parses one recipe entry and returns one {@link CraftingRecipeData} per
-     * pattern variant (keys {@code pattern}, {@code pattern_2}, {@code pattern3},
-     * etc.). Returns an empty list on any parse error.
+     * pattern variant. Returns an empty list on any parse error.
      */
     private List<CraftingRecipeData> parse(
             String namespace, String recipeId, ConfigurationSection entry
     ) {
-        // Result
         ConfigurationSection resultSec = entry.getConfigurationSection("result");
         if (resultSec == null) {
             Log.warn(LOG_TAG, "Missing 'result' for {}:{}", namespace, recipeId);
@@ -209,7 +220,6 @@ public final class CraftingRecipeHandler {
         String permission = entry.getString("permission", null);
         boolean shapeless = entry.getBoolean("shapeless", false);
 
-        // Ingredients - supports both char-keyed map and anonymous list
         Map<Character, ParsedIngredient> ingredients =
                 parseIngredients(namespace, recipeId, entry);
         if (ingredients == null) return List.of();
@@ -220,13 +230,11 @@ public final class CraftingRecipeHandler {
                     key, false, null, ingredients, result, permission));
         }
 
-        // Collect all pattern variants: pattern, pattern_2, pattern3, …
         List<String[]> patterns = collectPatterns(namespace, recipeId, entry, ingredients);
         if (patterns.isEmpty()) return List.of();
 
         List<CraftingRecipeData> variants = new ArrayList<>(patterns.size());
         for (int i = 0; i < patterns.size(); i++) {
-            // Suffix: first variant has no suffix; subsequent ones get _v2, _v3, …
             String suffix = (i == 0) ? "" : "_v" + (i + 1);
             NamespacedKey key = recipeKey(namespace, recipeId, suffix);
             variants.add(new CraftingRecipeData(
@@ -238,7 +246,10 @@ public final class CraftingRecipeHandler {
     private void register(CraftingRecipeData data) {
         try {
             nms.register(data);
-            if (data.hasPredicates()) predicateRecipes.add(data);
+            if (data.hasPredicates) {
+                predicateRecipes.add(data);
+                predicateByKey.put(data.key(), data);
+            }
         } catch (Exception e) {
             Log.error(LOG_TAG, "Failed to register recipe " + data.key(), e);
         }
