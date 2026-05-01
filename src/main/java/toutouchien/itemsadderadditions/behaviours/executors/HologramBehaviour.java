@@ -38,14 +38,6 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
     private static final NamespacedKey FURNITURE_UUID_KEY = new NamespacedKey("itemsadderadditions", "furniture_uuid");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
-    private java.util.logging.Logger logger;
-
-    private void log(String message) {
-        if (logger != null) {
-            logger.info("[HOLOGRAM] " + message);
-        }
-    }
-
     @Parameter(key = "texts", type = List.class, required = true)
     private List<String> texts;
 
@@ -81,7 +73,6 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
     @Override
     protected void onLoad(BehaviourHost host) {
         this.namespacedID = host.namespacedID();
-        this.logger = host.plugin().getLogger();
         Bukkit.getPluginManager().registerEvents(this, host.plugin());
     }
 
@@ -108,8 +99,6 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
         var furniture = event.getFurniture();
         UUID furnitureUuid = furniture.getEntity().getUniqueId();
         Location furnitureLoc = furniture.getEntity().getLocation();
-
-        log("BREAK - Removing holograms for furniture: " + furnitureUuid);
 
         for (Entity entity : furnitureLoc.getWorld().getNearbyEntities(furnitureLoc, 3, 3, 3)) {
             if (!(entity instanceof TextDisplay display)) continue;
