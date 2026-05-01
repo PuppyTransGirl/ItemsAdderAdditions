@@ -38,7 +38,8 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
     private static final NamespacedKey FURNITURE_KEY = new NamespacedKey("itemsadderadditions", "furniture_hologram");
     private static final NamespacedKey FURNITURE_ROTATION_KEY = new NamespacedKey("itemsadderadditions", "furniture_rotation");
     private static final NamespacedKey FURNITURE_PLAYER_KEY = new NamespacedKey("itemsadderadditions", "furniture_player");
-    private static final ConcurrentHashMap<String, List<UUID>> FURNITURE_TO_HOLOGRAMS = new ConcurrentHashMap<>();
+    private static final NamespacedKey FURNITURE_UUID_KEY = new NamespacedKey("itemsadderadditions", "furniture_uuid");
+    private static final ConcurrentHashMap<UUID, List<UUID>> FURNITURE_TO_HOLOGRAMS = new ConcurrentHashMap<>();
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     @Parameter(key = "texts", type = List.class, required = true)
@@ -101,12 +102,14 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
         if (!event.getNamespacedID().equals(namespacedID)) return;
 
         var furniture = event.getFurniture();
-        removeHologram(furniture.getEntity().getLocation());
+        removeHologram(furniture.getEntity().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent event) {
         var chunk = event.getChunk();
+
+        cleanOrphanedHolograms(chunk);
 
         for (Entity entity : chunk.getEntities()) {
             if (entity.getType() != EntityType.ARMOR_STAND) continue;
@@ -123,16 +126,40 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
         }
     }
 
-    private void createHologram(CustomFurniture furniture, Float placerYaw, Player player) {
-        var furnitureLoc = furniture.getEntity().getLocation();
-        var furnitureKey = locationKey(furnitureLoc);
+    private void cleanOrphanedHolograms(org.bukkit.Chunk chunk) {
+        for (Entity entity : chunk.getEntities()) {
+            if (!(entity instanceof TextDisplay display)) continue;
 
-        if (FURNITURE_TO_HOLOGRAMS.containsKey(furnitureKey)) return;
+            var pdc = display.getPersistentDataContainer();
+            if (!pdc.has(FURNITURE_UUID_KEY, PersistentDataType.STRING)) continue;
+
+            String furnitureUuidStr = pdc.get(FURNITURE_UUID_KEY, PersistentDataType.STRING);
+            if (furnitureUuidStr == null) continue;
+
+            try {
+                UUID furnitureUuid = UUID.fromString(furnitureUuidStr);
+                Entity furnitureEntity = Bukkit.getEntity(furnitureUuid);
+
+                if (furnitureEntity == null || furnitureEntity.isDead()) {
+                    display.remove();
+                }
+            } catch (IllegalArgumentException ignored) {
+                display.remove();
+            }
+        }
+    }
+
+    private void createHologram(CustomFurniture furniture, Float placerYaw, Player player) {
+        Entity furnitureEntity = furniture.getEntity();
+        UUID furnitureUuid = furnitureEntity.getUniqueId();
+        var furnitureLoc = furnitureEntity.getLocation();
+
+        removeHologram(furnitureUuid);
 
         double[] offset = parseOffset(this.offset);
         Vector3f scale = parseScale(this.scale);
 
-        Float storedRotation = getStoredRotation(furniture.getEntity());
+        Float storedRotation = getStoredRotation(furnitureEntity);
         float furnitureYaw = storedRotation != null ? storedRotation : yawToFurnitureRotation(placerYaw != null ? placerYaw : furnitureLoc.getYaw());
 
         boolean needsFlip = furnitureYaw == 0 || furnitureYaw == 180 || furnitureYaw == -180;
@@ -169,22 +196,21 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
             ));
         }
 
-        display.getPersistentDataContainer().set(FURNITURE_KEY, PersistentDataType.STRING, furnitureLoc.toString());
+        display.getPersistentDataContainer().set(FURNITURE_UUID_KEY, PersistentDataType.STRING, furnitureUuid.toString());
 
-        FURNITURE_TO_HOLOGRAMS.put(furnitureKey, List.of(display.getUniqueId()));
+        FURNITURE_TO_HOLOGRAMS.put(furnitureUuid, List.of(display.getUniqueId()));
 
         if (placerYaw != null && storedRotation == null) {
-            storeRotation(furniture.getEntity(), furnitureYaw);
+            storeRotation(furnitureEntity, furnitureYaw);
         }
 
         if (player != null) {
-            storePlayer(furniture.getEntity(), player.getUniqueId());
+            storePlayer(furnitureEntity, player.getUniqueId());
         }
     }
 
-    private void removeHologram(Location furnitureLoc) {
-        String furnitureKey = locationKey(furnitureLoc);
-        List<UUID> hologramUuids = FURNITURE_TO_HOLOGRAMS.remove(furnitureKey);
+    private void removeHologram(UUID furnitureUuid) {
+        List<UUID> hologramUuids = FURNITURE_TO_HOLOGRAMS.remove(furnitureUuid);
 
         if (hologramUuids != null) {
             for (UUID uuid : hologramUuids) {
@@ -206,10 +232,6 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
             }
         });
         FURNITURE_TO_HOLOGRAMS.clear();
-    }
-
-    private static String locationKey(Location loc) {
-        return loc.getWorld().getName() + "," + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
     }
 
     private static Float getStoredRotation(Entity entity) {
