@@ -21,7 +21,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
@@ -30,17 +29,22 @@ import toutouchien.itemsadderadditions.utils.hook.PlaceholderAPIUtils;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
 @Behaviour(key = "hologram")
 public final class HologramBehaviour extends BehaviourExecutor implements Listener {
-    private static final NamespacedKey FURNITURE_KEY = new NamespacedKey("itemsadderadditions", "furniture_hologram");
     private static final NamespacedKey FURNITURE_ROTATION_KEY = new NamespacedKey("itemsadderadditions", "furniture_rotation");
     private static final NamespacedKey FURNITURE_PLAYER_KEY = new NamespacedKey("itemsadderadditions", "furniture_player");
     private static final NamespacedKey FURNITURE_UUID_KEY = new NamespacedKey("itemsadderadditions", "furniture_uuid");
-    private static final ConcurrentHashMap<UUID, List<UUID>> FURNITURE_TO_HOLOGRAMS = new ConcurrentHashMap<>();
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+
+    private java.util.logging.Logger logger;
+
+    private void log(String message) {
+        if (logger != null) {
+            logger.info("[HOLOGRAM] " + message);
+        }
+    }
 
     @Parameter(key = "texts", type = List.class, required = true)
     private List<String> texts;
@@ -77,13 +81,13 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
     @Override
     protected void onLoad(BehaviourHost host) {
         this.namespacedID = host.namespacedID();
+        this.logger = host.plugin().getLogger();
         Bukkit.getPluginManager().registerEvents(this, host.plugin());
     }
 
     @Override
     protected void onUnload(BehaviourHost host) {
         HandlerList.unregisterAll(this);
-        clearAll();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -102,14 +106,27 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
         if (!event.getNamespacedID().equals(namespacedID)) return;
 
         var furniture = event.getFurniture();
-        removeHologram(furniture.getEntity().getUniqueId());
+        UUID furnitureUuid = furniture.getEntity().getUniqueId();
+        Location furnitureLoc = furniture.getEntity().getLocation();
+
+        log("BREAK - Removing holograms for furniture: " + furnitureUuid);
+
+        for (Entity entity : furnitureLoc.getWorld().getNearbyEntities(furnitureLoc, 3, 3, 3)) {
+            if (!(entity instanceof TextDisplay display)) continue;
+
+            var pdc = display.getPersistentDataContainer();
+            if (!pdc.has(FURNITURE_UUID_KEY, PersistentDataType.STRING)) continue;
+
+            String storedFurnitureUuid = pdc.get(FURNITURE_UUID_KEY, PersistentDataType.STRING);
+            if (furnitureUuid.toString().equals(storedFurnitureUuid)) {
+                display.remove();
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent event) {
         var chunk = event.getChunk();
-
-        cleanOrphanedHolograms(chunk);
 
         for (Entity entity : chunk.getEntities()) {
             if (entity.getType() != EntityType.ARMOR_STAND) continue;
@@ -126,35 +143,12 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
         }
     }
 
-    private void cleanOrphanedHolograms(org.bukkit.Chunk chunk) {
-        for (Entity entity : chunk.getEntities()) {
-            if (!(entity instanceof TextDisplay display)) continue;
-
-            var pdc = display.getPersistentDataContainer();
-            if (!pdc.has(FURNITURE_UUID_KEY, PersistentDataType.STRING)) continue;
-
-            String furnitureUuidStr = pdc.get(FURNITURE_UUID_KEY, PersistentDataType.STRING);
-            if (furnitureUuidStr == null) continue;
-
-            try {
-                UUID furnitureUuid = UUID.fromString(furnitureUuidStr);
-                Entity furnitureEntity = Bukkit.getEntity(furnitureUuid);
-
-                if (furnitureEntity == null || furnitureEntity.isDead()) {
-                    display.remove();
-                }
-            } catch (IllegalArgumentException ignored) {
-                display.remove();
-            }
-        }
-    }
-
     private void createHologram(CustomFurniture furniture, Float placerYaw, Player player) {
         Entity furnitureEntity = furniture.getEntity();
         UUID furnitureUuid = furnitureEntity.getUniqueId();
         var furnitureLoc = furnitureEntity.getLocation();
 
-        removeHologram(furnitureUuid);
+        if (hologramExists(furnitureUuid, furnitureLoc)) return;
 
         double[] offset = parseOffset(this.offset);
         Vector3f scale = parseScale(this.scale);
@@ -198,8 +192,6 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
 
         display.getPersistentDataContainer().set(FURNITURE_UUID_KEY, PersistentDataType.STRING, furnitureUuid.toString());
 
-        FURNITURE_TO_HOLOGRAMS.put(furnitureUuid, List.of(display.getUniqueId()));
-
         if (placerYaw != null && storedRotation == null) {
             storeRotation(furnitureEntity, furnitureYaw);
         }
@@ -209,29 +201,19 @@ public final class HologramBehaviour extends BehaviourExecutor implements Listen
         }
     }
 
-    private void removeHologram(UUID furnitureUuid) {
-        List<UUID> hologramUuids = FURNITURE_TO_HOLOGRAMS.remove(furnitureUuid);
+    private boolean hologramExists(UUID furnitureUuid, Location furnitureLoc) {
+        for (Entity entity : furnitureLoc.getWorld().getNearbyEntities(furnitureLoc, 3, 3, 3)) {
+            if (!(entity instanceof TextDisplay display)) continue;
 
-        if (hologramUuids != null) {
-            for (UUID uuid : hologramUuids) {
-                Entity entity = Bukkit.getEntity(uuid);
-                if (entity instanceof TextDisplay display) {
-                    display.remove();
-                }
+            var pdc = display.getPersistentDataContainer();
+            if (!pdc.has(FURNITURE_UUID_KEY, PersistentDataType.STRING)) continue;
+
+            String storedFurnitureUuid = pdc.get(FURNITURE_UUID_KEY, PersistentDataType.STRING);
+            if (furnitureUuid.toString().equals(storedFurnitureUuid)) {
+                return true;
             }
         }
-    }
-
-    private void clearAll() {
-        FURNITURE_TO_HOLOGRAMS.values().forEach(uuids -> {
-            for (UUID uuid : uuids) {
-                Entity entity = Bukkit.getEntity(uuid);
-                if (entity instanceof TextDisplay display) {
-                    display.remove();
-                }
-            }
-        });
-        FURNITURE_TO_HOLOGRAMS.clear();
+        return false;
     }
 
     private static Float getStoredRotation(Entity entity) {
