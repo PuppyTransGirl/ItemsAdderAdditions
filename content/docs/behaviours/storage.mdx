@@ -21,6 +21,7 @@ Turns any custom block or furniture into a storage container. Three modes are av
         type: STORAGE
         rows: 3 # Optional (Default: 3)
         title: "<gold>Community Chest</gold>" # Optional (Defaults to the block/furniture's name)
+        open_variant: my_open_storage # Optional
         open_sound: # Optional
           name: entity.villager.celebrate # or a custom sound
           volume: 1.0 # Optional (Default value: 1.0)
@@ -40,6 +41,7 @@ Turns any custom block or furniture into a storage container. Three modes are av
         type: SHULKER
         rows: 3 # Optional (Default: 3)
         title: "<dark_purple>Portable Storage</dark_purple>" # Optional (Defaults to the block/furniture's name)
+        open_variant: my_open_storage # Optional
         open_sound: # Optional
           name: entity.villager.celebrate # or a custom sound
           volume: 1.0 # Optional (Default value: 1.0)
@@ -59,6 +61,7 @@ Turns any custom block or furniture into a storage container. Three modes are av
         type: DISPOSAL
         rows: 1 # Optional (Default: 3)
         title: "<red>Trash Can</red>" # Optional (Defaults to the block/furniture's name)
+        open_variant: my_open_storage # Optional
         open_sound: # Optional
           name: entity.villager.celebrate # or a custom sound
           volume: 1.0 # Optional (Default value: 1.0)
@@ -76,5 +79,28 @@ Turns any custom block or furniture into a storage container. Three modes are av
 For `name`, refer to [this list](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) for the value or a custom sound with `namespace:value`.
 
 Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
+
+## Open variant
+
+You can optionally set `open_variant` to make the custom block, furniture, or complex furniture change into another variant while at least one player has the storage open.
+
+This is useful for things like:
+
+- chests that visually open
+- barrels with an opened model
+- containers with a different active state
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    open_variant: my_open_storage
+```
+
+`open_variant` should be the ID of another custom block, furniture, or complex furniture, using either:
+- `id`
+- `namespace:id`
+
+When the inventory is closed by all players, the storage returns to its normal variant.
 
 <VideoGif src="/assets/behaviours_storage_example" />

@@ -9,6 +9,12 @@ description: Make ItemsAdder custom blocks automatically change their shape when
     behaviours:
       connectable:
         type: stair # Optional (Default value: stair)
+    ```
+
+    ```yaml
+    behaviours:
+      connectable:
+        type: stair # Optional (Default value: stair)
         default: connectable_furniture
         straight: connectable_furniture_straight
         left: connectable_furniture_left
@@ -20,6 +26,12 @@ description: Make ItemsAdder custom blocks automatically change their shape when
     ![Connectable Stair type Example](/assets/behaviours_connectable_stair_type_example.png)
   </Tab>
   <Tab value="Table type">
+    ```yaml
+    behaviours:
+      connectable:
+        type: table
+    ```
+
     ```yaml
     behaviours:
       connectable:
@@ -37,3 +49,44 @@ description: Make ItemsAdder custom blocks automatically change their shape when
 </Tabs>
 
 The IDs specified must be custom furnitures.
+
+## Default ID resolution
+
+All furniture type IDs are optional.
+
+If not specified, the behaviour will automatically look for matching furniture IDs using the following rules:
+
+- `default` inherits the furniture ID the behaviour is configured on
+- every other type uses `<furniture_name>_<type>`
+
+For example, if the behaviour is configured on a furniture named `connectable_furniture`:
+
+### Stair type automatic lookup
+
+- `default` → `connectable_furniture`
+- `straight` → `connectable_furniture_straight`
+- `left` → `connectable_furniture_left`
+- `right` → `connectable_furniture_right`
+- `outer` → `connectable_furniture_outer`
+- `inner` → `connectable_furniture_inner`
+
+### Table type automatic lookup
+
+- `default` → `connectable_furniture`
+- `straight` → `connectable_furniture_straight`
+- `middle` → `connectable_furniture_middle`
+- `border` → `connectable_furniture_border`
+- `corner` → `connectable_furniture_corner`
+- `end` → `connectable_furniture_end`
+
+## Minimal config
+
+Because of automatic ID resolution, the minimal config is:
+
+```yaml
+behaviours:
+  connectable:
+    type: stair # or table
+```
+
+This simplifies configuration, since in many cases you only need to set the connectable behaviour and choose the connection type.

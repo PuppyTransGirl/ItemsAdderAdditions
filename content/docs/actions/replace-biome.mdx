@@ -1,0 +1,172 @@
+---
+title: Replace Biome
+description: Change the biome in an area as an ItemsAdder action. Supports multiple shape types, directional shapes, and configurable radius to create biome-changing items, tools, or effects.
+---
+
+```yaml
+replace_biome:
+  biome: "minecraft:cherry_grove"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+Change the biome in a selected area when an ItemsAdder event is triggered.
+
+## Parameters
+
+### `biome`
+
+The biome to apply.
+
+Use a valid biome namespaced ID such as `minecraft:plains`, `minecraft:desert`, or `minecraft:cherry_grove`.
+You can also use custom plugins/datapacks biomes
+
+```yaml
+replace_biome:
+  biome: "minecraft:desert"
+```
+
+### `shape`
+
+The shape used for the biome replacement area.
+
+Supported shapes:
+
+- `CUBOID`
+- `RHOMBUS`
+- `SPHERE`
+- `CYLINDER`
+- `SHELL`
+- `TORUS`
+- `CONE`
+- `BEAM`
+- `PYRAMID`
+
+```yaml
+replace_biome:
+  biome: "minecraft:swamp"
+  shape: CYLINDER
+```
+
+### `radius`
+
+Defines the size of the shape.
+
+There are two supported radius formats depending on the shape and how you want to configure it.
+
+#### Uniform radius
+
+Useful for round shapes such as `SPHERE`.
+
+```yaml
+replace_biome:
+  biome: "minecraft:snowy_taiga"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+#### Per-axis radius
+
+Useful for stretched or custom-sized shapes.
+
+```yaml
+replace_biome:
+  biome: "minecraft:jungle"
+  shape: CUBOID
+  radius:
+    x: 5
+    y: 4
+    z: 3
+```
+
+## Shape notes
+
+Some shapes are rotation-based:
+
+- `PYRAMID`
+- `BEAM`
+- `CONE`
+
+These shapes are affected by the player's rotation when the action runs.
+
+For these shapes, `x`, `y`, and `z` still control the final shape dimensions, even though the shape is oriented using the player's facing direction.
+
+## Important limitation
+
+Minecraft biome editing is not perfectly precise at small scales.
+
+Because of how Minecraft handles biome data internally, the final result may look slightly randomized or less exact than the visual shape name suggests, especially with small radius. This is a game limitation, not a configuration issue.
+
+Examples:
+
+- small `SPHERE` shapes may not look perfectly spherical
+- directional shapes may appear slightly uneven
+- some edges may look rough or natural instead of mathematically exact
+
+With bigger radius, the shape will generally look much closer to the expected result.
+
+This behavior is normal and should be documented to avoid confusion.
+
+## Examples
+
+### Sphere
+
+```yaml
+replace_biome:
+  biome: "minecraft:mushroom_fields"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 6
+```
+
+### Cuboid
+
+```yaml
+replace_biome:
+  biome: "minecraft:badlands"
+  shape: CUBOID
+  radius:
+    x: 5
+    y: 4
+    z: 3
+```
+
+### Beam based on player rotation
+
+```yaml
+replace_biome:
+  biome: "minecraft:nether_wastes"
+  shape: BEAM
+  radius:
+    x: 12
+    y: 2
+    z: 2
+```
+
+### Cone based on player rotation
+
+```yaml
+replace_biome:
+  biome: "minecraft:soul_sand_valley"
+  shape: CONE
+  radius:
+    x: 10
+    y: 4
+    z: 4
+```
+
+## Full example
+
+```yaml
+my_item:
+  events:
+    interact:
+      right:
+        replace_biome:
+          biome: "minecraft:cherry_grove"
+          shape: SPHERE
+          radius:
+            blocks_from_center: 5
+```

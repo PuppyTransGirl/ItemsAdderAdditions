@@ -1,0 +1,66 @@
+---
+title: /iatrademachine
+description: Open an ItemsAdder trade machine GUI for a player by command, without requiring the block or furniture to exist in the world.
+---
+
+## `/iatrademachine`
+
+Open an ItemsAdder `trade_machine` or `block_trade_machine` GUI for a player without requiring the physical block or furniture to be placed in the world.
+
+This is useful if you want to open different trade machine GUIs through other plugins such as menu systems, NPCs, or custom command flows.
+
+## Syntax
+
+```text
+/iatrademachine <player> <namespace:id> [-silent]
+```
+
+## Parameters
+
+### `<player>`
+
+The online player to open the trade machine for.
+
+### `<namespace:id>`
+
+The ID of the custom block or furniture that has a `trade_machine` or `block_trade_machine` behaviour.
+
+Example:
+
+```text
+stations:alchemy_table
+```
+
+### `-silent`
+
+Optional flag.
+
+If added, the command suppresses the confirmation message normally sent to the command executor.
+
+## Examples
+
+```text
+/iatrademachine twinkycome stations:alchemy_table
+```
+
+```text
+/iatrademachine twinkycome stations:alchemy_table -silent
+```
+
+## Permission
+
+```text
+ia.admin.iatrademachine
+```
+
+## Notes
+
+- Works from both players and console
+- Requires the target ID to have either `trade_machine` or `block_trade_machine` behaviour
+- Use the full namespaced ID
+- If the specified ID does not have a supported trade machine behaviour, the command will fail
+
+## Use case example
+
+You can combine this command with GUI plugins such as DeluxeMenus to create a category selection menu that opens different trade machines directly,
+instead of forcing players to scroll through a single large trade machine GUI.

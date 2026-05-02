@@ -1,5 +1,7 @@
 {
   "title": "Features",
   "icon": "Toolbox",
-  "pages": ["campfire-stonecutter-recipes", "creative-inventory-integration"]
+  "pages": [
+    "creative-inventory-integration"
+  ]
 }

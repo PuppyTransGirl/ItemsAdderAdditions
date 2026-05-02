@@ -1,0 +1,109 @@
+---
+title: Stonecutter
+description: Add stonecutter recipes for custom or vanilla items in ItemsAdder. Convert blocks and materials into other variants directly from YML.
+---
+
+Add stonecutter recipes without creating extra recipe files.
+
+## Example
+
+```yaml
+info:
+  namespace: some_namespace
+
+recipes:
+  stonecutter:
+    my_cut_block:
+      enabled: true # Optional (Default value: true)
+      ingredient:
+        item: my_item:my_custom_stone
+      result:
+        item: my_item:my_cut_custom_stone
+        amount: 4 # Optional (Default value: 1)
+```
+
+## Structure
+
+```yaml
+info:
+  namespace: some_namespace
+
+recipes:
+  stonecutter:
+    my_recipe:
+      ingredient:
+        item: my_item:raw_block
+      result:
+        item: my_item:cut_block
+```
+
+## Parameters
+
+### `enabled`
+
+Optional. Defaults to `true`.
+
+If set to `false`, the recipe is not registered.
+
+### `ingredient.item`
+
+Required.
+
+The input item shown in the stonecutter.
+
+Supports vanilla items and custom ItemsAdder items.
+
+```yaml
+ingredient:
+  item: STONE
+```
+
+```yaml
+ingredient:
+  item: my_pack:rough_marble
+```
+
+### `result.item`
+
+Required.
+
+The output item.
+
+```yaml
+result:
+  item: STONE_BRICKS
+```
+
+### `result.amount`
+
+Optional. Defaults to `1`.
+
+The amount produced by the recipe.
+
+```yaml
+result:
+  item: my_pack:marble_tiles
+  amount: 4
+```
+
+## Full example
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  stonecutter:
+    marble_tiles:
+      ingredient:
+        item: my_pack:rough_marble
+      result:
+        item: my_pack:marble_tiles
+        amount: 2
+```
+
+## Notes
+
+- supports vanilla and custom ItemsAdder items
+- recipe IDs such as `my_cut_block` are internal identifiers
+- the namespace comes from `info.namespace`

@@ -1,4 +1,15 @@
 {
   "title": "ItemsAdderAdditions",
-  "pages": ["index", "---", "builder", "features", "behaviours", "actions"]
+  "pages": [
+    "index",
+    "---",
+    "builder",
+    "---",
+    "commands",
+    "recipes",
+    "---",
+    "features",
+    "behaviours",
+    "actions"
+  ]
 }

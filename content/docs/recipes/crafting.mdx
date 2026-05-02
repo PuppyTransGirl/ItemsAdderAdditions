@@ -1,0 +1,378 @@
+---
+title: Crafting Table
+description: Add advanced crafting table recipes with ItemsAdderAdditions. Supports normal ItemsAdder recipe features plus extra options such as tags, ingredient amounts, durability handling, replacements, and shapeless ingredient lists.
+---
+
+ItemsAdderAdditions adds an extra crafting-table recipe type called `iaa_crafting_table`.
+
+It does not replace or override the normal ItemsAdder `crafting_table` recipe type. Instead, it provides another recipe system for cases where you need extra ingredient validation features.
+
+This recipe type supports normal crafting recipe options already familiar from ItemsAdder, while also adding extra features such as:
+
+- tags
+- ingredient amounts
+- durability damage on ingredients
+- replacement items
+- ignore durability matching
+- potion type filtering
+- shapeless ingredient lists
+
+## Important
+
+Recipes using these extra features must be placed under:
+
+```yaml
+recipes:
+  iaa_crafting_table:
+```
+
+If you only need normal ItemsAdder crafting features, you can keep using the regular `crafting_table` recipe type.
+
+## Basic shaped recipe
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    wooden_scythe:
+      pattern:
+        - "XPP"
+        - "PXS"
+        - "XXS"
+      ingredients:
+        P: "#minecraft:planks"
+        S: STICK
+      result:
+        item: "my_pack:wooden_scythe"
+```
+
+## Basic shapeless recipe
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    mega_diamond:
+      shapeless: true
+      ingredients:
+        - item: IRON_INGOT
+          amount: 2
+        - item: GOLD_INGOT
+          amount: 2
+        - item: COPPER_INGOT
+          amount: 2
+      result:
+        item: DIAMOND
+        amount: 3
+```
+
+## Structure
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    my_recipe:
+      enabled: true
+      permission: "myplugin.recipe.use"
+      pattern:
+        - "ABC"
+        - "DEF"
+        - "GHI"
+      ingredients:
+        A: STICK
+      result:
+        item: DIAMOND
+        amount: 1
+```
+
+## Supported standard recipe features
+
+`iaa_crafting_table` also supports common crafting features you may already know from ItemsAdder, such as:
+
+- `enabled`
+- `permission`
+- shaped recipes with `pattern`
+- shapeless recipes
+- multiple `pattern...` variants
+- `potion_type` ingredient filtering
+
+## Extra ItemsAdderAdditions features
+
+The main reason to use `iaa_crafting_table` is its additional ingredient predicate support:
+
+- tags with `#namespace:tag`
+- per-ingredient `amount`
+- per-ingredient `damage`
+- per-ingredient `replacement`
+- `ignore_durability`
+- shapeless list-style ingredient format
+
+## Parameters
+
+### `enabled`
+
+Optional. Defaults to `true`.
+
+If set to `false`, the recipe is not registered.
+
+### `permission`
+
+Optional.
+
+If set, players must have this permission for the recipe result to appear and be craftable.
+
+```yaml
+permission: "myplugin.recipe.use"
+```
+
+### `shapeless`
+
+Optional. Defaults to `false`.
+
+If `true`, the recipe is treated as shapeless.
+
+## Result
+
+### `result.item`
+
+Required.
+
+The output item.
+
+Supports vanilla materials and ItemsAdder items.
+
+```yaml
+result:
+  item: "my_pack:custom_sword"
+```
+
+### `result.amount`
+
+Optional. Defaults to `1`.
+
+```yaml
+result:
+  item: DIAMOND
+  amount: 3
+```
+
+## Shaped recipes
+
+Shaped recipes use a `pattern` and a char-keyed `ingredients` section.
+
+```yaml
+my_recipe:
+  pattern:
+    - "XPP"
+    - "PXS"
+    - "XXS"
+  ingredients:
+    P: "#minecraft:planks"
+    S: STICK
+  result:
+    item: "my_pack:wooden_scythe"
+```
+
+### Pattern notes
+
+- ingredient keys must be a single character
+- any character not defined in `ingredients` is treated as empty space
+- multiple patterns are supported using keys such as `pattern_1`, `pattern_2`, and so on
+
+## Shapeless recipes
+
+Shapeless recipes use:
+
+```yaml
+shapeless: true
+```
+
+and can use a list of ingredients:
+
+```yaml
+my_recipe:
+  shapeless: true
+  ingredients:
+    - item: IRON_INGOT
+      amount: 2
+    - item: GOLD_INGOT
+      amount: 2
+  result:
+    item: DIAMOND
+```
+
+## Ingredient formats
+
+Ingredients support multiple formats.
+
+### Simple string
+
+```yaml
+ingredients:
+  S: STICK
+  P: "#minecraft:planks"
+  C: "my_pack:custom_part"
+```
+
+### Detailed object
+
+```yaml
+ingredients:
+  S:
+    item: STICK
+    amount: 2
+    damage: 5
+    replacement: STICK
+    ignore_durability: true
+    potion_type: minecraft:water
+```
+
+### Shapeless list style
+
+```yaml
+ingredients:
+  - SNOWBALL
+  - item: WATER_BUCKET
+    replacement: BUCKET
+```
+
+## Advanced ingredient features
+
+### Tags
+
+Use Minecraft item or block tags by prefixing the value with `#`.
+
+```yaml
+ingredients:
+  P: "#minecraft:planks"
+```
+
+This allows any item in that tag to match.
+
+### `amount`
+
+Require more than one of the same ingredient.
+
+```yaml
+ingredients:
+  I:
+    item: IRON_INGOT
+    amount: 3
+```
+
+### `damage`
+
+Instead of consuming the ingredient, damage it by the configured amount.
+
+Useful for tools used in crafting.
+
+```yaml
+ingredients:
+  H:
+    item: IRON_PICKAXE
+    damage: 10
+```
+
+### `replacement`
+
+Replace the ingredient with another item after crafting.
+
+Useful for buckets, bottles, molds, and similar containers.
+
+```yaml
+ingredients:
+  W:
+    item: WATER_BUCKET
+    replacement: BUCKET
+```
+
+### `ignore_durability`
+
+Ignore the current durability value when matching an item.
+
+```yaml
+ingredients:
+  T:
+    item: IRON_PICKAXE
+    ignore_durability: true
+```
+
+### `potion_type`
+
+Restrict a potion ingredient to a specific base potion type.
+
+```yaml
+ingredients:
+  P:
+    item: POTION
+    potion_type: minecraft:jump_boost
+```
+
+## Full shaped example
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    reinforced_blade:
+      enabled: true
+      permission: "my_pack.recipes.reinforced_blade"
+      pattern:
+        - "XIT"
+        - "XSI"
+        - "SXX"
+      ingredients:
+        I:
+          item: IRON_INGOT
+          amount: 2
+        S: STICK
+        T:
+          item: IRON_PICKAXE
+          damage: 8
+          ignore_durability: true
+      result:
+        item: "my_pack:reinforced_blade"
+        amount: 1
+```
+
+## Full shapeless example
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    purified_bottle:
+      shapeless: true
+      ingredients:
+        - item: POTION
+          potion_type: minecraft:water
+        - item: DIAMOND
+          amount: 2
+      result:
+        item: "my_pack:purified_bottle"
+```
+
+## Supported item references
+
+Ingredient and result items can use:
+
+- vanilla material names like `STICK` or `DIAMOND`
+- ItemsAdder IDs like `namespace:item`
+- tags like `#minecraft:planks`
+
+## Notes
+
+- `replacement` and `damage` are applied during crafting
+- shapeless recipes with advanced predicates should use the list format
+- `iaa_crafting_table` is an additional advanced recipe type, not a replacement for ItemsAdder `crafting_table`
