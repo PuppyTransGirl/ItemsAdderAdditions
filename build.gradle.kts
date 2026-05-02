@@ -17,7 +17,7 @@ val customBlockDataVersion: String by project
 val morePersistentDataTypesVersion: String by project
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.7"
+version = "1.0.8"
 
 repositories {
     mavenCentral()
