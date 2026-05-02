@@ -9,22 +9,28 @@ public final class NmsHandler_v1_20_6 implements INmsHandler {
     private final NmsBedHandler_v1_20_6 bed = new NmsBedHandler_v1_20_6();
     private final NmsBiomeHandler_v1_20_6 biome = new NmsBiomeHandler_v1_20_6();
     private final NmsCampfireRecipeHandler_v1_20_6 campfireRecipes = new NmsCampfireRecipeHandler_v1_20_6();
+    private final NmsCraftingRecipeHandler_v1_20_6 craftingRecipes = new NmsCraftingRecipeHandler_v1_20_6();
     private final NmsStonecutterRecipeHandler_v1_20_6 stonecutterRecipes = new NmsStonecutterRecipeHandler_v1_20_6();
     private final NmsToastHandler_v1_20_6 toasts = new NmsToastHandler_v1_20_6();
 
     @Override
-    public NmsBedHandler_v1_20_6 bed() {
+    public INmsBedHandler bed() {
         return bed;
     }
 
     @Override
-    public NmsBiomeHandler_v1_20_6 biome() {
+    public INmsBiomeHandler biome() {
         return biome;
     }
 
     @Override
     public INmsCampfireRecipeHandler campfireRecipes() {
         return campfireRecipes;
+    }
+
+    @Override
+    public INmsCraftingRecipeHandler craftingRecipes() {
+        return craftingRecipes;
     }
 
     // TODO: Add compatibility of creative menu with 1.21.4 and lower with the component ENTITY_DATA
@@ -42,5 +48,10 @@ public final class NmsHandler_v1_20_6 implements INmsHandler {
     @Override
     public INmsToastHandler toasts() {
         return toasts;
+    }
+
+    @Override
+    public void finalizeRecipes() {
+        // RecipeManager#finalizeRecipeLoading doesn't exist in 1.21.1 and lower
     }
 }

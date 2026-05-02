@@ -38,8 +38,10 @@ final class NmsStonecutterRecipeHandler_v26_1_2 implements INmsStonecutterRecipe
                 ItemStackTemplate.fromNonEmptyStack(CraftItemStack.asNMSCopy(result))
         );
 
+        // Use the internal recipes field directly to avoid per-recipe finalization.
         MinecraftServer.getServer()
                 .getRecipeManager()
+                .recipes
                 .addRecipe(new RecipeHolder<>(key, recipe));
 
         registeredKeys.add(key);
@@ -50,8 +52,10 @@ final class NmsStonecutterRecipeHandler_v26_1_2 implements INmsStonecutterRecipe
     public void unregisterAll() {
         RecipeManager recipeManager = MinecraftServer.getServer().getRecipeManager();
         for (ResourceKey<Recipe<?>> key : registeredKeys)
-            recipeManager.removeRecipe(key);
+            recipeManager.recipes.removeRecipe(key);
 
         registeredKeys.clear();
+        // Finalization is intentionally omitted here - RecipeManager calls
+        // INmsHandler#finalizeRecipes() once after all handlers are done.
     }
 }

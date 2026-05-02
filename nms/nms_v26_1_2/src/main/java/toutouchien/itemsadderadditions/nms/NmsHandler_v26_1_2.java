@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.nms;
 
+import net.minecraft.server.MinecraftServer;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.nms.api.*;
 
@@ -8,23 +9,29 @@ public final class NmsHandler_v26_1_2 implements INmsHandler {
     private final NmsBedHandler_v26_1_2 bed = new NmsBedHandler_v26_1_2();
     private final NmsBiomeHandler_v26_1_2 biome = new NmsBiomeHandler_v26_1_2();
     private final NmsCampfireRecipeHandler_v26_1_2 campfireRecipes = new NmsCampfireRecipeHandler_v26_1_2();
+    private final NmsCraftingRecipeHandler_v26_1_2 craftingRecipes = new NmsCraftingRecipeHandler_v26_1_2();
     private final NmsCreativeMenuHandler_v26_1_2 creativeMenu = new NmsCreativeMenuHandler_v26_1_2();
     private final NmsStonecutterRecipeHandler_v26_1_2 stonecutterRecipes = new NmsStonecutterRecipeHandler_v26_1_2();
     private final NmsToastHandler_v26_1_2 toasts = new NmsToastHandler_v26_1_2();
 
     @Override
-    public NmsBedHandler_v26_1_2 bed() {
+    public INmsBedHandler bed() {
         return bed;
     }
 
     @Override
-    public NmsBiomeHandler_v26_1_2 biome() {
+    public INmsBiomeHandler biome() {
         return biome;
     }
 
     @Override
     public INmsCampfireRecipeHandler campfireRecipes() {
         return campfireRecipes;
+    }
+
+    @Override
+    public INmsCraftingRecipeHandler craftingRecipes() {
+        return craftingRecipes;
     }
 
     @Override
@@ -40,5 +47,10 @@ public final class NmsHandler_v26_1_2 implements INmsHandler {
     @Override
     public INmsToastHandler toasts() {
         return toasts;
+    }
+
+    @Override
+    public void finalizeRecipes() {
+        MinecraftServer.getServer().getRecipeManager().finalizeRecipeLoading();
     }
 }

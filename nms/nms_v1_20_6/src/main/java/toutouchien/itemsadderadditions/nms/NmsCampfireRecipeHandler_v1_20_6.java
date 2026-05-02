@@ -39,6 +39,7 @@ final class NmsCampfireRecipeHandler_v1_20_6 implements INmsCampfireRecipeHandle
                 cookTime
         );
 
+        // Use the internal recipes field directly to avoid per-recipe finalization.
         MinecraftServer.getServer()
                 .getRecipeManager()
                 .addRecipe(new RecipeHolder<>(identifier, recipe));
@@ -54,5 +55,7 @@ final class NmsCampfireRecipeHandler_v1_20_6 implements INmsCampfireRecipeHandle
             recipeManager.removeRecipe(key);
 
         registeredKeys.clear();
+        // Finalization is intentionally omitted here - RecipeManager calls
+        // INmsHandler#finalizeRecipes() once after all handlers are done.
     }
 }

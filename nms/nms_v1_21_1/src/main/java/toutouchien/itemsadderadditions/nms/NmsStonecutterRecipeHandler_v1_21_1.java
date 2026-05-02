@@ -52,5 +52,7 @@ final class NmsStonecutterRecipeHandler_v1_21_1 implements INmsStonecutterRecipe
             recipeManager.removeRecipe(key);
 
         registeredKeys.clear();
+        // Finalization is intentionally omitted here - RecipeManager calls
+        // INmsHandler#finalizeRecipes() once after all handlers are done.
     }
 }

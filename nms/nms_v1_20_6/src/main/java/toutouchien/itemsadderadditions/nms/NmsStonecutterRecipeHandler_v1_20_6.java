@@ -27,7 +27,7 @@ final class NmsStonecutterRecipeHandler_v1_20_6 implements INmsStonecutterRecipe
             ItemStack result
     ) {
         ResourceLocation identifier = ResourceLocation.of(
-                "iaadditionsiaa_stonecutter_" + namespace + "_" + recipeId,
+                "iaadditions:iaa_stonecutter_" + namespace + "_" + recipeId,
                 ':'
         );
 
@@ -52,5 +52,7 @@ final class NmsStonecutterRecipeHandler_v1_20_6 implements INmsStonecutterRecipe
             recipeManager.removeRecipe(key);
 
         registeredKeys.clear();
+        // Finalization is intentionally omitted here - RecipeManager calls
+        // INmsHandler#finalizeRecipes() once after all handlers are done.
     }
 }
