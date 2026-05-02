@@ -1,55 +1,186 @@
 # ItemsAdderAdditions
 
-Extend ItemsAdder with extra actions, behaviours, and features - configured inside your existing YML files.
+<div align="center">
 
-## Downloads
+[![Modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/modrinth_vector.svg)](https://modrinth.com/plugin/itemsadderadditions)
+[![Hangar](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/hangar_vector.svg)](https://hangar.papermc.io/PuppyTransGirl/ItemsAdderAdditions)
+[![Spigot](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/spigot_vector.svg)](https://www.spigotmc.org/resources/itemsadderadditions.133918/)
 
-[![modrinth]](https://modrinth.com/plugin/itemsadderadditions) [![hangar]](https://hangar.papermc.io/PuppyTransGirl/ItemsAdderAdditions) [![spigot]](https://www.spigotmc.org/resources/itemsadderadditions.133918/)
+[![Documentation](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/documentation/ghpages_vector.svg)](https://itemsadderadditions.com/docs)
+[![Discord](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/social/discord-plural_vector.svg)](https://discord.gg/jbQmacZ58H)
+</div>
 
-## About
+ItemsAdderAdditions is an add-on plugin for [ItemsAdder](https://itemsadder.com/) that extends it with extra actions,
+behaviours, recipe types, and other advanced features, all configured directly inside your existing ItemsAdder YML
+files.
 
-ItemsAdderAdditions is an add-on plugin for [ItemsAdder](https://itemsadder.com/) designed to add additional actions, behaviours, recipes and more that do not (yet) exist in ItemsAdder due to their complexity, or for being rather niche.
+## Table of Contents
 
-The plugin is designed to work with the existing ItemsAdder configuration, building off from it and allowing you to easily add new features without the need to maintain separate files.
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Documentation](#documentation)
+- [Creative Inventory Integration](#creative-inventory-integration)
+- [Contributing](#contributing)
+- [Support](#support)
+- [License](#license)
+- [Credits](#credits)
 
 ## Features
 
-Please see the [Documentation](https://itemsadderadditions.com/docs) for all available features.  
-The below are just a small list of what actually exists in the plugin.
+Please see the [documentation](https://itemsadderadditions.com/docs) for the full feature list, configuration details,
+and examples.
 
 ### Extra Behaviours
 
-New Behaviours have been added such as [connectable furniture](https://itemsadderadditions.com/docs/behaviours/connectable) (like stairs connecting behaviour) or [adding storage](https://itemsadderadditions.com/docs/behaviours/storage) to any custom Block or furniture.
+ItemsAdderAdditions adds new behaviours that can be attached to your custom items, blocks, and furniture.
+
+Examples include:
+
+- [Connectable](https://itemsadderadditions.com/docs/behaviours/connectable)
+- [Contact Damage](https://itemsadderadditions.com/docs/behaviours/contact-damage)
+- [Storage](https://itemsadderadditions.com/docs/behaviours/storage)
 
 ### Extra Actions
 
-New Actions are added that can be executed on any configured Event to do things such as [send actionbar messages](https://itemsadderadditions.com/docs/actions/actionbar), [set entities on fire](https://itemsadderadditions.com/docs/actions/ignite) (even yourself!) or [veinmine blocks](https://itemsadderadditions.com/docs/actions/veinminer).
+ItemsAdderAdditions adds new actions that can be triggered by configured events.
+
+Examples include:
+
+- [Actionbar](https://itemsadderadditions.com/docs/actions/actionbar)
+- [Ignite](https://itemsadderadditions.com/docs/actions/ignite)
+- [Mythic Mobs Skill](https://itemsadderadditions.com/docs/actions/mythic-mobs-skill)
 
 ### New Recipe Types
 
-The plugin allows you to add recipes for [Stonecutter and Campfire](https://itemsadderadditions.com/docs/features/campfire-stonecutter-recipes), allowing more variations in creating custom recipes!
+ItemsAdderAdditions adds additional recipe types that are not available by default in ItemsAdder.
 
-### Creative Inventory Integration
+Currently includes:
+
+- [Campfire recipes](https://itemsadderadditions.com/docs/features/campfire-stonecutter-recipes)
+- [Stonecutter recipes](https://itemsadderadditions.com/docs/features/campfire-stonecutter-recipes)
+
+## Creative Inventory Integration
 
 > [!NOTE]
-> This feature only exists for 1.21.5 and newer and requires you to have Operator permissions and the Operator Items Tab to be enabled.
+> This feature is only available on Minecraft 1.21.5 and newer.
+> It also requires Operator permissions and the Operator Items Tab to be enabled.
 
-Any custom item you add to ItemsAdder will be [added to the Operator Items Tab](https://itemsadderadditions.com/docs/features/creative-inventory-integration), allowing you to quickly and easily get the items you need. These items can even be searched for in the search tab!
+Any custom item you add through ItemsAdder can be integrated into the Operator Items Tab, making it much easier to
+access your custom content in creative mode.
 
-<details><summary>How it works</summary><p>
+This allows operators to:
 
-1.21.5 added data-driven Paintings to Minecraft, allowing custom painting variants to be added by users through data and resource packs.  
-Each painting variant displays as a separate item in the Operator Items Tab.
+- browse custom items directly in creative mode
+- search for them in the creative search tab
+- quickly access custom content without using commands
 
-ItemsAdderAdditions uses this fact, by creating a new painting variant for each custom item, using the Item's displayed icon or model for the painting item to show in the GUI, making it appear as if it was actually integrated into the GUI.  
-If a player now takes such a painting and puts it in their inventory, or drops it out of the Creative inventory, will ItemsAdderAddition replace it with the actual item associated with it.
+<details>
+<summary>How it works</summary>
 
-</p></details>
+Minecraft 1.21.5 introduced data-driven paintings, allowing resource packs and data packs to define custom painting
+variants.
 
-## Contribute
+Each painting variant appears as its own item inside the Operator Items Tab.
 
-TBD (PuppyTransGirl pls work on this. Thanks~ -Andre601)
+ItemsAdderAdditions uses this system by generating painting variants for custom items.
+These generated entries use the custom item's icon or model so they visually appear like proper creative inventory
+entries.
 
-[modrinth]: https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_64h.png
-[hangar]: https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_64h.png
-[spigot]: https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/spigot_64h.png
+When a player takes one of these generated painting items from the creative inventory, or drops it into their inventory,
+ItemsAdderAdditions detects it and replaces it with the actual associated ItemsAdder item.
+
+This makes the integration feel native while working within vanilla Minecraft's creative inventory systems.
+
+</details>
+
+## Requirements
+
+- Paper server
+- A compatible Java version for your server version
+- [ItemsAdder](https://itemsadder.com/) installed and working correctly
+- ItemsAdderAdditions jar placed in the `plugins/` folder
+
+Some features may depend on specific Minecraft versions.
+For exact compatibility and per-feature requirements, please check the documentation.
+
+## Installation
+
+1. Install [ItemsAdder](https://itemsadder.com/) on your server if you have not already.
+2. Download the latest version of ItemsAdderAdditions from one of the available platforms:
+    - [Modrinth](https://modrinth.com/plugin/itemsadderadditions)
+    - [Hangar](https://hangar.papermc.io/PuppyTransGirl/ItemsAdderAdditions)
+    - [Spigot](https://www.spigotmc.org/resources/itemsadderadditions.133918/)
+3. Place the ItemsAdderAdditions jar into your server's `plugins` directory.
+4. Start or restart the server.
+5. Configure features directly inside your existing ItemsAdder configuration files as described in the documentation.
+
+## Usage
+
+ItemsAdderAdditions is configured through your existing ItemsAdder YML files.
+
+The plugin is designed to integrate with the ItemsAdder content pipeline, so you generally do not need to maintain
+separate configuration files for the features it adds.
+Instead, you define additional behaviours, actions, or recipe-related options where appropriate in your ItemsAdder
+content setup.
+
+Because the available options vary depending on the feature, please refer to the documentation for exact configuration
+formats and examples.
+
+## Documentation
+
+Full documentation is available here:
+
+- [ItemsAdderAdditions Documentation](https://itemsadderadditions.com/docs)
+
+The documentation contains:
+
+- Full feature list
+- Configuration examples
+- Setup instructions
+- Version-specific notes
+- Behaviour and action references
+
+## Contributing
+
+Contributions are welcome !
+
+If you would like to improve the project, feel free to:
+
+- Submit a pull request
+- Suggest documentation improvements
+- Share feedback and ideas in the [Discord server](https://discord.gg/jbQmacZ58H)
+
+## Support
+
+If you need help, want to report a bug, or have a feature suggestion, please use
+the [Discord server](https://discord.gg/jbQmacZ58H).
+
+Useful channels include:
+
+- `#support-chat` for help and setup questions
+- `#bug-report` for reporting bugs
+- `#suggestions` for feature requests and ideas
+- `#showcase` if you want to share what you made with the plugin
+
+You can also check the [documentation](https://itemsadderadditions.com/docs) for setup guides and feature references.
+
+## License
+
+This project is licensed under the GNU General Public License v3.0.
+See the [LICENSE](LICENSE) file for details.
+
+Some parts of this project may include code licensed under additional third-party licenses.
+See [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES.md) for details.
+
+## Credits
+
+Special thanks to:
+
+- [twinkycome](https://github.com/bruhhhwarrior/) for being the co-maintainer, creating the logo and showcases, and
+  making the models and textures for the default optional pack
+- [LoneDev](https://github.com/LoneDev6/) for creating ItemsAdder, which is why ItemsAdderAdditions exists
+- [misieur](https://github.com/misieur) for creating the original creative menu integration code that inspired and
+  helped shape this implementation
+- [Andre601](https://github.com/Andre601) for helping create this README
