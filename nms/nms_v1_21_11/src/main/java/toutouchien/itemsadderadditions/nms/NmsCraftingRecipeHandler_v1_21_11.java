@@ -138,8 +138,6 @@ final class NmsCraftingRecipeHandler_v1_21_11 implements INmsCraftingRecipeHandl
         for (ResourceKey<Recipe<?>> key : registeredKeys)
             recipeManager.recipes.removeRecipe(castRecipeKey(key));
 
-        recipeManager.finalizeRecipeLoading();
-
         registeredKeys.clear();
         // Finalization is intentionally omitted here - RecipeManager calls
         // INmsHandler#finalizeRecipes() once after all handlers are done.
