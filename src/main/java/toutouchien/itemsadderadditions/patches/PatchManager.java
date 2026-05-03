@@ -44,6 +44,8 @@ public final class PatchManager {
             new AddEnchantmentPatch_IA_4_0_16(),
             new CooldownCapturePatch_IA_4_0_16(),
             new CraftingRecipeBypassPatch_IA_4_0_16(),
+            new FurniturePopulatorBypassPatch_IA_4_0_16(),
+            new FurnitureSurfaceDecoratorBypassPatch_IA_4_0_16(),
             new TradeMachineCapturePatch_IA_4_0_16(),
             new StatRequirementsCapturePatch_IA_4_0_16(),
             new StonecutterSelectiveBypassPatch_IA_4_0_16(),

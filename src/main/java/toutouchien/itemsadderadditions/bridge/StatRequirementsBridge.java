@@ -13,9 +13,9 @@ public final class StatRequirementsBridge {
     private static final Map<UUID, Map<Integer, Boolean>> STATE =
             new ConcurrentHashMap<>();
 
-    private static volatile Field internalCustomStackField;
-    private static volatile Method statCheckMethod;
-    private static volatile Method namespacedIdMethod;
+    private static Field internalCustomStackField;
+    private static Method statCheckMethod;
+    private static Method namespacedIdMethod;
 
     private StatRequirementsBridge() {
     }

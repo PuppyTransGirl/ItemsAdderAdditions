@@ -282,8 +282,6 @@ public final class IngredientResolver {
         return null;
     }
 
-    // ── private helpers ───────────────────────────────────────────────────────
-
     @Nullable
     private static RecipeChoice resolveTag(
             String tagRef, String recipeId, String key

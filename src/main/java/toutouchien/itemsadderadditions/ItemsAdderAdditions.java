@@ -20,6 +20,7 @@ import toutouchien.itemsadderadditions.patches.PatchManager;
 import toutouchien.itemsadderadditions.patches.Version;
 import toutouchien.itemsadderadditions.recipes.RecipeManager;
 import toutouchien.itemsadderadditions.updatechecker.UpdateChecker;
+import toutouchien.itemsadderadditions.worldgen.FurniturePopulatorWorldListener;
 
 import java.util.List;
 
@@ -109,6 +110,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
         List.of(
                 new ActionsListener(),
+                new FurniturePopulatorWorldListener(),
                 new ItemsAdderLoadListener()
         ).forEach(listener -> pm.registerEvents(listener, this));
     }

@@ -163,24 +163,23 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
         Log.debug("Storage", "raw open_variant for '{}': {}", namespacedID, openVariant);
         OpenVariantConfig openVariantConfig = OpenVariantConfig.resolve(openVariant, namespacedID);
-        if (openVariantConfig == null)
-            return;
-
-        if (!isOpenVariantCompatible(category, openVariantConfig)) {
-            Log.warn(
-                    "Storage",
-                    "storage '{}': incompatible open_variant '{}'. " +
-                            "Block storage holders may only use block open_variant values, " +
-                            "while furniture/complex furniture storage holders may only use " +
-                            "furniture open_variant values.",
-                    namespacedID,
-                    openVariantConfig.id()
-            );
-            return;
+        if (openVariantConfig != null) {
+            if (!isOpenVariantCompatible(category, openVariantConfig)) {
+                Log.warn(
+                        "Storage",
+                        "storage '{}': incompatible open_variant '{}'. " +
+                                "Block storage holders may only use block open_variant values, " +
+                                "while furniture/complex furniture storage holders may only use " +
+                                "furniture or item_display open_variant values.",
+                        namespacedID,
+                        openVariantConfig.id()
+                );
+                // openVariantConfig intentionally left as null -> transformer not created
+            } else {
+                openVariantTransformer = new OpenVariantTransformer(openVariantConfig);
+                this.openVariantConfig = openVariantConfig;
+            }
         }
-
-        openVariantTransformer = new OpenVariantTransformer(openVariantConfig);
-        this.openVariantConfig = openVariantConfig;
 
         Component title = buildTitle();
 
@@ -242,9 +241,10 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
             return openVariantConfig.type() == OpenVariantConfig.FormType.BLOCK;
         }
 
-        // Any non-block storage holder here is treated as furniture-based, which includes
-        // normal furniture and complex furniture.
-        return openVariantConfig.type() == OpenVariantConfig.FormType.FURNITURE;
+        // Any non-block storage holder (furniture, complex furniture) may use either a
+        // furniture open-variant or a plain item_display open-variant.
+        return openVariantConfig.type() == OpenVariantConfig.FormType.FURNITURE
+                || openVariantConfig.type() == OpenVariantConfig.FormType.ITEM_DISPLAY;
     }
 
     private Component buildTitle() {

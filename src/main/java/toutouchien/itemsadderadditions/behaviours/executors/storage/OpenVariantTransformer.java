@@ -2,10 +2,13 @@ package toutouchien.itemsadderadditions.behaviours.executors.storage;
 
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomFurniture;
+import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.utils.other.Log;
@@ -20,8 +23,27 @@ public final class OpenVariantTransformer {
     private final Map<BlockCoord, Integer> openCounts = new HashMap<>();
     private final Map<BlockCoord, Entity> liveEntities = new HashMap<>();
 
+    /**
+     * Yaw captured from the original furniture entity before it is removed.
+     * Stored so it can be re-applied to both the spawned open-variant and the
+     * eventually restored original furniture, keeping rotation consistent across
+     * the whole open/close cycle.
+     * Only populated when the original holder is a furniture (not a block).
+     */
+    private final Map<BlockCoord, Float> savedYaws = new HashMap<>();
+
+    /**
+     * Original ItemStack saved from the furniture's ItemDisplay entity before
+     * swapping to the open-variant model.
+     * Only populated for {@link OpenVariantConfig.FormType#ITEM_DISPLAY} open-variants.
+     * Used to restore the model on close without needing to remove/re-spawn the entity.
+     */
+    private final Map<BlockCoord, ItemStack> savedItems = new HashMap<>();
+
     public OpenVariantTransformer(OpenVariantConfig config) {
         this.config = config;
+        Log.debug("OpenVariantTransformer", "Created transformer for config: id='{}', type={}",
+                config.id(), config.type());
     }
 
     @Nullable
@@ -33,8 +55,17 @@ public final class OpenVariantTransformer {
         BlockCoord key = BlockCoord.of(loc);
         int prev = openCounts.merge(key, 1, Integer::sum) - 1;
 
-        if (prev > 0)
+        Log.debug("OpenVariantTransformer",
+                "onFirstOpen: loc={} isBlock={} prev={} entity={}",
+                loc, isBlock, prev,
+                originalEntity != null ? originalEntity.getUniqueId() + " (" + originalEntity.getType() + ")" : "null");
+
+        if (prev > 0) {
+            Log.debug("OpenVariantTransformer",
+                    "onFirstOpen: already transformed (openCount now {}), returning live entity.",
+                    prev + 1);
             return liveEntities.get(key);
+        }
 
         return applyTransform(loc, key, isBlock, originalEntity);
     }
@@ -44,33 +75,63 @@ public final class OpenVariantTransformer {
         BlockCoord key = BlockCoord.of(loc);
         int remaining = openCounts.merge(key, -1, Integer::sum);
 
-        if (remaining > 0)
+        Log.debug("OpenVariantTransformer",
+                "onLastClose: loc={} originalId='{}' isBlock={} remaining={}",
+                loc, originalId, isBlock, remaining);
+
+        if (remaining > 0) {
+            Log.debug("OpenVariantTransformer",
+                    "onLastClose: {} session(s) still open, skipping restore.", remaining);
             return null;
+        }
 
         openCounts.remove(key);
         return restoreTransform(loc, key, originalId, isBlock);
     }
 
     public boolean isTransformed(Location loc) {
-        return openCounts.getOrDefault(BlockCoord.of(loc), 0) > 0;
+        boolean transformed = openCounts.getOrDefault(BlockCoord.of(loc), 0) > 0;
+        Log.debug("OpenVariantTransformer", "isTransformed: loc={} -> {}", loc, transformed);
+        return transformed;
     }
 
     public void forceRemove(Location loc) {
         BlockCoord key = BlockCoord.of(loc);
+        Log.debug("OpenVariantTransformer", "forceRemove: loc={}", loc);
+
         openCounts.remove(key);
+        savedYaws.remove(key);
+
+        ItemStack saved = savedItems.remove(key);
+        if (saved != null) {
+            Log.debug("OpenVariantTransformer",
+                    "forceRemove: discarding saved item (item_display restore skipped - entity is gone).");
+        }
 
         Entity entity = liveEntities.remove(key);
-        if (entity != null && entity.isValid())
+        if (entity != null && entity.isValid()) {
+            Log.debug("OpenVariantTransformer",
+                    "forceRemove: removing live entity {} ({})", entity.getUniqueId(), entity.getType());
             entity.remove();
+        } else {
+            Log.debug("OpenVariantTransformer",
+                    "forceRemove: no live entity to remove (null or invalid).");
+        }
     }
 
     public void clear() {
+        Log.debug("OpenVariantTransformer",
+                "clear: removing {} live entity/entities and clearing all state.",
+                liveEntities.size());
+
         liveEntities.values().stream()
                 .filter(Entity::isValid)
                 .forEach(Entity::remove);
 
         liveEntities.clear();
         openCounts.clear();
+        savedYaws.clear();
+        savedItems.clear();
     }
 
     @Nullable
@@ -80,70 +141,137 @@ public final class OpenVariantTransformer {
             boolean isBlock,
             @Nullable Entity originalEntity
     ) {
-        // BLOCK -> FURNITURE case still needs clearing
-        clearHolder(loc, isBlock, originalEntity);
+        Log.debug("OpenVariantTransformer",
+                "applyTransform: loc={} key={} isBlock={} configType={} configId='{}'",
+                loc, key, isBlock, config.type(), config.id());
 
+        // ITEM_DISPLAY open variant
+        // The original entity IS already an ItemDisplay (all IA furniture is).
+        // We just swap the displayed item in-place - no spawn, no removal.
+        if (config.type() == OpenVariantConfig.FormType.ITEM_DISPLAY) {
+            return applyItemDisplaySwap(loc, key, isBlock, originalEntity);
+        }
+
+        // FURNITURE open variant
         if (config.isFurnitureBased()) {
-            if (!isBlock) {
-                // ✅ BEST CASE: replace existing furniture (keeps rotation)
-                if (originalEntity == null || !originalEntity.isValid()) {
-                    Log.warn(
-                            "OpenVariantTransformer",
-                            "Expected valid furniture entity at {} but got null/invalid.",
-                            loc
-                    );
-                    return null;
-                }
+            float yaw = captureAndClearHolder(loc, key, isBlock, originalEntity);
 
-                CustomFurniture furniture = CustomFurniture.byAlreadySpawned(originalEntity);
-                if (furniture == null) {
-                    Log.warn(
-                            "OpenVariantTransformer",
-                            "Could not resolve CustomFurniture from entity at {}.",
-                            loc
-                    );
-                    return null;
-                }
+            Block supportBlock = furnitureSupportBlock(loc, isBlock);
+            Log.debug("OpenVariantTransformer",
+                    "applyTransform[FURNITURE]: spawning '{}' at support block {} (isBlock={})",
+                    config.id(), supportBlock.getLocation(), isBlock);
 
-                furniture.replaceFurniture(config.id());
-
-                Entity entity = furniture.getEntity();
-                if (entity != null)
-                    liveEntities.put(key, entity);
-
-                return entity;
-            }
-
-            // BLOCK -> FURNITURE (no existing entity to replace)
-            Block supportBlock = furnitureSupportBlock(loc, true);
             CustomFurniture spawned = CustomFurniture.spawn(config.id(), supportBlock);
 
             if (spawned == null || spawned.getEntity() == null) {
-                Log.warn(
-                        "OpenVariantTransformer",
-                        "Failed to spawn open-form furniture '{}' at {}.",
-                        config.id(),
-                        loc
-                );
+                Log.warn("OpenVariantTransformer",
+                        "applyTransform[FURNITURE]: CustomFurniture.spawn returned null for '{}' at {}.",
+                        config.id(), loc);
                 return null;
             }
 
             Entity entity = spawned.getEntity();
+            Log.debug("OpenVariantTransformer",
+                    "applyTransform[FURNITURE]: spawned entity {} ({}) at {}",
+                    entity.getUniqueId(), entity.getType(), entity.getLocation());
+
+            if (!isBlock) {
+                entity.setRotation(yaw, 0f);
+                Log.debug("OpenVariantTransformer",
+                        "applyTransform[FURNITURE]: applied yaw={} to spawned entity.", yaw);
+            }
+
             liveEntities.put(key, entity);
             return entity;
         }
 
-        // BLOCK -> BLOCK
+        // BLOCK open variant
+        captureAndClearHolder(loc, key, isBlock, originalEntity);
+        Log.debug("OpenVariantTransformer",
+                "applyTransform[BLOCK]: placing block '{}' at {}", config.id(), loc);
+
         if (!placeBlock(config.id(), loc)) {
-            Log.warn(
-                    "OpenVariantTransformer",
-                    "Failed to place open-form block '{}' at {}.",
-                    config.id(),
-                    loc
-            );
+            Log.warn("OpenVariantTransformer",
+                    "applyTransform[BLOCK]: failed to place open-form block '{}' at {}.",
+                    config.id(), loc);
+        } else {
+            Log.debug("OpenVariantTransformer",
+                    "applyTransform[BLOCK]: block placed successfully.");
         }
 
         return null;
+    }
+
+    /**
+     * ITEM_DISPLAY path: the original furniture entity is an {@link ItemDisplay}.
+     * We save its current ItemStack and replace it with the open-variant's ItemStack
+     * so the model changes without any entity being removed or spawned.
+     */
+    @Nullable
+    private Entity applyItemDisplaySwap(
+            Location loc,
+            BlockCoord key,
+            boolean isBlock,
+            @Nullable Entity originalEntity
+    ) {
+        Log.debug("OpenVariantTransformer",
+                "applyItemDisplaySwap: loc={} isBlock={}", loc, isBlock);
+
+        if (isBlock) {
+            Log.warn("OpenVariantTransformer",
+                    "applyItemDisplaySwap: original holder is a BLOCK but open-variant type is ITEM_DISPLAY. " +
+                            "Cannot swap model on a block - open-variant will not be applied.");
+            return null;
+        }
+
+        if (originalEntity == null || !originalEntity.isValid()) {
+            Log.warn("OpenVariantTransformer",
+                    "applyItemDisplaySwap: originalEntity is null or invalid at {}. Cannot swap model.", loc);
+            return null;
+        }
+
+        Log.debug("OpenVariantTransformer",
+                "applyItemDisplaySwap: entity={} type={} valid={}",
+                originalEntity.getUniqueId(), originalEntity.getType(), originalEntity.isValid());
+
+        if (!(originalEntity instanceof ItemDisplay display)) {
+            Log.warn("OpenVariantTransformer",
+                    "applyItemDisplaySwap: entity {} is a {} not an ItemDisplay - " +
+                            "cannot swap model. Is this really a furniture entity?",
+                    originalEntity.getUniqueId(), originalEntity.getType());
+            return null;
+        }
+
+        // Resolve the open-variant CustomStack to get its ItemStack.
+        CustomStack openCs = CustomStack.getInstance(config.id());
+        if (openCs == null) {
+            Log.warn("OpenVariantTransformer",
+                    "applyItemDisplaySwap: CustomStack.getInstance('{}') returned null. " +
+                            "Is ItemsAdder fully loaded?", config.id());
+            return null;
+        }
+
+        ItemStack openItem = openCs.getItemStack();
+        Log.debug("OpenVariantTransformer",
+                "applyItemDisplaySwap: open-variant CustomStack resolved: id='{}' item={}",
+                openCs.getNamespacedID(), openItem);
+
+        // Save the original item so we can restore it on close.
+        ItemStack originalItem = display.getItemStack();
+        savedItems.put(key, originalItem != null ? originalItem.clone() : new ItemStack(Material.AIR));
+        Log.debug("OpenVariantTransformer",
+                "applyItemDisplaySwap: saved original item: {}",
+                originalItem);
+
+        // Swap the model.
+        display.setItemStack(openItem);
+        Log.debug("OpenVariantTransformer",
+                "applyItemDisplaySwap: model swapped successfully on entity {}.",
+                display.getUniqueId());
+
+        // Track the entity so isTransformed / forceRemove can find it if needed.
+        liveEntities.put(key, display);
+        return display;
     }
 
     @Nullable
@@ -153,91 +281,240 @@ public final class OpenVariantTransformer {
             String originalId,
             boolean originalIsBlock
     ) {
-        if (config.isFurnitureBased()) {
-            Entity entity = liveEntities.remove(key);
+        Log.debug("OpenVariantTransformer",
+                "restoreTransform: loc={} originalId='{}' originalIsBlock={} configType={}",
+                loc, originalId, originalIsBlock, config.type());
 
-            if (entity != null && entity.isValid()) {
-                CustomFurniture furniture = CustomFurniture.byAlreadySpawned(entity);
-
-                if (furniture != null) {
-                    // Replace back -> keeps rotation automatically
-                    furniture.replaceFurniture(originalId);
-                    return furniture.getEntity();
-                }
-
-                entity.remove(); // fallback safety
-            }
-            return null;
+        // ITEM_DISPLAY restore - swap the model back
+        if (config.type() == OpenVariantConfig.FormType.ITEM_DISPLAY) {
+            return restoreItemDisplaySwap(loc, key);
         }
 
-        clearOpenVariant(loc, key, originalIsBlock);
+        // Remove the open-variant that is currently displayed.
+        removeOpenVariant(loc, key);
 
         if (originalIsBlock) {
+            savedYaws.remove(key);
+            Log.debug("OpenVariantTransformer",
+                    "restoreTransform[BLOCK]: placing original block '{}'.", originalId);
             if (!placeBlock(originalId, loc)) {
-                Log.warn(
-                        "OpenVariantTransformer",
-                        "Failed to restore original block '{}' at {}.",
-                        originalId,
-                        loc
-                );
+                Log.warn("OpenVariantTransformer",
+                        "restoreTransform[BLOCK]: failed to restore original block '{}' at {}.",
+                        originalId, loc);
+            } else {
+                Log.debug("OpenVariantTransformer",
+                        "restoreTransform[BLOCK]: block restored successfully.");
             }
             return null;
         }
 
-        // BLOCK -> FURNITURE restore
+        Float savedYaw = savedYaws.remove(key);
+        Log.debug("OpenVariantTransformer",
+                "restoreTransform[FURNITURE]: spawning original furniture '{}', savedYaw={}",
+                originalId, savedYaw);
+
         Block supportBlock = furnitureSupportBlock(loc, false);
         CustomFurniture restored = CustomFurniture.spawn(originalId, supportBlock);
 
         if (restored == null || restored.getEntity() == null) {
-            Log.warn(
-                    "OpenVariantTransformer",
-                    "Failed to restore original furniture '{}' at {}.",
-                    originalId,
-                    loc
-            );
+            Log.warn("OpenVariantTransformer",
+                    "restoreTransform[FURNITURE]: CustomFurniture.spawn returned null for '{}' at {}.",
+                    originalId, loc);
             return null;
         }
 
-        return restored.getEntity();
+        Entity restoredEntity = restored.getEntity();
+        Log.debug("OpenVariantTransformer",
+                "restoreTransform[FURNITURE]: spawned restored entity {} ({}) at {}",
+                restoredEntity.getUniqueId(), restoredEntity.getType(), restoredEntity.getLocation());
+
+        if (savedYaw != null) {
+            restoredEntity.setRotation(savedYaw, 0f);
+            Log.debug("OpenVariantTransformer",
+                    "restoreTransform[FURNITURE]: applied savedYaw={} to restored entity.", savedYaw);
+        }
+
+        return restoredEntity;
     }
 
-    private void clearHolder(
+    /**
+     * ITEM_DISPLAY restore: swap the ItemStack back to the original model.
+     * The entity was never removed so it's still valid.
+     */
+    @Nullable
+    private Entity restoreItemDisplaySwap(Location loc, BlockCoord key) {
+        Log.debug("OpenVariantTransformer",
+                "restoreItemDisplaySwap: loc={}", loc);
+
+        Entity entity = liveEntities.remove(key);
+        ItemStack savedItem = savedItems.remove(key);
+
+        Log.debug("OpenVariantTransformer",
+                "restoreItemDisplaySwap: live entity={} savedItem={}",
+                entity != null ? entity.getUniqueId() + " valid=" + entity.isValid() : "null",
+                savedItem);
+
+        if (entity == null) {
+            Log.warn("OpenVariantTransformer",
+                    "restoreItemDisplaySwap: no live entity found for loc={}. Cannot restore model.", loc);
+            return null;
+        }
+
+        if (!entity.isValid()) {
+            Log.warn("OpenVariantTransformer",
+                    "restoreItemDisplaySwap: entity {} is no longer valid. Cannot restore model.",
+                    entity.getUniqueId());
+            return null;
+        }
+
+        if (!(entity instanceof ItemDisplay display)) {
+            Log.warn("OpenVariantTransformer",
+                    "restoreItemDisplaySwap: live entity {} is a {}, not ItemDisplay. Cannot restore model.",
+                    entity.getUniqueId(), entity.getType());
+            return null;
+        }
+
+        if (savedItem == null) {
+            Log.warn("OpenVariantTransformer",
+                    "restoreItemDisplaySwap: no saved item found for loc={}. Model not restored.", loc);
+            return entity;
+        }
+
+        display.setItemStack(savedItem);
+        Log.debug("OpenVariantTransformer",
+                "restoreItemDisplaySwap: model restored successfully to {} on entity {}.",
+                savedItem, display.getUniqueId());
+
+        return display;
+    }
+
+    /**
+     * Removes whatever is currently occupying the storage location so the open-variant
+     * can be placed there, and captures the original furniture's yaw for later re-use.
+     *
+     * <ul>
+     *   <li>Block holder  → Block open-variant      : nothing to do (placeBlock overwrites); yaw = 0</li>
+     *   <li>Block holder  → Furniture open-variant   : set block to AIR; yaw = 0</li>
+     *   <li>Furniture holder → any open-variant      : remove furniture entity; yaw captured</li>
+     * </ul>
+     *
+     * @return the yaw of the removed furniture entity, or {@code 0f} when the original is a block
+     */
+    private float captureAndClearHolder(
             Location loc,
+            BlockCoord key,
             boolean isBlock,
             @Nullable Entity originalEntity
     ) {
-        if (!isBlock)
-            return;
+        Log.debug("OpenVariantTransformer",
+                "captureAndClearHolder: loc={} isBlock={} entity={}",
+                loc, isBlock,
+                originalEntity != null ? originalEntity.getUniqueId() : "null");
+
+        if (isBlock) {
+            if (config.isFurnitureBased()) {
+                Log.debug("OpenVariantTransformer",
+                        "captureAndClearHolder: BLOCK→FURNITURE - setting block to AIR at {}.", loc);
+                loc.getBlock().setType(Material.AIR);
+            }
+            return 0f;
+        }
+
+        float yaw = 0f;
+        if (originalEntity != null && originalEntity.isValid()) {
+            yaw = originalEntity.getLocation().getYaw();
+            savedYaws.put(key, yaw);
+            Log.debug("OpenVariantTransformer",
+                    "captureAndClearHolder: captured yaw={} from entity {}.", yaw, originalEntity.getUniqueId());
+
+            CustomFurniture furniture = CustomFurniture.byAlreadySpawned(originalEntity);
+            if (furniture != null) {
+                Log.debug("OpenVariantTransformer",
+                        "captureAndClearHolder: calling CustomFurniture.remove() on entity {}.",
+                        originalEntity.getUniqueId());
+                furniture.remove(false);
+            } else {
+                Log.warn("OpenVariantTransformer",
+                        "captureAndClearHolder: CustomFurniture.byAlreadySpawned returned null for " +
+                                "entity {} - falling back to raw entity.remove().",
+                        originalEntity.getUniqueId());
+                originalEntity.remove();
+            }
+        } else {
+            Log.warn("OpenVariantTransformer",
+                    "captureAndClearHolder: originalEntity is null or invalid at {} - " +
+                            "open-variant may overlap the original.", loc);
+        }
+
+        return yaw;
+    }
+
+    /**
+     * Removes the currently displayed open-variant so the original can be restored.
+     * For furniture open-variants the live entity is looked up from {@link #liveEntities}.
+     * For block open-variants the block at {@code loc} is cleared.
+     */
+    private void removeOpenVariant(Location loc, BlockCoord key) {
+        Log.debug("OpenVariantTransformer",
+                "removeOpenVariant: loc={} configType={}", loc, config.type());
 
         if (config.isFurnitureBased()) {
+            Entity entity = liveEntities.remove(key);
+            if (entity != null && entity.isValid()) {
+                CustomFurniture furniture = CustomFurniture.byAlreadySpawned(entity);
+                if (furniture != null) {
+                    Log.debug("OpenVariantTransformer",
+                            "removeOpenVariant: calling CustomFurniture.remove() on entity {}.",
+                            entity.getUniqueId());
+                    furniture.remove(false);
+                } else {
+                    Log.warn("OpenVariantTransformer",
+                            "removeOpenVariant: CustomFurniture.byAlreadySpawned returned null for " +
+                                    "entity {} - falling back to raw entity.remove().",
+                            entity.getUniqueId());
+                    entity.remove();
+                }
+            } else {
+                Log.debug("OpenVariantTransformer",
+                        "removeOpenVariant: no live FURNITURE entity found (null or invalid).");
+            }
+        } else {
+            Log.debug("OpenVariantTransformer",
+                    "removeOpenVariant: BLOCK open-variant - setting block to AIR at {}.", loc);
             loc.getBlock().setType(Material.AIR);
         }
     }
 
-    private void clearOpenVariant(
-            Location loc,
-            BlockCoord key,
-            boolean originalIsBlock
-    ) {
-        if (config.isFurnitureBased())
-            return; // handled by replaceFurniture
-
-        if (!originalIsBlock)
-            loc.getBlock().setType(Material.AIR);
-    }
-
+    /**
+     * Returns the block that ItemsAdder should use as the "support" when spawning furniture.
+     *
+     * <p>When the original holder was a block, the furniture must be spawned one block
+     * below the storage location (so it ends up visually at the right height).
+     * When the original holder was already a furniture (entity), the location itself
+     * is the support block.
+     */
     private Block furnitureSupportBlock(Location loc, boolean replacingBlockHolder) {
-        return replacingBlockHolder
+        Block support = replacingBlockHolder
                 ? loc.clone().subtract(0, 1, 0).getBlock()
                 : loc.getBlock();
+        Log.debug("OpenVariantTransformer",
+                "furnitureSupportBlock: loc={} replacingBlockHolder={} -> support={}",
+                loc, replacingBlockHolder, support.getLocation());
+        return support;
     }
 
     private boolean placeBlock(String namespacedId, Location loc) {
+        Log.debug("OpenVariantTransformer",
+                "placeBlock: namespacedId='{}' loc={}", namespacedId, loc);
         CustomBlock cb = CustomBlock.getInstance(namespacedId);
-        if (cb == null)
+        if (cb == null) {
+            Log.warn("OpenVariantTransformer",
+                    "placeBlock: CustomBlock.getInstance('{}') returned null.", namespacedId);
             return false;
+        }
 
         cb.place(loc);
+        Log.debug("OpenVariantTransformer", "placeBlock: placed '{}' at {}.", namespacedId, loc);
         return true;
     }
 }
