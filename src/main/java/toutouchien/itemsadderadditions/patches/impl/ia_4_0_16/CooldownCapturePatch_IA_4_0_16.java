@@ -65,7 +65,7 @@ public class CooldownCapturePatch_IA_4_0_16 extends MethodInjectPatch {
                 Type.INT_TYPE
         );
 
-        // call CooldownBridge.capture(boolean, Object, int) -> boolean
+        // call CooldownBridge.capture(boolean, Object, int) → boolean
         ga.invokeStatic(
                 Type.getType(CooldownBridge.class),
                 Method.getMethod(

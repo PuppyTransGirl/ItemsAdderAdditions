@@ -6,7 +6,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 public abstract class CallSiteInjectPatch extends MethodPatch {
     protected abstract String targetCallOwner();
+
     protected abstract String targetCallName();
+
     protected abstract CallSiteInjectPoint callSiteInjectPoint();
 
     /**

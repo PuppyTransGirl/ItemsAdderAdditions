@@ -10,7 +10,9 @@ import org.objectweb.asm.MethodVisitor;
  */
 public abstract class ClassFieldAccessReplacePatch implements ClassPatch {
     protected abstract String targetFieldOwner();
+
     protected abstract String targetFieldName();
+
     protected abstract String replacementFieldName();
 
     @Override

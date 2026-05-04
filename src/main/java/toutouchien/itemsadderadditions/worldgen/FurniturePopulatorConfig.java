@@ -46,7 +46,7 @@ public final class FurniturePopulatorConfig {
     public final int chunkVeins;
 
     /**
-     * 0–100 chance per chunk, -1 = always.
+     * 0-100 chance per chunk, -1 = always.
      */
     public final double chunkChance;
 

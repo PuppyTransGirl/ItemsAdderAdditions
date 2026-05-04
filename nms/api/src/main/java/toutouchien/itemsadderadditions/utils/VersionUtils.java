@@ -41,7 +41,7 @@ public enum VersionUtils {
 
     private static VersionUtils minecraftVersionMethod() {
         String minecraftVersion = "v" + Bukkit.getMinecraftVersion()
-                .replace(".", "_"); // e.g. "1.21.4" -> "v1_21_4"
+                .replace(".", "_"); // e.g. "1.21.4" → "v1_21_4"
 
         return EnumUtils.match(minecraftVersion, VersionUtils.class, null);
     }

@@ -91,7 +91,7 @@ public final class OpenVariantTransformer {
 
     public boolean isTransformed(Location loc) {
         boolean transformed = openCounts.getOrDefault(BlockCoord.of(loc), 0) > 0;
-        Log.debug("OpenVariantTransformer", "isTransformed: loc={} -> {}", loc, transformed);
+        Log.debug("OpenVariantTransformer", "isTransformed: loc={} → {}", loc, transformed);
         return transformed;
     }
 
@@ -498,7 +498,7 @@ public final class OpenVariantTransformer {
                 ? loc.clone().subtract(0, 1, 0).getBlock()
                 : loc.getBlock();
         Log.debug("OpenVariantTransformer",
-                "furnitureSupportBlock: loc={} replacingBlockHolder={} -> support={}",
+                "furnitureSupportBlock: loc={} replacingBlockHolder={} → support={}",
                 loc, replacingBlockHolder, support.getLocation());
         return support;
     }

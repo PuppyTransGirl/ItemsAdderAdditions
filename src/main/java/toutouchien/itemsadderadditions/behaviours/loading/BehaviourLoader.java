@@ -1,85 +1,61 @@
 package toutouchien.itemsadderadditions.behaviours.loading;
 
-import dev.lone.itemsadder.api.CustomStack;
-import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
+import toutouchien.itemsadderadditions.utils.loading.AbstractItemsAdderItemLoader;
 import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
-import toutouchien.itemsadderadditions.utils.other.ItemCategory;
-import toutouchien.itemsadderadditions.utils.other.Log;
 
 /**
- * Reads every CustomStack's YAML config, finds the {@code behaviours:} section,
- * and populates {@link BehaviourBindings}.
+ * Reads every ItemsAdder item's {@code behaviours:} section and instantiates the
+ * matching custom behaviour executors.
  *
- * <h3>YAML structure</h3>
- * <pre>
- * items:
- *   my_spiky_block:
- *     # ... ItemsAdder built-in fields ...
- *     behaviours:
- *       furniture: ...            # ItemsAdder built-in - skipped silently
- *       contact_damage:             # registered custom behaviour -> loaded
- *         damage: 1.0
- *         delay: 2
- *       your_behaviour:           # another custom behaviour
- *         some_param: value
- * </pre>
- *
- * <p>Keys present in {@code behaviours:} that are not registered in
- * {@link ExecutorRegistry} are skipped silently - this covers all
- * ItemsAdder built-in behaviour keys ({@code furniture}, {@code complex_furniture},
- * {@code gun}, etc.) as well as keys from other plugins.
+ * <p>Built-in ItemsAdder behaviour keys are ignored automatically because they are
+ * simply absent from the registry.
  */
 @NullMarked
-public final class BehaviourLoader {
+public final class BehaviourLoader extends AbstractItemsAdderItemLoader {
     private final ExecutorRegistry<BehaviourExecutor> registry;
 
     public BehaviourLoader(ExecutorRegistry<BehaviourExecutor> registry) {
+        super("Behaviours", "behaviour binding(s)");
         this.registry = registry;
     }
 
-    public void load() {
+    @Override
+    protected void beforeLoad() {
         BehaviourBindings.clear();
-        int total = 0;
-
-        for (CustomStack customStack : ItemsAdder.getAllItems())
-            total += loadItem(customStack);
-
-        Log.loaded("Behaviours", total, "behaviour binding(s)");
     }
 
-    private int loadItem(CustomStack customStack) {
-        FileConfiguration config = customStack.getConfig();
-        String itemID = customStack.getId();
-        String namespacedID = customStack.getNamespacedID();
-
-        ConfigurationSection behavioursSection = config.getConfigurationSection("items." + itemID + ".behaviours");
-        if (behavioursSection == null)
+    @Override
+    protected int loadItem(ItemLoadContext context) {
+        FileConfiguration config = context.config();
+        ConfigurationSection behavioursSection = config.getConfigurationSection("items." + context.itemId() + ".behaviours");
+        if (behavioursSection == null) {
             return 0;
+        }
 
-        ItemCategory category = ItemCategory.determine(customStack, config, itemID);
         int count = 0;
+        BehaviourHost host = new BehaviourHost(context.namespacedId(), context.category(), ItemsAdderAdditions.instance());
 
         for (String behaviourKey : behavioursSection.getKeys(false)) {
             BehaviourExecutor prototype = registry.getPrototype(behaviourKey);
-            if (prototype == null)
+            if (prototype == null) {
                 continue;
+            }
 
             BehaviourExecutor instance = prototype.newInstance();
-
             Object configValue = behavioursSection.get(behaviourKey);
 
-            if (!instance.configure(configValue, namespacedID))
+            if (!instance.configure(configValue, context.namespacedId())) {
                 continue;
+            }
 
-            BehaviourHost host = new BehaviourHost(namespacedID, category, ItemsAdderAdditions.instance());
             instance.load(host);
-            BehaviourBindings.add(namespacedID, instance);
+            BehaviourBindings.add(context.namespacedId(), instance);
             count++;
         }
 

@@ -4,7 +4,6 @@ import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.executors.*;
 import toutouchien.itemsadderadditions.actions.loading.ActionLoader;
 import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
-import toutouchien.itemsadderadditions.utils.other.Log;
 
 /**
  * Entry point for the actions system.
@@ -27,16 +26,15 @@ import toutouchien.itemsadderadditions.utils.other.Log;
  * }</pre>
  */
 public final class ActionsManager {
-    /**
-     * Config key prefix matching the {@code actions:} section in config.yml.
-     */
-    private static final String CONFIG_SECTION = "actions.";
+    private static final String CONFIG_PREFIX = "actions.";
 
     private final ExecutorRegistry<ActionExecutor> registry = new ExecutorRegistry<>("Actions");
     private final ActionLoader loader = new ActionLoader(registry);
 
     public ActionsManager() {
-        registerBuiltins(
+        registry.registerIfEnabled(
+                ItemsAdderAdditions.instance().getConfig(),
+                CONFIG_PREFIX,
                 new ActionBarAction(),
                 new ClearItemAction(),
                 new IgniteAction(),
@@ -53,21 +51,6 @@ public final class ActionsManager {
                 new ToastAction(),
                 new VeinminerAction()
         );
-    }
-
-    /**
-     * Registers built-in executors, skipping any whose {@code actions.<key>}
-     * config entry is explicitly set to {@code false}.
-     */
-    private void registerBuiltins(ActionExecutor... executors) {
-        for (ActionExecutor executor : executors) {
-            String configPath = CONFIG_SECTION + executor.key();
-            if (!ItemsAdderAdditions.instance().getConfig().getBoolean(configPath, true)) {
-                Log.disabled("Actions", executor.key());
-                continue;
-            }
-            registry.register(executor);
-        }
     }
 
     /**

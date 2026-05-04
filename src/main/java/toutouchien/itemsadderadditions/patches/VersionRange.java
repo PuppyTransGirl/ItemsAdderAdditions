@@ -56,8 +56,7 @@ public final class VersionRange implements VersionConstraint {
 
     private static boolean inRange(String actual, String min, String max) {
         if (min != null && Version.compareVersionStrings(actual, min) < 0) return false;
-        if (max != null && Version.compareVersionStrings(actual, max) > 0) return false;
-        return true;
+        return max == null || Version.compareVersionStrings(actual, max) <= 0;
     }
 
     @Override

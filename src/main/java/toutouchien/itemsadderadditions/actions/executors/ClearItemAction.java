@@ -4,7 +4,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
@@ -14,12 +13,12 @@ import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 
 /**
  * Removes a specific ItemsAdder item from the inventory of the target human entity.
- * <p>
- * Example:
+ *
+ * <p>Example:
  * <pre>{@code
  * clear_item:
- *   item:   "myitems:custom_gem" # Required - namespaced ID of the item to remove
- *   amount: 3 # Optional - how many to remove (default: 1)
+ *   item:   "myitems:custom_gem"  # required - namespaced ID of the item to remove
+ *   amount: 3                     # optional - how many to remove (default: 1)
  * }</pre>
  */
 @SuppressWarnings("unused")
@@ -32,21 +31,15 @@ public final class ClearItemAction extends ActionExecutor {
     @Parameter(key = "amount", type = Integer.class)
     private int amount = 1;
 
-    private String namespacedID;
-
-    @Override
-    public boolean configure(@Nullable Object configData, String namespacedID) {
-        this.namespacedID = namespacedID;
-        return true;
-    }
-
     @Override
     protected void execute(ActionContext context) {
         Entity runOn = context.runOn();
         if (!(runOn instanceof HumanEntity human))
             return;
 
-        ItemStack itemStack = NamespaceUtils.itemByID(NamespaceUtils.namespace(namespacedID), item);
+        // Resolve the item relative to the namespace of the item that owns this action.
+        // NamespaceUtils.itemByID accepts a full namespaced ID (e.g. "mypack:gem") directly.
+        ItemStack itemStack = NamespaceUtils.itemByID(item, item);
         if (itemStack == null)
             return;
 

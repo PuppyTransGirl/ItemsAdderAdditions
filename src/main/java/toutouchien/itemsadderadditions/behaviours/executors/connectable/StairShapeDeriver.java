@@ -15,7 +15,7 @@ public final class StairShapeDeriver {
     }
 
     /**
-     * @param findAt lookup function: (location) -> CustomFurniture or null
+     * @param findAt lookup function: (location) → CustomFurniture or null
      * @param facing canonical logical facing of {@code self}
      */
     public static StairShape derive(

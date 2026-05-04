@@ -10,7 +10,9 @@ import org.objectweb.asm.MethodVisitor;
  */
 public abstract class FieldAccessReplacePatch extends MethodPatch {
     protected abstract String targetFieldOwner();
+
     protected abstract String targetFieldName();
+
     protected abstract String replacementFieldName();
 
     @Override

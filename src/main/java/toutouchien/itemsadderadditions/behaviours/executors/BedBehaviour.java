@@ -18,7 +18,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -27,6 +26,7 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
 import toutouchien.itemsadderadditions.behaviours.executors.bed.SlotOffset;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
+import toutouchien.itemsadderadditions.utils.PlayerUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.*;
@@ -43,11 +43,13 @@ import java.util.*;
  *       - "1,0,0"   # second slot (e.g. double bed)
  * }</pre>
  *
- * <p>Each slot is parsed as {@code "dx,dy,dz"} integer block offsets.
- * A HEAD-part vanilla white bed is temporarily written into the world at the
+ * <p>Each slot is parsed as {@code "dx,dy,dz"} integer block offsets relative to the
+ * furniture's base location, rotated to match the furniture's facing direction at runtime.
+ *
+ * <p>A HEAD-part vanilla white bed is temporarily written into the world at the
  * chosen slot so that {@link Player#sleep} succeeds and the player's rotation
- * matches the bed facing.  The fake block is restored the moment the player
- * wakes up (or disconnects).</p>
+ * matches the bed facing. The fake block is restored the moment the player
+ * wakes up (or disconnects).
  */
 @SuppressWarnings("unused")
 @NullMarked
@@ -56,39 +58,49 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     private static final String TAG = "BedBehaviour";
 
     /**
-     * UUID -> exact sleep {@link Location} (includes yaw used for bed facing).
-     * Present from the moment {@link Player#sleep} returns {@code true} until
-     * the player actually wakes up.
+     * UUID → exact sleep {@link Location} (includes yaw for bed facing).
+     * Populated when {@link Player#sleep} returns {@code true}; cleared on wakeup.
      */
     private final Map<UUID, Location> sleepers = new HashMap<>();
 
-    private List<SlotOffset> slots = List.of(new SlotOffset(0, 0, 0));
-    private List<String> rawSlots = new ArrayList<>();
+    // Parsed in configure(), used in onLoad(). Named clearly to make the intent obvious.
+    private List<SlotOffset> configuredSlots = List.of(new SlotOffset(0, 0, 0));
+
     private String namespacedID = "";
     private @Nullable JavaPlugin plugin;
 
+    /**
+     * Computes the world-space, block-centred location of {@code offset} relative to
+     * {@code base}, rotated by the furniture's {@code yaw}.
+     *
+     * <p>The local coordinate axes are:
+     * <ul>
+     *   <li>{@code dx} - along the furniture's forward direction</li>
+     *   <li>{@code dz} - perpendicular (right-hand side of forward)</li>
+     *   <li>{@code dy} - always vertical</li>
+     * </ul>
+     */
     private static Location centredSlot(Location base, SlotOffset o, float yaw) {
         float n = ((yaw % 360f) + 360f) % 360f;
 
-        // fwd = furniture facing direction vector (local +X maps to this)
-        // right = 90° clockwise from fwd in the XZ plane (local +Z maps to this)
+        // fwd = furniture facing direction; right = 90° clockwise from fwd in XZ
         int fwdX, fwdZ, rightX, rightZ;
-        if (n < 45f || n >= 315f) { // South  (+Z)
+        if (n < 45f || n >= 315f) {       // South (+Z)
             fwdX = 0;
             fwdZ = 1;
             rightX = -1;
             rightZ = 0;
-        } else if (n < 135f) { // West   (-X)
+        } else if (n < 135f) {            // West (-X)
             fwdX = -1;
             fwdZ = 0;
             rightX = 0;
             rightZ = 1;
-        } else if (n < 225f) { // North  (-Z)
+        } else if (n < 225f) {            // North (-Z)
             fwdX = 0;
             fwdZ = -1;
             rightX = 1;
             rightZ = 0;
-        } else { // East   (+X)
+        } else {                           // East (+X)
             fwdX = 1;
             fwdZ = 0;
             rightX = 0;
@@ -99,30 +111,14 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
         int worldY = base.getBlockY() + o.dy();
         int worldZ = base.getBlockZ() + o.dx() * fwdZ + o.dz() * rightZ;
 
-        return new Location(
-                base.getWorld(),
-                worldX + 0.5,
-                worldY,
-                worldZ + 0.5
-        );
+        return new Location(base.getWorld(), worldX + 0.5, worldY, worldZ + 0.5);
     }
 
     /**
-     * Strips sub-block components so locations can be compared by block
-     * position and world only.
+     * Strips sub-block components so locations can be compared by block position only.
      */
     private static Location toSlotKey(Location loc) {
-        return new Location(
-                loc.getWorld(),
-                loc.getBlockX(),
-                loc.getBlockY(),
-                loc.getBlockZ()
-        );
-    }
-
-    private static boolean shouldIgnoreOffHandDuplicate(PlayerInteractEvent e) {
-        return e.getHand() == EquipmentSlot.OFF_HAND
-                && !e.getPlayer().getInventory().getItemInMainHand().isEmpty();
+        return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 
     @Nullable
@@ -148,22 +144,27 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
 
     @Override
     public boolean configure(Object configData, String namespacedID) {
-        if (!(configData instanceof org.bukkit.configuration.ConfigurationSection section)) {
+        if (!(configData instanceof org.bukkit.configuration.ConfigurationSection section))
             return false;
+
+        List<?> rawList = section.getList("slots");
+        if (rawList == null || rawList.isEmpty()) {
+            Log.warn(TAG, "{}: no 'slots' list defined - defaulting to single slot at 0,0,0",
+                    namespacedID);
+            configuredSlots = List.of(new SlotOffset(0, 0, 0));
+            return true;
         }
 
-        List<?> raw = section.getList("slots");
-        if (raw == null || raw.isEmpty()) {
-            Log.warn(TAG,
-                    "{}: no 'slots' list defined - defaulting to single slot at 0,0,0",
-                    namespacedID);
-            rawSlots = List.of("0,0,0");
-        } else {
-            rawSlots = new ArrayList<>(raw.size());
-            for (Object o : raw) {
-                if (o != null) rawSlots.add(o.toString());
-            }
+        List<SlotOffset> parsed = new ArrayList<>(rawList.size());
+        for (Object entry : rawList) {
+            if (entry == null) continue;
+            SlotOffset offset = SlotOffset.parse(entry.toString(), namespacedID);
+            if (offset != null) parsed.add(offset);
         }
+
+        configuredSlots = parsed.isEmpty()
+                ? List.of(new SlotOffset(0, 0, 0))
+                : List.copyOf(parsed);
 
         return true;
     }
@@ -172,16 +173,6 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     protected void onLoad(BehaviourHost host) {
         this.namespacedID = host.namespacedID();
         this.plugin = host.plugin();
-
-        List<SlotOffset> parsed = new ArrayList<>(rawSlots.size());
-        for (String raw : rawSlots) {
-            SlotOffset offset = SlotOffset.parse(raw, namespacedID);
-            if (offset != null) parsed.add(offset);
-        }
-        this.slots = parsed.isEmpty()
-                ? List.of(new SlotOffset(0, 0, 0))
-                : List.copyOf(parsed);
-
         Bukkit.getPluginManager().registerEvents(this, host.plugin());
     }
 
@@ -189,17 +180,15 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     protected void onUnload(BehaviourHost host) {
         HandlerList.unregisterAll(this);
 
-        // Wake and clean up any remaining sleepers.
+        // Wake any remaining sleepers so the world is left in a clean state.
         for (UUID uuid : new HashSet<>(sleepers.keySet())) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null && p.isSleeping()) {
-                p.wakeup(false); // triggers PlayerBedLeaveEvent -> cleans up
+                p.wakeup(false); // triggers PlayerBedLeaveEvent → cleanUp
             } else {
-                // Player is offline or already awake - clean up manually.
                 Location loc = sleepers.remove(uuid);
-                if (loc != null && p != null) {
+                if (loc != null && p != null)
                     NmsManager.instance().handler().bed().removeFakeBed(p, loc);
-                }
             }
         }
         sleepers.clear();
@@ -208,10 +197,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onFurnitureInteract(FurnitureInteractEvent event) {
         if (!event.getNamespacedID().equals(namespacedID)) return;
-        handleBedInteract(
-                event.getPlayer(),
-                event.getBukkitEntity().getLocation()
-        );
+        handleBedInteract(event.getPlayer(), event.getBukkitEntity().getLocation());
     }
 
     /**
@@ -221,11 +207,10 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onComplexFurnitureInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (shouldIgnoreOffHandDuplicate(event)) return;
+        if (PlayerUtils.isOffHandDuplicate(event.getPlayer(), event.getHand())) return;
 
         Block clicked = event.getClickedBlock();
-        if (clicked == null || clicked.getType() != org.bukkit.Material.BARRIER)
-            return;
+        if (clicked == null || clicked.getType() != org.bukkit.Material.BARRIER) return;
 
         CustomEntity ce = findNearbyCustomEntity(clicked.getLocation());
         if (ce == null || !ce.getNamespacedID().equals(namespacedID)) return;
@@ -248,43 +233,38 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     }
 
     /**
-     * Wakes any players sleeping in slots that belong to this furniture piece
-     * when it is broken.  Their {@link PlayerBedLeaveEvent} will handle the
-     * block restoration automatically.
+     * Wakes any players sleeping in slots belonging to this furniture piece when it
+     * is broken. Their {@link PlayerBedLeaveEvent} handles the block restoration.
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFurnitureBreak(FurnitureBreakEvent event) {
         if (!event.getNamespacedID().equals(namespacedID)) return;
 
         Location base = event.getBukkitEntity().getLocation();
-        float yaw = event.getBukkitEntity().getLocation().getYaw();
-        Set<Location> broken = slotKeys(base, yaw);
+        float yaw = base.getYaw();
+        Set<Location> brokenSlots = slotKeys(base, yaw);
 
         for (Map.Entry<UUID, Location> entry : new HashSet<>(sleepers.entrySet())) {
-            if (!broken.contains(toSlotKey(entry.getValue()))) continue;
+            if (!brokenSlots.contains(toSlotKey(entry.getValue()))) continue;
 
             Player p = Bukkit.getPlayer(entry.getKey());
-            if (p != null && p.isSleeping()) {
-                p.wakeup(false); // -> PlayerBedLeaveEvent -> cleanUp
-            } else {
+            if (p != null && p.isSleeping())
+                p.wakeup(false); // → PlayerBedLeaveEvent → cleanUp
+            else
                 sleepers.remove(entry.getKey());
-            }
         }
     }
 
     private void handleBedInteract(Player player, Location furnitureBase) {
         if (player.isSneaking() || player.isSleeping()) return;
 
-        // Determine the facing yaw from the furniture entity (if present).
         float yaw = 0f;
         CustomFurniture cf = findNearbyCustomFurniture(furnitureBase);
         if (cf != null) yaw = cf.getEntity().getLocation().getYaw();
 
         Location freeSlot = findFreeSlot(furnitureBase, yaw);
         if (freeSlot == null) {
-            player.sendActionBar(
-                    Component.translatable("block.minecraft.bed.occupied")
-            );
+            player.sendActionBar(Component.translatable("block.minecraft.bed.occupied"));
             return;
         }
 
@@ -293,7 +273,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
 
     /**
      * Places a fake bed, calls {@link Player#sleep}, and cleans up immediately
-     * if sleep was refused.  On success the fake bed stays until wakeup.
+     * if sleep was refused. On success the fake bed stays until wakeup.
      */
     private void trySleep(Player player, Location slotLoc, float yaw) {
         // Bake the yaw into the location - the NMS handler reads it to set
@@ -303,28 +283,19 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
 
         UUID uuid = player.getUniqueId();
 
-        // Register before placing so that any concurrent check sees the slot
-        // as occupied.
+        // Register before placing so concurrent checks see the slot as occupied.
         sleepers.put(uuid, slotLoc);
-
-        // Write the real vanilla bed block into the world temporarily.
         NmsManager.instance().handler().bed().placeFakeBed(player, slotLoc);
 
         boolean sleeping = player.sleep(slotLoc, false);
 
         if (!sleeping) {
-            // Sleep was rejected (wrong time, obstacle, etc.) - undo everything.
             sleepers.remove(uuid);
             NmsManager.instance().handler().bed().removeFakeBed(player, slotLoc);
-
             Log.debug(TAG, "trySleep: Player#sleep rejected for {}", player.getName());
         } else {
-            // Player is now sleeping - the fake bed must remain so that vanilla
-            // bed-existence checks (if any) still pass. It will be removed by
-            // cleanUp() when the player wakes up or disconnects.
             Log.debug(TAG, "trySleep: {} is now sleeping at [{} {} {}]",
-                    player.getName(), slotLoc.getBlockX(), slotLoc.getBlockY(),
-                    slotLoc.getBlockZ());
+                    player.getName(), slotLoc.getBlockX(), slotLoc.getBlockY(), slotLoc.getBlockZ());
         }
     }
 
@@ -340,7 +311,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
 
     @Nullable
     private Location findFreeSlot(Location base, float yaw) {
-        for (SlotOffset offset : slots) {
+        for (SlotOffset offset : configuredSlots) {
             Location candidate = centredSlot(base, offset, yaw);
             if (!isOccupied(candidate)) return candidate;
         }
@@ -359,8 +330,8 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
      * All block-snapped slot locations for {@code base} (used on break).
      */
     private Set<Location> slotKeys(Location base, float yaw) {
-        Set<Location> keys = HashSet.newHashSet(slots.size());
-        for (SlotOffset o : slots) keys.add(toSlotKey(centredSlot(base, o, yaw)));
+        Set<Location> keys = HashSet.newHashSet(configuredSlots.size());
+        for (SlotOffset o : configuredSlots) keys.add(toSlotKey(centredSlot(base, o, yaw)));
         return keys;
     }
 }

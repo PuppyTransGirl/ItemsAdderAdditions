@@ -1,32 +1,22 @@
 package toutouchien.itemsadderadditions.converter;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
-
 import java.util.Map;
 
-public class ConverterV101V102 {
-    private static final Map<String, Object> DEFAULTS = Map.ofEntries(
-            // actions
-            Map.entry("actions.ignite", true),
-            Map.entry("actions.mythic_mobs_skill", true),
-
-            // behaviours
-            Map.entry("behaviours.storage", true)
+/**
+ * Migration from plugin version 1.0.1 → 1.0.2.
+ * Backfills config keys for the actions and behaviours added in this version.
+ */
+public final class ConverterV101V102 {
+    private static final Map<String, Object> DEFAULTS = Map.of(
+            "actions.ignite", true,
+            "actions.mythic_mobs_skill", true,
+            "behaviours.storage", true
     );
 
+    private ConverterV101V102() {
+    }
+
     public static void run() {
-        FileConfiguration config = ItemsAdderAdditions.instance().getConfig();
-
-        boolean dirty = false;
-        for (Map.Entry<String, Object> entry : DEFAULTS.entrySet()) {
-            if (!config.isSet(entry.getKey())) {
-                config.set(entry.getKey(), entry.getValue());
-                dirty = true;
-            }
-        }
-
-        if (dirty)
-            ItemsAdderAdditions.instance().saveConfig();
+        ConfigMigration.applyDefaults(DEFAULTS);
     }
 }

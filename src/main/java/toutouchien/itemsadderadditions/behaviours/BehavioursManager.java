@@ -4,7 +4,6 @@ import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.behaviours.executors.*;
 import toutouchien.itemsadderadditions.behaviours.loading.BehaviourLoader;
 import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
-import toutouchien.itemsadderadditions.utils.other.Log;
 
 /**
  * Entry point for the behaviours system.
@@ -29,35 +28,21 @@ import toutouchien.itemsadderadditions.utils.other.Log;
  * }</pre>
  */
 public final class BehavioursManager {
-    private static final String CONFIG_SECTION = "behaviours.";
+    private static final String CONFIG_PREFIX = "behaviours.";
 
     private final ExecutorRegistry<BehaviourExecutor> registry = new ExecutorRegistry<>("Behaviours");
     private final BehaviourLoader loader = new BehaviourLoader(registry);
 
     public BehavioursManager() {
-        registerBuiltins(
+        registry.registerIfEnabled(
+                ItemsAdderAdditions.instance().getConfig(),
+                CONFIG_PREFIX,
                 new BedBehaviour(),
                 new ConnectableBehaviour(),
                 new ContactDamageBehaviour(),
                 new StackableBehaviour(),
                 new StorageBehaviour()
         );
-    }
-
-    /**
-     * Registers built-in executors, skipping any whose {@code behaviours.<key>}
-     * config entry is set to {@code false}.
-     */
-    private void registerBuiltins(BehaviourExecutor... executors) {
-        for (BehaviourExecutor executor : executors) {
-            String configPath = CONFIG_SECTION + executor.key();
-            if (!ItemsAdderAdditions.instance().getConfig().getBoolean(configPath, true)) {
-                Log.disabled("Behaviours", executor.key());
-                continue;
-            }
-
-            registry.register(executor);
-        }
     }
 
     /**

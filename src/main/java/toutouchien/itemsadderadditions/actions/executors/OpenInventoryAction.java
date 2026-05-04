@@ -1,8 +1,6 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
-import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -13,8 +11,8 @@ import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
+import toutouchien.itemsadderadditions.utils.TextRenderer;
 import toutouchien.itemsadderadditions.utils.VersionUtils;
-import toutouchien.itemsadderadditions.utils.hook.PlaceholderAPIUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.Locale;
@@ -35,8 +33,6 @@ import java.util.Locale;
 @NullMarked
 @Action(key = "open_inventory")
 public final class OpenInventoryAction extends ActionExecutor {
-    private static final MiniMessage MM = MiniMessage.miniMessage();
-
     @Parameter(key = "type", type = String.class, required = true)
     private String type;
 
@@ -58,12 +54,9 @@ public final class OpenInventoryAction extends ActionExecutor {
 
     @SuppressWarnings("UnstableApiUsage")
     private void openInventoryNew(HumanEntity human) {
-        Component menuTitle = null;
-
-        if (title != null) {
-            String input = human instanceof Player player ? PlaceholderAPIUtils.parsePlaceholders(player, title) : title;
-            menuTitle = FontImageWrapper.replaceFontImages(MM.deserialize(input));
-        }
+        Component menuTitle = title != null
+                ? TextRenderer.render(human instanceof Player p ? p : null, title)
+                : null;
 
         switch (type.toLowerCase(Locale.ROOT)) {
             case "anvil" -> MenuType.ANVIL.create(human, menuTitle).open();

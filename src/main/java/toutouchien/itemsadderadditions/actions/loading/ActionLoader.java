@@ -1,7 +1,5 @@
 package toutouchien.itemsadderadditions.actions.loading;
 
-import dev.lone.itemsadder.api.CustomStack;
-import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.NullMarked;
@@ -9,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.TriggerKey;
 import toutouchien.itemsadderadditions.actions.TriggerType;
+import toutouchien.itemsadderadditions.utils.loading.AbstractItemsAdderItemLoader;
 import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
 import toutouchien.itemsadderadditions.utils.other.ItemCategory;
 import toutouchien.itemsadderadditions.utils.other.Log;
@@ -17,229 +16,147 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Reads every CustomStack's YAML config and populates {@link ActionBindings}.
+ * Reads each ItemsAdder item's {@code events:} section and turns matching custom
+ * action keys into runtime bindings.
  *
- * <h3>Standard (non-argumentized) trigger</h3>
- * <pre>
- * events:
- *   block_break:
- *     veinminer:
- *       max_blocks: 32
- * </pre>
+ * <h3>Trigger maps</h3>
+ * Each category (item, block, furniture, complex-furniture) has its own map from
+ * the YAML trigger name to a {@link TriggerEntry} that pairs the {@link TriggerType}
+ * with a flag indicating whether the trigger accepts event-argument sub-keys (e.g.
+ * {@code "right:"}, {@code "left_shift:"}).
  *
- * <h3>Argumentized trigger - wildcard (fire on any interaction)</h3>
- * When no argument sub-key is present the actions are registered as a wildcard
- * and will execute regardless of which specific interaction occurred.
- *
- * <pre>
- * events:
- *   interact:           # argumentized trigger, no argument qualifier
- *     actionbar:
- *       text: "&lt;green&gt;You interacted!"
- * </pre>
- *
- * <h3>Argumentized trigger - qualified (fire only for specific interactions)</h3>
- * Add one or more argument sub-keys to restrict execution to those interaction types.
- * The set of argumentized trigger names per category is declared in
- * {@link #ITEM_ARGUMENTIZED}, {@link #FURNITURE_ARGUMENTIZED}, etc.
- *
- * <pre>
- * # Item / block
- * events:
- *   interact:           # argumentized trigger
- *     right:            # event argument - fires only on right-click
- *       title:
- *         title: "&lt;gold&gt;Right-clicked!"
- *     left_shift:       # event argument - fires only on sneak-left-click
- *       actionbar:
- *         text: "&lt;red&gt;Shift-left!"
- *
- * # Furniture
- * events:
- *   placed_furniture:
- *     interact:         # argumentized trigger
- *       entity:         # event argument - fires only on entity right-click
- *         play_animation:
- *           name: wave
- * </pre>
- *
- * <h3>Known argument values for interact triggers</h3>
- * {@code right}, {@code left}, {@code right_shift}, {@code left_shift}, {@code entity}
+ * <h3>Argumentized triggers</h3>
+ * When a trigger is argumentized, the loader checks whether the YAML section below
+ * the trigger key contains action keys directly (<em>wildcard</em> layout) or
+ * argument sub-keys containing action keys (<em>qualified</em> layout). Both are
+ * supported and stored separately.
  */
-@SuppressWarnings("unused")
 @NullMarked
-public final class ActionLoader {
-    private static final Map<String, TriggerType> ITEM_TRIGGERS = Map.ofEntries(
-            // Interact
-            Map.entry("interact", TriggerType.ITEM_INTERACT),
-            Map.entry("interact_mainhand", TriggerType.ITEM_INTERACT_MAINHAND),
-            Map.entry("interact_offhand", TriggerType.ITEM_INTERACT_OFFHAND),
-            // Block & Combat
-            Map.entry("block_break", TriggerType.ITEM_BREAK_BLOCK),
-            Map.entry("attack", TriggerType.ITEM_ATTACK),
-            Map.entry("kill", TriggerType.ITEM_KILL),
-            // Inventory
-            Map.entry("drop", TriggerType.ITEM_DROP),
-            Map.entry("pickup", TriggerType.ITEM_PICKUP),
-            Map.entry("held", TriggerType.ITEM_HELD),
-            Map.entry("held_offhand", TriggerType.ITEM_HELD_OFFHAND),
-            Map.entry("unheld", TriggerType.ITEM_UNHELD),
-            Map.entry("unheld_offhand", TriggerType.ITEM_UNHELD_OFFHAND),
-            Map.entry("item_break", TriggerType.ITEM_BREAK),
-            // Consumable
-            Map.entry("eat", TriggerType.ITEM_EAT),
-            Map.entry("drink", TriggerType.ITEM_DRINK),
-            // Ranged
-            Map.entry("bow_shot", TriggerType.ITEM_BOW_SHOT),
-            Map.entry("gun_shot", TriggerType.ITEM_GUN_SHOT),
-            Map.entry("gun_no_ammo", TriggerType.ITEM_GUN_NO_AMMO),
-            Map.entry("gun_reload", TriggerType.ITEM_GUN_RELOAD),
-            Map.entry("item_throw", TriggerType.ITEM_THROW),
-            Map.entry("item_hit_ground", TriggerType.ITEM_HIT_GROUND),
-            Map.entry("item_hit_entity", TriggerType.ITEM_HIT_ENTITY),
-            // Books
-            Map.entry("book_write", TriggerType.ITEM_BOOK_WRITE),
-            Map.entry("book_read", TriggerType.ITEM_BOOK_READ),
-            // Fishing
-            Map.entry("fishing_start", TriggerType.ITEM_FISHING_START),
-            Map.entry("fishing_caught", TriggerType.ITEM_FISHING_CAUGHT),
-            Map.entry("fishing_failed", TriggerType.ITEM_FISHING_FAILED),
-            Map.entry("fishing_cancel", TriggerType.ITEM_FISHING_CANCEL),
-            Map.entry("fishing_bite", TriggerType.ITEM_FISHING_BITE),
-            Map.entry("fishing_in_ground", TriggerType.ITEM_FISHING_IN_GROUND),
-            // Buckets
-            Map.entry("bucket_empty", TriggerType.ITEM_BUCKET_EMPTY),
-            Map.entry("bucket_fill", TriggerType.ITEM_BUCKET_FILL)
-    );
-    private static final Map<String, TriggerType> BLOCK_TRIGGERS = Map.of(
-            "interact", TriggerType.BLOCK_INTERACT,
-            "break", TriggerType.PLACED_BLOCK_BREAK
-    );
-    private static final Map<String, TriggerType> FURNITURE_TRIGGERS = Map.ofEntries(
-            Map.entry("interact", TriggerType.FURNITURE_INTERACT),
-            Map.entry("interact_mainhand", TriggerType.FURNITURE_INTERACT_MAINHAND),
-            Map.entry("interact_offhand", TriggerType.FURNITURE_INTERACT_OFFHAND),
-            Map.entry("attack", TriggerType.FURNITURE_ATTACK),
-            Map.entry("kill", TriggerType.FURNITURE_KILL),
-            Map.entry("drop", TriggerType.FURNITURE_DROP),
-            Map.entry("pickup", TriggerType.FURNITURE_PICKUP),
-            Map.entry("eat", TriggerType.FURNITURE_EAT),
-            Map.entry("drink", TriggerType.FURNITURE_DRINK),
-            Map.entry("bow_shot", TriggerType.FURNITURE_BOW_SHOT),
-            Map.entry("gun_shot", TriggerType.FURNITURE_GUN_SHOT),
-            Map.entry("gun_no_ammo", TriggerType.FURNITURE_GUN_NO_AMMO),
-            Map.entry("gun_reload", TriggerType.FURNITURE_GUN_RELOAD),
-            Map.entry("book_write", TriggerType.FURNITURE_BOOK_WRITE),
-            Map.entry("book_read", TriggerType.FURNITURE_BOOK_READ),
-            Map.entry("fishing_start", TriggerType.FURNITURE_FISHING_START),
-            Map.entry("fishing_caught", TriggerType.FURNITURE_FISHING_CAUGHT),
-            Map.entry("fishing_failed", TriggerType.FURNITURE_FISHING_FAILED),
-            Map.entry("fishing_cancel", TriggerType.FURNITURE_FISHING_CANCEL),
-            Map.entry("fishing_bite", TriggerType.FURNITURE_FISHING_BITE),
-            Map.entry("fishing_in_ground", TriggerType.FURNITURE_FISHING_IN_GROUND),
-            Map.entry("wear", TriggerType.FURNITURE_WEAR),
-            Map.entry("unwear", TriggerType.FURNITURE_UNWEAR),
-            Map.entry("held", TriggerType.FURNITURE_HELD),
-            Map.entry("held_offhand", TriggerType.FURNITURE_HELD_OFFHAND),
-            Map.entry("unheld", TriggerType.FURNITURE_UNHELD),
-            Map.entry("unheld_offhand", TriggerType.FURNITURE_UNHELD_OFFHAND),
-            Map.entry("item_throw", TriggerType.FURNITURE_THROW),
-            Map.entry("item_hit_ground", TriggerType.FURNITURE_HIT_GROUND),
-            Map.entry("item_hit_entity", TriggerType.FURNITURE_HIT_ENTITY),
-            Map.entry("item_break", TriggerType.FURNITURE_BREAK),
-            Map.entry("bucket_empty", TriggerType.FURNITURE_BUCKET_EMPTY),
-            Map.entry("bucket_fill", TriggerType.FURNITURE_BUCKET_FILL)
-    );
-    private static final Map<String, TriggerType> COMPLEX_FURNITURE_TRIGGERS = Map.of(
-            "interact", TriggerType.COMPLEX_FURNITURE_INTERACT
-    );
-    /**
-     * Trigger names that carry an event argument for the ITEM category.
-     */
-    private static final Set<String> ITEM_ARGUMENTIZED = Set.of(
-            "interact", "interact_mainhand", "interact_offhand"
-    );
-    /**
-     * Trigger names that carry an event argument for the FURNITURE category.
-     */
-    private static final Set<String> FURNITURE_ARGUMENTIZED = Set.of(
-            "interact", "interact_mainhand", "interact_offhand"
+@SuppressWarnings("unused")
+public final class ActionLoader extends AbstractItemsAdderItemLoader {
+    private static final Map<String, TriggerEntry> ITEM_TRIGGERS = Map.ofEntries(
+            Map.entry("interact", new TriggerEntry(TriggerType.ITEM_INTERACT, true)),
+            Map.entry("interact_mainhand", new TriggerEntry(TriggerType.ITEM_INTERACT_MAINHAND, true)),
+            Map.entry("interact_offhand", new TriggerEntry(TriggerType.ITEM_INTERACT_OFFHAND, true)),
+            Map.entry("block_break", new TriggerEntry(TriggerType.ITEM_BREAK_BLOCK, false)),
+            Map.entry("attack", new TriggerEntry(TriggerType.ITEM_ATTACK, false)),
+            Map.entry("kill", new TriggerEntry(TriggerType.ITEM_KILL, false)),
+            Map.entry("drop", new TriggerEntry(TriggerType.ITEM_DROP, false)),
+            Map.entry("pickup", new TriggerEntry(TriggerType.ITEM_PICKUP, false)),
+            Map.entry("held", new TriggerEntry(TriggerType.ITEM_HELD, false)),
+            Map.entry("held_offhand", new TriggerEntry(TriggerType.ITEM_HELD_OFFHAND, false)),
+            Map.entry("unheld", new TriggerEntry(TriggerType.ITEM_UNHELD, false)),
+            Map.entry("unheld_offhand", new TriggerEntry(TriggerType.ITEM_UNHELD_OFFHAND, false)),
+            Map.entry("item_break", new TriggerEntry(TriggerType.ITEM_BREAK, false)),
+            Map.entry("eat", new TriggerEntry(TriggerType.ITEM_EAT, false)),
+            Map.entry("drink", new TriggerEntry(TriggerType.ITEM_DRINK, false)),
+            Map.entry("bow_shot", new TriggerEntry(TriggerType.ITEM_BOW_SHOT, false)),
+            Map.entry("gun_shot", new TriggerEntry(TriggerType.ITEM_GUN_SHOT, false)),
+            Map.entry("gun_no_ammo", new TriggerEntry(TriggerType.ITEM_GUN_NO_AMMO, false)),
+            Map.entry("gun_reload", new TriggerEntry(TriggerType.ITEM_GUN_RELOAD, false)),
+            Map.entry("item_throw", new TriggerEntry(TriggerType.ITEM_THROW, false)),
+            Map.entry("item_hit_ground", new TriggerEntry(TriggerType.ITEM_HIT_GROUND, false)),
+            Map.entry("item_hit_entity", new TriggerEntry(TriggerType.ITEM_HIT_ENTITY, false)),
+            Map.entry("book_write", new TriggerEntry(TriggerType.ITEM_BOOK_WRITE, false)),
+            Map.entry("book_read", new TriggerEntry(TriggerType.ITEM_BOOK_READ, false)),
+            Map.entry("fishing_start", new TriggerEntry(TriggerType.ITEM_FISHING_START, false)),
+            Map.entry("fishing_caught", new TriggerEntry(TriggerType.ITEM_FISHING_CAUGHT, false)),
+            Map.entry("fishing_failed", new TriggerEntry(TriggerType.ITEM_FISHING_FAILED, false)),
+            Map.entry("fishing_cancel", new TriggerEntry(TriggerType.ITEM_FISHING_CANCEL, false)),
+            Map.entry("fishing_bite", new TriggerEntry(TriggerType.ITEM_FISHING_BITE, false)),
+            Map.entry("fishing_in_ground", new TriggerEntry(TriggerType.ITEM_FISHING_IN_GROUND, false)),
+            Map.entry("bucket_empty", new TriggerEntry(TriggerType.ITEM_BUCKET_EMPTY, false)),
+            Map.entry("bucket_fill", new TriggerEntry(TriggerType.ITEM_BUCKET_FILL, false))
     );
 
-    /*
-     * Argumentized trigger names
-     *
-     * Some trigger names accept an extra "event argument" sub-key in YAML.
-     * The event argument appears between the trigger name and the action map.
-     *
-     * Example YAML:
-     *
-     *   interact:           # trigger name (argumentized)
-     *     right:            # event argument
-     *       actionbar:      # action
-     *         text: "…"
-     *
-     * To add support for a new event that uses an argument sub-key, simply add
-     * the trigger name to the appropriate set below.
-     * No other loader code changes are required.
-     */
     /**
-     * Trigger names that carry an event argument for the BLOCK category.
+     * Trigger maps per item category
+     * Convention: if an entry has argumentized = true, the loader will also look
+     * for per-argument sub-sections under the trigger key in YAML.
      */
-    private static final Set<String> BLOCK_ARGUMENTIZED = Set.of();
-    /**
-     * Trigger names that carry an event argument for the COMPLEX_FURNITURE category.
-     */
-    private static final Set<String> COMPLEX_FURNITURE_ARGUMENTIZED = Set.of();
+    private static final Map<String, TriggerEntry> BLOCK_TRIGGERS = Map.of(
+            "interact", new TriggerEntry(TriggerType.BLOCK_INTERACT, false),
+            "break", new TriggerEntry(TriggerType.PLACED_BLOCK_BREAK, false)
+    );
+    private static final Map<String, TriggerEntry> FURNITURE_TRIGGERS = Map.ofEntries(
+            Map.entry("interact", new TriggerEntry(TriggerType.FURNITURE_INTERACT, true)),
+            Map.entry("interact_mainhand", new TriggerEntry(TriggerType.FURNITURE_INTERACT_MAINHAND, true)),
+            Map.entry("interact_offhand", new TriggerEntry(TriggerType.FURNITURE_INTERACT_OFFHAND, true)),
+            Map.entry("attack", new TriggerEntry(TriggerType.FURNITURE_ATTACK, false)),
+            Map.entry("kill", new TriggerEntry(TriggerType.FURNITURE_KILL, false)),
+            Map.entry("drop", new TriggerEntry(TriggerType.FURNITURE_DROP, false)),
+            Map.entry("pickup", new TriggerEntry(TriggerType.FURNITURE_PICKUP, false)),
+            Map.entry("eat", new TriggerEntry(TriggerType.FURNITURE_EAT, false)),
+            Map.entry("drink", new TriggerEntry(TriggerType.FURNITURE_DRINK, false)),
+            Map.entry("bow_shot", new TriggerEntry(TriggerType.FURNITURE_BOW_SHOT, false)),
+            Map.entry("gun_shot", new TriggerEntry(TriggerType.FURNITURE_GUN_SHOT, false)),
+            Map.entry("gun_no_ammo", new TriggerEntry(TriggerType.FURNITURE_GUN_NO_AMMO, false)),
+            Map.entry("gun_reload", new TriggerEntry(TriggerType.FURNITURE_GUN_RELOAD, false)),
+            Map.entry("book_write", new TriggerEntry(TriggerType.FURNITURE_BOOK_WRITE, false)),
+            Map.entry("book_read", new TriggerEntry(TriggerType.FURNITURE_BOOK_READ, false)),
+            Map.entry("fishing_start", new TriggerEntry(TriggerType.FURNITURE_FISHING_START, false)),
+            Map.entry("fishing_caught", new TriggerEntry(TriggerType.FURNITURE_FISHING_CAUGHT, false)),
+            Map.entry("fishing_failed", new TriggerEntry(TriggerType.FURNITURE_FISHING_FAILED, false)),
+            Map.entry("fishing_cancel", new TriggerEntry(TriggerType.FURNITURE_FISHING_CANCEL, false)),
+            Map.entry("fishing_bite", new TriggerEntry(TriggerType.FURNITURE_FISHING_BITE, false)),
+            Map.entry("fishing_in_ground", new TriggerEntry(TriggerType.FURNITURE_FISHING_IN_GROUND, false)),
+            Map.entry("wear", new TriggerEntry(TriggerType.FURNITURE_WEAR, false)),
+            Map.entry("unwear", new TriggerEntry(TriggerType.FURNITURE_UNWEAR, false)),
+            Map.entry("held", new TriggerEntry(TriggerType.FURNITURE_HELD, false)),
+            Map.entry("held_offhand", new TriggerEntry(TriggerType.FURNITURE_HELD_OFFHAND, false)),
+            Map.entry("unheld", new TriggerEntry(TriggerType.FURNITURE_UNHELD, false)),
+            Map.entry("unheld_offhand", new TriggerEntry(TriggerType.FURNITURE_UNHELD_OFFHAND, false)),
+            Map.entry("item_throw", new TriggerEntry(TriggerType.FURNITURE_THROW, false)),
+            Map.entry("item_hit_ground", new TriggerEntry(TriggerType.FURNITURE_HIT_GROUND, false)),
+            Map.entry("item_hit_entity", new TriggerEntry(TriggerType.FURNITURE_HIT_ENTITY, false)),
+            Map.entry("item_break", new TriggerEntry(TriggerType.FURNITURE_BREAK, false)),
+            Map.entry("bucket_empty", new TriggerEntry(TriggerType.FURNITURE_BUCKET_EMPTY, false)),
+            Map.entry("bucket_fill", new TriggerEntry(TriggerType.FURNITURE_BUCKET_FILL, false))
+    );
+    private static final Map<String, TriggerEntry> COMPLEX_FURNITURE_TRIGGERS = Map.of(
+            "interact", new TriggerEntry(TriggerType.COMPLEX_FURNITURE_INTERACT, false)
+    );
     private final ExecutorRegistry<ActionExecutor> registry;
 
     public ActionLoader(ExecutorRegistry<ActionExecutor> registry) {
+        super("Actions", "action binding(s)");
         this.registry = registry;
     }
 
-    public void load() {
-        ActionBindings.clear();
-        int totalActions = 0;
-
-        for (CustomStack customStack : ItemsAdder.getAllItems())
-            totalActions += loadItem(customStack);
-
-        Log.loaded("Actions", totalActions, "action binding(s)");
+    private static Map<String, TriggerEntry> triggerMapFor(ItemCategory category) {
+        return switch (category) {
+            case ITEM -> ITEM_TRIGGERS;
+            case BLOCK -> BLOCK_TRIGGERS;
+            case FURNITURE -> FURNITURE_TRIGGERS;
+            case COMPLEX_FURNITURE -> COMPLEX_FURNITURE_TRIGGERS;
+        };
     }
 
-    private int loadItem(CustomStack customStack) {
-        FileConfiguration config = customStack.getConfig();
-        String itemID = customStack.getId();
-        String namespacedID = customStack.getNamespacedID();
+    @Override
+    protected void beforeLoad() {
+        ActionBindings.clear();
+    }
 
-        ItemCategory category = ItemCategory.determine(customStack, config, itemID);
-        ConfigurationSection events = resolveEventsSection(config, itemID, category);
-        if (events == null)
-            return 0;
+    @Override
+    protected int loadItem(ItemLoadContext context) {
+        ConfigurationSection events = resolveEventsSection(context);
+        if (events == null) return 0;
 
-        int count = parseTriggersInSection(events, config, itemID, namespacedID, category);
+        int count = parseTriggersInSection(
+                events, context.config(), context.itemId(), context.namespacedId(), context.category());
 
-        // BLOCK items can optionally use:
-        // events:
-        //   placed_block:
-        //     break:
-        //       ...
-        if (category == ItemCategory.BLOCK) {
+        // Blocks also expose a nested "placed_block" sub-section for block-specific events.
+        if (context.category() == ItemCategory.BLOCK) {
             ConfigurationSection placedBlock = events.getConfigurationSection("placed_block");
             if (placedBlock != null) {
                 count += parseTriggersInSection(
-                        placedBlock,
-                        config,
-                        itemID,
-                        namespacedID,
-                        category
-                );
+                        placedBlock, context.config(), context.itemId(),
+                        context.namespacedId(), context.category());
             }
         }
 
         return count;
     }
-
 
     private int parseTriggersInSection(
             ConfigurationSection section,
@@ -252,55 +169,32 @@ public final class ActionLoader {
 
         for (String triggerName : section.getKeys(false)) {
             ConfigurationSection triggerSection = section.getConfigurationSection(triggerName);
-            if (triggerSection == null)
-                continue;
+            if (triggerSection == null) continue;
 
-            TriggerType type = resolveTriggerType(triggerName, category);
-            if (type == null) {
-                // Unknown to this system - likely a native ItemsAdder action; skip silently.
-                continue;
-            }
+            TriggerEntry entry = triggerMapFor(category).get(triggerName);
+            if (entry == null) continue;
 
-            String bindingKey = resolveBindingKey(config, itemID, namespacedID, category, type);
+            String bindingKey = resolveBindingKey(config, itemID, namespacedID, category, entry.type());
 
-            if (isArgumentized(triggerName, category))
-                count += parseArgumentizedTrigger(triggerSection, bindingKey, type, namespacedID);
-            else
+            if (entry.argumentized()) {
+                count += parseArgumentizedTrigger(triggerSection, bindingKey, entry.type(), namespacedID);
+            } else {
                 count += parseActionsFromSection(
-                        triggerSection,
-                        bindingKey,
-                        TriggerKey.of(type),
-                        namespacedID
-                );
+                        triggerSection, bindingKey, TriggerKey.of(entry.type()), namespacedID);
+            }
         }
 
         return count;
     }
 
     /**
-     * Parses an argumentized trigger section that may be in one of two layouts:
-     *
-     * <h4>Argument-qualified (fires only for the listed interactions)</h4>
-     * <pre>
-     * interact:
-     *   right:          &lt;- argument sub-key
-     *     actionbar:
-     *       text: "..."
-     *   left_shift:     &lt;- another argument sub-key
-     *     title:
-     *       title: "..."
-     * </pre>
-     *
-     * <h4>Wildcard (fires for any interaction, argument sub-key omitted)</h4>
-     * <pre>
-     * interact:
-     *   actionbar:      &lt;- action key directly under the trigger (no qualifier)
-     *     text: "..."
-     * </pre>
-     * <p>
-     * Detection: if any direct child key is a registered action prototype, the whole
-     * section is treated as a wildcard and stored under the null-argument
-     * {@link TriggerKey}. Otherwise every child key is treated as an argument qualifier.
+     * Parses an argumentized trigger section that may use either:
+     * <ul>
+     *   <li><em>Wildcard layout</em> - action keys directly under the trigger
+     *       (fires for any argument).</li>
+     *   <li><em>Qualified layout</em> - argument keys (e.g. {@code "right:"}) that
+     *       each contain action keys (fires only for that specific argument).</li>
+     * </ul>
      */
     private int parseArgumentizedTrigger(
             ConfigurationSection triggerSection,
@@ -310,51 +204,45 @@ public final class ActionLoader {
     ) {
         Set<String> subKeys = triggerSection.getKeys(false);
 
-        // Detect wildcard layout: if any sub-key is a registered action, there are no
-        // argument qualifiers - the actions apply to every interaction variant.
+        // If any direct sub-key matches a registered action, treat the whole section
+        // as a wildcard (no argument filter).
         boolean isWildcard = subKeys.stream().anyMatch(k -> registry.getPrototype(k) != null);
         if (isWildcard) {
             return parseActionsFromSection(triggerSection, bindingKey, TriggerKey.of(type), itemName);
         }
 
-        // Argument-qualified layout: each sub-key is an event argument.
         int count = 0;
         for (String argument : subKeys) {
             ConfigurationSection argumentSection = triggerSection.getConfigurationSection(argument);
             if (argumentSection == null) {
-                // A plain scalar under an argumentized trigger - likely a config mistake.
                 Log.itemWarn("Actions", itemName,
-                        "expected a sub-section under trigger '{}', got a plain value for key '{}' " +
-                                "(did you forget an event argument like 'right:' or 'left_shift:'?)",
+                        "expected a sub-section under trigger '{}' for argument '{}' "
+                                + "(did you forget an event argument like 'right:' or 'left_shift:'?)",
                         type, argument);
                 continue;
             }
 
-            TriggerKey key = TriggerKey.of(type, argument);
-            count += parseActionsFromSection(argumentSection, bindingKey, key, itemName);
+            count += parseActionsFromSection(
+                    argumentSection, bindingKey, TriggerKey.of(type, argument), itemName);
         }
 
         return count;
     }
 
     /**
-     * Reads action keys from {@code triggerSection} and registers each one against
-     * {@code bindingKey} + {@code triggerKey}.
+     * Reads action keys from {@code section} and registers each matching one.
      */
     private int parseActionsFromSection(
-            ConfigurationSection triggerSection,
+            ConfigurationSection section,
             String bindingKey,
             TriggerKey triggerKey,
             String itemName
     ) {
         int count = 0;
 
-        for (String actionKey : triggerSection.getKeys(false)) {
+        for (String actionKey : section.getKeys(false)) {
             ActionExecutor prototype = registry.getPrototype(actionKey);
-            if (prototype == null) {
-                // Native ItemsAdder action - skip silently.
-                continue;
-            }
+            if (prototype == null) continue;
 
             if (!prototype.isAllowedFor(triggerKey.type())) {
                 Log.itemWarn("Actions", itemName,
@@ -364,7 +252,7 @@ public final class ActionLoader {
             }
 
             ActionExecutor instance = prototype.newInstance();
-            ConfigurationSection actionSection = triggerSection.getConfigurationSection(actionKey);
+            ConfigurationSection actionSection = section.getConfigurationSection(actionKey);
 
             if (instance.configure(actionSection, itemName)) {
                 ActionBindings.add(bindingKey, triggerKey, instance);
@@ -376,21 +264,22 @@ public final class ActionLoader {
     }
 
     @Nullable
-    private ConfigurationSection resolveEventsSection(FileConfiguration config, String itemID, ItemCategory category) {
-        String eventsPath = "items." + itemID + ".events";
+    private ConfigurationSection resolveEventsSection(ItemLoadContext context) {
+        String eventsPath = "items." + context.itemId() + ".events";
 
-        return switch (category) {
-            case COMPLEX_FURNITURE, FURNITURE -> config.getConfigurationSection(eventsPath + ".placed_furniture");
-            case BLOCK, ITEM -> config.getConfigurationSection(eventsPath);
+        return switch (context.category()) {
+            case COMPLEX_FURNITURE, FURNITURE ->
+                    context.config().getConfigurationSection(eventsPath + ".placed_furniture");
+            case BLOCK, ITEM -> context.config().getConfigurationSection(eventsPath);
         };
     }
 
     /**
-     * Returns the {@link ActionBindings} key for this (item, trigger) pair.
+     * Returns the binding key for this item/trigger combination.
      *
-     * <p>Complex-furniture interact events are keyed by the entity's namespaced ID
-     * (because the listener detects them via the spawned armor-stand entity, not the
-     * held item). All other triggers use the item's own namespaced ID.
+     * <p>For complex-furniture interact triggers the binding key is the entity's namespaced ID
+     * (from {@code behaviours.complex_furniture.entity}), not the item's own ID - because the
+     * listener dispatches on the entity ID, not the held-item ID.
      */
     private String resolveBindingKey(
             FileConfiguration config,
@@ -399,33 +288,24 @@ public final class ActionLoader {
             ItemCategory category,
             TriggerType type
     ) {
-        if (category != ItemCategory.COMPLEX_FURNITURE || type != TriggerType.COMPLEX_FURNITURE_INTERACT)
+        if (category != ItemCategory.COMPLEX_FURNITURE
+                || type != TriggerType.COMPLEX_FURNITURE_INTERACT) {
             return namespacedID;
+        }
 
         String entityID = config.getString("items." + itemID + ".behaviours.complex_furniture.entity");
-        if (entityID == null)
-            return namespacedID;
+        if (entityID == null) return namespacedID;
 
         String namespace = namespacedID.substring(0, namespacedID.indexOf(':'));
         return namespace + ":" + entityID;
     }
 
-    @Nullable
-    private TriggerType resolveTriggerType(String triggerName, ItemCategory category) {
-        return switch (category) {
-            case COMPLEX_FURNITURE -> COMPLEX_FURNITURE_TRIGGERS.get(triggerName);
-            case FURNITURE -> FURNITURE_TRIGGERS.get(triggerName);
-            case BLOCK -> BLOCK_TRIGGERS.get(triggerName);
-            case ITEM -> ITEM_TRIGGERS.get(triggerName);
-        };
-    }
-
-    private boolean isArgumentized(String triggerName, ItemCategory category) {
-        return switch (category) {
-            case ITEM -> ITEM_ARGUMENTIZED.contains(triggerName);
-            case FURNITURE -> FURNITURE_ARGUMENTIZED.contains(triggerName);
-            case BLOCK -> BLOCK_ARGUMENTIZED.contains(triggerName);
-            case COMPLEX_FURNITURE -> COMPLEX_FURNITURE_ARGUMENTIZED.contains(triggerName);
-        };
-    }
+    /**
+     * Pairs a {@link TriggerType} with its argumentized flag.
+     *
+     * @param type         the resolved trigger type
+     * @param argumentized {@code true} when the trigger can carry an event-argument sub-key
+     *                     (e.g. {@code "right:"}, {@code "left_shift:"}); {@code false} otherwise
+     */
+    private record TriggerEntry(TriggerType type, boolean argumentized) {}
 }

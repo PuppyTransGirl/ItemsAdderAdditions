@@ -80,11 +80,11 @@ public final class ActionBindings {
                 List<ActionExecutor> combined = new ArrayList<>(exact.size() + wildcard.size());
                 combined.addAll(exact);
                 combined.addAll(wildcard);
-                return combined;
+                return List.copyOf(combined);
             }
         }
 
-        return exact;
+        return List.copyOf(exact);
     }
 
     /**

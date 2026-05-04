@@ -2,72 +2,52 @@ package toutouchien.itemsadderadditions.recipes.campfire;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
-import toutouchien.itemsadderadditions.utils.NamespaceUtils;
-import toutouchien.itemsadderadditions.utils.other.Log;
+import toutouchien.itemsadderadditions.recipes.AbstractRecipeHandler;
 
-public class CampfireRecipeHandler {
-    private static final String LOG_TAG = "CampfireRecipe";
+/**
+ * Loads and registers custom campfire cooking recipes.
+ *
+ * <h3>YAML structure</h3>
+ * <pre>{@code
+ * recipes:
+ *   campfire_cooking:
+ *     my_recipe:
+ *       enabled: true          # optional, default: true
+ *       ingredient:
+ *         item: "mypack:raw_fish"
+ *       result:
+ *         item: "mypack:cooked_fish"
+ *         amount: 1            # optional, default: 1
+ *       cook_time: 600         # optional, default: 600 ticks
+ *       exp: 0.35              # optional, default: 0.0
+ * }</pre>
+ */
+@NullMarked
+public final class CampfireRecipeHandler extends AbstractRecipeHandler {
+    public CampfireRecipeHandler() {
+        super("CampfireRecipe");
+    }
 
-    private static ItemStack resolveResult(
-            ConfigurationSection resultSection,
+    @Override
+    protected void registerRecipe(
             String namespace,
-            String recipeId
+            String recipeId,
+            ConfigurationSection entry,
+            ItemStack ingredient,
+            ItemStack result
     ) {
-        String itemValue = resultSection.getString("item");
-        int amount = resultSection.getInt("amount", 1);
+        int cookTime = entry.getInt("cook_time", 600);
+        float exp = (float) entry.getDouble("exp", 0.0);
 
-        if (itemValue == null) {
-            Log.warn(LOG_TAG, "Missing 'result.item' for " + namespace + ":" + recipeId);
-            return null;
-        }
-
-        ItemStack item = NamespaceUtils.itemByID(namespace, itemValue);
-        if (item == null) {
-            Log.warn(LOG_TAG, "Could not resolve result item: '" + itemValue + "' (namespace: " + namespace + ")");
-            return null;
-        }
-
-        item.setAmount(amount);
-        return item;
+        NmsManager.instance()
+                .handler()
+                .campfireRecipes()
+                .register(namespace, recipeId, ingredient, result, cookTime, exp);
     }
 
-    public void load(String namespace, ConfigurationSection section) {
-        if (section == null) return;
-
-        for (String recipeId : section.getKeys(false)) {
-            ConfigurationSection entry = section.getConfigurationSection(recipeId);
-            if (entry == null) continue;
-            if (!entry.getBoolean("enabled", true)) continue;
-
-            ConfigurationSection ingredientSection = entry.getConfigurationSection("ingredient");
-            if (ingredientSection == null) {
-                Log.warn(LOG_TAG, "Missing 'ingredient' for " + namespace + ":" + recipeId);
-                continue;
-            }
-
-            ItemStack ingredient = NamespaceUtils.itemByID(namespace, ingredientSection.getString("item"));
-            if (ingredient == null) continue;
-
-            ConfigurationSection resultSection = entry.getConfigurationSection("result");
-            if (resultSection == null) {
-                Log.warn(LOG_TAG, "Missing 'result' for " + namespace + ":" + recipeId);
-                continue;
-            }
-
-            ItemStack result = resolveResult(resultSection, namespace, recipeId);
-            if (result == null) continue;
-
-            int cookTime = entry.getInt("cook_time", 600);
-            float exp = (float) entry.getDouble("exp", 0.0);
-
-            NmsManager.instance()
-                    .handler()
-                    .campfireRecipes()
-                    .register(namespace, recipeId, ingredient, result, cookTime, exp);
-        }
-    }
-
+    @Override
     public void unregisterAll() {
         NmsManager.instance().handler().campfireRecipes().unregisterAll();
     }

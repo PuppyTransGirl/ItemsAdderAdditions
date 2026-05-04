@@ -71,7 +71,7 @@ public final class FurniturePopulatorBypassBridge {
     }
 
     private static void doStrip(Object rawFile) throws Exception {
-        // --- Step 1: obtain the underlying YamlConfiguration via reflection ---
+        // Step 1: obtain the underlying YamlConfiguration via reflection
         // auo keeps a YamlConfiguration in one of its fields.
         // We scan all declared fields (including super-classes) for the first
         // one that is assignable to YamlConfiguration.
@@ -82,7 +82,7 @@ public final class FurniturePopulatorBypassBridge {
             return;
         }
 
-        // --- Step 2: locate the blocks_populators list (with IA's fallback) ---
+        // Step 2: locate the blocks_populators list (with IA's fallback)
         // eS("blocks_populators") returns the YAML keys list for that section.
         // We replicate the fallback: blocks_populators → worlds_populators.
         String sectionKey = findPopulatorsSection(yaml);
@@ -91,7 +91,7 @@ public final class FurniturePopulatorBypassBridge {
         ConfigurationSection section = yaml.getConfigurationSection(sectionKey);
         if (section == null) return;
 
-        // --- Step 3: remove keys that belong to us ---
+        // Step 3: remove keys that belong to us
         // We use eS() / getKeys() rather than calling our own REGISTRY so that
         // this bridge works even before FurniturePopulatorLoader.loadAll() runs.
         // The only signal we need is the presence of "furniture:" in the section.

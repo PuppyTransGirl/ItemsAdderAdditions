@@ -1,76 +1,73 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
-import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
-import toutouchien.itemsadderadditions.utils.hook.PlaceholderAPIUtils;
+import toutouchien.itemsadderadditions.utils.TextRenderer;
 
 import java.time.Duration;
 
 /**
- * Sends a title + subtitle with MiniMessage formatting.
- * Both {@code title} and {@code subtitle} are optional; omitting one sends an empty component.
- * <p>
- * Example:
+ * Sends a title + subtitle with MiniMessage, PlaceholderAPI, and font-image support.
+ *
+ * <p>Both {@code title} and {@code subtitle} are optional - omitting either sends
+ * an empty component for that slot. You must provide at least one of them to have
+ * any visible effect.
+ *
+ * <p>Example:
  * <pre>{@code
  * title:
- *   title:    "<bold><gold>Welcome!"   # Optional
- *   subtitle: "<gray>Enjoy your stay"  # Optional
- *   fade_in:  5    # Optional (default: 10 ticks)
- *   stay:     40   # Optional (default: 70 ticks)
- *   fade_out: 30   # Optional (default: 20 ticks)
+ *   title:    "<bold><gold>Welcome!"   # optional
+ *   subtitle: "<gray>Enjoy your stay"  # optional
+ *   fade_in:  5    # optional, default: 10 ticks
+ *   stay:     40   # optional, default: 70 ticks
+ *   fade_out: 30   # optional, default: 20 ticks
  * }</pre>
  */
 @SuppressWarnings("unused")
 @NullMarked
 @Action(key = "title")
 public final class TitleAction extends ActionExecutor {
-    private static final MiniMessage MM = MiniMessage.miniMessage();
+    /**
+     * The main title text (MiniMessage). {@code null} when omitted → empty component.
+     */
+    @Parameter(key = "title", type = String.class)
+    @Nullable private String title;
 
-    @Parameter(key = "title", type = String.class, required = true)
-    private String title;
-
-    @Parameter(key = "subtitle", type = String.class, required = true)
-    private String subtitle;
+    /**
+     * The subtitle text (MiniMessage). {@code null} when omitted → empty component.
+     */
+    @Parameter(key = "subtitle", type = String.class)
+    @Nullable private String subtitle;
 
     @Parameter(key = "fade_in", type = Integer.class, min = 0, max = 1200)
-    private Integer fadeIn = 10;
+    private int fadeIn = 10;
 
     @Parameter(key = "stay", type = Integer.class, min = 1, max = 1200)
-    private Integer stay = 70;
+    private int stay = 70;
 
     @Parameter(key = "fade_out", type = Integer.class, min = 0, max = 1200)
-    private Integer fadeOut = 20;
+    private int fadeOut = 20;
 
-    @Override
-    protected void execute(ActionContext context) {
-        Entity runOn = context.runOn();
-        Component titleComp = parse(runOn, title);
-        Component subtitleComp = parse(runOn, subtitle);
-
-        Title.Times times = Title.Times.times(
-                duration(fadeIn),
-                duration(stay),
-                duration(fadeOut)
-        );
-
-        runOn.showTitle(Title.title(titleComp, subtitleComp, times));
-    }
-
-    private Duration duration(Integer ticks) {
+    private static Duration ticksToDuration(int ticks) {
         return Duration.ofMillis(ticks * 50L);
     }
 
-    private Component parse(Entity runOn, String text) {
-        String input = runOn instanceof Player player ? PlaceholderAPIUtils.parsePlaceholders(player, text) : text;
-        return FontImageWrapper.replaceFontImages(MM.deserialize(input));
+    @Override
+    protected void execute(ActionContext context) {
+        Component titleComp = title != null
+                ? TextRenderer.render(context.runOn(), title)
+                : Component.empty();
+        Component subtitleComp = subtitle != null
+                ? TextRenderer.render(context.runOn(), subtitle)
+                : Component.empty();
+
+        Title.Times times = Title.Times.times(ticksToDuration(fadeIn), ticksToDuration(stay), ticksToDuration(fadeOut));
+        context.runOn().showTitle(Title.title(titleComp, subtitleComp, times));
     }
 }

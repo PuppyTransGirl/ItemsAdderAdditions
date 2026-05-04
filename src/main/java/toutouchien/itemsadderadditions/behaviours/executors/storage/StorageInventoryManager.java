@@ -17,6 +17,23 @@ import toutouchien.itemsadderadditions.utils.other.Log;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Static utility class for reading and writing storage inventory contents to and from
+ * Bukkit's persistent data layer.
+ *
+ * <h3>Persistence targets</h3>
+ * <ul>
+ *   <li><b>Blocks</b> - contents are stored in {@link com.jeff_media.customblockdata.CustomBlockData},
+ *       which persists in the block's chunk data.</li>
+ *   <li><b>Furniture entities</b> - contents are stored directly in the entity's
+ *       {@link org.bukkit.persistence.PersistentDataContainer}.</li>
+ *   <li><b>Item stacks</b> - for {@link StorageType#SHULKER} items, contents are injected into
+ *       the dropped {@link org.bukkit.inventory.ItemStack}'s meta PDC when the block is broken
+ *       and extracted again when the item is placed.</li>
+ * </ul>
+ *
+ * <p>All methods are {@code static}; instantiation is prevented by a private constructor.
+ */
 @NullMarked
 public final class StorageInventoryManager {
     private static final AtomicBoolean CBD_REGISTERED = new AtomicBoolean(false);

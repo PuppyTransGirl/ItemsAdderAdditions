@@ -67,13 +67,13 @@ public final class ReplaceBiomeAction extends ActionExecutor {
         if (!super.configure(configData, namespacedID)) return false;
 
         if (!(configData instanceof ConfigurationSection section)) {
-            Log.warn("replace_biome on '{}': config must be a section", namespacedID);
+            Log.warn("Actions", "replace_biome on '{}': config must be a section", namespacedID);
             return false;
         }
 
         String biomeName = section.getString("biome");
         if (biomeName == null) {
-            Log.warn("replace_biome on '{}': missing required key 'biome'", namespacedID);
+            Log.warn("Actions", "replace_biome on '{}': missing required key 'biome'", namespacedID);
             return false;
         }
 
@@ -94,7 +94,7 @@ public final class ReplaceBiomeAction extends ActionExecutor {
                 .get(biomeKey);
 
         if (biome == null) {
-            Log.warn("replace_biome on '{}': unknown biome '{}'. Use a vanilla key ('plains') or a namespaced key ('mymod:custom_biome')",
+            Log.warn("Actions", "replace_biome on '{}': unknown biome '{}'. Use a vanilla key ('plains') or a namespaced key ('mymod:custom_biome')",
                     namespacedID, biomeName);
             return false;
         }
@@ -103,14 +103,14 @@ public final class ReplaceBiomeAction extends ActionExecutor {
         try {
             shape = BlocksShape.valueOf(shapeName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            Log.warn("replace_biome on '{}': unknown shape '{}'. Valid values: CUBOID, RHOMBUS, SPHERE, CYLINDER",
+            Log.warn("Actions", "replace_biome on '{}': unknown shape '{}'. Valid values: CUBOID, RHOMBUS, SPHERE, CYLINDER",
                     namespacedID, shapeName);
             return false;
         }
 
         ConfigurationSection radiusSection = section.getConfigurationSection("radius");
         if (radiusSection == null) {
-            Log.warn("replace_biome on '{}': missing 'radius' section", namespacedID);
+            Log.warn("Actions", "replace_biome on '{}': missing 'radius' section", namespacedID);
             return false;
         }
 
@@ -126,7 +126,7 @@ public final class ReplaceBiomeAction extends ActionExecutor {
         }
 
         if (radiusX < 0 || radiusY < 0 || radiusZ < 0) {
-            Log.warn("replace_biome on '{}': radius values must be >= 0", namespacedID);
+            Log.warn("Actions", "replace_biome on '{}': radius values must be >= 0", namespacedID);
             return false;
         }
 

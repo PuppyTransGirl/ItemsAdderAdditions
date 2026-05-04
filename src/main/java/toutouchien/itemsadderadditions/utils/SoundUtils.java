@@ -34,7 +34,7 @@ public final class SoundUtils {
     /**
      * Parses an Adventure {@link Sound} from {@code section}.
      *
-     * @param section the YAML section to read from ({@code null} -> returns {@code null})
+     * @param section the YAML section to read from ({@code null} → returns {@code null})
      * @return the parsed sound, or {@code null} if {@code name} is absent/blank or
      * {@code source} is not a recognised {@link Sound.Source} name
      */

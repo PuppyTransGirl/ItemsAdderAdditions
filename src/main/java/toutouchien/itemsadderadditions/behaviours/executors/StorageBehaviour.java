@@ -37,25 +37,74 @@ import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.*;
 
+/**
+ * Adds persistent inventory storage to custom blocks and furniture.
+ *
+ * <h3>Storage modes (the {@code type} parameter)</h3>
+ * <ul>
+ *   <li>{@code STORAGE}  - shared container; all players see the same inventory.</li>
+ *   <li>{@code SHULKER}  - portable storage; contents are serialised into the dropped
+ *       item and restored when re-placed.</li>
+ *   <li>{@code DISPOSAL} - trash can; contents are silently discarded on close.</li>
+ * </ul>
+ *
+ * <h3>Open variant ({@code open_variant} parameter)</h3>
+ * When an {@code open_variant} ID is provided, the behaviour swaps the block or furniture
+ * for a different model when any player has the GUI open, and restores the original when
+ * the last session closes.
+ *
+ * <h3>Minimal YAML example</h3>
+ * <pre>{@code
+ * behaviours:
+ *   storage:
+ *     type: STORAGE
+ *     rows: 3
+ *     title: "<dark_gray>My Chest"
+ *     open_variant: "my_pack:my_chest_open"
+ *     open_sound:
+ *       name: "minecraft:block.chest.open"
+ *     close_sound:
+ *       name: "minecraft:block.chest.close"
+ * }</pre>
+ */
 @SuppressWarnings("unused")
 @NullMarked
 @Behaviour(key = "storage")
 public final class StorageBehaviour extends BehaviourExecutor implements Listener {
+    /**
+     * Global set of all namespaced IDs that have {@link StorageType#SHULKER} storage.
+     * Shared across all instances so {@link StorageGuiGuard} can block nesting of any shulker-type item.
+     */
     private static final Set<String> SHULKER_ITEM_IDS =
             Collections.synchronizedSet(new HashSet<>());
 
     /**
-     * Block contents pre-loaded before CustomBlockData's MONITOR listener deletes PDC on break.
+     * Contents pre-loaded from blocks before CustomBlockData's {@code MONITOR} listener
+     * deletes the PDC on break.
      */
     private final Map<BlockCoord, ItemStack[]> preloadedBlockContents = new HashMap<>();
 
-    @Parameter(key = "type", type = String.class, required = true) private String typeName;
-    @Parameter(key = "rows", type = Integer.class, min = 1, max = 6) private int rows = 3;
-    @Parameter(key = "title", type = String.class) @Nullable private String titleRaw;
-    @Parameter(key = "open_variant", type = String.class) @Nullable private String openVariant;
-    @Nullable private Sound openSound;
-    @Nullable private Sound closeSound;
+    @Parameter(key = "type", type = String.class, required = true)
+    private String typeName;
 
+    @Parameter(key = "rows", type = Integer.class, min = 1, max = 6)
+    private int rows = 3;
+
+    @Parameter(key = "title", type = String.class)
+    @Nullable
+    private String titleRaw;
+
+    @Parameter(key = "open_variant", type = String.class)
+    @Nullable
+    private String openVariant;
+
+    @Nullable
+    private Sound openSound;
+
+    @Nullable
+    private Sound closeSound;
+
+    // Resolved during onLoad
     private StorageType storageType = StorageType.STORAGE;
     private String namespacedID = "";
     private ItemCategory category = ItemCategory.BLOCK;
@@ -64,17 +113,21 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     private StorageSessionManager sessionManager;
     private ShulkerDropTracker shulkerDropTracker;
     private StorageGuiGuard guiGuard;
-    @Nullable private OpenVariantConfig openVariantConfig;
+
+    @Nullable
+    private OpenVariantConfig openVariantConfig;
 
     /**
-     * Non-null when {@code open_variant} is configured and compatible with the host category.
+     * Non-null when {@code open_variant} is configured and compatible with the holder's category.
      */
     @Nullable
     private OpenVariantTransformer openVariantTransformer;
 
+    /**
+     * Drops items at {@code loc} if {@code contents} is non-null and contains non-air stacks.
+     */
     private static void dropItems(Location loc, @Nullable ItemStack @Nullable [] contents) {
-        if (contents == null)
-            return;
+        if (contents == null) return;
 
         for (ItemStack item : contents) {
             if (item != null && item.getType() != org.bukkit.Material.AIR) {
@@ -83,54 +136,77 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         }
     }
 
+    /**
+     * Parses an Adventure {@link Sound} from a named sub-section of {@code section}.
+     *
+     * <table>
+     *   <tr><th>Condition</th><th>Result</th></tr>
+     *   <tr><td>Key absent</td><td>{@link SoundParseResult#absent()}</td></tr>
+     *   <tr><td>Section present, valid</td><td>{@link SoundParseResult#ok(Sound)}</td></tr>
+     *   <tr><td>Section present, invalid</td>
+     *       <td>{@link SoundParseResult#malformed()} (error logged when applicable)</td></tr>
+     * </table>
+     */
+    private static SoundParseResult parseSoundField(
+            ConfigurationSection section,
+            String key,
+            String namespacedID
+    ) {
+        if (!section.contains(key)) return SoundParseResult.absent();
+
+        ConfigurationSection soundSection = section.getConfigurationSection(key);
+        Sound parsed = SoundUtils.parseSound(soundSection);
+        if (parsed != null) return SoundParseResult.ok(parsed);
+
+        // Section present but parse failed - only warn when the source string is the culprit.
+        if (soundSection != null) {
+            String src = soundSection.getString("source", "");
+            if (!src.isBlank() && SoundUtils.parseSource(src) == null) {
+                Log.warn(
+                        "Behaviours",
+                        "storage '{}': invalid {} source '{}' - valid values: "
+                                + "master, music, record, weather, block, hostile, neutral, "
+                                + "player, ambient, voice, ui",
+                        namespacedID,
+                        key,
+                        src
+                );
+            }
+        }
+
+        return SoundParseResult.malformed();
+    }
+
+    /**
+     * Resolves the {@link StorageType} from its name, defaulting to
+     * {@link StorageType#STORAGE} and logging a warning when the name is unrecognised.
+     */
+    private static StorageType resolveStorageType(String typeName, String namespacedID) {
+        try {
+            return StorageType.valueOf(typeName.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            Log.warn(
+                    "Storage",
+                    "Unknown type '{}' for '{}'. Defaulting to STORAGE.",
+                    typeName,
+                    namespacedID
+            );
+            return StorageType.STORAGE;
+        }
+    }
+
     @Override
     public boolean configure(Object configData, String namespacedID) {
-        if (!super.configure(configData, namespacedID))
-            return false;
-        if (!(configData instanceof ConfigurationSection section))
-            return false;
+        if (!super.configure(configData, namespacedID)) return false;
+        if (!(configData instanceof ConfigurationSection section)) return false;
 
-        if (section.contains("open_sound")) {
-            ConfigurationSection soundSection =
-                    section.getConfigurationSection("open_sound");
-            Sound parsed = SoundUtils.parseSound(soundSection);
-            if (parsed == null && soundSection != null) {
-                String src = soundSection.getString("source", "");
-                if (!src.isBlank() && SoundUtils.parseSource(src) == null) {
-                    Log.warn(
-                            "Behaviours",
-                            "storage: invalid open_sound source '{}' - valid values: " +
-                                    "master, music, record, weather, block, hostile, neutral, " +
-                                    "player, ambient, voice, ui",
-                            src
-                    );
-                    return false;
-                }
-            }
+        SoundParseResult openResult = parseSoundField(section, "open_sound", namespacedID);
+        if (openResult.status() == SoundParseStatus.MALFORMED) return false;
+        openSound = openResult.sound();
 
-            openSound = parsed;
-        }
-
-        if (section.contains("close_sound")) {
-            ConfigurationSection soundSection =
-                    section.getConfigurationSection("close_sound");
-            Sound parsed = SoundUtils.parseSound(soundSection);
-            if (parsed == null && soundSection != null) {
-                String src = soundSection.getString("source", "");
-                if (!src.isBlank() && SoundUtils.parseSource(src) == null) {
-                    Log.warn(
-                            "Behaviours",
-                            "storage: invalid close_sound source '{}' - valid values: " +
-                                    "master, music, record, weather, block, hostile, neutral, " +
-                                    "player, ambient, voice, ui",
-                            src
-                    );
-                    return false;
-                }
-            }
-
-            closeSound = parsed;
-        }
+        SoundParseResult closeResult = parseSoundField(section, "close_sound", namespacedID);
+        if (closeResult.status() == SoundParseStatus.MALFORMED) return false;
+        closeSound = closeResult.sound();
 
         return true;
     }
@@ -141,51 +217,37 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         this.category = host.category();
         this.plugin = host.plugin();
 
-        contentsKey = new NamespacedKey(
-                plugin,
-                "storage_" + namespacedID.replace(":", "_")
-        );
+        contentsKey = new NamespacedKey(plugin, "storage_" + namespacedID.replace(":", "_"));
         NamespacedKey uniqueIdKey = new NamespacedKey(
                 plugin,
                 "storage_uid_" + namespacedID.replace(":", "_")
         );
 
-        try {
-            storageType = StorageType.valueOf(typeName.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException e) {
-            Log.warn(
-                    "Storage",
-                    "Unknown type '{}' for '{}'. Defaulting to STORAGE.",
-                    typeName,
-                    namespacedID
-            );
-        }
+        storageType = resolveStorageType(typeName, namespacedID);
 
-        Log.debug("Storage", "raw open_variant for '{}': {}", namespacedID, openVariant);
-        OpenVariantConfig openVariantConfig = OpenVariantConfig.resolve(openVariant, namespacedID);
-        if (openVariantConfig != null) {
-            if (!isOpenVariantCompatible(category, openVariantConfig)) {
+        OpenVariantConfig resolvedVariantConfig =
+                OpenVariantConfig.resolve(openVariant, namespacedID);
+        if (resolvedVariantConfig != null) {
+            if (isOpenVariantCompatible(category, resolvedVariantConfig)) {
+                this.openVariantConfig = resolvedVariantConfig;
+                this.openVariantTransformer =
+                        new OpenVariantTransformer(resolvedVariantConfig);
+            } else {
                 Log.warn(
                         "Storage",
-                        "storage '{}': incompatible open_variant '{}'. " +
-                                "Block storage holders may only use block open_variant values, " +
-                                "while furniture/complex furniture storage holders may only use " +
-                                "furniture or item_display open_variant values.",
+                        "storage '{}': incompatible open_variant '{}'. "
+                                + "Block holders may only use block open_variant values; "
+                                + "furniture/complex-furniture holders may only use furniture or "
+                                + "item_display values.",
                         namespacedID,
-                        openVariantConfig.id()
+                        resolvedVariantConfig.id()
                 );
-                // openVariantConfig intentionally left as null -> transformer not created
-            } else {
-                openVariantTransformer = new OpenVariantTransformer(openVariantConfig);
-                this.openVariantConfig = openVariantConfig;
             }
         }
 
-        Component title = buildTitle();
-
         sessionManager = new StorageSessionManager(
                 rows,
-                title,
+                buildTitle(),
                 storageType,
                 contentsKey,
                 plugin,
@@ -195,17 +257,12 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
                 openVariantTransformer
         );
 
-        shulkerDropTracker = new ShulkerDropTracker(
-                namespacedID,
-                contentsKey,
-                uniqueIdKey
-        );
+        shulkerDropTracker = new ShulkerDropTracker(namespacedID, contentsKey, uniqueIdKey);
         guiGuard = new StorageGuiGuard(SHULKER_ITEM_IDS);
 
         StorageInventoryManager.ensureCustomBlockDataRegistered(plugin);
 
-        if (storageType == StorageType.SHULKER)
-            SHULKER_ITEM_IDS.add(namespacedID);
+        if (storageType == StorageType.SHULKER) SHULKER_ITEM_IDS.add(namespacedID);
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
         Bukkit.getPluginManager().registerEvents(shulkerDropTracker, plugin);
@@ -214,101 +271,60 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @Override
     protected void onUnload(BehaviourHost host) {
-        if (sessionManager != null)
-            sessionManager.clear();
-        if (shulkerDropTracker != null)
-            shulkerDropTracker.clear();
+        if (sessionManager != null) sessionManager.clear();
+        if (shulkerDropTracker != null) shulkerDropTracker.clear();
 
         preloadedBlockContents.clear();
 
-        if (openVariantTransformer != null)
-            openVariantTransformer.clear();
+        if (openVariantTransformer != null) openVariantTransformer.clear();
 
         SHULKER_ITEM_IDS.remove(namespacedID);
+
         HandlerList.unregisterAll(this);
-
-        if (shulkerDropTracker != null)
-            HandlerList.unregisterAll(shulkerDropTracker);
-        if (guiGuard != null)
-            HandlerList.unregisterAll(guiGuard);
-    }
-
-    private boolean isOpenVariantCompatible(
-            ItemCategory holderCategory,
-            OpenVariantConfig openVariantConfig
-    ) {
-        if (holderCategory == ItemCategory.BLOCK) {
-            return openVariantConfig.type() == OpenVariantConfig.FormType.BLOCK;
-        }
-
-        // Any non-block storage holder (furniture, complex furniture) may use either a
-        // furniture open-variant or a plain item_display open-variant.
-        return openVariantConfig.type() == OpenVariantConfig.FormType.FURNITURE
-                || openVariantConfig.type() == OpenVariantConfig.FormType.ITEM_DISPLAY;
-    }
-
-    private Component buildTitle() {
-        if (titleRaw != null)
-            return MiniMessage.miniMessage().deserialize(titleRaw);
-
-        Component component = CustomStack.getInstance(namespacedID).itemName();
-        return component.color() == NamedTextColor.WHITE
-                ? component.color(NamedTextColor.DARK_GRAY)
-                : component;
+        if (shulkerDropTracker != null) HandlerList.unregisterAll(shulkerDropTracker);
+        if (guiGuard != null) HandlerList.unregisterAll(guiGuard);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent event) {
-        if (event.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK)
-            return;
-        if (event.getHand() != EquipmentSlot.HAND)
-            return;
-        if (event.getPlayer().isSneaking())
-            return;
+        if (event.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) return;
+        if (event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getPlayer().isSneaking()) return;
 
         Block block = event.getClickedBlock();
-        if (block == null)
-            return;
+        if (block == null) return;
 
         CustomBlock cb = CustomBlock.byAlreadyPlaced(block);
-        if (cb == null || !cb.getNamespacedID().equals(namespacedID))
-            return;
+        if (cb == null || !cb.getNamespacedID().equals(namespacedID)) return;
 
         event.setCancelled(true);
         sessionManager.openForBlock(event.getPlayer(), block);
     }
 
     /**
-     * Pre-loads contents before CustomBlockData's MONITOR listener deletes them on break.
-     *
-     * <p>Also cancels the break if the block is currently showing an open-form, preventing
-     * inconsistent state while a GUI session is live.
+     * Pre-loads block contents before CustomBlockData's {@code MONITOR} listener deletes them.
+     * Also stops the break if a GUI session is currently live at this location.
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreakPreLoad(BlockBreakEvent event) {
-        if (category != ItemCategory.BLOCK)
-            return;
+        if (category != ItemCategory.BLOCK) return;
 
         Block block = event.getBlock();
 
-        // If this block is the open-form variant, let onOpenVariantBlockBreakPreLoad handle it.
-        if (openVariantTransformer != null && openVariantConfig != null
+        // Let the open-variant handler deal with breaks on the open-form block.
+        if (openVariantTransformer != null
+                && openVariantConfig != null
                 && !openVariantConfig.isFurnitureBased()
                 && openVariantTransformer.isTransformed(block.getLocation())) {
             CustomBlock cb = CustomBlock.byAlreadyPlaced(block);
-            if (cb != null && cb.getNamespacedID().equals(openVariantConfig.id()))
-                return;
+            if (cb != null && cb.getNamespacedID().equals(openVariantConfig.id())) return;
         }
 
         CustomBlock cb = CustomBlock.byAlreadyPlaced(block);
-        if (cb == null || !cb.getNamespacedID().equals(namespacedID))
-            return;
+        if (cb == null || !cb.getNamespacedID().equals(namespacedID)) return;
 
-        ItemStack[] contents = StorageInventoryManager.loadFromBlock(
-                block,
-                contentsKey,
-                plugin
-        );
+        ItemStack[] contents =
+                StorageInventoryManager.loadFromBlock(block, contentsKey, plugin);
         if (contents != null) {
             preloadedBlockContents.put(BlockCoord.of(block.getLocation()), contents);
         }
@@ -316,15 +332,13 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(CustomBlockBreakEvent event) {
-        if (!event.getNamespacedID().equals(namespacedID))
-            return;
+        if (!event.getNamespacedID().equals(namespacedID)) return;
 
         Block block = event.getBlock();
         sessionManager.closeSessionsAt(block.getLocation(), preloadedBlockContents);
 
-        ItemStack[] contents = preloadedBlockContents.remove(
-                BlockCoord.of(block.getLocation())
-        );
+        ItemStack[] contents =
+                preloadedBlockContents.remove(BlockCoord.of(block.getLocation()));
 
         if (storageType == StorageType.STORAGE) {
             dropItems(block.getLocation(), contents);
@@ -337,29 +351,19 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(CustomBlockPlaceEvent event) {
-        if (!event.getNamespacedID().equals(namespacedID))
-            return;
-        if (storageType != StorageType.SHULKER)
-            return;
+        if (!event.getNamespacedID().equals(namespacedID)) return;
+        if (storageType != StorageType.SHULKER) return;
 
         ItemStack[] stored = extractFromHand(event.getPlayer());
-        if (stored == null)
-            return;
+        if (stored == null) return;
 
-        StorageInventoryManager.saveToBlock(
-                event.getBlock(),
-                stored,
-                contentsKey,
-                plugin
-        );
+        StorageInventoryManager.saveToBlock(event.getBlock(), stored, contentsKey, plugin);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onFurnitureInteract(FurnitureInteractEvent event) {
-        if (!event.getNamespacedID().equals(namespacedID))
-            return;
-        if (event.getPlayer().isSneaking())
-            return;
+        if (!event.getNamespacedID().equals(namespacedID)) return;
+        if (event.getPlayer().isSneaking()) return;
 
         event.setCancelled(true);
         sessionManager.openForEntity(event.getPlayer(), event.getBukkitEntity());
@@ -367,16 +371,13 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFurnitureBreak(FurnitureBreakEvent event) {
-        if (!event.getNamespacedID().equals(namespacedID))
-            return;
+        if (!event.getNamespacedID().equals(namespacedID)) return;
 
         Entity entity = event.getBukkitEntity();
         sessionManager.closeSessionsAt(entity.getLocation(), null);
 
-        ItemStack[] contents = StorageInventoryManager.loadFromEntity(
-                entity,
-                contentsKey
-        );
+        ItemStack[] contents =
+                StorageInventoryManager.loadFromEntity(entity, contentsKey);
 
         if (storageType == StorageType.STORAGE) {
             dropItems(entity.getLocation(), contents);
@@ -387,34 +388,25 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFurniturePlaced(FurniturePlacedEvent event) {
-        if (!event.getNamespacedID().equals(namespacedID))
-            return;
-        if (storageType != StorageType.SHULKER)
-            return;
+        if (!event.getNamespacedID().equals(namespacedID)) return;
+        if (storageType != StorageType.SHULKER) return;
 
-        ItemStack[] stored = shulkerDropTracker.consumePlaceContents(
-                event.getPlayer().getUniqueId()
-        );
-        if (stored == null)
-            return;
+        ItemStack[] stored =
+                shulkerDropTracker.consumePlaceContents(event.getPlayer().getUniqueId());
+        if (stored == null) return;
 
-        StorageInventoryManager.saveToEntity(
-                event.getBukkitEntity(),
-                stored,
-                contentsKey
-        );
+        StorageInventoryManager.saveToEntity(event.getBukkitEntity(), stored, contentsKey);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player player))
+        if (!(event.getPlayer() instanceof Player player)) return;
+        if (!(event.getInventory().getHolder(false) instanceof StorageInventoryHolder holder)) {
             return;
-        if (!(event.getInventory().getHolder(false) instanceof StorageInventoryHolder holder))
-            return;
+        }
 
         StorageSession session = sessionManager.remove(player.getUniqueId());
-        if (session == null)
-            return;
+        if (session == null) return;
 
         if (session.type() == StorageType.DISPOSAL) {
             sessionManager.executeClose(holder.location(), true);
@@ -425,8 +417,8 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
     }
 
     /**
-     * Player right-clicks the open-form <em>block</em> -> open the storage GUI
-     * without triggering the transformer a second time.
+     * Player right-clicks the open-form <em>block</em>.
+     * Opens the storage GUI without triggering the transformer again.
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onOpenVariantBlockInteract(PlayerInteractEvent event) {
@@ -445,12 +437,64 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
         event.setCancelled(true);
         sessionManager.openForPlayerAtTransformedLocation(
-                event.getPlayer(), block.getLocation(), block, null);
+                event.getPlayer(),
+                block.getLocation(),
+                block,
+                null
+        );
     }
 
     /**
-     * Player right-clicks the open-form <em>furniture</em> -> open the storage GUI
-     * without triggering the transformer a second time.
+     * Pre-loads block contents for the open-form block before CustomBlockData wipes them.
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onOpenVariantBlockBreakPreLoad(BlockBreakEvent event) {
+        if (openVariantTransformer == null || openVariantConfig == null) return;
+        if (openVariantConfig.isFurnitureBased()) return;
+
+        Block block = event.getBlock();
+        if (!openVariantTransformer.isTransformed(block.getLocation())) return;
+
+        CustomBlock cb = CustomBlock.byAlreadyPlaced(block);
+        if (cb == null || !cb.getNamespacedID().equals(openVariantConfig.id())) return;
+
+        // Prefer live GUI contents (authoritative); fall back to stored block data.
+        ItemStack[] live = sessionManager.getLiveContentsAt(block.getLocation());
+        ItemStack[] contents = live != null
+                ? live
+                : StorageInventoryManager.loadFromBlock(block, contentsKey, plugin);
+
+        if (contents != null) {
+            preloadedBlockContents.put(BlockCoord.of(block.getLocation()), contents);
+        }
+    }
+
+    /**
+     * The open-form <em>block</em> was broken.
+     * Closes sessions, cancels the variant drop, and drops the original item
+     * (with contents for SHULKER; as loot for STORAGE; nothing for DISPOSAL).
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onOpenVariantBlockBreak(CustomBlockBreakEvent event) {
+        if (openVariantTransformer == null || openVariantConfig == null) return;
+        if (!event.getNamespacedID().equals(openVariantConfig.id())) return;
+
+        Block block = event.getBlock();
+        if (!openVariantTransformer.isTransformed(block.getLocation())) return;
+
+        ItemStack[] contents =
+                preloadedBlockContents.remove(BlockCoord.of(block.getLocation()));
+
+        sessionManager.closeSessionsAt(block.getLocation(), null);
+        openVariantTransformer.forceRemove(block.getLocation());
+
+        handleOpenVariantBreakDrops(block.getLocation(), contents, event.getPlayer());
+        StorageInventoryManager.clearBlock(block, plugin);
+    }
+
+    /**
+     * Player right-clicks the open-form <em>furniture</em>.
+     * Opens the storage GUI without triggering the transformer again.
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onOpenVariantFurnitureInteract(FurnitureInteractEvent event) {
@@ -464,61 +508,16 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
         event.setCancelled(true);
         sessionManager.openForPlayerAtTransformedLocation(
-                event.getPlayer(), entity.getLocation(), null, entity);
-    }
-
-    /**
-     * Pre-loads block contents before CustomBlockData's MONITOR listener wipes them,
-     * same as {@link #onBlockBreakPreLoad} but for the open-form block.
-     */
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onOpenVariantBlockBreakPreLoad(BlockBreakEvent event) {
-        if (openVariantTransformer == null || openVariantConfig == null) return;
-        if (openVariantConfig.isFurnitureBased()) return;
-
-        Block block = event.getBlock();
-        if (!openVariantTransformer.isTransformed(block.getLocation())) return;
-
-        CustomBlock cb = CustomBlock.byAlreadyPlaced(block);
-        if (cb == null || !cb.getNamespacedID().equals(openVariantConfig.id())) return;
-
-        // Prefer live GUI contents (most up-to-date); fall back to stored block data.
-        ItemStack[] live = sessionManager.getLiveContentsAt(block.getLocation());
-        ItemStack[] contents = live != null
-                ? live
-                : StorageInventoryManager.loadFromBlock(block, contentsKey, plugin);
-
-        if (contents != null)
-            preloadedBlockContents.put(BlockCoord.of(block.getLocation()), contents);
-    }
-
-    /**
-     * The open-form <em>block</em> was broken.
-     * Close all sessions, cancel the open-form drop, and drop the original item
-     * (with contents injected for SHULKER, as loot for STORAGE, nothing for DISPOSAL).
-     */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onOpenVariantBlockBreak(CustomBlockBreakEvent event) {
-        if (openVariantTransformer == null || openVariantConfig == null) return;
-        if (!event.getNamespacedID().equals(openVariantConfig.id())) return;
-
-        Block block = event.getBlock();
-        if (!openVariantTransformer.isTransformed(block.getLocation())) return;
-
-        ItemStack[] contents = preloadedBlockContents.remove(BlockCoord.of(block.getLocation()));
-
-        // Close all sessions; for furniture+open_variant the transformer state is already gone
-        // (forceRemove below), so closeSessionsAt won't try to re-save to a stale entity.
-        sessionManager.closeSessionsAt(block.getLocation(), null);
-        openVariantTransformer.forceRemove(block.getLocation());
-
-        handleOpenVariantBreakDrops(block.getLocation(), contents, event.getPlayer());
-        StorageInventoryManager.clearBlock(block, plugin);
+                event.getPlayer(),
+                entity.getLocation(),
+                null,
+                entity
+        );
     }
 
     /**
      * The open-form <em>furniture</em> was broken.
-     * Close all sessions and drop the original item with its contents.
+     * Closes all sessions and drops the original item with its contents.
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onOpenVariantFurnitureBreak(FurnitureBreakEvent event) {
@@ -528,7 +527,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         Entity entity = event.getBukkitEntity();
         if (!openVariantTransformer.isTransformed(entity.getLocation())) return;
 
-        // Live contents are the authoritative source when sessions are open.
+        // Live contents from any open session are authoritative.
         ItemStack[] contents = sessionManager.getLiveContentsAt(entity.getLocation());
 
         sessionManager.closeSessionsAt(entity.getLocation(), null);
@@ -555,9 +554,11 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
         CustomStack original = CustomStack.getInstance(namespacedID);
         if (original == null) {
-            Log.warn("StorageBehaviour",
+            Log.warn(
+                    "StorageBehaviour",
                     "Could not find original CustomStack '{}' to drop after open-form break.",
-                    namespacedID);
+                    namespacedID
+            );
             return;
         }
 
@@ -577,19 +578,84 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         loc.getWorld().dropItemNaturally(loc, drop);
     }
 
+    /**
+     * Returns {@code true} if {@code openVariantConfig} is compatible with the given holder
+     * category. Block holders may only use block variants; furniture holders may use
+     * furniture or item_display variants.
+     */
+    private boolean isOpenVariantCompatible(
+            ItemCategory holderCategory,
+            OpenVariantConfig cfg
+    ) {
+        if (holderCategory == ItemCategory.BLOCK) {
+            return cfg.type() == OpenVariantConfig.FormType.BLOCK;
+        }
+
+        return cfg.type() == OpenVariantConfig.FormType.FURNITURE
+                || cfg.type() == OpenVariantConfig.FormType.ITEM_DISPLAY;
+    }
+
+    /**
+     * Builds the GUI title component.
+     * Falls back to the item's display name (with a dark-gray colour when the original is white).
+     */
+    private Component buildTitle() {
+        if (titleRaw != null) {
+            return MiniMessage.miniMessage().deserialize(titleRaw);
+        }
+
+        Component component = CustomStack.getInstance(namespacedID).itemName();
+        return component.color() == NamedTextColor.WHITE
+                ? component.color(NamedTextColor.DARK_GRAY)
+                : component;
+    }
+
+    /**
+     * Tries to extract shulker contents from the player's main-hand item, then offhand.
+     *
+     * @return the stored content array, or {@code null} if neither hand carries any
+     */
     @Nullable
     private ItemStack[] extractFromHand(Player player) {
         ItemStack[] stored = StorageInventoryManager.extractFromItem(
                 player.getInventory().getItemInMainHand(),
                 contentsKey
         );
-
-        if (stored != null)
-            return stored;
+        if (stored != null) return stored;
 
         return StorageInventoryManager.extractFromItem(
                 player.getInventory().getItemInOffHand(),
                 contentsKey
         );
+    }
+
+    private enum SoundParseStatus {
+        ABSENT,
+        OK,
+        MALFORMED
+    }
+
+    /**
+     * Result type for {@link #parseSoundField}.
+     *
+     * <ul>
+     *   <li>{@link #status()} = {@link SoundParseStatus#ABSENT} - section absent</li>
+     *   <li>{@link #status()} = {@link SoundParseStatus#OK} - section present and parsed</li>
+     *   <li>{@link #status()} = {@link SoundParseStatus#MALFORMED} - section present but invalid;
+     *       error already logged</li>
+     * </ul>
+     */
+    private record SoundParseResult(@Nullable Sound sound, SoundParseStatus status) {
+        static SoundParseResult absent() {
+            return new SoundParseResult(null, SoundParseStatus.ABSENT);
+        }
+
+        static SoundParseResult ok(Sound sound) {
+            return new SoundParseResult(sound, SoundParseStatus.OK);
+        }
+
+        static SoundParseResult malformed() {
+            return new SoundParseResult(null, SoundParseStatus.MALFORMED);
+        }
     }
 }

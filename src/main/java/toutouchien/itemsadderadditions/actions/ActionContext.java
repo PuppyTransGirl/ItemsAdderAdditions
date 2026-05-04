@@ -8,6 +8,28 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 
+/**
+ * Immutable context object describing a single action trigger event.
+ *
+ * <p>Created by {@link toutouchien.itemsadderadditions.actions.ActionsListener} for every
+ * qualifying Bukkit event and passed to each matching {@link ActionExecutor#run(ActionContext)}.
+ *
+ * <p>The {@link #runOn()} entity is the only mutable field: it is set by
+ * {@link ActionExecutor} immediately before calling {@link ActionExecutor#execute(ActionContext)}
+ * to indicate which entity in the resolved target set is currently being processed.
+ *
+ * <h3>Nullable fields</h3>
+ * Not every trigger provides every piece of context. For example:
+ * <ul>
+ *   <li>{@link #block()} is non-null only when the trigger involves a block interaction.</li>
+ *   <li>{@link #target()} is non-null only when the trigger involves a target entity.</li>
+ *   <li>{@link #heldItem()} may be null when no item is held.</li>
+ *   <li>{@link #eventArgument()} is non-null only for argumentized triggers (e.g. {@code interact}).</li>
+ * </ul>
+ *
+ * @see ActionExecutor
+ * @see toutouchien.itemsadderadditions.actions.TargetResolver
+ */
 @NullMarked
 public final class ActionContext {
     private final Player player;

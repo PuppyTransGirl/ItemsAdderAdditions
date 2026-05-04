@@ -7,7 +7,6 @@ import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.FurnitureInteractEvent;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -25,20 +24,31 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.loading.ActionBindings;
+import toutouchien.itemsadderadditions.utils.PlayerUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Central Bukkit event listener that translates raw Bukkit events into typed
+ * {@link TriggerType} dispatches for the actions system.
+ *
+ * <p>Each handler extracts the relevant custom item or block, builds an
+ * {@link ActionContext}, and calls {@link #dispatch} which looks up registered
+ * {@link ActionExecutor}s via {@link toutouchien.itemsadderadditions.actions.loading.ActionBindings}.
+ *
+ * <p>This class is registered once during plugin enable and remains active for the
+ * lifetime of the plugin. It carries no per-item state - executors are stateless.
+ */
 @SuppressWarnings("unused")
 @NullMarked
 public final class ActionsListener implements Listener {
     /**
      * Maps a launched projectile's UUID to the namespaced ID of the custom item
-     * that was held when it was thrown. Needed because ProjectileHitEvent does
+     * that was held when it was thrown. Needed because {@link ProjectileHitEvent} does
      * not carry the original item.
      */
     private final Map<UUID, String> projectileItems = new ConcurrentHashMap<>();
@@ -70,15 +80,11 @@ public final class ActionsListener implements Listener {
     /**
      * Returns {@code true} when this off-hand interaction should be ignored to
      * avoid duplicate execution with the main hand.
-     * <p>
-     * We only suppress the off-hand when the main hand already holds a custom
-     * item. This preserves off-hand-only custom item interactions.
+     *
+     * @see PlayerUtils#isOffHandDuplicate(Player, EquipmentSlot)
      */
     private static boolean shouldIgnoreOffHandDuplicate(Player player, EquipmentSlot hand) {
-        if (hand != EquipmentSlot.OFF_HAND) return false;
-
-        ItemStack mainHand = player.getInventory().getItemInMainHand();
-        return !mainHand.isEmpty() && CustomStack.byItemStack(mainHand) != null;
+        return PlayerUtils.isOffHandDuplicate(player, hand);
     }
 
     /**
@@ -94,69 +100,29 @@ public final class ActionsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onComplexFurnitureInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            Log.debug("Furniture", "Ignoring interact: action={}", event.getAction());
-            return;
-        }
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Block block = event.getClickedBlock();
-        if (block == null) {
-            Log.debug("Furniture", "Ignoring interact: clicked block is null");
-            return;
-        }
+        if (block == null || block.getType() != Material.BARRIER) return;
 
         if (shouldIgnoreOffHandDuplicate(event.getPlayer(), event.getHand())) return;
 
-        if (block.getType() != Material.BARRIER) {
-            Log.debug("Furniture", "Ignoring interact: clicked block is not BARRIER ({}))",
-                    block.getType());
-            return;
-        }
-
-        Location location = block.getLocation();
-        Collection<Entity> nearbyEntities = block.getWorld().getNearbyEntities(
-                location, 0.1D, 0.1D, 0.1D
-        );
-
-        Log.debug("Furniture", "Found {} nearby entity/entities near barrier at {}, {}, {}",
-                nearbyEntities.size(),
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ());
-
-        if (nearbyEntities.isEmpty()) {
-            Log.debug("Furniture", "Ignoring interact: no nearby entities");
-            return;
-        }
-
+        // Complex furniture uses a BARRIER block as its hitbox. Look for the
+        // custom entity whose model lives within the same block.
         CustomEntity customEntity = null;
-        for (Entity entity : nearbyEntities) {
+        for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation(), 0.1, 0.1, 0.1)) {
             customEntity = CustomEntity.byAlreadySpawned(entity);
-            if (customEntity != null) {
-                Log.debug("Furniture", "Matched custom entity {} for armor stand {}",
-                        customEntity.getNamespacedID(), entity.getUniqueId());
-                break;
-            }
+            if (customEntity != null) break;
         }
 
-        if (customEntity == null) {
-            Log.debug("Furniture", "Ignoring interact: no custom entity matched");
-            return;
-        }
+        if (customEntity == null) return;
 
         Player player = event.getPlayer();
-        String namespacedID = customEntity.getNamespacedID();
         Entity entity = customEntity.getEntity();
         ItemStack held = player.getInventory().getItemInMainHand();
 
-        Log.debug("Furniture",
-                "Dispatching COMPLEX_FURNITURE_INTERACT for {} by player {} with held item {}",
-                namespacedID,
-                player.getName(),
-                held == null ? "null" : held.getType());
-
         dispatch(
-                namespacedID,
+                customEntity.getNamespacedID(),
                 TriggerType.COMPLEX_FURNITURE_INTERACT,
                 ActionContext.create(player, TriggerType.COMPLEX_FURNITURE_INTERACT)
                         .complexFurniture(entity)
@@ -687,7 +653,7 @@ public final class ActionsListener implements Listener {
         List<ActionExecutor> executors = ActionBindings.get(id, type, argument);
 
         Log.debug("Dispatch",
-                "Lookup id={}, type={}, argument={} -> {} executor(s)",
+                "Lookup id={}, type={}, argument={} → {} executor(s)",
                 id,
                 type,
                 argument,

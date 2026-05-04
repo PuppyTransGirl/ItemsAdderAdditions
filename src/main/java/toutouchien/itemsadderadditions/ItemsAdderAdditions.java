@@ -3,15 +3,15 @@ package toutouchien.itemsadderadditions;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import toutouchien.itemsadderadditions.actions.ActionsListener;
 import toutouchien.itemsadderadditions.actions.ActionsManager;
 import toutouchien.itemsadderadditions.behaviours.BehavioursManager;
-import toutouchien.itemsadderadditions.components.ComponentsManager;
 import toutouchien.itemsadderadditions.converter.ConverterV100V101;
 import toutouchien.itemsadderadditions.converter.ConverterV101V102;
-import toutouchien.itemsadderadditions.converter.ConverterV105V106;
+import toutouchien.itemsadderadditions.converter.ConverterV102V106;
 import toutouchien.itemsadderadditions.converter.ConverterV106V107;
 import toutouchien.itemsadderadditions.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.listeners.ItemsAdderLoadListener;
@@ -24,6 +24,12 @@ import toutouchien.itemsadderadditions.worldgen.FurniturePopulatorWorldListener;
 
 import java.util.List;
 
+/**
+ * Main plugin class for ItemsAdder Additions.
+ *
+ * <p>Manages the lifecycle of all sub-systems and acts as the single shared access point
+ * ({@link #instance()}) for other classes that need to reach a manager.
+ */
 public class ItemsAdderAdditions extends JavaPlugin {
     private static final String MODRINTH_PROJECT_ID = "z7nRcGQf";
     private static final int BSTATS_PLUGIN_ID = 30264;
@@ -32,7 +38,6 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
     private ActionsManager actionsManager;
     private BehavioursManager behavioursManager;
-    private ComponentsManager componentsManager;
     private CreativeMenuManager creativeMenuManager;
     private RecipeManager recipeManager;
 
@@ -46,11 +51,14 @@ public class ItemsAdderAdditions extends JavaPlugin {
     public void onLoad() {
         instance = this;
 
+        Plugin itemsAdder = getServer().getPluginManager().getPlugin("ItemsAdder");
+        if (itemsAdder == null) {
+            throw new IllegalStateException("ItemsAdder must be installed before ItemsAdderAdditions can load.");
+        }
+
         Version version = Version.of(
                 Bukkit.getMinecraftVersion(),
-                getServer().getPluginManager()
-                        .getPlugin("ItemsAdder")
-                        .getPluginMeta().getVersion()
+                itemsAdder.getPluginMeta().getVersion()
         );
 
         PatchManager.applyAll(version);
@@ -59,7 +67,6 @@ public class ItemsAdderAdditions extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-
         runConverters();
 
         this.bStats = new Metrics(this, BSTATS_PLUGIN_ID);
@@ -69,9 +76,6 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
         this.actionsManager = new ActionsManager();
         this.behavioursManager = new BehavioursManager();
-//            this.componentsManager = new ComponentsManager();
-//            this.componentsManager.applyComponents();
-
         this.recipeManager = new RecipeManager(this);
 
         registerListeners();
@@ -82,27 +86,66 @@ public class ItemsAdderAdditions extends JavaPlugin {
             NmsManager.instance().handler().creativeMenu().injectListeners(this);
         }
 
-        if (this.getConfig().getBoolean("update-checker.enabled", true))
+        if (this.getConfig().getBoolean("update-checker.enabled", true)) {
             new UpdateChecker(this, MODRINTH_PROJECT_ID);
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        if (this.bStats != null) {
+            this.bStats.shutdown();
+        }
+        getServer().getScheduler().cancelTasks(this);
+        NmsManager.shutdown();
+    }
+
+    /**
+     * Reloads the plugin configuration from disk.
+     *
+     * <p>Note: sub-system data (actions, behaviours, recipes, etc.) is reloaded
+     * automatically by {@link ItemsAdderLoadListener} when ItemsAdder fires
+     * {@code ItemsAdderLoadDataEvent}. Call this method only when you want to
+     * refresh the raw {@code config.yml} values without triggering a full reload.
+     */
+    public void reload() {
+        this.reloadConfig();
+    }
+
+    /**
+     * Returns the actions sub-system manager.
+     */
+    public ActionsManager actionsManager() {
+        return actionsManager;
+    }
+
+    /**
+     * Returns the behaviours sub-system manager.
+     */
+    public BehavioursManager behavioursManager() {
+        return behavioursManager;
+    }
+
+    /**
+     * Returns the creative menu manager, or {@code null} if NMS support is unavailable.
+     */
+    @org.jspecify.annotations.Nullable
+    public CreativeMenuManager creativeMenuManager() {
+        return creativeMenuManager;
+    }
+
+    /**
+     * Returns the recipe manager.
+     */
+    public RecipeManager recipeManager() {
+        return recipeManager;
     }
 
     private void runConverters() {
         ConverterV100V101.run();
         ConverterV101V102.run();
-        ConverterV105V106.run();
+        ConverterV102V106.run();
         ConverterV106V107.run();
-    }
-
-    public void reload() {
-        this.reloadConfig();
-    }
-
-    @Override
-    public void onDisable() {
-        this.bStats.shutdown();
-        getServer().getScheduler().cancelTasks(this);
-
-        NmsManager.shutdown();
     }
 
     private void registerListeners() {
@@ -113,25 +156,5 @@ public class ItemsAdderAdditions extends JavaPlugin {
                 new FurniturePopulatorWorldListener(),
                 new ItemsAdderLoadListener()
         ).forEach(listener -> pm.registerEvents(listener, this));
-    }
-
-    public ActionsManager actionsManager() {
-        return actionsManager;
-    }
-
-    public BehavioursManager behavioursManager() {
-        return behavioursManager;
-    }
-
-    public ComponentsManager componentsManager() {
-        return componentsManager;
-    }
-
-    public CreativeMenuManager creativeMenuManager() {
-        return creativeMenuManager;
-    }
-
-    public RecipeManager recipeManager() {
-        return recipeManager;
     }
 }

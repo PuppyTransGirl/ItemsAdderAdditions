@@ -81,17 +81,17 @@ public record OpenVariantConfig(FormType type, String id) {
         if (stack.isBlock()) {
             type = FormType.BLOCK;
             Log.debug("Storage",
-                    "open_variant for '{}': '{}' -> BLOCK (isBlock=true).",
+                    "open_variant for '{}': '{}' → BLOCK (isBlock=true).",
                     ownerNamespacedId, stack.getNamespacedID());
         } else if (stack instanceof CustomFurniture) {
             type = FormType.FURNITURE;
             Log.debug("Storage",
-                    "open_variant for '{}': '{}' -> FURNITURE (stack instanceof CustomFurniture).",
+                    "open_variant for '{}': '{}' → FURNITURE (stack instanceof CustomFurniture).",
                     ownerNamespacedId, stack.getNamespacedID());
         } else {
             type = FormType.ITEM_DISPLAY;
             Log.debug("Storage",
-                    "open_variant for '{}': '{}' -> ITEM_DISPLAY (plain custom stack, " +
+                    "open_variant for '{}': '{}' → ITEM_DISPLAY (plain custom stack, " +
                             "model will be swapped in-place on the furniture's ItemDisplay entity).",
                     ownerNamespacedId, stack.getNamespacedID());
         }
@@ -116,7 +116,9 @@ public record OpenVariantConfig(FormType type, String id) {
     }
 
     public enum FormType {
-        /** A custom block registered through ItemsAdder. */
+        /**
+         * A custom block registered through ItemsAdder.
+         */
         BLOCK,
         /**
          * A custom furniture (single- or multi-entity, including complex furniture).

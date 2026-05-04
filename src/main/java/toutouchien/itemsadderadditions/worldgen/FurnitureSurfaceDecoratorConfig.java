@@ -42,7 +42,7 @@ public final class FurnitureSurfaceDecoratorConfig {
     public final int amount;
 
     /**
-     * 0–100 chance per chunk, -1 = always.
+     * 0-100 chance per chunk, -1 = always.
      */
     public final double chunkChance;
 

@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * Colors (taken directly from ItemsAdder's en.yml palette):
  * <ul>
- *   <li>Prefix bracket    - {@code #ac52d4} -> {@code #6c3484} gradient (purple)</li>
+ *   <li>Prefix bracket    - {@code #ac52d4} → {@code #6c3484} gradient (purple)</li>
  *   <li>Closing {@code )} - {@code #999999} (gray)</li>
  *   <li>Subsystem tag     - {@code #4dd2ff} (light blue)</li>
  *   <li>Normal text       - {@code #ffffff} (white)</li>

@@ -24,7 +24,7 @@ import java.util.Map;
 @NullMarked
 public final class NmsBiomeHandler_v1_21_3 implements INmsBiomeHandler {
     /**
-     * Cache from Bukkit {@link org.bukkit.block.Biome} -> its NMS {@link Holder}.
+     * Cache from Bukkit {@link org.bukkit.block.Biome} → its NMS {@link Holder}.
      * Populated lazily on first use of each biome.
      */
     private final Map<org.bukkit.block.Biome, Holder<Biome>> holderCache = new HashMap<>();
@@ -54,7 +54,7 @@ public final class NmsBiomeHandler_v1_21_3 implements INmsBiomeHandler {
                     .locations.add(loc);
         }
 
-        // One chunk fetch -> write all quanta -> mark dirty -> refresh
+        // One chunk fetch → write all quanta → mark dirty → refresh
         for (ChunkWork work : byChunk.values()) {
             LevelChunk chunk = level.getChunk(work.chunkX, work.chunkZ);
 
@@ -86,7 +86,7 @@ public final class NmsBiomeHandler_v1_21_3 implements INmsBiomeHandler {
                 biomes.set(localBiomeX, localBiomeY, localBiomeZ, holder);
 
                 Log.debug("NmsBiomeHandler",
-                        "  quantum block=({},{},{}) -> section={} local=({},{},{})",
+                        "  quantum block=({},{},{}) → section={} local=({},{},{})",
                         loc.getBlockX(), blockY, loc.getBlockZ(),
                         sectionIndex, localBiomeX, localBiomeY, localBiomeZ);
             }

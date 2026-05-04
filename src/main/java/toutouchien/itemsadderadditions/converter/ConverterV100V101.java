@@ -1,14 +1,20 @@
 package toutouchien.itemsadderadditions.converter;
 
 import org.apache.commons.io.FileUtils;
-import org.bukkit.configuration.file.FileConfiguration;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class ConverterV100V101 {
+/**
+ * Migration from plugin version 1.0.0 → 1.0.1.
+ *
+ * <p>Removes the stale {@code resourcepack/assets/itemsadder_additions/} directory
+ * (no longer needed after the asset pipeline was restructured) and backfills all
+ * config keys introduced in this version.
+ */
+public final class ConverterV100V101 {
     private static final Map<String, Object> DEFAULTS = Map.ofEntries(
             // features
             Map.entry("features.creative_inventory_integration", true),
@@ -37,26 +43,23 @@ public class ConverterV100V101 {
             Map.entry("update-checker.on-join", true)
     );
 
+    private ConverterV100V101() {
+    }
+
     public static void run() {
-        File dataFolder = ItemsAdderAdditions.instance().getDataFolder();
-        File oldFolder = new File(dataFolder, "resourcepack/assets/itemsadder_additions/");
+        deleteObsoleteAssetDirectory();
+        ConfigMigration.applyDefaults(DEFAULTS);
+    }
+
+    private static void deleteObsoleteAssetDirectory() {
+        File obsolete = new File(
+                ItemsAdderAdditions.instance().getDataFolder(),
+                "resourcepack/assets/itemsadder_additions/"
+        );
         try {
-            FileUtils.deleteDirectory(oldFolder);
-        } catch (IOException e) {
-            // We don't care about it
+            FileUtils.deleteDirectory(obsolete);
+        } catch (IOException ignored) {
+            // Not critical - the directory may already be absent.
         }
-
-        FileConfiguration config = ItemsAdderAdditions.instance().getConfig();
-
-        boolean dirty = false;
-        for (Map.Entry<String, Object> entry : DEFAULTS.entrySet()) {
-            if (!config.isSet(entry.getKey())) {
-                config.set(entry.getKey(), entry.getValue());
-                dirty = true;
-            }
-        }
-
-        if (dirty)
-            ItemsAdderAdditions.instance().saveConfig();
     }
 }

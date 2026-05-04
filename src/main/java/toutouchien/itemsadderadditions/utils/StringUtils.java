@@ -18,7 +18,7 @@ public final class StringUtils {
      * <p>Behavior:
      * - Versions are split on '.' and compared component by component as integers.
      * - Missing components are treated as 0 (e.g. "1.2" == "1.2.0").
-     * - Leading zeros are allowed and parsed normally ("01" -> 1).
+     * - Leading zeros are allowed and parsed normally ("01" → 1).
      * - If either component isn't a valid integer, this method throws
      * {@link NumberFormatException}. Callers can catch it if they expect
      * non-numeric parts (pre-releases) or validate beforehand.
@@ -57,7 +57,7 @@ public final class StringUtils {
 
     private static int parseVersionPart(String part) {
         // Regex: find the first sequence of digits and ignore everything after
-        // Example: "3-beta-3" -> "3"
+        // Example: "3-beta-3" → "3"
         String numericOnly = part.split("\\D")[0];
         return numericOnly.isEmpty() ? 0 : Integer.parseInt(numericOnly);
     }

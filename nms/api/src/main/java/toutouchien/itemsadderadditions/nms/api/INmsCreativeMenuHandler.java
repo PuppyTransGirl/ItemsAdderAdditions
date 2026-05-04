@@ -12,7 +12,7 @@ public interface INmsCreativeMenuHandler {
     void injectListeners(Plugin plugin);
 
     /**
-     * Rebuilds the painting-variant-ID -> CustomStack lookup from the live
+     * Rebuilds the painting-variant-ID → CustomStack lookup from the live
      * registry. Call after every ItemsAdder reload.
      */
     void updatePaintingCache(Collection<CustomStack> items);

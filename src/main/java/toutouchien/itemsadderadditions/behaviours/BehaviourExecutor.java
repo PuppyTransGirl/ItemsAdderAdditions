@@ -40,9 +40,9 @@ import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
  * <h2>Lifecycle</h2>
  * <pre>
  * ItemsAdderLoadDataEvent
- *   -> BehaviourLoader.load()
- *       -> BehaviourBindings.clear()   [calls unload() on every active executor]
- *       -> for each item: inject parameters -> load(host)   [calls onLoad]
+ *   → BehaviourLoader.load()
+ *       → BehaviourBindings.clear()   [calls unload() on every active executor]
+ *       → for each item: inject parameters → load(host)   [calls onLoad]
  * </pre>
  */
 @NullMarked

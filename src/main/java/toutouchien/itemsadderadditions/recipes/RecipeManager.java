@@ -11,7 +11,7 @@ import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.io.File;
 
-public class RecipeManager {
+public final class RecipeManager {
     private static final String LOG_TAG = "RecipeManager";
 
     private final CampfireRecipeHandler campfireHandler = new CampfireRecipeHandler();
@@ -35,11 +35,14 @@ public class RecipeManager {
 
     public void reload() {
         unregisterAll();
-        Log.info(LOG_TAG, "Loading custom recipes...");
-        loader.loadAll();
 
-        // Single finalization after every recipe type has been registered.
-        NmsManager.instance().handler().finalizeRecipes();
+        Log.info(LOG_TAG, "Loading custom recipes...");
+        try {
+            loader.loadAll();
+        } finally {
+            // Keep vanilla / NMS recipe state aligned even if one file fails.
+            NmsManager.instance().handler().finalizeRecipes();
+        }
         Log.info(LOG_TAG, "Recipe finalization complete.");
     }
 
@@ -48,7 +51,6 @@ public class RecipeManager {
         stonecutterHandler.unregisterAll();
         craftingHandler.unregisterAll();
 
-        // Single finalization after every recipe type has been unregistered.
         NmsManager.instance().handler().finalizeRecipes();
     }
 }

@@ -73,22 +73,22 @@ public final class CreativeMenuManager {
      * <p>Resolution order:
      * <ol>
      *   <li>{@code graphics.icon} / {@code resource.icon} present on the item
-     *       or its template ->
+     *       or its template →
      *       {@code <ns>:item/ia_auto/<id>_icon}<br>
      *       IA generates this flat GUI-oriented model for every item that
      *       declares an icon.</li>
-     *   <li>{@code graphics.model} present on the item itself ->
+     *   <li>{@code graphics.model} present on the item itself →
      *       the declared model path.</li>
      *   <li>{@code resource.model_path} with {@code generate: false} present on
-     *       the item itself -> the declared model path.</li>
+     *       the item itself → the declared model path.</li>
      *   <li>Generated graphics present on the item itself
      *       ({@code graphics.parent}, {@code graphics.texture},
-     *       {@code graphics.textures}, or generated {@code resource.*}) ->
+     *       {@code graphics.textures}, or generated {@code resource.*}) →
      *       {@code <ns>:item/ia_auto/<id>}.</li>
      *   <li>{@code variant_of} template declares {@code graphics.model} or
-     *       {@code resource.model_path} with {@code generate: false} ->
+     *       {@code resource.model_path} with {@code generate: false} →
      *       the inherited declared model path.</li>
-     *   <li>Everything else -> {@code <ns>:item/ia_auto/<id>}.</li>
+     *   <li>Everything else → {@code <ns>:item/ia_auto/<id>}.</li>
      * </ol>
      */
     private static String resolveModel(CustomStack item) {

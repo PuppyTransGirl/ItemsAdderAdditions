@@ -1,5 +1,17 @@
 package toutouchien.itemsadderadditions.actions;
 
+/**
+ * Enumerates every event type that can fire an {@link ActionExecutor}.
+ *
+ * <p>Trigger types are grouped by the kind of item that triggers them:
+ * blocks, items, furniture, and complex furniture (multi-block barrier models).
+ *
+ * <p>Some trigger types are <em>argumentized</em> - they carry an additional
+ * string qualifier (e.g. {@code "right"}, {@code "left_shift"}, {@code "entity"})
+ * that allows the YAML author to distinguish between specific interaction variants.
+ * See {@link TriggerKey} and {@link toutouchien.itemsadderadditions.actions.loading.ActionLoader}
+ * for details on how argumentized triggers are parsed.
+ */
 public enum TriggerType {
     // Block
     /**

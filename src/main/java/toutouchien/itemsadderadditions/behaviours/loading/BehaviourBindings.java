@@ -49,7 +49,7 @@ public final class BehaviourBindings {
      * Returns all active behaviour executors for the given item ID.
      */
     public static List<BehaviourExecutor> get(String id) {
-        return bindings.getOrDefault(id, List.of());
+        return List.copyOf(bindings.getOrDefault(id, List.of()));
     }
 
     /**

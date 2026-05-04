@@ -1,8 +1,6 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
-import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -15,6 +13,7 @@ import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.utils.NamespaceUtils;
+import toutouchien.itemsadderadditions.utils.TextRenderer;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
@@ -24,13 +23,13 @@ import java.util.stream.Collectors;
 /**
  * Shows an advancement-style toast notification using MiniMessage formatting.
  *
- * <p>{@code item} accepts a vanilla material key (e.g. {@code "minecraft:diamond"})
+ * <p>{@code icon} accepts a vanilla material key (e.g. {@code "minecraft:diamond"})
  * or an ItemsAdder namespaced ID. {@code text} accepts a plain string or a YAML list
  * whose lines are joined with {@code \n}.
  *
  * <pre>{@code
  * toast:
- *   item:  "minecraft:diamond"
+ *   icon:  "minecraft:diamond"
  *   text:
  *     - "<yellow>Line one"
  *     - "<gray>Line two"
@@ -41,8 +40,6 @@ import java.util.stream.Collectors;
 @NullMarked
 @Action(key = "toast")
 public final class ToastAction extends ActionExecutor {
-    private static final MiniMessage MM = MiniMessage.miniMessage();
-
     @Parameter(key = "icon", type = String.class, required = true)
     private String icon;
 
@@ -70,7 +67,6 @@ public final class ToastAction extends ActionExecutor {
         switch (raw) {
             case List<?> list -> text = list.stream().map(Object::toString).collect(Collectors.joining("\n"));
             case String s -> text = s;
-
             case null, default -> {
                 Log.itemSkip("Actions", namespacedID, "toast: 'text' is missing or not a string/list");
                 return false;
@@ -98,7 +94,7 @@ public final class ToastAction extends ActionExecutor {
             return;
         }
 
-        Component title = FontImageWrapper.replaceFontImages(MM.deserialize(text));
+        Component title = TextRenderer.render(player, text);
         NmsManager.instance().handler().toasts().sendToast(player, itemStack, title, frame);
     }
 }

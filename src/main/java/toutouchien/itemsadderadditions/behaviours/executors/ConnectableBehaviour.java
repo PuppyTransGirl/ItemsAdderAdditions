@@ -24,37 +24,71 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Makes furniture automatically change shape based on its neighbours,
+ * similar to how vanilla fences, walls, or stairs connect to each other.
+ *
+ * <h3>Supported connection types ({@code type} parameter)</h3>
+ * <ul>
+ *   <li>{@code STAIR} - 8 variants: default, straight, left, right,
+ *       outer_left, outer_right, inner_left, inner_right.</li>
+ *   <li>{@code TABLE} - 5 variants: default (isolated), end, straight,
+ *       corner, border (3-way), middle (4-way).</li>
+ * </ul>
+ *
+ * <h3>Minimal YAML example (STAIR type)</h3>
+ * <pre>{@code
+ * behaviours:
+ *   connectable:
+ *     type: STAIR
+ *     # Variant IDs default to "<self_id>_<suffix>".
+ *     # Override any of them with a full "namespace:id" or a bare "id".
+ *     straight: "my_pack:my_stair_straight"   # optional
+ *     left:     "my_pack:my_stair_left"        # optional
+ *     # ... etc.
+ * }</pre>
+ *
+ * <h3>Variant ID resolution</h3>
+ * For each variant key (e.g. {@code straight}), if no value is configured the ID
+ * defaults to {@code "<base_id>_<suffix>"} (e.g. {@code "my_pack:my_stair_straight"}).
+ * If a bare ID without a colon is provided, the base item's namespace is prepended.
+ */
 @NullMarked
 @Behaviour(key = "connectable")
 public final class ConnectableBehaviour extends BehaviourExecutor implements Listener {
+    /**
+     * Locations currently being updated to avoid recursive re-entry.
+     */
     private final Set<Location> updating = new HashSet<>();
+
+    /**
+     * Canonical facing at placement time, keyed by block-snapped location.
+     * Needed because {@link CustomFurniture#getEntity()}.{@code getYaw()} may drift
+     * after shape-swap replacements.
+     */
     private final Map<Location, FacingDirection> canonicalFacing = new HashMap<>();
+
+    // Raw YAML parameters - resolved into full namespaced IDs in configure().
     @Parameter(key = "type", type = String.class, required = true) @Nullable private String typeRaw;
-    @Parameter(key = "default", type = String.class) private String defaultFurniture;
-    @Parameter(key = "straight", type = String.class) @Nullable private String straightFurniture;
-    @Parameter(key = "middle", type = String.class) @Nullable private String middleFurniture;
-    @Parameter(key = "border", type = String.class) @Nullable private String borderFurniture;
-    @Parameter(key = "corner", type = String.class) @Nullable private String cornerFurniture;
-    @Parameter(key = "end", type = String.class) @Nullable private String endFurniture;
-    @Parameter(key = "left", type = String.class) @Nullable private String leftFurniture;
-    @Parameter(key = "right", type = String.class) @Nullable private String rightFurniture;
-    @Parameter(key = "outer", type = String.class) @Nullable private String outerFurniture;
-    @Parameter(key = "inner", type = String.class) @Nullable private String innerFurniture;
+    @Parameter(key = "default", type = String.class) @Nullable private String defaultVariant;
+    @Parameter(key = "straight", type = String.class) @Nullable private String straightVariant;
+    @Parameter(key = "middle", type = String.class) @Nullable private String middleVariant;
+    @Parameter(key = "border", type = String.class) @Nullable private String borderVariant;
+    @Parameter(key = "corner", type = String.class) @Nullable private String cornerVariant;
+    @Parameter(key = "end", type = String.class) @Nullable private String endVariant;
+    @Parameter(key = "left", type = String.class) @Nullable private String leftVariant;
+    @Parameter(key = "right", type = String.class) @Nullable private String rightVariant;
+    @Parameter(key = "outer", type = String.class) @Nullable private String outerVariant;
+    @Parameter(key = "inner", type = String.class) @Nullable private String innerVariant;
+
+    // Resolved values set in configure()
     private ConnectableType type = ConnectableType.STAIR;
+    private String namespacedID = "";
 
     private BehaviourHost host;
-    private String namespacedID;
 
     private static float normalizeYaw(float yaw) {
         return ((yaw % 360) + 360) % 360;
-    }
-
-    @Nullable
-    private String norm(String namespace, @Nullable String id, String suffix) {
-        if (id == null)
-            return suffix.isEmpty() ? namespacedID : namespacedID + "_" + suffix;
-
-        return id.contains(":") ? id : namespace + ":" + id;
     }
 
     @Override
@@ -62,38 +96,24 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         if (!super.configure(configData, namespacedID)) return false;
 
         this.namespacedID = namespacedID;
+        this.type = ConnectableType.from(typeRaw);
 
-        type = ConnectableType.from(typeRaw);
-        String ns = NamespaceUtils.namespace(namespacedID);
+        String namespace = NamespaceUtils.namespace(namespacedID);
+        String baseId = NamespaceUtils.id(namespacedID);
 
-        defaultFurniture = norm(ns, defaultFurniture, "");
-        straightFurniture = norm(ns, straightFurniture, "straight");
-        middleFurniture = norm(ns, middleFurniture, "middle");
-        borderFurniture = norm(ns, borderFurniture, "border");
-        cornerFurniture = norm(ns, cornerFurniture, "corner");
-        endFurniture = norm(ns, endFurniture, "end");
-        leftFurniture = norm(ns, leftFurniture, "left");
-        rightFurniture = norm(ns, rightFurniture, "right");
-        outerFurniture = norm(ns, outerFurniture, "outer");
-        innerFurniture = norm(ns, innerFurniture, "inner");
+        // Resolve each variant: if null → default suffix; if bare id → prepend namespace.
+        defaultVariant = resolveVariant(namespace, defaultVariant, "");
+        straightVariant = resolveVariant(namespace, straightVariant, "straight");
+        middleVariant = resolveVariant(namespace, middleVariant, "middle");
+        borderVariant = resolveVariant(namespace, borderVariant, "border");
+        cornerVariant = resolveVariant(namespace, cornerVariant, "corner");
+        endVariant = resolveVariant(namespace, endVariant, "end");
+        leftVariant = resolveVariant(namespace, leftVariant, "left");
+        rightVariant = resolveVariant(namespace, rightVariant, "right");
+        outerVariant = resolveVariant(namespace, outerVariant, "outer");
+        innerVariant = resolveVariant(namespace, innerVariant, "inner");
 
-        if (type == ConnectableType.TABLE) {
-            if (straightFurniture == null || middleFurniture == null
-                    || borderFurniture == null || cornerFurniture == null || endFurniture == null) {
-                Log.itemSkip("Behaviours", namespacedID,
-                        "connectable (table) is missing required shape keys: straight, middle, border, corner, end");
-                return false;
-            }
-        } else {
-            if (straightFurniture == null || leftFurniture == null || rightFurniture == null
-                    || outerFurniture == null || innerFurniture == null) {
-                Log.itemSkip("Behaviours", namespacedID,
-                        "connectable (stair) is missing required shape keys: straight, left, right, outer, inner");
-                return false;
-            }
-        }
-
-        return true;
+        return validateRequiredVariants(namespacedID);
     }
 
     @Override
@@ -110,7 +130,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     @EventHandler
     public void onFurniturePlaced(FurniturePlacedEvent event) {
         CustomFurniture placed = event.getFurniture();
-        if (placed == null || !isOwn(placed)) return;
+        if (placed == null || !isOwnVariant(placed)) return;
 
         Location loc = placed.getEntity().getLocation().toBlockLocation();
         if (updating.contains(loc)) return;
@@ -120,7 +140,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
 
         Task.sync(task -> {
             CustomFurniture current = CustomFurniture.byAlreadySpawned(loc.getBlock());
-            if (current == null || !isOwn(current)) return;
+            if (current == null || !isOwnVariant(current)) return;
             updateShapeAt(current);
             Task.sync(task1 -> updateNeighboursOf(loc), host.plugin());
         }, host.plugin());
@@ -129,7 +149,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     @EventHandler
     public void onFurnitureRemoved(FurnitureBreakEvent event) {
         CustomFurniture removed = event.getFurniture();
-        if (removed == null || !isOwn(removed)) return;
+        if (removed == null || !isOwnVariant(removed)) return;
 
         Location loc = removed.getEntity().getLocation().toBlockLocation();
         canonicalFacing.remove(loc);
@@ -139,8 +159,8 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     private void updateShapeAt(CustomFurniture target) {
         PlacementSpec spec = (type == ConnectableType.TABLE)
                 ? TableShapeDeriver.derive(target,
-                defaultFurniture, endFurniture, straightFurniture,
-                cornerFurniture, borderFurniture, middleFurniture,
+                defaultVariant, endVariant, straightVariant,
+                cornerVariant, borderVariant, middleVariant,
                 this::findConnectableAt)
                 : deriveStairSpec(target);
         applyShape(target, spec);
@@ -150,17 +170,17 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         FacingDirection facing = facingOf(self);
         StairShape shape = StairShapeDeriver.derive(self, facing, this::findConnectableAt, canonicalFacing);
         float base = facing.toYaw();
-        float norm90 = normalizeYaw(base + 90);
+        float base90 = normalizeYaw(base + 90);
 
         return switch (shape) {
-            case DEFAULT -> new PlacementSpec(defaultFurniture, base);
-            case STRAIGHT -> new PlacementSpec(straightFurniture, base);
-            case LEFT -> new PlacementSpec(leftFurniture, base);
-            case RIGHT -> new PlacementSpec(rightFurniture, base);
-            case OUTER_LEFT -> new PlacementSpec(outerFurniture, base);
-            case OUTER_RIGHT -> new PlacementSpec(outerFurniture, norm90);
-            case INNER_LEFT -> new PlacementSpec(innerFurniture, base);
-            case INNER_RIGHT -> new PlacementSpec(innerFurniture, norm90);
+            case DEFAULT -> new PlacementSpec(defaultVariant, base);
+            case STRAIGHT -> new PlacementSpec(straightVariant, base);
+            case LEFT -> new PlacementSpec(leftVariant, base);
+            case RIGHT -> new PlacementSpec(rightVariant, base);
+            case OUTER_LEFT -> new PlacementSpec(outerVariant, base);
+            case OUTER_RIGHT -> new PlacementSpec(outerVariant, base90);
+            case INNER_LEFT -> new PlacementSpec(innerVariant, base);
+            case INNER_RIGHT -> new PlacementSpec(innerVariant, base90);
         };
     }
 
@@ -191,24 +211,72 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     @Nullable
     private CustomFurniture findConnectableAt(Location loc) {
         CustomFurniture f = CustomFurniture.byAlreadySpawned(loc.getBlock());
-        return (f != null && isOwn(f)) ? f : null;
+        return (f != null && isOwnVariant(f)) ? f : null;
     }
 
-    private boolean isOwn(CustomFurniture f) {
+    /**
+     * Returns {@code true} if {@code f}'s namespaced ID is one of this behaviour's variants.
+     */
+    private boolean isOwnVariant(CustomFurniture f) {
         String id = f.getNamespacedID();
-        if (id.equals(defaultFurniture)) return true;
+        if (id.equals(defaultVariant)) return true;
         if (type == ConnectableType.TABLE)
-            return id.equals(straightFurniture) || id.equals(middleFurniture)
-                    || id.equals(borderFurniture) || id.equals(cornerFurniture)
-                    || id.equals(endFurniture);
-        return id.equals(straightFurniture) || id.equals(leftFurniture)
-                || id.equals(rightFurniture) || id.equals(outerFurniture)
-                || id.equals(innerFurniture);
+            return id.equals(straightVariant) || id.equals(middleVariant)
+                    || id.equals(borderVariant) || id.equals(cornerVariant)
+                    || id.equals(endVariant);
+        return id.equals(straightVariant) || id.equals(leftVariant)
+                || id.equals(rightVariant) || id.equals(outerVariant)
+                || id.equals(innerVariant);
     }
 
     private FacingDirection facingOf(CustomFurniture f) {
         Location loc = f.getEntity().getLocation().toBlockLocation();
-        FacingDirection c = canonicalFacing.get(loc);
-        return c != null ? c : FacingDirection.fromYaw(f.getEntity().getYaw());
+        FacingDirection canonical = canonicalFacing.get(loc);
+        return canonical != null ? canonical : FacingDirection.fromYaw(f.getEntity().getYaw());
+    }
+
+    /**
+     * Resolves a variant ID from the raw YAML value.
+     *
+     * <ul>
+     *   <li>{@code null} → {@code "<namespace>:<baseId>_<suffix>"} (or just the base ID when suffix is empty)</li>
+     *   <li>Contains {@code ":"} → used as-is (fully qualified)</li>
+     *   <li>No {@code ":"} → {@code "<namespace>:<rawValue>"}</li>
+     * </ul>
+     */
+    private String resolveVariant(String namespace, @Nullable String rawValue, String suffix) {
+        if (rawValue == null) {
+            String baseId = NamespaceUtils.id(namespacedID);
+            return suffix.isEmpty()
+                    ? namespacedID
+                    : namespace + ":" + baseId + "_" + suffix;
+        }
+
+        return rawValue.contains(":") ? rawValue : namespace + ":" + rawValue;
+    }
+
+    /**
+     * Validates that all required variant fields are present for the configured type.
+     * Logs a skip warning and returns {@code false} if any are missing.
+     */
+    private boolean validateRequiredVariants(String itemName) {
+        if (type == ConnectableType.TABLE) {
+            if (straightVariant == null || middleVariant == null
+                    || borderVariant == null || cornerVariant == null || endVariant == null) {
+                Log.itemSkip("Behaviours", itemName,
+                        "connectable (table) is missing required shape keys: "
+                                + "straight, middle, border, corner, end");
+                return false;
+            }
+        } else {
+            if (straightVariant == null || leftVariant == null || rightVariant == null
+                    || outerVariant == null || innerVariant == null) {
+                Log.itemSkip("Behaviours", itemName,
+                        "connectable (stair) is missing required shape keys: "
+                                + "straight, left, right, outer, inner");
+                return false;
+            }
+        }
+        return true;
     }
 }
