@@ -19,7 +19,6 @@ import java.util.Random;
  */
 @NullMarked
 public final class FurniturePopulatorBehaviour extends BlockPopulator {
-
     /**
      * All live instances, one per world.
      */
@@ -39,31 +38,28 @@ public final class FurniturePopulatorBehaviour extends BlockPopulator {
             FurniturePopulatorConfig config,
             World world
     ) {
-        if (!config.isActiveInWorld(world)) {
-            return;
-        }
+        if (!config.isActiveInWorld(world)) return;
 
         FurniturePopulatorBehaviour behaviour = INSTANCES.stream()
                 .filter(instance -> instance.world.equals(world))
                 .findFirst()
                 .orElseGet(() -> createFor(world));
 
-        if (!behaviour.configs.contains(config)) {
-            behaviour.configs.add(config);
-        }
+        if (!behaviour.configs.contains(config)) behaviour.configs.add(config);
+
     }
 
     public static void onWorldLoad(World world) {
         for (FurniturePopulatorConfig config :
-                FurniturePopulatorLoader.REGISTRY.values()) {
+                FurniturePopulatorLoader.REGISTRY.values())
             register(config, world);
-        }
+
     }
 
     public static synchronized void unregisterAll() {
-        for (FurniturePopulatorBehaviour behaviour : INSTANCES) {
+        for (FurniturePopulatorBehaviour behaviour : INSTANCES)
             behaviour.world.getPopulators().remove(behaviour);
-        }
+
         INSTANCES.clear();
     }
 
@@ -77,15 +73,15 @@ public final class FurniturePopulatorBehaviour extends BlockPopulator {
     }
 
     private static int clamp(int value) {
-        return Math.min(CHUNK_SIZE - 1, Math.max(0, value));
+        return Math.clamp(value, 0, CHUNK_SIZE - 1);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void populate(World world, Random random, Chunk chunk) {
-        for (FurniturePopulatorConfig config : configs) {
+        for (FurniturePopulatorConfig config : configs)
             populateConfig(random, chunk, config);
-        }
+
     }
 
     private void populateConfig(
@@ -101,9 +97,9 @@ public final class FurniturePopulatorBehaviour extends BlockPopulator {
         int anchorX = random.nextInt(CHUNK_SIZE);
         int anchorZ = random.nextInt(CHUNK_SIZE);
 
-        for (int vein = 0; vein < config.chunkVeins; vein++) {
+        for (int vein = 0; vein < config.chunkVeins; vein++)
             spawnVein(random, chunk, config, anchorX, anchorZ);
-        }
+
     }
 
     private void spawnVein(
@@ -130,26 +126,16 @@ public final class FurniturePopulatorBehaviour extends BlockPopulator {
                     HeightMap.MOTION_BLOCKING_NO_LEAVES
             ) + 1;
 
-            if (y > config.maxHeight || y < config.minHeight) {
-                continue;
-            }
+            if (y > config.maxHeight || y < config.minHeight) continue;
+
 
             Block target = chunk.getBlock(x, y, z);
             Block below = target.getRelative(BlockFace.DOWN);
 
-            if (!config.isAllowedTarget(target)) {
-                continue;
-            }
-            if (!config.isAllowedSurface(below.getType())) {
-                continue;
-            }
-            if (!config.isActiveInBiome(target)) {
-                continue;
-            }
-
-            if (!config.trySpawn(target)) {
-                continue;
-            }
+            if (!config.isAllowedTarget(target)) continue;
+            if (!config.isAllowedSurface(below.getType())) continue;
+            if (!config.isActiveInBiome(target)) continue;
+            if (!config.trySpawn(target)) continue;
 
             placed++;
             Log.debug(TAG, "Spawned " + config.furnitureId + " at "

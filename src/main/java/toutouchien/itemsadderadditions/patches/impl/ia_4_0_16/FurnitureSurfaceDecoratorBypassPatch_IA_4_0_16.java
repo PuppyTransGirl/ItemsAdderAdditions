@@ -18,7 +18,6 @@ import toutouchien.itemsadderadditions.patches.VersionSet;
  * the strategy is identical, only the target class and bridge differ.
  */
 public final class FurnitureSurfaceDecoratorBypassPatch_IA_4_0_16 extends MethodInjectPatch {
-
     @Override
     public VersionConstraint supportedVersions() {
         return VersionSet.ia("4.0.16", "4.0.17");

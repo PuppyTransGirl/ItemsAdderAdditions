@@ -17,7 +17,6 @@ import java.util.Map;
  * is always safe.
  */
 final class ConfigMigration {
-
     private ConfigMigration() {
         throw new IllegalStateException("Utility class");
     }

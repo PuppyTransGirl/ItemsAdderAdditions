@@ -22,7 +22,6 @@ import java.util.List;
  */
 @NullMarked
 public final class FurnitureSurfaceDecoratorConfig {
-
     /**
      * ItemsAdder namespaced ID of the furniture to spawn.
      */
@@ -108,19 +107,17 @@ public final class FurnitureSurfaceDecoratorConfig {
     }
 
     public boolean isActiveInWorld(World world) {
-        if (worlds.isEmpty() || worlds.contains("*")) {
-            return true;
-        }
+        if (worlds.isEmpty() || worlds.contains("*")) return true;
+
 
         String worldName = world.getName();
-        if (worlds.contains(worldName)) {
-            return true;
-        }
+        if (worlds.contains(worldName)) return true;
+
 
         for (String pattern : worlds) {
-            if (FilenameUtils.wildcardMatch(worldName, pattern)) {
+            if (FilenameUtils.wildcardMatch(worldName, pattern))
                 return true;
-            }
+
         }
 
         return false;

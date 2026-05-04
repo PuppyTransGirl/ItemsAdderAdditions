@@ -26,7 +26,6 @@ import java.util.Random;
  */
 @NullMarked
 public final class FurnitureSurfaceDecoratorBehaviour extends BlockPopulator {
-
     /**
      * All live instances, one per world.
      */
@@ -50,31 +49,26 @@ public final class FurnitureSurfaceDecoratorBehaviour extends BlockPopulator {
             FurnitureSurfaceDecoratorConfig config,
             World world
     ) {
-        if (!config.isActiveInWorld(world)) {
-            return;
-        }
+        if (!config.isActiveInWorld(world)) return;
 
         FurnitureSurfaceDecoratorBehaviour behaviour = INSTANCES.stream()
                 .filter(instance -> instance.world.equals(world))
                 .findFirst()
                 .orElseGet(() -> createFor(world));
 
-        if (!behaviour.configs.contains(config)) {
-            behaviour.configs.add(config);
-        }
+        if (!behaviour.configs.contains(config)) behaviour.configs.add(config);
     }
 
     public static void onWorldLoad(World world) {
         for (FurnitureSurfaceDecoratorConfig config :
-                FurnitureSurfaceDecoratorLoader.REGISTRY.values()) {
+                FurnitureSurfaceDecoratorLoader.REGISTRY.values())
             register(config, world);
-        }
     }
 
     public static synchronized void unregisterAll() {
-        for (FurnitureSurfaceDecoratorBehaviour behaviour : INSTANCES) {
+        for (FurnitureSurfaceDecoratorBehaviour behaviour : INSTANCES)
             behaviour.world.getPopulators().remove(behaviour);
-        }
+
         INSTANCES.clear();
     }
 
@@ -89,15 +83,14 @@ public final class FurnitureSurfaceDecoratorBehaviour extends BlockPopulator {
     }
 
     private static int clamp(int value) {
-        return Math.min(CHUNK_SIZE - 1, Math.max(0, value));
+        return Math.clamp(value, 0, CHUNK_SIZE - 1);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void populate(World world, Random random, Chunk chunk) {
-        for (FurnitureSurfaceDecoratorConfig config : configs) {
+        for (FurnitureSurfaceDecoratorConfig config : configs)
             populateConfig(random, chunk, config);
-        }
     }
 
     private void populateConfig(
@@ -126,9 +119,7 @@ public final class FurnitureSurfaceDecoratorBehaviour extends BlockPopulator {
                 int worldZ = chunk.getZ() * CHUNK_SIZE + z;
 
                 Block target = findCandidateBlock(chunk.getWorld(), config, worldX, worldZ);
-                if (target == null) {
-                    continue;
-                }
+                if (target == null) continue;
 
                 if (config.trySpawn(target)) {
                     Log.debug(TAG, "Spawned " + config.furnitureId + " at "
@@ -151,14 +142,10 @@ public final class FurnitureSurfaceDecoratorBehaviour extends BlockPopulator {
             int worldX,
             int worldZ
     ) {
-        if (isNether) {
-            return findNetherCandidate(world, config, worldX, worldZ);
-        }
+        if (isNether) return findNetherCandidate(world, config, worldX, worldZ);
 
         int y = resolveNormalPlacementY(world, config, worldX, worldZ);
-        if (y > config.maxHeight || y < config.minHeight) {
-            return null;
-        }
+        if (y > config.maxHeight || y < config.minHeight) return null;
 
         Block target = world.getBlockAt(worldX, y, worldZ);
         return isValidCandidate(target, config) ? target : null;
@@ -176,9 +163,7 @@ public final class FurnitureSurfaceDecoratorBehaviour extends BlockPopulator {
 
         for (int y = startY; y >= minY; y--) {
             Block target = world.getBlockAt(worldX, y, worldZ);
-            if (isValidCandidate(target, config)) {
-                return target;
-            }
+            if (isValidCandidate(target, config)) return target;
         }
 
         return null;
@@ -201,25 +186,17 @@ public final class FurnitureSurfaceDecoratorBehaviour extends BlockPopulator {
             Block target,
             FurnitureSurfaceDecoratorConfig config
     ) {
-        if (target.getY() > config.maxHeight || target.getY() < config.minHeight) {
-            return false;
-        }
+        if (target.getY() > config.maxHeight || target.getY() < config.minHeight) return false;
 
         Block below = target.getRelative(BlockFace.DOWN);
-
         if (!config.allowLiquidSurface
                 && FurnitureSurfaceDecoratorConfig.isWaterOrLava(
                 below.getType())) {
             return false;
         }
 
-        if (!config.isAllowedTarget(target)) {
-            return false;
-        }
-
-        if (!config.isAllowedSurface(below.getType())) {
-            return false;
-        }
+        if (!config.isAllowedTarget(target)) return false;
+        if (!config.isAllowedSurface(below.getType())) return false;
 
         return config.isActiveInBiome(target);
     }

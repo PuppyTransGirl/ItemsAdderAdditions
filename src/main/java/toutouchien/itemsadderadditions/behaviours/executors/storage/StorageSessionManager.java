@@ -194,7 +194,6 @@ public final class StorageSessionManager {
 
             if (session.type() != StorageType.DISPOSAL
                     && !alreadySaved.contains(session.inventory())) {
-
                 ItemStack[] contents = session.inventory().getContents();
 
                 if (session.isBlock()) {

@@ -13,7 +13,6 @@ import org.jspecify.annotations.NullMarked;
  */
 @NullMarked
 public final class FurniturePopulatorWorldListener implements Listener {
-
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
         FurniturePopulatorBehaviour.onWorldLoad(event.getWorld());

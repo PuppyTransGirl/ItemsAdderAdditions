@@ -120,9 +120,8 @@ abstract class AbstractFurnitureLoader<C> {
 
     private void loadFile(YamlConfiguration yaml, String filePath) {
         ConfigurationSection section = yaml.getConfigurationSection(sectionName());
-        if (section == null && fallbackSectionName() != null) {
+        if (section == null && fallbackSectionName() != null)
             section = yaml.getConfigurationSection(fallbackSectionName());
-        }
         if (section == null) return;
 
         for (String key : section.getKeys(false)) {

@@ -5,5 +5,4 @@ import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public record PlacementSpec(@Nullable String variantID, float yaw) {
-
 }

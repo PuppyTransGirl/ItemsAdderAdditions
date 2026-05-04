@@ -81,7 +81,6 @@ public final class BytePacketListener_v1_21_7 {
                                 if (itemId == itemRegistry.getId(Items.PAINTING)
                                         && componentsToAdd == 1
                                         && componentsToRemove == 0) {
-
                                     int componentTypeId = buf.readVarInt();
                                     if (componentTypeId == dataComponentRegistry.getId(DataComponents.PAINTING_VARIANT)) {
                                         int dataLength = buf.readVarInt();
