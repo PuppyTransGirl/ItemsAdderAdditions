@@ -45,6 +45,7 @@ public final class CampfireRecipeHandler extends AbstractRecipeHandler {
                 .handler()
                 .campfireRecipes()
                 .register(namespace, recipeId, ingredient, result, cookTime, exp);
+        incrementCount();
     }
 
     @Override

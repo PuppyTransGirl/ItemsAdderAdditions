@@ -37,13 +37,23 @@ public final class RecipeManager {
         unregisterAll();
 
         Log.info(LOG_TAG, "Loading custom recipes...");
+        long startMs = System.currentTimeMillis();
         try {
             loader.loadAll();
         } finally {
             // Keep vanilla / NMS recipe state aligned even if one file fails.
             NmsManager.instance().handler().finalizeRecipes();
         }
-        Log.info(LOG_TAG, "Recipe finalization complete.");
+        long elapsedMs = System.currentTimeMillis() - startMs;
+
+        int total = loader.totalLoadedCount();
+        Log.info(LOG_TAG,
+                "Loaded {} recipe(s) in {}ms  (campfire={}, stonecutter={}, crafting={}).",
+                total, elapsedMs,
+                campfireHandler.loadedCount(),
+                stonecutterHandler.loadedCount(),
+                craftingHandler.loadedCount());
+        Log.debug(LOG_TAG, "Recipe finalization complete.");
     }
 
     private void unregisterAll() {

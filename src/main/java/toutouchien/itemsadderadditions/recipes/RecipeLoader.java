@@ -80,12 +80,31 @@ public final class RecipeLoader {
             return;
         }
 
+        // Reset per-type counters before each load cycle
+        campfireHandler.resetCount();
+        stonecutterHandler.resetCount();
+        craftingHandler.resetCount();
+
         List<File> yamlFiles = collectYamlFiles(itemsAdderContentsDir.toPath());
         Log.info(LOG_TAG, "Scanning {} YAML file(s) for custom recipes...", yamlFiles.size());
 
         for (File file : yamlFiles) {
             loadFile(file);
         }
+
+        // Per-type debug breakdown
+        Log.debug(LOG_TAG, "Campfire recipes loaded:    {}", campfireHandler.loadedCount());
+        Log.debug(LOG_TAG, "Stonecutter recipes loaded: {}", stonecutterHandler.loadedCount());
+        Log.debug(LOG_TAG, "Crafting recipes loaded:    {}", craftingHandler.loadedCount());
+    }
+
+    /**
+     * Total recipes loaded across all types in the last {@link #loadAll()} call.
+     */
+    public int totalLoadedCount() {
+        return campfireHandler.loadedCount()
+                + stonecutterHandler.loadedCount()
+                + craftingHandler.loadedCount();
     }
 
     private void loadFile(File file) {

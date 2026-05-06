@@ -28,8 +28,36 @@ public abstract class AbstractRecipeHandler {
      */
     protected final String logTag;
 
+    /**
+     * Total recipes successfully registered across all {@link #load} calls since the last {@link #resetCount()}.
+     */
+    private int loadedCount = 0;
+
     protected AbstractRecipeHandler(String logTag) {
         this.logTag = logTag;
+    }
+
+    /**
+     * Returns the number of recipes successfully registered since the last {@link #resetCount()}.
+     */
+    public int loadedCount() {
+        return loadedCount;
+    }
+
+    /**
+     * Resets the counter to zero.
+     * Called by {@link toutouchien.itemsadderadditions.recipes.RecipeLoader} before each reload cycle.
+     */
+    public void resetCount() {
+        loadedCount = 0;
+    }
+
+    /**
+     * Increments the loaded-recipe counter by one.
+     * Must be called by {@link #registerRecipe} implementations upon successful NMS registration.
+     */
+    protected final void incrementCount() {
+        loadedCount++;
     }
 
     /**

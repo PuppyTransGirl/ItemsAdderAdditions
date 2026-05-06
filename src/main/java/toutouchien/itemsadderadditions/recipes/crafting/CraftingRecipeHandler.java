@@ -22,6 +22,7 @@ public final class CraftingRecipeHandler {
 
     private final INmsCraftingRecipeHandler nms;
     private final List<CraftingRecipeData> predicateRecipes = new ArrayList<>();
+    private int loadedCount = 0;
 
     /**
      * O(1) lookup used by {@code CraftingRecipeListener.matchRecipe()}.
@@ -172,6 +173,20 @@ public final class CraftingRecipeHandler {
     }
 
     /**
+     * Returns the number of crafting recipes successfully registered since the last reload.
+     */
+    public int loadedCount() {
+        return loadedCount;
+    }
+
+    /**
+     * Resets the counter. Called by {@link toutouchien.itemsadderadditions.recipes.RecipeLoader} before each reload.
+     */
+    public void resetCount() {
+        loadedCount = 0;
+    }
+
+    /**
      * O(1) recipe lookup by {@link NamespacedKey}.
      * Used by {@code CraftingRecipeListener} instead of the old linear scan.
      */
@@ -199,7 +214,8 @@ public final class CraftingRecipeHandler {
     public void unregisterAll() {
         nms.unregisterAll();
         predicateRecipes.clear();
-        predicateByKey.clear();   // keep the two collections in sync
+        predicateByKey.clear();
+        loadedCount = 0;
     }
 
     /**
@@ -246,6 +262,7 @@ public final class CraftingRecipeHandler {
     private void register(CraftingRecipeData data) {
         try {
             nms.register(data);
+            loadedCount++;
             if (data.hasPredicates) {
                 predicateRecipes.add(data);
                 predicateByKey.put(data.key(), data);

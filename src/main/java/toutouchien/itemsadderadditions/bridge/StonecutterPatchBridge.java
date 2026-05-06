@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.recipes.stonecutter;
+package toutouchien.itemsadderadditions.bridge;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -6,6 +6,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.recipes.stonecutter.StonecutterRecipeHandler;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

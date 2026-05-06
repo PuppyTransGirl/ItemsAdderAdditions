@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.recipes.stonecutter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.bridge.StonecutterPatchBridge;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.recipes.AbstractRecipeHandler;
 
@@ -42,6 +43,7 @@ public final class StonecutterRecipeHandler extends AbstractRecipeHandler {
                 .register(namespace, recipeId, ingredient, result);
 
         StonecutterPatchBridge.register(ingredient, result);
+        incrementCount();
     }
 
     @Override

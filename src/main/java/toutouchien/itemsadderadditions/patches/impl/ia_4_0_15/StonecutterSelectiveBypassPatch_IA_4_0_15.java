@@ -1,8 +1,8 @@
 package toutouchien.itemsadderadditions.patches.impl.ia_4_0_15;
 
 import org.objectweb.asm.commons.GeneratorAdapter;
+import toutouchien.itemsadderadditions.bridge.StonecutterPatchBridge;
 import toutouchien.itemsadderadditions.patches.*;
-import toutouchien.itemsadderadditions.recipes.stonecutter.StonecutterPatchBridge;
 
 public final class StonecutterSelectiveBypassPatch_IA_4_0_15
         extends CallSiteInjectPatch {
