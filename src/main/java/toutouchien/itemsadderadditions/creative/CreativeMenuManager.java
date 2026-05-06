@@ -227,11 +227,11 @@ public final class CreativeMenuManager {
 
     /**
      * Returns {@code true} for items that should not appear in the creative
-     * menu: template items.
+     * menu, for e.g. template items.
      */
     private static boolean shouldSkip(CustomStack item) {
         FileConfiguration config = item.getConfig();
-        return config.getBoolean("items." + item.getId() + ".template", false);
+        return config.getBoolean("items." + item.getId() + ".template", false) || config.getBoolean("items." + item.getId() + ".hide_from_inventory", false);
     }
 
     /**

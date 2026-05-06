@@ -4,6 +4,7 @@ import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
@@ -15,6 +16,7 @@ import toutouchien.itemsadderadditions.worldgen.FurniturePopulatorLoader;
 import toutouchien.itemsadderadditions.worldgen.FurnitureSurfaceDecoratorLoader;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,8 +45,15 @@ public final class ItemsAdderLoadListener implements Listener {
         NmsManager nms = NmsManager.instance();
         if (nms.handler().creativeMenu() == null) return;
 
-        nms.handler().creativeMenu().injectPaintingVariants(items);
-        nms.handler().creativeMenu().updatePaintingCache(items);
+        List<CustomStack> nonHiddenItems = new ArrayList<>();
+
+        for (CustomStack item : items) {
+            if (shouldSkip(item)) continue;
+            nonHiddenItems.add(item);
+        }
+
+        nms.handler().creativeMenu().injectPaintingVariants(nonHiddenItems);
+        nms.handler().creativeMenu().updatePaintingCache(nonHiddenItems);
 
         CreativeMenuManager creativeMenuManager = plugin.creativeMenuManager();
         if (creativeMenuManager != null) {
@@ -90,5 +99,15 @@ public final class ItemsAdderLoadListener implements Listener {
         new FurnitureSurfaceDecoratorLoader().loadAll(iaContents);
 
         Log.success("Reload", "Reload complete.");
+    }
+
+
+    /**
+     * Returns {@code true} for items that should not appear in the creative
+     * menu, for e.g. template items.
+     */
+    private static boolean shouldSkip(CustomStack item) {
+        FileConfiguration config = item.getConfig();
+        return config.getBoolean("items." + item.getId() + ".template", false) || config.getBoolean("items." + item.getId() + ".hide_from_inventory", false);
     }
 }
