@@ -71,6 +71,10 @@ dependencies {
 tasks {
     runServer {
         minecraftVersion(minecraftVersion)
+        systemProperty(
+            "net.kyori.adventure.text.warnWhenLegacyFormattingDetected",
+            false
+        ) // This thing is useless; we can disable it
 
         jvmArgs(
             "-Xmx4096M",
