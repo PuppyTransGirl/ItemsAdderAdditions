@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.utils.other;
 
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Describes what kind of ItemsAdder item a {@link CustomStack} represents.
@@ -39,19 +40,18 @@ public enum ItemCategory {
      *
      * <p>Resolution order (first match wins):
      * <ol>
-     *   <li>{@link #COMPLEX_FURNITURE} - has {@code behaviours.complex_furniture}</li>
-     *   <li>{@link #FURNITURE}         - has {@code events.placed_furniture} or {@code behaviours.furniture}</li>
+     *   <li>{@link #COMPLEX_FURNITURE} - {@link CustomStack#isComplexFurniture(ItemStack)} returns {@code true}</li>
+     *   <li>{@link #FURNITURE}         - {@link CustomStack#isFurniture(ItemStack)} returns {@code true}</li>
      *   <li>{@link #BLOCK}             - {@link CustomStack#isBlock()} returns {@code true}</li>
      *   <li>{@link #ITEM}              - everything else</li>
      * </ol>
      */
     public static ItemCategory determine(CustomStack customStack, FileConfiguration config, String itemID) {
-        String base = "items." + itemID;
-
-        if (config.contains(base + ".behaviours.complex_furniture"))
+        ItemStack itemStack = customStack.getItemStack();
+        if (CustomStack.isComplexFurniture(itemStack))
             return COMPLEX_FURNITURE;
 
-        if (config.contains(base + ".events.placed_furniture") || config.contains(base + ".behaviours.furniture"))
+        if (CustomStack.isFurniture(itemStack))
             return FURNITURE;
 
         if (customStack.isBlock())

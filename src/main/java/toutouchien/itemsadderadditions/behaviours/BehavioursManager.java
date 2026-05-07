@@ -51,7 +51,7 @@ public final class BehavioursManager {
     /**
      * (Re)loads every item's behaviours from its YAML config using a pre-fetched
      * item list. Prefer this overload when multiple managers reload in the same
-     * cycle — it eliminates redundant {@code ItemsAdder.getAllItems()} calls.
+     * cycle - it eliminates redundant {@code ItemsAdder.getAllItems()} calls.
      *
      * @param items the shared, pre-fetched list of all ItemsAdder items
      */

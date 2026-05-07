@@ -1,7 +1,6 @@
 package toutouchien.itemsadderadditions.actions.executors;
 
-import dev.lone.itemsadder.api.CustomEntity;
-import org.bukkit.entity.Entity;
+import dev.lone.itemsadder.api.CustomComplexFurniture;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.actions.ActionContext;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
@@ -28,14 +27,10 @@ public final class PlayAnimationAction extends ActionExecutor {
 
     @Override
     protected void execute(ActionContext context) {
-        Entity entity = context.complexFurniture();
+        CustomComplexFurniture entity = context.complexFurniture();
         if (entity == null)
             return;
 
-        CustomEntity customEntity = CustomEntity.byAlreadySpawned(entity);
-        if (customEntity == null)
-            return;
-
-        customEntity.playAnimation(animationName);
+        entity.getCustomEntity().playAnimation(animationName);
     }
 }

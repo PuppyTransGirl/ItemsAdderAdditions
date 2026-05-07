@@ -7,7 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.components.annotations.Property;
 import toutouchien.itemsadderadditions.components.properties.UseCooldownProperty;
 import toutouchien.itemsadderadditions.utils.ReflectionUtils;
@@ -129,7 +128,7 @@ public final class ComponentsManager {
      * at load time. Safe to call multiple times (IAA handles deduplication).
      */
     public void applyComponents() {
-        ItemsAdder.Advanced.ModifierHandler modifier = (namespacedID, itemStack) -> {
+/*        ItemsAdder.Advanced.ModifierHandler modifier = (namespacedID, itemStack) -> {
             CustomStack customStack = CustomStack.byItemStack(itemStack);
             if (customStack == null) return itemStack;
 
@@ -140,6 +139,6 @@ public final class ComponentsManager {
             return itemStack;
         };
 
-        ItemsAdder.Advanced.injectItemModifier(ItemsAdderAdditions.instance(), modifier);
+        ItemsAdder.Advanced.injectItemModifier(ItemsAdderAdditions.instance(), modifier);*/
     }
 }

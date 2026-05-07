@@ -1,9 +1,10 @@
 package toutouchien.itemsadderadditions.actions;
 
 import dev.lone.itemsadder.api.CustomBlock;
-import dev.lone.itemsadder.api.CustomEntity;
+import dev.lone.itemsadder.api.CustomComplexFurniture;
 import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
+import dev.lone.itemsadder.api.Events.ComplexFurnitureInteractEvent;
 import dev.lone.itemsadder.api.Events.FurnitureInteractEvent;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
@@ -38,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>Each handler extracts the relevant custom item or block, builds an
  * {@link ActionContext}, and calls {@link #dispatch} which looks up registered
- * {@link ActionExecutor}s via {@link toutouchien.itemsadderadditions.actions.loading.ActionBindings}.
+ * {@link ActionExecutor}s via {@link ActionBindings}.
  *
  * <p>This class is registered once during plugin enable and remains active for the
  * lifetime of the plugin. It carries no per-item state - executors are stateless.
@@ -99,33 +100,20 @@ public final class ActionsListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onComplexFurnitureInteract(PlayerInteractEvent event) {
+    public void onComplexFurnitureInteract(ComplexFurnitureInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
-        Block block = event.getClickedBlock();
-        if (block == null || block.getType() != Material.BARRIER) return;
-
-        if (shouldIgnoreOffHandDuplicate(event.getPlayer(), event.getHand())) return;
-
-        // Complex furniture uses a BARRIER block as its hitbox. Look for the
-        // custom entity whose model lives within the same block.
-        CustomEntity customEntity = null;
-        for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation(), 0.1, 0.1, 0.1)) {
-            customEntity = CustomEntity.byAlreadySpawned(entity);
-            if (customEntity != null) break;
-        }
-
-        if (customEntity == null) return;
+        CustomComplexFurniture furniture = event.getFurniture();
+        if (furniture == null) return;
 
         Player player = event.getPlayer();
-        Entity entity = customEntity.getEntity();
         ItemStack held = player.getInventory().getItemInMainHand();
 
         dispatch(
-                customEntity.getNamespacedID(),
+                furniture.getCustomEntity().getNamespacedID(),
                 TriggerType.COMPLEX_FURNITURE_INTERACT,
                 ActionContext.create(player, TriggerType.COMPLEX_FURNITURE_INTERACT)
-                        .complexFurniture(entity)
+                        .complexFurniture(furniture)
                         .heldItem(held)
                         .build()
         );
@@ -140,8 +128,13 @@ public final class ActionsListener implements Listener {
         String namespacedID = furniture.getNamespacedID();
         ItemStack held = player.getInventory().getItemInMainHand();
 
-        // FurnitureInteractEvent does not expose a click action, so we default to "right"
-        String argument = "right";
+        String argument = switch (event.getAction()) {
+            case LEFT_CLICK_AIR, LEFT_CLICK_BLOCK -> "left";
+            default -> "right";
+        };
+
+        if (player.isSneaking())
+            argument = argument + "_shift";
 
         dispatch(
                 namespacedID,

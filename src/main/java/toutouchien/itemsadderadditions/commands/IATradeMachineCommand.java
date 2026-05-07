@@ -10,11 +10,11 @@ import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSele
 import net.kyori.adventure.key.Key;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import toutouchien.itemsadderadditions.bridge.TradeMachineBridge;
 import toutouchien.itemsadderadditions.utils.CommandUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@code /iatrademachine <player> <namespace:id> [-silent]}
@@ -39,7 +39,7 @@ public final class IATradeMachineCommand {
                 .suggests((ctx, builder) -> {
                     try {
                         String input = builder.getRemaining().toLowerCase();
-                        for (String iaId : CustomStack.getNamespacedIdsInRegistry()) {
+                        for (String iaId : ((Set<String>) CustomStack.getNamespacedIdsInRegistry())) {
                             if (iaId.toLowerCase().startsWith(input))
                                 builder.suggest(iaId);
                         }
@@ -75,15 +75,14 @@ public final class IATradeMachineCommand {
             sender.sendRichMessage(PREFIX + "<#F27474>Player not found or not online.</#F27474>");
             return Command.SINGLE_SUCCESS;
         }
+
         return execute(sender, targets.get(0), key, silent);
     }
 
     private static int execute(CommandSender sender, Player target, Key key, boolean silent) {
         String id = key.asString();
         try {
-            boolean opened = TradeMachineBridge.openTradeMachine(target, id);
-
-            if (opened) {
+            if (CustomStack.openTradeMenu(id, target)) {
                 if (!silent) {
                     sender.sendRichMessage(PREFIX +
                             "<#7AF291>Opened trade machine <white>" + id +

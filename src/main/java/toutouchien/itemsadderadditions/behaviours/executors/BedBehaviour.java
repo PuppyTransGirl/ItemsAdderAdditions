@@ -1,14 +1,13 @@
 package toutouchien.itemsadderadditions.behaviours.executors;
 
-import dev.lone.itemsadder.api.CustomEntity;
+import dev.lone.itemsadder.api.CustomComplexFurniture;
 import dev.lone.itemsadder.api.CustomFurniture;
+import dev.lone.itemsadder.api.Events.ComplexFurnitureInteractEvent;
 import dev.lone.itemsadder.api.Events.FurnitureBreakEvent;
 import dev.lone.itemsadder.api.Events.FurnitureInteractEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,7 +15,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
@@ -26,7 +24,6 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
 import toutouchien.itemsadderadditions.behaviours.executors.bed.SlotOffset;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
-import toutouchien.itemsadderadditions.utils.PlayerUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.*;
@@ -121,27 +118,6 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
         return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 
-    @Nullable
-    private static CustomEntity findNearbyCustomEntity(Location loc) {
-        if (loc.getWorld() == null) return null;
-        for (Entity entity : loc.getWorld().getNearbyEntities(loc, 0.1, 0.1, 0.1)) {
-            CustomEntity ce = CustomEntity.byAlreadySpawned(entity);
-            if (ce != null) return ce;
-        }
-        return null;
-    }
-
-    @Nullable
-    private static CustomFurniture findNearbyCustomFurniture(Location loc) {
-        if (loc.getWorld() == null) return null;
-        for (Entity entity : loc.getWorld().getNearbyEntities(loc, 0.5, 0.5, 0.5)) {
-            if (entity instanceof Player) continue;
-            CustomFurniture cf = CustomFurniture.byAlreadySpawned(entity);
-            if (cf != null) return cf;
-        }
-        return null;
-    }
-
     @Override
     public boolean configure(Object configData, String namespacedID) {
         if (!(configData instanceof org.bukkit.configuration.ConfigurationSection section))
@@ -205,15 +181,11 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
      * Finds the nearest custom entity to the clicked barrier and delegates.
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onComplexFurnitureInteract(PlayerInteractEvent event) {
+    public void onComplexFurnitureInteract(ComplexFurnitureInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (PlayerUtils.isOffHandDuplicate(event.getPlayer(), event.getHand())) return;
 
-        Block clicked = event.getClickedBlock();
-        if (clicked == null || clicked.getType() != org.bukkit.Material.BARRIER) return;
-
-        CustomEntity ce = findNearbyCustomEntity(clicked.getLocation());
-        if (ce == null || !ce.getNamespacedID().equals(namespacedID)) return;
+        CustomComplexFurniture ce = event.getFurniture();
+        if (ce == null || !event.getNamespacedID().equals(namespacedID)) return;
 
         handleBedInteract(event.getPlayer(), ce.getEntity().getLocation());
     }
@@ -259,7 +231,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
         if (player.isSneaking() || player.isSleeping()) return;
 
         float yaw = 0f;
-        CustomFurniture cf = findNearbyCustomFurniture(furnitureBase);
+        CustomFurniture cf = CustomFurniture.byAlreadySpawned(furnitureBase.getBlock());
         if (cf != null) yaw = cf.getEntity().getLocation().getYaw();
 
         Location freeSlot = findFreeSlot(furnitureBase, yaw);

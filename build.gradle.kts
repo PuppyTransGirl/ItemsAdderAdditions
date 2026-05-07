@@ -54,7 +54,7 @@ dependencies {
     implementation(project(":nms:nms_v1_20_6"))
 
     // Plugins
-    compileOnly("dev.lone:api-itemsadder:${itemsAdderApiVersion}")
+    compileOnly(files("libs/ItemsAdder_4.0.17-beta-10-test-7.jar"))
     compileOnly("me.clip:placeholderapi:${placeholderApiVersion}")
     compileOnly("io.lumine:Mythic-Dist:${mythicMobsVersion}")
     compileOnly("net.coreprotect:coreprotect:${coreProtectVersion}")
@@ -79,8 +79,8 @@ tasks {
         jvmArgs(
             "-Xmx4096M",
             "-Xms4096M",
-            "-XX:+AllowEnhancedClassRedefinition",
-            "-XX:HotswapAgent=core",
+            /*            "-XX:+AllowEnhancedClassRedefinition",
+                        "-XX:HotswapAgent=core",*/
             "-Dcom.mojang.eula.agree=true"
         )
 
@@ -167,10 +167,10 @@ publishing {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    options.release.set(25)
 }

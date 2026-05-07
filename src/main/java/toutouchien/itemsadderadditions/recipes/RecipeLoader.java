@@ -28,7 +28,7 @@ import java.util.List;
  * <h3>Optimized flow (preferred)</h3>
  * Use {@link #loadAll(ConfigFileRegistry)} to process only files that were already
  * identified as containing recipe sections by the central scanner. Files are never
- * re-read from disk — the YAML was parsed exactly once during the registry scan.
+ * re-read from disk - the YAML was parsed exactly once during the registry scan.
  */
 @NullMarked
 public final class RecipeLoader {
@@ -70,7 +70,7 @@ public final class RecipeLoader {
     public void loadAll(ConfigFileRegistry registry) {
         resetCounters();
 
-        // Union of all recipe files, deduplicated — a file with multiple recipe
+        // Union of all recipe files, deduplicated - a file with multiple recipe
         // types appears only once and both handlers are invoked for it.
         List<CategorizedConfigFile> files = registry.getFiles(
                 ConfigFileCategory.CAMPFIRE_RECIPES,

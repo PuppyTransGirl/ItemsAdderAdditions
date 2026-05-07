@@ -66,7 +66,7 @@ public final class ConfigFileRegistry {
      * the category index.
      *
      * <p>Files that do not match any known {@link ConfigFileCategory} are silently
-     * skipped — they are never stored and incur no memory cost beyond the initial
+     * skipped - they are never stored and incur no memory cost beyond the initial
      * parse, which is discarded immediately.
      *
      * @param contentsDir the ItemsAdder {@code contents/} directory

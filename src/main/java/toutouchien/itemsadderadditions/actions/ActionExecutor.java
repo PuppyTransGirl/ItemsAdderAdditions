@@ -1,20 +1,23 @@
 package toutouchien.itemsadderadditions.actions;
 
 import dev.lone.itemsadder.api.CustomStack;
+import dev.lone.itemsadder.api.FontImages.PlayerHudsHolderWrapper;
+import dev.lone.itemsadder.api.FontImages.PlayerQuantityHudWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.annotations.Action;
 import toutouchien.itemsadderadditions.annotations.Parameter;
-import toutouchien.itemsadderadditions.bridge.CooldownBridge;
-import toutouchien.itemsadderadditions.bridge.StatRequirementsBridge;
 import toutouchien.itemsadderadditions.utils.Task;
 import toutouchien.itemsadderadditions.utils.other.Keyed;
 import toutouchien.itemsadderadditions.utils.other.Log;
 import toutouchien.itemsadderadditions.utils.other.ParameterInjector;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -216,21 +219,79 @@ public abstract class ActionExecutor implements Keyed {
         if (customStack == null)
             return true;
 
-        int itemHash = customStack.getNamespacedID().hashCode();
+        ItemStack itemStack = customStack.getItemStack();
 
-        if (CooldownBridge.isOnCooldown(context.player(), itemHash)) {
-            Log.debug("Action", "Skipping: '{}' is on cooldown for player '{}'",
-                    customStack.getNamespacedID(), context.player().getName());
+        if (CustomStack.hasCooldown(context.player(), itemStack)) {
+            Log.debug(
+                    "Action",
+                    "Skipping: '{}' is on cooldown for player '{}'",
+                    customStack.getNamespacedID(),
+                    context.player().getName()
+            );
             return false;
         }
 
-        if (StatRequirementsBridge.isBlocked(context.player(), itemHash)) {
-            Log.debug("Action", "Skipping: stat requirements not met for '{}' (player '{}')",
-                    customStack.getNamespacedID(), context.player().getName());
-            return false;
+        if (!CustomStack.requiresStats(itemStack))
+            return true;
+
+        Map<String, String> requiredStats = CustomStack.getRequiredStats(itemStack);
+        if (requiredStats == null || requiredStats.isEmpty())
+            return true;
+
+        for (Map.Entry<String, String> entry : requiredStats.entrySet()) {
+            String statName = entry.getKey();
+            String rule = entry.getValue();
+
+            float playerValue = getPlayerStatValue(context.player(), statName, 0.0f);
+            if (!matchesRule(playerValue, rule)) {
+                Log.debug(
+                        "Action",
+                        "Skipping: stat requirement failed for '{}' (player '{}'): {} {} " +
+                                "(actual: {})",
+                        customStack.getNamespacedID(),
+                        context.player().getName(),
+                        statName,
+                        rule,
+                        playerValue
+                );
+
+                return false;
+            }
         }
 
         return true;
+    }
+
+    private float getPlayerStatValue(Player player, String statName, float defaultValue) {
+        PlayerHudsHolderWrapper huds = new PlayerHudsHolderWrapper(player);
+        //noinspection deprecation
+        PlayerQuantityHudWrapper statHud = new PlayerQuantityHudWrapper(huds, statName);
+
+        if (!statHud.exists())
+            return defaultValue;
+
+        return statHud.getFloatValue();
+    }
+
+    private boolean matchesRule(float actualValue, @Nullable String rule) {
+        if (rule == null || rule.length() < 2)
+            return false;
+
+        char operator = rule.charAt(0);
+
+        final float expectedValue;
+        try {
+            expectedValue = Float.parseFloat(rule.substring(1));
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return switch (operator) {
+            case '>' -> actualValue > expectedValue;
+            case '<' -> actualValue < expectedValue;
+            case '=' -> actualValue == expectedValue;
+            default -> false;
+        };
     }
 
     /**

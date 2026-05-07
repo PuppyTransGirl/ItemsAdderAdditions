@@ -31,7 +31,7 @@ import java.util.List;
  * Subclasses may override {@link #requiredItemSection()} to declare the top-level
  * item key they need. For example, if a loader only reads the {@code behaviours:}
  * block, it returns {@code "behaviours"} and the base class silently skips all
- * items that don't have that block — without the subclass ever seeing those items.
+ * items that don't have that block - without the subclass ever seeing those items.
  *
  * <h3>Legacy / standalone use</h3>
  * The no-arg {@link #load()} method remains for backward compatibility and for
@@ -87,7 +87,7 @@ public abstract class AbstractItemsAdderItemLoader {
     /**
      * Clears previous state and parses every currently loaded ItemsAdder item.
      *
-     * <p>Prefer {@link #load(List)} when multiple loaders run in the same cycle —
+     * <p>Prefer {@link #load(List)} when multiple loaders run in the same cycle -
      * it avoids a redundant {@link ItemsAdder#getAllItems()} call per loader.
      */
     public final void load() {

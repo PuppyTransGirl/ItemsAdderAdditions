@@ -12,7 +12,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle(nmsVersion)
-    compileOnly("dev.lone:api-itemsadder:${itemsAdderApiVersion}")
+    compileOnly(files("../../libs/ItemsAdder_4.0.17-beta-10-test-7.jar"))
     compileOnly(project(":nms:api"))
 }
 

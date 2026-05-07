@@ -26,11 +26,11 @@ import java.util.List;
  *
  * <h3>Optimized reload order</h3>
  * <ol>
- *   <li><strong>Cache items once</strong> — {@link ItemsAdder#getAllItems()} is called
+ *   <li><strong>Cache items once</strong> - {@link ItemsAdder#getAllItems()} is called
  *       exactly once and the resulting list is shared with every item-based system
  *       (actions, behaviours, creative menu). This eliminates N−1 redundant API
  *       calls where N is the number of item loaders.</li>
- *   <li><strong>Scan files once</strong> — {@link ConfigFileRegistry#scan} walks the
+ *   <li><strong>Scan files once</strong> - {@link ConfigFileRegistry#scan} walks the
  *       {@code contents/} directory exactly once, parses every {@code .yml} file exactly
  *       once, and categorizes them. File-based systems (recipes, world-gen) receive
  *       pre-filtered lists with no additional I/O.</li>
@@ -70,9 +70,8 @@ public final class ItemsAdderLoadListener implements Listener {
         nms.handler().creativeMenu().updatePaintingCache(nonHiddenItems);
 
         CreativeMenuManager creativeMenuManager = plugin.creativeMenuManager();
-        if (creativeMenuManager != null) {
+        if (creativeMenuManager != null)
             creativeMenuManager.reload();
-        }
     }
 
     private static boolean shouldSkip(CustomStack item) {
@@ -90,6 +89,7 @@ public final class ItemsAdderLoadListener implements Listener {
 
     @EventHandler
     public void onItemsAdderLoad(ItemsAdderLoadDataEvent event) {
+        System.out.println("ITEMSADDERLOADEDDATAEVENT CALLED AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA (MAKE IT VISIBLE IN THE CONSOLE OMG LONEDEV THING TWINKY WA)");
         ItemsAdderAdditions plugin = ItemsAdderAdditions.instance();
 
         // Step 1: Fetch all items ONCE and share across every item-based system
@@ -106,17 +106,18 @@ public final class ItemsAdderLoadListener implements Listener {
         FurniturePopulatorLoader.clear();
         FurnitureSurfaceDecoratorLoader.clear();
 
-        // Step 5: Item-based systems — pre-filtered by requiredItemSection()
+        // Step 5: Item-based systems - pre-filtered by requiredItemSection()
         plugin.actionsManager().reload(allItems);
         plugin.behavioursManager().reload(allItems);
 
         // Step 6: Creative inventory integration
         reloadCreativeMenuIfEnabled(plugin, allItems);
 
-        // Step 7: Recipes — receives only files with recognized recipe sections
-        plugin.recipeManager().reload(registry);
+        // Step 7: Recipes - receives only files with recognized recipe sections
+        if (!event.isSkipRecipes())
+            plugin.recipeManager().reload(registry);
 
-        // ── Step 8: World-gen — each loader receives only its relevant files
+        // Step 8: World-gen - each loader receives only its relevant files
         new FurniturePopulatorLoader()
                 .loadAll(registry.getFiles(ConfigFileCategory.FURNITURE_POPULATORS));
         new FurnitureSurfaceDecoratorLoader()

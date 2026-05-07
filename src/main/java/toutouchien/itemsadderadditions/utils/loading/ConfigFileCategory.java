@@ -12,7 +12,7 @@ import java.util.function.Predicate;
  *
  * <p>Each constant embeds the detection logic (a {@link Predicate}) that decides
  * whether a parsed {@link YamlConfiguration} belongs to that category. This means
- * adding support for a new system only requires a single new enum constant — the
+ * adding support for a new system only requires a single new enum constant - the
  * rest of the pipeline ({@link ConfigFileRegistry}, loaders, {@code ItemsAdderLoadListener})
  * picks it up automatically.
  *
@@ -20,7 +20,7 @@ import java.util.function.Predicate;
  * <ul>
  *   <li>A predicate must be <em>cheap</em>: it only checks key existence with
  *       {@link org.bukkit.configuration.Configuration#contains}, never parses values.</li>
- *   <li>A predicate may return {@code true} even if the section is empty or malformed —
+ *   <li>A predicate may return {@code true} even if the section is empty or malformed -
  *       individual loaders perform full validation.</li>
  *   <li>A file may match <em>multiple</em> categories (e.g. one file can contain both
  *       stonecutter recipes and furniture populators).</li>

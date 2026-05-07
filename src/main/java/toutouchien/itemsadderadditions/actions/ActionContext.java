@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.actions;
 
+import dev.lone.itemsadder.api.CustomComplexFurniture;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -36,7 +37,7 @@ public final class ActionContext {
     private final TriggerType triggerType;
     @Nullable private final Block block;
     @Nullable private final Entity target;
-    @Nullable private final Entity complexFurniture;
+    @Nullable private final CustomComplexFurniture complexFurniture;
     @Nullable private final ItemStack heldItem;
     /**
      * The event argument that qualified this trigger, if any
@@ -80,7 +81,7 @@ public final class ActionContext {
     }
 
     @Nullable
-    public Entity complexFurniture() {
+    public CustomComplexFurniture complexFurniture() {
         return complexFurniture;
     }
 
@@ -112,7 +113,7 @@ public final class ActionContext {
         private final TriggerType triggerType;
         @Nullable private Block block;
         @Nullable private Entity target;
-        @Nullable private Entity complexFurniture;
+        @Nullable private CustomComplexFurniture complexFurniture;
         @Nullable private ItemStack heldItem;
         @Nullable private String eventArgument;
 
@@ -131,7 +132,7 @@ public final class ActionContext {
             return this;
         }
 
-        public Builder complexFurniture(@Nullable Entity complexFurniture) {
+        public Builder complexFurniture(@Nullable CustomComplexFurniture complexFurniture) {
             this.complexFurniture = complexFurniture;
             return this;
         }
