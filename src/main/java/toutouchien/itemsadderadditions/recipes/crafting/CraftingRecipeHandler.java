@@ -156,6 +156,7 @@ public final class CraftingRecipeHandler {
                     "Missing 'result.item' for {}:{}", namespace, recipeId);
             return null;
         }
+
         ItemStack item = NamespaceUtils.itemByID(namespace, itemRef);
         if (item == null) {
             Log.warn(LOG_TAG,
@@ -163,8 +164,13 @@ public final class CraftingRecipeHandler {
                     itemRef, namespace, recipeId);
             return null;
         }
-        item = item.clone();
-        item.setAmount(resultSec.getInt("amount", 1));
+
+        int amount = resultSec.getInt("amount", 1);
+        if (amount != 1) {
+            item = item.clone();
+            item.setAmount(amount);
+        }
+
         return item;
     }
 

@@ -25,6 +25,15 @@ public final class BehaviourLoader extends AbstractItemsAdderItemLoader {
         this.registry = registry;
     }
 
+    /**
+     * Pre-filters items: only those with an {@code items.<id>.behaviours} block
+     * are passed to {@link #loadItem}, skipping all others before any parsing.
+     */
+    @Override
+    protected String requiredItemSection() {
+        return "behaviours";
+    }
+
     @Override
     protected void beforeLoad() {
         BehaviourBindings.clear();

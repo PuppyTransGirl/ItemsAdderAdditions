@@ -132,6 +132,15 @@ public final class ActionLoader extends AbstractItemsAdderItemLoader {
         };
     }
 
+    /**
+     * Pre-filters items: only those with an {@code items.<id>.events} block
+     * are passed to {@link #loadItem}, skipping all others before any parsing.
+     */
+    @Override
+    protected String requiredItemSection() {
+        return "events";
+    }
+
     @Override
     protected void beforeLoad() {
         ActionBindings.clear();

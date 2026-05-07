@@ -1,9 +1,12 @@
 package toutouchien.itemsadderadditions.behaviours;
 
+import dev.lone.itemsadder.api.CustomStack;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.behaviours.executors.*;
 import toutouchien.itemsadderadditions.behaviours.loading.BehaviourLoader;
 import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
+
+import java.util.List;
 
 /**
  * Entry point for the behaviours system.
@@ -46,11 +49,14 @@ public final class BehavioursManager {
     }
 
     /**
-     * (Re)loads every item's behaviours from its YAML config.
-     * Safe to call multiple times - active executors are unloaded before new ones are created.
+     * (Re)loads every item's behaviours from its YAML config using a pre-fetched
+     * item list. Prefer this overload when multiple managers reload in the same
+     * cycle — it eliminates redundant {@code ItemsAdder.getAllItems()} calls.
+     *
+     * @param items the shared, pre-fetched list of all ItemsAdder items
      */
-    public void reload() {
-        loader.load();
+    public void reload(List<CustomStack> items) {
+        loader.load(items);
     }
 
     /**

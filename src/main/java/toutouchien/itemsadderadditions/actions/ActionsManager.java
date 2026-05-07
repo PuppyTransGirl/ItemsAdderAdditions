@@ -1,9 +1,12 @@
 package toutouchien.itemsadderadditions.actions;
 
+import dev.lone.itemsadder.api.CustomStack;
 import toutouchien.itemsadderadditions.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.actions.executors.*;
 import toutouchien.itemsadderadditions.actions.loading.ActionLoader;
 import toutouchien.itemsadderadditions.utils.other.ExecutorRegistry;
+
+import java.util.List;
 
 /**
  * Entry point for the actions system.
@@ -54,11 +57,14 @@ public final class ActionsManager {
     }
 
     /**
-     * (Re)loads every item's actions from its YAML config.
-     * Safe to call multiple times.
+     * (Re)loads every item's actions from its YAML config using a pre-fetched
+     * item list. Prefer this overload when multiple managers reload in the same
+     * cycle — it eliminates redundant {@code ItemsAdder.getAllItems()} calls.
+     *
+     * @param items the shared, pre-fetched list of all ItemsAdder items
      */
-    public void reload() {
-        loader.load();
+    public void reload(List<CustomStack> items) {
+        loader.load(items);
     }
 
     /**

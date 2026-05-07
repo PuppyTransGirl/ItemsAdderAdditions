@@ -6,18 +6,16 @@ import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.recipes.campfire.CampfireRecipeHandler;
 import toutouchien.itemsadderadditions.recipes.crafting.CraftingRecipeHandler;
 import toutouchien.itemsadderadditions.recipes.stonecutter.StonecutterRecipeHandler;
+import toutouchien.itemsadderadditions.utils.loading.CategorizedConfigFile;
+import toutouchien.itemsadderadditions.utils.loading.ConfigFileCategory;
+import toutouchien.itemsadderadditions.utils.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
- * Scans every {@code .yml} file inside ItemsAdder's {@code contents/} folder
- * and dispatches recipe sections to the specialised recipe handlers.
+ * Dispatches custom recipe sections from pre-filtered YAML files to the
+ * appropriate recipe handlers.
  *
  * <h3>Supported YAML keys under {@code recipes:}</h3>
  * <ul>
@@ -26,6 +24,11 @@ import java.util.stream.Stream;
  *   <li>{@code iaa_crafting_table}  → {@link CraftingRecipeHandler} (shaped, 3×3)</li>
  *   <li>{@code iaa_crafting}        → {@link CraftingRecipeHandler} (shaped or shapeless, 2×2)</li>
  * </ul>
+ *
+ * <h3>Optimized flow (preferred)</h3>
+ * Use {@link #loadAll(ConfigFileRegistry)} to process only files that were already
+ * identified as containing recipe sections by the central scanner. Files are never
+ * re-read from disk — the YAML was parsed exactly once during the registry scan.
  */
 @NullMarked
 public final class RecipeLoader {
@@ -33,73 +36,59 @@ public final class RecipeLoader {
 
     /**
      * All crafting section keys dispatched to the crafting handler.
-     * Both shapes are parsed identically - the distinction is cosmetic for config authors.
      */
     private static final List<String> CRAFTING_SECTION_KEYS = List.of(
             "iaa_crafting_table",
             "iaa_crafting"
     );
 
-    private final File itemsAdderContentsDir;
     private final CampfireRecipeHandler campfireHandler;
     private final StonecutterRecipeHandler stonecutterHandler;
     private final CraftingRecipeHandler craftingHandler;
 
     public RecipeLoader(
-            File itemsAdderContentsDir,
             CampfireRecipeHandler campfireHandler,
             StonecutterRecipeHandler stonecutterHandler,
             CraftingRecipeHandler craftingHandler
     ) {
-        this.itemsAdderContentsDir = itemsAdderContentsDir;
         this.campfireHandler = campfireHandler;
         this.stonecutterHandler = stonecutterHandler;
         this.craftingHandler = craftingHandler;
     }
 
-    private static List<File> collectYamlFiles(Path dir) {
-        try (Stream<Path> stream = Files.walk(dir)) {
-            return stream
-                    .filter(path -> Files.isRegularFile(path)
-                            && path.getFileName().toString().endsWith(".yml"))
-                    .map(Path::toFile)
-                    .toList();
-        } catch (IOException e) {
-            Log.error(LOG_TAG, "Failed to scan recipe directory: " + dir, e);
-            return List.of();
-        }
-    }
-
     /**
-     * Scans all YAML files and loads every custom recipe type.
+     * Loads every custom recipe type from pre-filtered files supplied by the
+     * {@link ConfigFileRegistry}.
+     *
+     * <p>The registry provides a deduplicated union of all recipe-category files.
+     * Each file is visited exactly once; the {@link CategorizedConfigFile#hasCategory}
+     * flag drives which handlers are invoked for that file, so a file containing
+     * both campfire and stonecutter recipes is processed correctly in a single pass.
+     *
+     * @param registry the registry built during the current reload cycle
      */
-    public void loadAll() {
-        if (!itemsAdderContentsDir.exists()) {
-            Log.warn(LOG_TAG, "ItemsAdder contents directory not found: {}",
-                    itemsAdderContentsDir.getPath());
-            return;
+    public void loadAll(ConfigFileRegistry registry) {
+        resetCounters();
+
+        // Union of all recipe files, deduplicated — a file with multiple recipe
+        // types appears only once and both handlers are invoked for it.
+        List<CategorizedConfigFile> files = registry.getFiles(
+                ConfigFileCategory.CAMPFIRE_RECIPES,
+                ConfigFileCategory.STONECUTTER_RECIPES,
+                ConfigFileCategory.CRAFTING_RECIPES
+        );
+
+        Log.info(LOG_TAG, "Processing {} YAML file(s) for custom recipes...", files.size());
+
+        for (CategorizedConfigFile ccf : files) {
+            loadFile(ccf);
         }
 
-        // Reset per-type counters before each load cycle
-        campfireHandler.resetCount();
-        stonecutterHandler.resetCount();
-        craftingHandler.resetCount();
-
-        List<File> yamlFiles = collectYamlFiles(itemsAdderContentsDir.toPath());
-        Log.info(LOG_TAG, "Scanning {} YAML file(s) for custom recipes...", yamlFiles.size());
-
-        for (File file : yamlFiles) {
-            loadFile(file);
-        }
-
-        // Per-type debug breakdown
-        Log.debug(LOG_TAG, "Campfire recipes loaded:    {}", campfireHandler.loadedCount());
-        Log.debug(LOG_TAG, "Stonecutter recipes loaded: {}", stonecutterHandler.loadedCount());
-        Log.debug(LOG_TAG, "Crafting recipes loaded:    {}", craftingHandler.loadedCount());
+        logCounters();
     }
 
     /**
-     * Total recipes loaded across all types in the last {@link #loadAll()} call.
+     * Total recipes loaded across all types in the last load call.
      */
     public int totalLoadedCount() {
         return campfireHandler.loadedCount()
@@ -107,9 +96,13 @@ public final class RecipeLoader {
                 + craftingHandler.loadedCount();
     }
 
-    private void loadFile(File file) {
+    /**
+     * Processes a {@link CategorizedConfigFile} using its pre-computed category
+     * flags to dispatch only the handlers that are relevant for this file.
+     */
+    private void loadFile(CategorizedConfigFile ccf) {
         try {
-            YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+            YamlConfiguration yaml = ccf.yaml();
 
             ConfigurationSection info = yaml.getConfigurationSection("info");
             if (info == null) return;
@@ -120,14 +113,32 @@ public final class RecipeLoader {
             ConfigurationSection recipes = yaml.getConfigurationSection("recipes");
             if (recipes == null) return;
 
-            campfireHandler.load(namespace, recipes.getConfigurationSection("campfire_cooking"));
-            stonecutterHandler.load(namespace, recipes.getConfigurationSection("stonecutter"));
-
-            for (String craftingKey : CRAFTING_SECTION_KEYS) {
-                craftingHandler.load(namespace, recipes.getConfigurationSection(craftingKey));
+            // Dispatch only the handlers whose category is confirmed for this file.
+            if (ccf.hasCategory(ConfigFileCategory.CAMPFIRE_RECIPES)) {
+                campfireHandler.load(namespace, recipes.getConfigurationSection("campfire_cooking"));
+            }
+            if (ccf.hasCategory(ConfigFileCategory.STONECUTTER_RECIPES)) {
+                stonecutterHandler.load(namespace, recipes.getConfigurationSection("stonecutter"));
+            }
+            if (ccf.hasCategory(ConfigFileCategory.CRAFTING_RECIPES)) {
+                for (String craftingKey : CRAFTING_SECTION_KEYS) {
+                    craftingHandler.load(namespace, recipes.getConfigurationSection(craftingKey));
+                }
             }
         } catch (Exception e) {
-            Log.error(LOG_TAG, "Failed to parse file: " + file.getPath(), e);
+            Log.error(LOG_TAG, "Failed to parse file: " + ccf.file().getPath(), e);
         }
+    }
+
+    private void resetCounters() {
+        campfireHandler.resetCount();
+        stonecutterHandler.resetCount();
+        craftingHandler.resetCount();
+    }
+
+    private void logCounters() {
+        Log.debug(LOG_TAG, "Campfire recipes loaded: {}", campfireHandler.loadedCount());
+        Log.debug(LOG_TAG, "Stonecutter recipes loaded: {}", stonecutterHandler.loadedCount());
+        Log.debug(LOG_TAG, "Crafting recipes loaded: {}", craftingHandler.loadedCount());
     }
 }

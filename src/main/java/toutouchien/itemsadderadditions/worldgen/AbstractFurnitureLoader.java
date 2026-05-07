@@ -10,11 +10,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.utils.FileUtils;
+import toutouchien.itemsadderadditions.utils.loading.CategorizedConfigFile;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
-import java.io.File;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -98,22 +96,21 @@ abstract class AbstractFurnitureLoader<C> {
     protected abstract void registerConfig(String key, C config);
 
     /**
-     * Scans {@code itemsAdderContentsDir} and loads all matching entries.
+     * Processes only the pre-filtered files supplied by {@link toutouchien.itemsadderadditions.utils.loading.ConfigFileRegistry}.
+     *
+     * <p>This is the preferred entry point: files have already been read from disk and
+     * parsed into {@link YamlConfiguration} objects exactly once, so there is no
+     * additional I/O here.
+     *
+     * @param files files pre-filtered to this loader's category by the registry
      */
-    public final void loadAll(File itemsAdderContentsDir) {
-        if (!itemsAdderContentsDir.exists()) {
-            Log.warn(tag(), "ItemsAdder contents directory not found: " + itemsAdderContentsDir.getPath());
-            return;
-        }
-
-        List<File> yamlFiles = FileUtils.collectYamlFiles(itemsAdderContentsDir);
-        Log.info(tag(), "Scanning " + yamlFiles.size() + " YAML files for " + entryTypeName() + " entries…");
-
-        for (File file : yamlFiles) {
+    public final void loadAll(java.util.List<CategorizedConfigFile> files) {
+        Log.info(tag(), "Processing {} YAML file(s) for {} entries...", files.size(), entryTypeName());
+        for (CategorizedConfigFile ccf : files) {
             try {
-                loadFile(YamlConfiguration.loadConfiguration(file), file.getPath());
+                loadFile(ccf.yaml(), ccf.file().getPath());
             } catch (Exception e) {
-                Log.error(tag(), "Failed to parse: " + file.getPath(), e);
+                Log.error(tag(), "Failed to parse: " + ccf.file().getPath(), e);
             }
         }
     }

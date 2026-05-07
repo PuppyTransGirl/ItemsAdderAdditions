@@ -7,9 +7,8 @@ import toutouchien.itemsadderadditions.recipes.campfire.CampfireRecipeHandler;
 import toutouchien.itemsadderadditions.recipes.crafting.CraftingRecipeHandler;
 import toutouchien.itemsadderadditions.recipes.crafting.CraftingRecipeListener;
 import toutouchien.itemsadderadditions.recipes.stonecutter.StonecutterRecipeHandler;
+import toutouchien.itemsadderadditions.utils.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.utils.other.Log;
-
-import java.io.File;
 
 public final class RecipeManager {
     private static final String LOG_TAG = "RecipeManager";
@@ -21,34 +20,35 @@ public final class RecipeManager {
     private final RecipeLoader loader;
 
     public RecipeManager(Plugin plugin) {
-        File iaDataFolder = new File(
-                Bukkit.getPluginManager().getPlugin("ItemsAdder").getDataFolder(),
-                "contents"
-        );
-
         this.loader = new RecipeLoader(
-                iaDataFolder, campfireHandler, stonecutterHandler, craftingHandler);
+                campfireHandler, stonecutterHandler, craftingHandler
+        );
 
         Bukkit.getPluginManager().registerEvents(
                 new CraftingRecipeListener(craftingHandler, plugin), plugin);
     }
 
-    public void reload() {
+    /**
+     * Reloads all custom recipes using pre-filtered files from the central registry.
+     * This is the preferred overload — no directory scan or YAML parsing occurs here.
+     *
+     * @param registry the registry built during the current reload cycle
+     */
+    public void reload(ConfigFileRegistry registry) {
         unregisterAll();
 
         Log.info(LOG_TAG, "Loading custom recipes...");
         long startMs = System.currentTimeMillis();
         try {
-            loader.loadAll();
+            loader.loadAll(registry);
         } finally {
-            // Keep vanilla / NMS recipe state aligned even if one file fails.
             NmsManager.instance().handler().finalizeRecipes();
         }
         long elapsedMs = System.currentTimeMillis() - startMs;
 
         int total = loader.totalLoadedCount();
         Log.info(LOG_TAG,
-                "Loaded {} recipe(s) in {}ms  (campfire={}, stonecutter={}, crafting={}).",
+                "Loaded {} recipe(s) in {}ms (campfire={}, stonecutter={}, crafting={}).",
                 total, elapsedMs,
                 campfireHandler.loadedCount(),
                 stonecutterHandler.loadedCount(),
