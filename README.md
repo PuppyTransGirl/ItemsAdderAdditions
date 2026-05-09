@@ -41,6 +41,7 @@ Examples include:
 - [Connectable](https://itemsadderadditions.com/docs/behaviours/connectable)
 - [Contact Damage](https://itemsadderadditions.com/docs/behaviours/contact-damage)
 - [Storage](https://itemsadderadditions.com/docs/behaviours/storage)
+- And more...
 
 ### Extra Actions
 
@@ -51,6 +52,7 @@ Examples include:
 - [Actionbar](https://itemsadderadditions.com/docs/actions/actionbar)
 - [Ignite](https://itemsadderadditions.com/docs/actions/ignite)
 - [Mythic Mobs Skill](https://itemsadderadditions.com/docs/actions/mythic-mobs-skill)
+- And more...
 
 ### New Recipe Types
 
@@ -58,8 +60,9 @@ ItemsAdderAdditions adds additional recipe types that are not available by defau
 
 Currently includes:
 
-- [Campfire recipes](https://itemsadderadditions.com/docs/features/campfire-stonecutter-recipes)
-- [Stonecutter recipes](https://itemsadderadditions.com/docs/features/campfire-stonecutter-recipes)
+- [Campfire recipes](https://itemsadderadditions.com/docs/recipes/campfire-cooking)
+- [Stonecutter recipes](https://itemsadderadditions.com/docs/recipes/stonecutter)
+- And more...
 
 ## Creative Inventory Integration
 
