@@ -147,7 +147,7 @@ export default function HomePage() {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
-            {/* ── Hero ── */}
+            {/* -- Hero -- */}
             <section className="flex flex-col items-center text-center px-6 pt-24 pb-20 gap-6 border-b border-fd-border">
                 <h1 className="max-w-2xl text-4xl md:text-6xl font-bold tracking-tight leading-[1.1]">
                     More from ItemsAdder.
@@ -176,7 +176,7 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* ── What it adds ── */}
+            {/* -- What it adds -- */}
             <section className="w-full max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-3 gap-12">
                 <div className="flex flex-col gap-3">
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-fd-muted-foreground">Behaviours</h2>
@@ -185,7 +185,8 @@ export default function HomePage() {
                         Make ItemsAdder blocks deal contact damage, hold inventories, stack on top of each other, or
                         connect to adjacent blocks - all from a few lines of YML inside your existing item config.
                     </p>
-                    <Link href="/docs/behaviours/connectable" className="text-sm font-medium text-fd-primary hover:underline mt-1">
+                    <Link href="/docs/behaviours/bed"
+                          className="text-sm font-medium text-fd-primary hover:underline mt-1">
                         Browse behaviours →
                     </Link>
                 </div>
@@ -209,7 +210,8 @@ export default function HomePage() {
                         Populate the creative inventory with your custom ItemsAdder items automatically, or add campfire
                         and stonecutter recipes - no new config files required.
                     </p>
-                    <Link href="/docs/features/campfire-stonecutter-recipes" className="text-sm font-medium text-fd-primary hover:underline mt-1">
+                    <Link href="/docs/features/creative-inventory-integration"
+                          className="text-sm font-medium text-fd-primary hover:underline mt-1">
                         Browse features →
                     </Link>
                 </div>
@@ -217,7 +219,7 @@ export default function HomePage() {
 
             <div className="border-t border-fd-border" />
 
-            {/* ── YML example ── */}
+            {/* -- YML example -- */}
             <section className="w-full max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16 items-center">
                 <div className="flex flex-col gap-4">
                     <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-snug">
@@ -244,7 +246,7 @@ export default function HomePage() {
 
             <div className="border-t border-fd-border" />
 
-            {/* ── FAQ ── */}
+            {/* -- FAQ -- */}
             <section className="w-full max-w-5xl mx-auto px-6 py-16 flex flex-col gap-8">
                 <h2 className="text-sm font-semibold uppercase tracking-widest text-fd-muted-foreground">FAQ</h2>
                 <div className="grid md:grid-cols-2 gap-8">
@@ -277,7 +279,7 @@ export default function HomePage() {
 
             <div className="border-t border-fd-border" />
 
-            {/* ── Requirements + links ── */}
+            {/* -- Requirements + links -- */}
             <section className="w-full max-w-5xl mx-auto px-6 py-16 flex flex-col md:flex-row gap-12 justify-between">
                 <div className="flex flex-col gap-3">
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-fd-muted-foreground">Requirements</h2>
@@ -292,7 +294,9 @@ export default function HomePage() {
                         <a href="https://modrinth.com/plugin/itemsadderadditions" target="_blank" rel="noreferrer" className="text-sm font-medium text-fd-primary hover:underline">
                             Download on Modrinth →
                         </a>
-                        <a href="https://github.com/bruhhhwarrior/iaadditions/releases/latest" target="_blank" rel="noreferrer" className="text-sm font-medium text-fd-primary hover:underline">
+                        <a href="https://www.spigotmc.org/resources/itemsadderadditions-example-pack.134800/"
+                           target="_blank" rel="noreferrer"
+                           className="text-sm font-medium text-fd-primary hover:underline">
                             Download example pack →
                         </a>
                         <Link href="/docs" className="text-sm font-medium text-fd-primary hover:underline">
