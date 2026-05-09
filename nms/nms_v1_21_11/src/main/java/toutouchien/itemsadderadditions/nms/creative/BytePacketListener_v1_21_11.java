@@ -89,11 +89,11 @@ public final class BytePacketListener_v1_21_11 {
 
                                         PacketListener_v1_21_11.ChannelDupeHandler dupeHandler = getDupeHandler(ctx);
                                         if (dupeHandler != null) {
-                                            CustomStack customItem = dupeHandler.paintingItems.get(paintingId);
+                                            CustomStack customItem = PacketListener_v1_21_11.PAINTING_ITEMS.get().get(paintingId);
                                             if (customItem != null) {
-                                                int baseItemId = itemRegistry.getId(
-                                                        CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem()
-                                                );
+                                                Integer precomputed = PacketListener_v1_21_11.PRECOMPUTED_ITEM_IDS.get().get(paintingId);
+                                                int baseItemId = (precomputed != null) ? precomputed
+                                                        : itemRegistry.getId(CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem());
 
                                                 ByteBuf newPacket = ctx.alloc().buffer();
                                                 FriendlyByteBuf out = new FriendlyByteBuf(newPacket);

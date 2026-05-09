@@ -15,10 +15,8 @@ import org.bukkit.craftbukkit.CraftServer;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
 public final class RegistryInjector_v1_21_10 {
@@ -26,7 +24,40 @@ public final class RegistryInjector_v1_21_10 {
         throw new IllegalStateException("Static class");
     }
 
+    // Reflection objects resolved once at class-init time and reused on every reload.
+    private static final java.lang.reflect.Method BIND_METHOD;
+    private static final java.lang.reflect.Field FROZEN_FIELD;
+    /**
+     * Keys already injected into the painting-variant registry.  Lets
+     * {@link #injectPaintingVariants} skip the unfreeze/refreeze cycle
+     * entirely when no new items have been added since the last reload.
+     */
+    private static final Set<String> INJECTED_KEYS = ConcurrentHashMap.newKeySet();
+
+    static {
+        try {
+            BIND_METHOD = Holder.Reference.class.getDeclaredMethod("bindValue", Object.class);
+            BIND_METHOD.setAccessible(true);
+            FROZEN_FIELD = MappedRegistry.class.getDeclaredField("frozen");
+            FROZEN_FIELD.setAccessible(true);
+        } catch (ReflectiveOperationException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     public static void injectPaintingVariants(Collection<CustomStack> items) {
+        // Fast path: skip the expensive unfreeze/refreeze cycle if every
+        // item's key was already injected on a previous reload.
+        List<CustomStack> newItems = new ArrayList<>();
+        for (CustomStack item : items) {
+            String keyStr = "ia_creative:" + item.getNamespace() + "_" + item.getId();
+            if (!INJECTED_KEYS.contains(keyStr)) newItems.add(item);
+        }
+        if (newItems.isEmpty()) {
+            Log.loaded("CreativeMenu", 0, "PaintingVariant(s) injected (all already present)");
+            return;
+        }
+
         Registry<PaintingVariant> registry = ((CraftServer) Bukkit.getServer())
                 .getServer()
                 .registryAccess()
@@ -39,7 +70,7 @@ public final class RegistryInjector_v1_21_10 {
 
         int injected = 0;
         try {
-            for (CustomStack item : items) {
+            for (CustomStack item : newItems) {
                 ResourceLocation key = ResourceLocation.fromNamespaceAndPath(
                         "ia_creative",
                         item.getNamespace() + "_" + item.getId()
@@ -59,6 +90,7 @@ public final class RegistryInjector_v1_21_10 {
                 mappedRegistry.get(ResourceKey.create(Registries.PAINTING_VARIANT, key))
                         .ifPresent(holder -> bindHolder(holder, variant));
 
+                INJECTED_KEYS.add("ia_creative:" + item.getNamespace() + "_" + item.getId());
                 injected++;
             }
         } finally {
@@ -75,9 +107,7 @@ public final class RegistryInjector_v1_21_10 {
      */
     private static void bindHolder(Holder.Reference<PaintingVariant> holder, PaintingVariant value) {
         try {
-            Method bindMethod = Holder.Reference.class.getDeclaredMethod("bindValue", Object.class);
-            bindMethod.setAccessible(true);
-            bindMethod.invoke(holder, value);
+            BIND_METHOD.invoke(holder, value);
         } catch (Exception e) {
             Log.error("CreativeMenu", "Failed to bind holder value via reflection", e);
         }
@@ -85,9 +115,7 @@ public final class RegistryInjector_v1_21_10 {
 
     private static void setRegistryFrozen(MappedRegistry<?> registry, boolean frozen) {
         try {
-            Field frozenField = MappedRegistry.class.getDeclaredField("frozen");
-            frozenField.setAccessible(true);
-            frozenField.set(registry, frozen);
+            FROZEN_FIELD.set(registry, frozen);
         } catch (Exception e) {
             Log.error("CreativeMenu", "Failed to toggle registry lock", e);
         }

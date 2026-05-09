@@ -15,26 +15,36 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.decoration.PaintingVariant;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 @NullMarked
 public final class PacketListener_v1_21_8 {
     /**
-     * Painting variant registry integer ID → ItemsAdder CustomStack.
-     *
-     * <p>A {@link ConcurrentHashMap} so that {@link ChannelDupeHandler} instances
-     * (which run on Netty I/O threads) can safely read from it while the main thread
-     * rebuilds it on reload. The reference never changes - only the contents do -
-     * so every handler instance automatically sees the latest mapping.
+     * Atomic reference to an immutable snapshot of the painting-variant-ID →
+     * CustomStack mapping. Swapped in a single write on each reload so Netty I/O
+     * threads always see either the old or the new complete map, never a
+     * partially-empty intermediate state.
      */
-    static final Map<Integer, CustomStack> PAINTING_ITEMS = new ConcurrentHashMap<>();
+    static final AtomicReference<Map<Integer, CustomStack>> PAINTING_ITEMS =
+            new AtomicReference<>(Map.of());
+
+    /**
+     * Parallel map of painting-variant-ID → precomputed NMS item integer ID.
+     * Populated during {@link #updateCache} so that {@link BytePacketListener_v1_21_8}
+     * never calls {@code CraftItemStack.asNMSCopy} or {@code Registry.getId}
+     * on Netty I/O threads.
+     */
+    static final AtomicReference<Map<Integer, Integer>> PRECOMPUTED_ITEM_IDS =
+            new AtomicReference<>(Map.of());
 
     private PacketListener_v1_21_8() {
         throw new IllegalStateException("Static class");
@@ -70,11 +80,16 @@ public final class PacketListener_v1_21_8 {
      * @param items all currently loaded ItemsAdder items
      */
     public static void updateCache(Collection<CustomStack> items) {
-        Registry<PaintingVariant> registry = ((CraftServer) Bukkit.getServer()).getServer()
-                .registryAccess()
-                .lookupOrThrow(Registries.PAINTING_VARIANT);
+        // Skip entirely when NamespaceUtils reports no custom-item changes -
+        // the painting variant ID mapping is still valid from the previous cycle.
+        if (NamespaceUtils.lastCacheDeltaSize() == 0) return;
 
-        Map<Integer, CustomStack> newMap = new HashMap<>();
+        var serverAccess = ((CraftServer) Bukkit.getServer()).getServer().registryAccess();
+        Registry<PaintingVariant> registry = serverAccess.lookupOrThrow(Registries.PAINTING_VARIANT);
+        var itemRegistry = serverAccess.lookupOrThrow(Registries.ITEM);
+
+        Map<Integer, CustomStack> newItems = new HashMap<>();
+        Map<Integer, Integer> newIds = new HashMap<>();
 
         for (CustomStack item : items) {
             ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(
@@ -82,26 +97,24 @@ public final class PacketListener_v1_21_8 {
                     item.getNamespace() + "_" + item.getId()
             );
 
-            // Use .get() instead of .getHolder()
             registry.get(ResourceKey.create(Registries.PAINTING_VARIANT, loc)).ifPresent(holder -> {
                 if (holder.isBound()) {
-                    int id = registry.getId(holder.value());
-                    newMap.put(id, item);
+                    int paintingId = registry.getId(holder.value());
+                    newItems.put(paintingId, item);
+                    // Precompute the NMS item integer ID once here so Netty I/O
+                    // threads never need to call asNMSCopy or Registry.getId.
+                    newIds.put(paintingId, itemRegistry.getId(
+                            CraftItemStack.asNMSCopy(item.getItemStack()).getItem()));
                 }
             });
         }
 
-        PAINTING_ITEMS.clear();
-        PAINTING_ITEMS.putAll(newMap);
+        // Atomic swap - readers always see a complete, consistent map.
+        PAINTING_ITEMS.set(Map.copyOf(newItems));
+        PRECOMPUTED_ITEM_IDS.set(Map.copyOf(newIds));
     }
 
     static final class ChannelDupeHandler extends ChannelDuplexHandler {
-        /**
-         * Direct reference to the shared map. Because the map object itself never
-         * changes (only its contents), all handler instances reflect reloads instantly.
-         */
-        final Map<Integer, CustomStack> paintingItems = PAINTING_ITEMS;
-
         /**
          * Returns the {@link ServerPlayer} associated with this channel,
          * or {@code null} if the connection has not yet reached the play phase.

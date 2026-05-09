@@ -20,6 +20,7 @@ import toutouchien.itemsadderadditions.patches.PatchManager;
 import toutouchien.itemsadderadditions.patches.Version;
 import toutouchien.itemsadderadditions.recipes.RecipeManager;
 import toutouchien.itemsadderadditions.updatechecker.UpdateChecker;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 import toutouchien.itemsadderadditions.worldgen.FurniturePopulatorWorldListener;
 
 import java.util.List;
@@ -72,6 +73,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
         this.bStats = new Metrics(this, BSTATS_PLUGIN_ID);
         bStats.addCustomChart(new SimplePie("platform", () -> "Other"));
 
+        NamespaceUtils.initVanillaCache();
         NmsManager.initialize(this.getComponentLogger());
 
         this.actionsManager = new ActionsManager();
@@ -86,9 +88,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
             NmsManager.instance().handler().creativeMenu().injectListeners(this);
         }
 
-        if (this.getConfig().getBoolean("update-checker.enabled", true)) {
+        if (this.getConfig().getBoolean("update-checker.enabled", true))
             new UpdateChecker(this, MODRINTH_PROJECT_ID);
-        }
     }
 
     @Override

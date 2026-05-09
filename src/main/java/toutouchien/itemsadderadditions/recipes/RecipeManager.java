@@ -30,7 +30,7 @@ public final class RecipeManager {
 
     /**
      * Reloads all custom recipes using pre-filtered files from the central registry.
-     * This is the preferred overload — no directory scan or YAML parsing occurs here.
+     * This is the preferred overload - no directory scan or YAML parsing occurs here.
      *
      * @param registry the registry built during the current reload cycle
      */

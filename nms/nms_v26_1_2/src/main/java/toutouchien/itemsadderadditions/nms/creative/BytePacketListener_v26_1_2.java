@@ -40,10 +40,10 @@ public final class BytePacketListener_v26_1_2 {
             this.plugin = plugin;
         }
 
-        private static toutouchien.itemsadderadditions.nms.creative.PacketListener_v26_1_2.ChannelDupeHandler getDupeHandler(
+        private static PacketListener_v26_1_2.ChannelDupeHandler getDupeHandler(
                 ChannelHandlerContext ctx
         ) {
-            return (toutouchien.itemsadderadditions.nms.creative.PacketListener_v26_1_2.ChannelDupeHandler) ctx.pipeline()
+            return (PacketListener_v26_1_2.ChannelDupeHandler) ctx.pipeline()
                     .get("iaadditions_packet_listener");
         }
 
@@ -89,11 +89,11 @@ public final class BytePacketListener_v26_1_2 {
 
                                         toutouchien.itemsadderadditions.nms.creative.PacketListener_v26_1_2.ChannelDupeHandler dupeHandler = getDupeHandler(ctx);
                                         if (dupeHandler != null) {
-                                            CustomStack customItem = dupeHandler.paintingItems.get(paintingId);
+                                            CustomStack customItem = PacketListener_v26_1_2.PAINTING_ITEMS.get().get(paintingId);
                                             if (customItem != null) {
-                                                int baseItemId = itemRegistry.getId(
-                                                        CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem()
-                                                );
+                                                Integer precomputed = PacketListener_v26_1_2.PRECOMPUTED_ITEM_IDS.get().get(paintingId);
+                                                int baseItemId = (precomputed != null) ? precomputed
+                                                        : itemRegistry.getId(CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem());
 
                                                 ByteBuf newPacket = ctx.alloc().buffer();
                                                 FriendlyByteBuf out = new FriendlyByteBuf(newPacket);

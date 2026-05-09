@@ -89,11 +89,12 @@ public final class BytePacketListener_v1_21_8 {
 
                                         PacketListener_v1_21_8.ChannelDupeHandler dupeHandler = getDupeHandler(ctx);
                                         if (dupeHandler != null) {
-                                            CustomStack customItem = dupeHandler.paintingItems.get(paintingId);
+                                            CustomStack customItem = PacketListener_v1_21_8.PAINTING_ITEMS.get().get(paintingId);
                                             if (customItem != null) {
-                                                int baseItemId = itemRegistry.getId(
-                                                        CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem()
-                                                );
+                                                // Use precomputed NMS item ID - avoids asNMSCopy + Registry.getId on the Netty I/O thread.
+                                                Integer precomputed = PacketListener_v1_21_8.PRECOMPUTED_ITEM_IDS.get().get(paintingId);
+                                                int baseItemId = (precomputed != null) ? precomputed
+                                                        : itemRegistry.getId(CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem()); // rare stale-state fallback
 
                                                 ByteBuf newPacket = ctx.alloc().buffer();
                                                 FriendlyByteBuf out = new FriendlyByteBuf(newPacket);

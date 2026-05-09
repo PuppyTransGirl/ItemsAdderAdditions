@@ -9,7 +9,7 @@ import java.util.EnumSet;
 /**
  * Immutable snapshot of a YAML file that has already been parsed and categorized.
  *
- * <p>Created exclusively by {@link ConfigFileRegistry#scan} — callers never
+ * <p>Created exclusively by {@link ConfigFileRegistry#scan} - callers never
  * instantiate this class directly.
  *
  * <h3>Design notes</h3>
@@ -45,7 +45,7 @@ public final class CategorizedConfigFile {
 
     /**
      * The pre-parsed, fully-loaded YAML configuration. Shared across all systems
-     * that receive this file — treat as read-only.
+     * that receive this file - treat as read-only.
      */
     public YamlConfiguration yaml() {
         return yaml;

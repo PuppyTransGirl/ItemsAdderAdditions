@@ -17,7 +17,7 @@ val customBlockDataVersion: String by project
 val morePersistentDataTypesVersion: String by project
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.8-beta-4"
+version = "1.0.8-beta-7"
 
 repositories {
     mavenCentral()
@@ -79,8 +79,8 @@ tasks {
         jvmArgs(
             "-Xmx4096M",
             "-Xms4096M",
-            "-XX:+AllowEnhancedClassRedefinition",
-            "-XX:HotswapAgent=core",
+//            "-XX:+AllowEnhancedClassRedefinition",
+//            "-XX:HotswapAgent=core",
             "-Dcom.mojang.eula.agree=true"
         )
 

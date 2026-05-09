@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.actions.ActionExecutor;
 import toutouchien.itemsadderadditions.actions.TriggerKey;
 import toutouchien.itemsadderadditions.actions.TriggerType;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,7 +69,15 @@ public final class ActionBindings {
      */
     public static List<ActionExecutor> get(String id, TriggerType type, @Nullable String argument) {
         Map<TriggerKey, List<ActionExecutor>> keyMap = bindings.get(id);
-        if (keyMap == null) return List.of();
+
+        // Fall back to the base (rotation-stripped) ID if no binding exists for the exact ID
+        if (keyMap == null) {
+            String baseId = NamespaceUtils.stripRotationSuffix(id);
+            if (!baseId.equals(id)) {
+                keyMap = bindings.get(baseId);
+            }
+            if (keyMap == null) return List.of();
+        }
 
         List<ActionExecutor> exact = keyMap.getOrDefault(TriggerKey.of(type, argument), List.of());
 

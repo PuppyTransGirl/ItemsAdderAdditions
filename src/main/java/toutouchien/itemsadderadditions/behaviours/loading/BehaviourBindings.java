@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.behaviours.loading;
 
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,9 +48,23 @@ public final class BehaviourBindings {
 
     /**
      * Returns all active behaviour executors for the given item ID.
+     *
+     * <p>If no binding is found for {@code id} directly, the lookup is retried
+     * with the directional rotation suffix stripped (e.g. {@code "ns:block_north"}
+     * falls back to {@code "ns:block"}).  This lets a single behaviour declaration
+     * cover all rotated variants of a block without duplicating config.
      */
     public static List<BehaviourExecutor> get(String id) {
-        return List.copyOf(bindings.getOrDefault(id, List.of()));
+        List<BehaviourExecutor> result = bindings.get(id);
+        if (result != null) return List.copyOf(result);
+
+        String baseId = NamespaceUtils.stripRotationSuffix(id);
+        if (!baseId.equals(id)) {
+            result = bindings.get(baseId);
+            if (result != null) return List.copyOf(result);
+        }
+
+        return List.of();
     }
 
     /**
