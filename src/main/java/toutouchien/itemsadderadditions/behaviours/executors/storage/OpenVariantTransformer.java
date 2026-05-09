@@ -11,6 +11,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.HashMap;
@@ -22,6 +23,15 @@ public final class OpenVariantTransformer {
 
     private final Map<BlockCoord, Integer> openCounts = new HashMap<>();
     private final Map<BlockCoord, Entity> liveEntities = new HashMap<>();
+
+    /**
+     * Full namespaced ID (including any directional suffix such as {@code _south})
+     * of the original block, captured just before it is replaced by the open-variant.
+     * Used on close to restore the block with the exact same rotation it had before
+     * the player opened it.
+     * Only populated when the original holder is a block.
+     */
+    private final Map<BlockCoord, String> savedBlockIds = new HashMap<>();
 
     /**
      * Yaw captured from the original furniture entity before it is removed.
@@ -95,12 +105,44 @@ public final class OpenVariantTransformer {
         return transformed;
     }
 
+    /**
+     * Tries to resolve a rotated form of {@code baseId} by appending {@code suffix}
+     * (e.g. {@code "_south"}).  If the suffixed ID corresponds to an existing
+     * {@link CustomBlock}, it is returned; otherwise {@code baseId} is returned as-is.
+     *
+     * <p>This is used when opening a storage block: if the closed variant was
+     * {@code "ns:cabinet_closed_south"} and the configured open-variant base ID is
+     * {@code "ns:cabinet_open"}, this method tries {@code "ns:cabinet_open_south"}
+     * and uses it when it exists.
+     *
+     * @param baseId the open-variant base namespaced ID from config (no rotation suffix)
+     * @param suffix the rotation suffix extracted from the original block (e.g. {@code "_south"},
+     *               or {@code ""} for a non-rotated block)
+     * @return the best matching namespaced ID to place
+     */
+    private static String resolveRotatedId(String baseId, String suffix) {
+        if (suffix.isEmpty()) return baseId;
+
+        String rotatedId = baseId + suffix;
+        if (CustomBlock.getInstance(rotatedId) != null) {
+            Log.debug("OpenVariantTransformer",
+                    "resolveRotatedId: rotated variant '{}' exists, using it.", rotatedId);
+            return rotatedId;
+        }
+
+        Log.debug("OpenVariantTransformer",
+                "resolveRotatedId: rotated variant '{}' not found, falling back to '{}'.",
+                rotatedId, baseId);
+        return baseId;
+    }
+
     public void forceRemove(Location loc) {
         BlockCoord key = BlockCoord.of(loc);
         Log.debug("OpenVariantTransformer", "forceRemove: loc={}", loc);
 
         openCounts.remove(key);
         savedYaws.remove(key);
+        savedBlockIds.remove(key);
 
         ItemStack saved = savedItems.remove(key);
         if (saved != null) {
@@ -132,74 +174,7 @@ public final class OpenVariantTransformer {
         openCounts.clear();
         savedYaws.clear();
         savedItems.clear();
-    }
-
-    @Nullable
-    private Entity applyTransform(
-            Location loc,
-            BlockCoord key,
-            boolean isBlock,
-            @Nullable Entity originalEntity
-    ) {
-        Log.debug("OpenVariantTransformer",
-                "applyTransform: loc={} key={} isBlock={} configType={} configId='{}'",
-                loc, key, isBlock, config.type(), config.id());
-
-        // ITEM_DISPLAY open variant
-        // The original entity IS already an ItemDisplay (all IA furniture is).
-        // We just swap the displayed item in-place - no spawn, no removal.
-        if (config.type() == OpenVariantConfig.FormType.ITEM_DISPLAY) {
-            return applyItemDisplaySwap(loc, key, isBlock, originalEntity);
-        }
-
-        // FURNITURE open variant
-        if (config.isFurnitureBased()) {
-            float yaw = captureAndClearHolder(loc, key, isBlock, originalEntity);
-
-            Block supportBlock = furnitureSupportBlock(loc, isBlock);
-            Log.debug("OpenVariantTransformer",
-                    "applyTransform[FURNITURE]: spawning '{}' at support block {} (isBlock={})",
-                    config.id(), supportBlock.getLocation(), isBlock);
-
-            CustomFurniture spawned = CustomFurniture.spawn(config.id(), supportBlock);
-
-            if (spawned == null || spawned.getEntity() == null) {
-                Log.warn("OpenVariantTransformer",
-                        "applyTransform[FURNITURE]: CustomFurniture.spawn returned null for '{}' at {}.",
-                        config.id(), loc);
-                return null;
-            }
-
-            Entity entity = spawned.getEntity();
-            Log.debug("OpenVariantTransformer",
-                    "applyTransform[FURNITURE]: spawned entity {} ({}) at {}",
-                    entity.getUniqueId(), entity.getType(), entity.getLocation());
-
-            if (!isBlock) {
-                entity.setRotation(yaw, 0f);
-                Log.debug("OpenVariantTransformer",
-                        "applyTransform[FURNITURE]: applied yaw={} to spawned entity.", yaw);
-            }
-
-            liveEntities.put(key, entity);
-            return entity;
-        }
-
-        // BLOCK open variant
-        captureAndClearHolder(loc, key, isBlock, originalEntity);
-        Log.debug("OpenVariantTransformer",
-                "applyTransform[BLOCK]: placing block '{}' at {}", config.id(), loc);
-
-        if (!placeBlock(config.id(), loc)) {
-            Log.warn("OpenVariantTransformer",
-                    "applyTransform[BLOCK]: failed to place open-form block '{}' at {}.",
-                    config.id(), loc);
-        } else {
-            Log.debug("OpenVariantTransformer",
-                    "applyTransform[BLOCK]: block placed successfully.");
-        }
-
-        return null;
+        savedBlockIds.clear();
     }
 
     /**
@@ -275,66 +250,97 @@ public final class OpenVariantTransformer {
     }
 
     @Nullable
-    private Entity restoreTransform(
+    private Entity applyTransform(
             Location loc,
             BlockCoord key,
-            String originalId,
-            boolean originalIsBlock
+            boolean isBlock,
+            @Nullable Entity originalEntity
     ) {
         Log.debug("OpenVariantTransformer",
-                "restoreTransform: loc={} originalId='{}' originalIsBlock={} configType={}",
-                loc, originalId, originalIsBlock, config.type());
+                "applyTransform: loc={} key={} isBlock={} configType={} configId='{}'",
+                loc, key, isBlock, config.type(), config.id());
 
-        // ITEM_DISPLAY restore - swap the model back
-        if (config.type() == OpenVariantConfig.FormType.ITEM_DISPLAY) {
-            return restoreItemDisplaySwap(loc, key);
-        }
-
-        // Remove the open-variant that is currently displayed.
-        removeOpenVariant(loc, key);
-
-        if (originalIsBlock) {
-            savedYaws.remove(key);
-            Log.debug("OpenVariantTransformer",
-                    "restoreTransform[BLOCK]: placing original block '{}'.", originalId);
-            if (!placeBlock(originalId, loc)) {
-                Log.warn("OpenVariantTransformer",
-                        "restoreTransform[BLOCK]: failed to restore original block '{}' at {}.",
-                        originalId, loc);
+        // When the original holder is a block, capture its full namespaced ID (which may
+        // include a directional suffix such as "_south") before we overwrite or clear it.
+        // This is used to (a) restore the correct rotation on close, and (b) derive the
+        // matching rotated open-variant ID when one exists.
+        String rotationSuffix = "";
+        if (isBlock) {
+            CustomBlock existingBlock = CustomBlock.byAlreadyPlaced(loc.getBlock());
+            if (existingBlock != null) {
+                String actualId = existingBlock.getNamespacedID();
+                savedBlockIds.put(key, actualId);
+                String baseId = NamespaceUtils.stripRotationSuffix(actualId);
+                rotationSuffix = actualId.substring(baseId.length()); // e.g. "_south" or ""
+                Log.debug("OpenVariantTransformer",
+                        "applyTransform: captured original block id='{}' rotationSuffix='{}'",
+                        actualId, rotationSuffix);
             } else {
                 Log.debug("OpenVariantTransformer",
-                        "restoreTransform[BLOCK]: block restored successfully.");
+                        "applyTransform: no CustomBlock at loc={} (not a custom block?)", loc);
             }
-            return null;
         }
 
-        Float savedYaw = savedYaws.remove(key);
-        Log.debug("OpenVariantTransformer",
-                "restoreTransform[FURNITURE]: spawning original furniture '{}', savedYaw={}",
-                originalId, savedYaw);
-
-        Block supportBlock = furnitureSupportBlock(loc, false);
-        CustomFurniture restored = CustomFurniture.spawn(originalId, supportBlock);
-
-        if (restored == null || restored.getEntity() == null) {
-            Log.warn("OpenVariantTransformer",
-                    "restoreTransform[FURNITURE]: CustomFurniture.spawn returned null for '{}' at {}.",
-                    originalId, loc);
-            return null;
+        // ITEM_DISPLAY open variant
+        // The original entity IS already an ItemDisplay (all IA furniture is).
+        // We just swap the displayed item in-place - no spawn, no removal.
+        if (config.type() == OpenVariantConfig.FormType.ITEM_DISPLAY) {
+            return applyItemDisplaySwap(loc, key, isBlock, originalEntity);
         }
 
-        Entity restoredEntity = restored.getEntity();
-        Log.debug("OpenVariantTransformer",
-                "restoreTransform[FURNITURE]: spawned restored entity {} ({}) at {}",
-                restoredEntity.getUniqueId(), restoredEntity.getType(), restoredEntity.getLocation());
+        // FURNITURE open variant
+        if (config.isFurnitureBased()) {
+            float yaw = captureAndClearHolder(loc, key, isBlock, originalEntity);
 
-        if (savedYaw != null) {
-            restoredEntity.setRotation(savedYaw, 0f);
+            Block supportBlock = furnitureSupportBlock(loc, isBlock);
             Log.debug("OpenVariantTransformer",
-                    "restoreTransform[FURNITURE]: applied savedYaw={} to restored entity.", savedYaw);
+                    "applyTransform[FURNITURE]: spawning '{}' at support block {} (isBlock={})",
+                    config.id(), supportBlock.getLocation(), isBlock);
+
+            CustomFurniture spawned = CustomFurniture.spawn(config.id(), supportBlock);
+
+            if (spawned == null || spawned.getEntity() == null) {
+                Log.warn("OpenVariantTransformer",
+                        "applyTransform[FURNITURE]: CustomFurniture.spawn returned null for '{}' at {}.",
+                        config.id(), loc);
+                return null;
+            }
+
+            Entity entity = spawned.getEntity();
+            Log.debug("OpenVariantTransformer",
+                    "applyTransform[FURNITURE]: spawned entity {} ({}) at {}",
+                    entity.getUniqueId(), entity.getType(), entity.getLocation());
+
+            if (!isBlock) {
+                entity.setRotation(yaw, 0f);
+                Log.debug("OpenVariantTransformer",
+                        "applyTransform[FURNITURE]: applied yaw={} to spawned entity.", yaw);
+            }
+
+            liveEntities.put(key, entity);
+            return entity;
         }
 
-        return restoredEntity;
+        // BLOCK open variant
+        captureAndClearHolder(loc, key, isBlock, originalEntity);
+
+        // If the original block had a directional rotation suffix, try to place the same
+        // rotated form of the open variant (e.g. "ns:cabinet_open_south"). Fall back to
+        // the base open-variant ID if no such rotated variant exists in ItemsAdder.
+        String openBlockId = resolveRotatedId(config.id(), rotationSuffix);
+        Log.debug("OpenVariantTransformer",
+                "applyTransform[BLOCK]: placing block '{}' at {}", openBlockId, loc);
+
+        if (!placeBlock(openBlockId, loc)) {
+            Log.warn("OpenVariantTransformer",
+                    "applyTransform[BLOCK]: failed to place open-form block '{}' at {}.",
+                    openBlockId, loc);
+        } else {
+            Log.debug("OpenVariantTransformer",
+                    "applyTransform[BLOCK]: block placed successfully.");
+        }
+
+        return null;
     }
 
     /**
@@ -501,6 +507,78 @@ public final class OpenVariantTransformer {
                 "furnitureSupportBlock: loc={} replacingBlockHolder={} → support={}",
                 loc, replacingBlockHolder, support.getLocation());
         return support;
+    }
+
+    @Nullable
+    private Entity restoreTransform(
+            Location loc,
+            BlockCoord key,
+            String originalId,
+            boolean originalIsBlock
+    ) {
+        Log.debug("OpenVariantTransformer",
+                "restoreTransform: loc={} originalId='{}' originalIsBlock={} configType={}",
+                loc, originalId, originalIsBlock, config.type());
+
+        // ITEM_DISPLAY restore - swap the model back
+        if (config.type() == OpenVariantConfig.FormType.ITEM_DISPLAY) {
+            return restoreItemDisplaySwap(loc, key);
+        }
+
+        // Remove the open-variant that is currently displayed.
+        removeOpenVariant(loc, key);
+
+        if (originalIsBlock) {
+            // Use the actual ID that was captured on open (includes any rotation suffix such as
+            // "_south"). Fall back to originalId if nothing was captured (shouldn't happen).
+            String restoreId = savedBlockIds.remove(key);
+            if (restoreId == null) {
+                Log.warn("OpenVariantTransformer",
+                        "restoreTransform[BLOCK]: no saved block id for key={}, " +
+                                "falling back to base id '{}'.", key, originalId);
+                restoreId = originalId;
+            }
+            savedYaws.remove(key);
+            Log.debug("OpenVariantTransformer",
+                    "restoreTransform[BLOCK]: placing original block '{}'.", restoreId);
+            if (!placeBlock(restoreId, loc)) {
+                Log.warn("OpenVariantTransformer",
+                        "restoreTransform[BLOCK]: failed to restore original block '{}' at {}.",
+                        restoreId, loc);
+            } else {
+                Log.debug("OpenVariantTransformer",
+                        "restoreTransform[BLOCK]: block restored successfully.");
+            }
+            return null;
+        }
+
+        Float savedYaw = savedYaws.remove(key);
+        Log.debug("OpenVariantTransformer",
+                "restoreTransform[FURNITURE]: spawning original furniture '{}', savedYaw={}",
+                originalId, savedYaw);
+
+        Block supportBlock = furnitureSupportBlock(loc, false);
+        CustomFurniture restored = CustomFurniture.spawn(originalId, supportBlock);
+
+        if (restored == null || restored.getEntity() == null) {
+            Log.warn("OpenVariantTransformer",
+                    "restoreTransform[FURNITURE]: CustomFurniture.spawn returned null for '{}' at {}.",
+                    originalId, loc);
+            return null;
+        }
+
+        Entity restoredEntity = restored.getEntity();
+        Log.debug("OpenVariantTransformer",
+                "restoreTransform[FURNITURE]: spawned restored entity {} ({}) at {}",
+                restoredEntity.getUniqueId(), restoredEntity.getType(), restoredEntity.getLocation());
+
+        if (savedYaw != null) {
+            restoredEntity.setRotation(savedYaw, 0f);
+            Log.debug("OpenVariantTransformer",
+                    "restoreTransform[FURNITURE]: applied savedYaw={} to restored entity.", savedYaw);
+        }
+
+        return restoredEntity;
     }
 
     private boolean placeBlock(String namespacedId, Location loc) {

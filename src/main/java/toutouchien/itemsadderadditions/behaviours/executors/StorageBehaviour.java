@@ -31,6 +31,7 @@ import toutouchien.itemsadderadditions.behaviours.BehaviourExecutor;
 import toutouchien.itemsadderadditions.behaviours.BehaviourHost;
 import toutouchien.itemsadderadditions.behaviours.annotations.Behaviour;
 import toutouchien.itemsadderadditions.behaviours.executors.storage.*;
+import toutouchien.itemsadderadditions.utils.NamespaceUtils;
 import toutouchien.itemsadderadditions.utils.SoundUtils;
 import toutouchien.itemsadderadditions.utils.other.ItemCategory;
 import toutouchien.itemsadderadditions.utils.other.Log;
@@ -295,7 +296,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         if (block == null) return;
 
         CustomBlock cb = CustomBlock.byAlreadyPlaced(block);
-        if (cb == null || !cb.getNamespacedID().equals(namespacedID)) return;
+        if (cb == null || !NamespaceUtils.matchesWithRotation(cb.getNamespacedID(), namespacedID)) return;
 
         event.setCancelled(true);
         sessionManager.openForBlock(event.getPlayer(), block);
@@ -321,7 +322,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
         }
 
         CustomBlock cb = CustomBlock.byAlreadyPlaced(block);
-        if (cb == null || !cb.getNamespacedID().equals(namespacedID)) return;
+        if (cb == null || !NamespaceUtils.matchesWithRotation(cb.getNamespacedID(), namespacedID)) return;
 
         ItemStack[] contents =
                 StorageInventoryManager.loadFromBlock(block, contentsKey, plugin);
@@ -332,7 +333,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(CustomBlockBreakEvent event) {
-        if (!event.getNamespacedID().equals(namespacedID)) return;
+        if (!NamespaceUtils.matchesWithRotation(event.getNamespacedID(), namespacedID)) return;
 
         Block block = event.getBlock();
         sessionManager.closeSessionsAt(block.getLocation(), preloadedBlockContents);
@@ -351,7 +352,7 @@ public final class StorageBehaviour extends BehaviourExecutor implements Listene
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(CustomBlockPlaceEvent event) {
-        if (!event.getNamespacedID().equals(namespacedID)) return;
+        if (!NamespaceUtils.matchesWithRotation(event.getNamespacedID(), namespacedID)) return;
         if (storageType != StorageType.SHULKER) return;
 
         ItemStack[] stored = extractFromHand(event.getPlayer());

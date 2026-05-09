@@ -29,13 +29,15 @@ public final class NamespaceUtils {
      * it themselves; callers that only read it (crafting checks, display, etc.)
      * can use the shared reference directly.
      */
-    private static volatile Map<String, ItemStack> vanillaItemCache = Map.of();
+    private static Map<String, ItemStack> vanillaItemCache = Map.of();
+
     /**
      * Normalised namespaced-ID → pre-resolved {@link Key} for every vanilla item.
      * Avoids the string-parse + allocation that {@link Key#key(String)} performs on
      * every call.
      */
-    private static volatile Map<String, Key> vanillaKeyCache = Map.of();
+    private static Map<String, Key> vanillaKeyCache = Map.of();
+
     /**
      * Holds two flat maps built once from {@link ItemsAdder#getAllItems()} so
      * that every subsequent lookup is O(1) instead of O(n).
@@ -56,6 +58,7 @@ public final class NamespaceUtils {
      */
     private static Map<String, CustomStack> cacheByNamespacedId = Map.of();
     private static Map<String, CustomStack> cacheByPath = Map.of();
+
     /**
      * Integer hash code snapshot taken when the cache was last built, keyed by
      * namespacedId. Used to detect stacks whose underlying ItemStack changed
@@ -64,6 +67,7 @@ public final class NamespaceUtils {
      * <p>Comparison is done using {@link ItemStack#hashCode()}.
      */
     private static Map<String, Integer> cachedItemHashes = Map.of();
+
     /**
      * Number of added + changed entries from the most recent {@link #buildCache}
      * call.  {@code 0} means every custom item is byte-for-byte identical to
@@ -346,4 +350,30 @@ public final class NamespaceUtils {
         }
         return namespacedId;
     }
+
+    /**
+     * Returns {@code true} if {@code actual} identifies the same logical block as
+     * {@code base}, accounting for directional rotation suffixes.
+     *
+     * <p>Specifically, this is equivalent to:
+     * <pre>{@code stripRotationSuffix(actual).equals(base)}</pre>
+     * but avoids allocating a new string when {@code actual} already equals {@code base}.
+     *
+     * <p>Typical usage in per-item event listeners:
+     * <pre>{@code
+     * // Instead of:
+     * if (!cb.getNamespacedID().equals(namespacedID)) return;
+     * // Use:
+     * if (!NamespaceUtils.matchesWithRotation(cb.getNamespacedID(), namespacedID)) return;
+     * }</pre>
+     *
+     * @param actual the namespaced ID observed at runtime (may carry a rotation suffix)
+     * @param base   the registered base namespaced ID (no rotation suffix)
+     * @return {@code true} if {@code actual} is {@code base} or a rotated variant of it
+     */
+    public static boolean matchesWithRotation(String actual, String base) {
+        if (actual.equals(base)) return true;
+        return stripRotationSuffix(actual).equals(base);
+    }
+
 }

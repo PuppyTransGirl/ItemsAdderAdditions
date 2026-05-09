@@ -208,7 +208,7 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
         for (StackStep step : steps) {
             String clickedId = customBlock.getNamespacedID();
 
-            boolean matches = clickedId.equals(lastAcceptedBlock);
+            boolean matches = NamespaceUtils.matchesWithRotation(clickedId, lastAcceptedBlock);
             if (!matches) {
                 lastAcceptedBlock = step.resultBlock;
                 continue;
