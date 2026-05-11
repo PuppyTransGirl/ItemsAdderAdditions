@@ -23,12 +23,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <h3>Persistence targets</h3>
  * <ul>
- *   <li><b>Blocks</b> - contents are stored in {@link com.jeff_media.customblockdata.CustomBlockData},
+ *   <li><b>Blocks</b> - contents are stored in {@link CustomBlockData},
  *       which persists in the block's chunk data.</li>
  *   <li><b>Furniture entities</b> - contents are stored directly in the entity's
  *       {@link org.bukkit.persistence.PersistentDataContainer}.</li>
  *   <li><b>Item stacks</b> - for {@link StorageType#SHULKER} items, contents are injected into
- *       the dropped {@link org.bukkit.inventory.ItemStack}'s meta PDC when the block is broken
+ *       the dropped {@link ItemStack}'s meta PDC when the block is broken
  *       and extracted again when the item is placed.</li>
  * </ul>
  *

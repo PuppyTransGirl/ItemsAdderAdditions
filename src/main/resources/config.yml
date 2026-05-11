@@ -1,5 +1,6 @@
 features:
   creative_inventory_integration: true
+  client_creative_tab_sync: true
 
 behaviours:
   bed: true

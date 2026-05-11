@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import toutouchien.itemsadderadditions.actions.ActionsListener;
 import toutouchien.itemsadderadditions.actions.ActionsManager;
 import toutouchien.itemsadderadditions.behaviours.BehavioursManager;
+import toutouchien.itemsadderadditions.client.CreativeTabSyncManager;
 import toutouchien.itemsadderadditions.converter.ConverterV100V101;
 import toutouchien.itemsadderadditions.converter.ConverterV101V102;
 import toutouchien.itemsadderadditions.converter.ConverterV102V106;
@@ -40,6 +41,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
     private ActionsManager actionsManager;
     private BehavioursManager behavioursManager;
     private CreativeMenuManager creativeMenuManager;
+    private CreativeTabSyncManager creativeTabSyncManager;
     private RecipeManager recipeManager;
 
     private Metrics bStats;
@@ -79,6 +81,8 @@ public class ItemsAdderAdditions extends JavaPlugin {
         this.actionsManager = new ActionsManager();
         this.behavioursManager = new BehavioursManager();
         this.recipeManager = new RecipeManager(this);
+        this.creativeTabSyncManager = new CreativeTabSyncManager(this);
+        this.creativeTabSyncManager.register();
 
         registerListeners();
 
@@ -96,6 +100,9 @@ public class ItemsAdderAdditions extends JavaPlugin {
     public void onDisable() {
         if (this.bStats != null) {
             this.bStats.shutdown();
+        }
+        if (this.creativeTabSyncManager != null) {
+            this.creativeTabSyncManager.shutdown();
         }
         getServer().getScheduler().cancelTasks(this);
         NmsManager.shutdown();
@@ -133,6 +140,13 @@ public class ItemsAdderAdditions extends JavaPlugin {
     @org.jspecify.annotations.Nullable
     public CreativeMenuManager creativeMenuManager() {
         return creativeMenuManager;
+    }
+
+    /**
+     * Returns the client creative tab sync manager.
+     */
+    public CreativeTabSyncManager creativeTabSyncManager() {
+        return creativeTabSyncManager;
     }
 
     /**

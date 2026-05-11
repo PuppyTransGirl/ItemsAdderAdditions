@@ -46,7 +46,7 @@ public abstract class AbstractRecipeHandler {
 
     /**
      * Resets the counter to zero.
-     * Called by {@link toutouchien.itemsadderadditions.recipes.RecipeLoader} before each reload cycle.
+     * Called by {@link RecipeLoader} before each reload cycle.
      */
     public void resetCount() {
         loadedCount = 0;

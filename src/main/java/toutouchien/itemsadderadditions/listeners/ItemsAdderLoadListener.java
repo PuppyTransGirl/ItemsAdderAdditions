@@ -112,6 +112,9 @@ public final class ItemsAdderLoadListener implements Listener {
 
         // Step 6: Creative inventory integration
         reloadCreativeMenuIfEnabled(plugin, allItems);
+        if (plugin.creativeTabSyncManager() != null) {
+            plugin.creativeTabSyncManager().rebuildRegistrySnapshot(allItems);
+        }
 
         // Step 7: Recipes - receives only files with recognized recipe sections
         plugin.recipeManager().reload(registry);

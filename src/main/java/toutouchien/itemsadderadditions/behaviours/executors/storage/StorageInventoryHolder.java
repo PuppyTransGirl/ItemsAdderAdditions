@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NullMarked;
 
 /**
- * {@link org.bukkit.inventory.InventoryHolder} used as the owner of every storage GUI
+ * {@link InventoryHolder} used as the owner of every storage GUI
  * created by {@link toutouchien.itemsadderadditions.behaviours.executors.StorageBehaviour}.
  *
  * <p>Carrying a {@link Location} as the holder identity lets event handlers determine

@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>Each handler extracts the relevant custom item or block, builds an
  * {@link ActionContext}, and calls {@link #dispatch} which looks up registered
- * {@link ActionExecutor}s via {@link toutouchien.itemsadderadditions.actions.loading.ActionBindings}.
+ * {@link ActionExecutor}s via {@link ActionBindings}.
  *
  * <p>This class is registered once during plugin enable and remains active for the
  * lifetime of the plugin. It carries no per-item state - executors are stateless.

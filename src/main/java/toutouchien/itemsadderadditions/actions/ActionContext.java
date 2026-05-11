@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Immutable context object describing a single action trigger event.
  *
- * <p>Created by {@link toutouchien.itemsadderadditions.actions.ActionsListener} for every
+ * <p>Created by {@link ActionsListener} for every
  * qualifying Bukkit event and passed to each matching {@link ActionExecutor#run(ActionContext)}.
  *
  * <p>The {@link #runOn()} entity is the only mutable field: it is set by
@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
  * </ul>
  *
  * @see ActionExecutor
- * @see toutouchien.itemsadderadditions.actions.TargetResolver
+ * @see TargetResolver
  */
 @NullMarked
 public final class ActionContext {
