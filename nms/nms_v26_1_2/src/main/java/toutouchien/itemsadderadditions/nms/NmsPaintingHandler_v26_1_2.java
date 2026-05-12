@@ -67,7 +67,12 @@ final class NmsPaintingHandler_v26_1_2 implements INmsPaintingHandler {
 
         Map<TagKey<PaintingVariant>, List<Holder<PaintingVariant>>> tags = copyRegistryTags(registry);
         tags.put(PaintingVariantTags.PLACEABLE, new ArrayList<>(placeableById.values()));
-        mappedRegistry.bindTags(tags);
+        RegistryInjector_v26_1_2.setRegistryFrozen(mappedRegistry, false);
+        try {
+            mappedRegistry.bindTags(tags);
+        } finally {
+            RegistryInjector_v26_1_2.setRegistryFrozen(mappedRegistry, true);
+        }
 
         int changed = changedCount(before, after);
         rememberManagedVariantIds(managedVariantIds);

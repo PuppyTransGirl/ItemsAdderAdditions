@@ -223,7 +223,7 @@ public final class RegistryInjector_v26_1_2 {
         );
     }
 
-    private static void setRegistryFrozen(MappedRegistry<?> registry, boolean frozen) {
+    public static void setRegistryFrozen(MappedRegistry<?> registry, boolean frozen) {
         try {
             FROZEN_FIELD.set(registry, frozen);
         } catch (Exception e) {
