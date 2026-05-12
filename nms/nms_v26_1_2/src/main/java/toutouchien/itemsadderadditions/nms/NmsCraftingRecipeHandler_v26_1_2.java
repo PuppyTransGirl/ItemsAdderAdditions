@@ -9,10 +9,10 @@ import net.minecraft.world.item.crafting.*;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.feature.recipe.crafting.CraftingRecipeData;
+import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.ParsedIngredient;
 import toutouchien.itemsadderadditions.nms.api.INmsCraftingRecipeHandler;
-import toutouchien.itemsadderadditions.recipes.crafting.CraftingRecipeData;
-import toutouchien.itemsadderadditions.recipes.crafting.ingredient.ParsedIngredient;
-import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;

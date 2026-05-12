@@ -22,6 +22,8 @@ files.
 - [Usage](#usage)
 - [Documentation](#documentation)
 - [Creative Inventory Integration](#creative-inventory-integration)
+- [Custom Paintings](#custom-paintings)
+- [Client Registry Refresh](#client-registry-refresh)
 - [Contributing](#contributing)
 - [Support](#support)
 - [License](#license)
@@ -98,6 +100,118 @@ This makes the integration feel native while working within vanilla Minecraft's 
 
 </details>
 
+## Custom Paintings
+
+> [!NOTE]
+> This feature is only available on Minecraft 1.21.5 and newer.
+
+Custom paintings can be defined directly in ItemsAdder content YML files using a top-level `paintings` section.
+Each entry registers a real Minecraft painting variant and can optionally link an ItemsAdder item that places it
+in-game.
+
+```yaml
+info:
+  namespace: mynamespace
+
+paintings:
+  sunset:
+    enabled: true
+    width: 2
+    height: 1
+    asset: mynamespace:sunset
+    title: "<yellow>Sunset"
+    author: "Toutou"
+    item: mynamespace:sunset_painting
+    include_in_random: true
+```
+
+The `asset` value points to the painting texture asset. For example, `mynamespace:sunset` uses:
+
+```text
+contents/mynamespace/resourcepack/assets/mynamespace/textures/painting/sunset.png
+```
+
+No datapack files are required for this feature. The plugin injects the painting variants and updates the vanilla
+`minecraft:placeable` painting tag at runtime.
+
+The linked `item` must be an existing ItemsAdder item. When right-clicked on a valid wall face, it places the configured
+custom painting and follows normal interaction cancellation/protection checks as closely as possible.
+
+Set `include_in_random: true` to let vanilla painting items randomly choose this custom painting when it fits the wall.
+Leave it false or omit it to make the custom painting placeable only through its linked ItemsAdder item.
+
+## Client Registry Refresh
+
+Some features inject or update server registries at runtime, such as custom painting variants and the creative inventory
+painting variants. On supported Paper versions, ItemsAdderAdditions can briefly send online players back through the
+configuration phase after an ItemsAdderAdditions reload when one of its managed registry entries changed.
+
+This lets the client receive the updated registry data without requiring a full server restart or a manual reconnect.
+No datapacks are generated or required.
+
+```yaml
+features:
+  client_registry_refresh: true
+
+client_registry_refresh:
+  delay_ticks: 20
+  complete_delay_ticks: 10
+  notify_players: true
+  message: "<gray>Refreshing client registries..."
+```
+
+The refresh only runs when ItemsAdderAdditions detects that one of its own managed registry systems changed something.
+It does not run after every reload by default.
+
+## Runtime Configuration
+
+The plugin-level `config.yml` keeps feature gates separate from ItemsAdder content files:
+
+```yaml
+features:
+  creative_inventory_integration: true
+  custom_paintings: true
+  client_registry_refresh: true
+
+behaviours:
+  bed: true
+  connectable: true
+  contact_damage: true
+  stackable: true
+  storage: true
+
+actions:
+  actionbar: true
+  clear_item: true
+  ignite: true
+  message: true
+  mythic_mobs_skill: true
+  open_inventory: true
+  play_animation: true
+  play_emote: true
+  replace_biome: true
+  shoot_fireball: true
+  swing_hand: true
+  teleport: true
+  title: true
+  toast: true
+  veinminer: true
+```
+
+Reloading ItemsAdderAdditions uses one shared reload pipeline whether it is triggered by ItemsAdder finishing its
+data load or by `/itemsadderadditions reload`. The command reloads `config.yml`, reapplies enabled/disabled actions and
+behaviours, rescans ItemsAdder content files, and refreshes runtime systems in a consistent order. Existing config keys
+remain compatible.
+
+For maintainers, the reload pipeline is implemented as small `ReloadableContentSystem` steps instead of one large
+manager method. Actions, behaviours, paintings, creative registry data, recipes, and worldgen each reload through their
+own focused system while sharing one ItemsAdder item list and one parsed content-file registry.
+
+The Java source tree is organized by runtime responsibility and feature module. Entrypoints live under `plugin`,
+long-lived runtime ownership under `runtime`, reload contracts under `runtime.reload`, user-facing settings under
+`settings`, feature systems under `feature.*`, optional integrations under `integration.*`, bytecode patches under
+`patch`, and shared helpers under `common.*`. See `docs/PACKAGE_LAYOUT.md` for the full maintainer map.
+
 ## Requirements
 
 - Paper server
@@ -136,6 +250,8 @@ formats and examples.
 Full documentation is available here:
 
 - [ItemsAdderAdditions Documentation](https://itemsadderadditions.com/docs)
+
+For maintainers, internal architecture notes are available in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 The documentation contains:
 

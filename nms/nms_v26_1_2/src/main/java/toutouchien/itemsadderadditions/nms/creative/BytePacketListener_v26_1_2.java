@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.plugin.Plugin;
-import toutouchien.itemsadderadditions.utils.other.Log;
+import toutouchien.itemsadderadditions.common.logging.Log;
 
 public final class BytePacketListener_v26_1_2 {
     public static void inject(Plugin plugin) {

@@ -1,5 +1,14 @@
 features:
   creative_inventory_integration: true
+  custom_paintings: true
+  client_registry_refresh: true
+
+client_registry_refresh:
+  delay_ticks: 20
+  complete_delay_ticks: 10
+  notify_players: true
+  message: "<gray>Refreshing client registries..."
+
 
 behaviours:
   bed: true
@@ -17,6 +26,7 @@ actions:
   open_inventory: true
   play_animation: true
   play_emote: true
+  replace_biome: true
   shoot_fireball: true
   swing_hand: true
   teleport: true

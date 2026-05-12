@@ -6,13 +6,19 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public interface INmsHandler {
     INmsBedHandler bed();
+
     INmsBiomeHandler biome();
+
     INmsCampfireRecipeHandler campfireRecipes();
 
     INmsCraftingRecipeHandler craftingRecipes();
 
     @Nullable INmsCreativeMenuHandler creativeMenu();
+
+    @Nullable INmsPaintingHandler paintings();
+
     INmsStonecutterRecipeHandler stonecutterRecipes();
+
     INmsToastHandler toasts();
 
     /**

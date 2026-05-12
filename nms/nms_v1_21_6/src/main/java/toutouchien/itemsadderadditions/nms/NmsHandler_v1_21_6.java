@@ -11,6 +11,7 @@ public final class NmsHandler_v1_21_6 implements INmsHandler {
     private final NmsCampfireRecipeHandler_v1_21_6 campfireRecipes = new NmsCampfireRecipeHandler_v1_21_6();
     private final NmsCraftingRecipeHandler_v1_21_6 craftingRecipes = new NmsCraftingRecipeHandler_v1_21_6();
     private final NmsCreativeMenuHandler_v1_21_6 creativeMenu = new NmsCreativeMenuHandler_v1_21_6();
+    private final NmsPaintingHandler_v1_21_6 paintings = new NmsPaintingHandler_v1_21_6();
     private final NmsStonecutterRecipeHandler_v1_21_6 stonecutterRecipes = new NmsStonecutterRecipeHandler_v1_21_6();
     private final NmsToastHandler_v1_21_6 toasts = new NmsToastHandler_v1_21_6();
 
@@ -37,6 +38,12 @@ public final class NmsHandler_v1_21_6 implements INmsHandler {
     @Override
     public INmsCreativeMenuHandler creativeMenu() {
         return creativeMenu;
+    }
+
+
+    @Override
+    public INmsPaintingHandler paintings() {
+        return paintings;
     }
 
     @Override

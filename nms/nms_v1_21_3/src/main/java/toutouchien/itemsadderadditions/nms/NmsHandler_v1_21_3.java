@@ -41,6 +41,13 @@ public final class NmsHandler_v1_21_3 implements INmsHandler {
         return null;
     }
 
+
+    @Override
+    @Nullable
+    public INmsPaintingHandler paintings() {
+        return null;
+    }
+
     @Override
     public INmsStonecutterRecipeHandler stonecutterRecipes() {
         return stonecutterRecipes;
