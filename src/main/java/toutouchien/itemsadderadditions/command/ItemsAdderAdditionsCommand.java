@@ -7,9 +7,9 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.common.util.CommandUtils;
-import toutouchien.itemsadderadditions.common.util.MathUtils;
-import toutouchien.itemsadderadditions.common.util.Task;
+import toutouchien.itemsadderadditions.common.utils.CommandUtils;
+import toutouchien.itemsadderadditions.common.utils.MathUtils;
+import toutouchien.itemsadderadditions.common.utils.Task;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadResult;
 

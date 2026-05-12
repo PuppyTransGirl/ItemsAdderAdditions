@@ -8,8 +8,8 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.common.util.StringUtils;
-import toutouchien.itemsadderadditions.common.util.Task;
+import toutouchien.itemsadderadditions.common.utils.StringUtils;
+import toutouchien.itemsadderadditions.common.utils.Task;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 
 import java.net.URI;

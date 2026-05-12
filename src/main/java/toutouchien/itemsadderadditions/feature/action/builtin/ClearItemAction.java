@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.annotation.Parameter;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
-import toutouchien.itemsadderadditions.common.util.ItemUtils;
+import toutouchien.itemsadderadditions.common.utils.ItemUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionExecutor;
 import toutouchien.itemsadderadditions.feature.action.annotation.Action;

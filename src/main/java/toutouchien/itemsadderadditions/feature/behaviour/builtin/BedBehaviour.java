@@ -22,7 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.common.util.PlayerUtils;
+import toutouchien.itemsadderadditions.common.utils.PlayerUtils;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;

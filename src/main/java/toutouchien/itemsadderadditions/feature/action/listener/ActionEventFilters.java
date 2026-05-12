@@ -6,7 +6,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.common.util.PlayerUtils;
+import toutouchien.itemsadderadditions.common.utils.PlayerUtils;
 
 /**
  * Shared event filtering helpers for action listeners.

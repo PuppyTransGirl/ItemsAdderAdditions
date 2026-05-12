@@ -5,7 +5,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.common.util.SoundUtils;
+import toutouchien.itemsadderadditions.common.utils.SoundUtils;
 
 /**
  * Parses optional storage open/close sounds from behaviour config.

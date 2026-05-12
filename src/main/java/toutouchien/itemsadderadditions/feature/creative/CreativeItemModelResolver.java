@@ -14,6 +14,7 @@ final class CreativeItemModelResolver {
     private CreativeItemModelResolver() {
     }
 
+    // TODO: Use CustomStack#getModelPath
     static String resolveModel(CustomStack item) {
         FileConfiguration config = item.getConfig();
         String base = "items." + item.getId();

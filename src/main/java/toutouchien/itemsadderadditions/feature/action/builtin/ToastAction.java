@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.annotation.Parameter;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
-import toutouchien.itemsadderadditions.common.util.TextRenderer;
+import toutouchien.itemsadderadditions.common.utils.TextRenderer;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionExecutor;
 import toutouchien.itemsadderadditions.feature.action.annotation.Action;

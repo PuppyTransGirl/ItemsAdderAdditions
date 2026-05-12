@@ -2,7 +2,7 @@ package toutouchien.itemsadderadditions.feature.action.builtin;
 
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.annotation.Parameter;
-import toutouchien.itemsadderadditions.common.util.TextRenderer;
+import toutouchien.itemsadderadditions.common.utils.TextRenderer;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionExecutor;
 import toutouchien.itemsadderadditions.feature.action.annotation.Action;

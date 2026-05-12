@@ -11,7 +11,7 @@ import net.kyori.adventure.key.Key;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.common.util.CommandUtils;
+import toutouchien.itemsadderadditions.common.utils.CommandUtils;
 import toutouchien.itemsadderadditions.integration.bridge.TradeMachineBridge;
 
 import java.util.List;

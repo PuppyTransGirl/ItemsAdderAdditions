@@ -9,7 +9,7 @@ import toutouchien.itemsadderadditions.common.annotation.Parameter;
 import toutouchien.itemsadderadditions.common.inject.ParameterInjector;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.registry.Keyed;
-import toutouchien.itemsadderadditions.common.util.Task;
+import toutouchien.itemsadderadditions.common.utils.Task;
 import toutouchien.itemsadderadditions.feature.action.annotation.Action;
 import toutouchien.itemsadderadditions.integration.bridge.CooldownBridge;
 import toutouchien.itemsadderadditions.integration.bridge.StatRequirementsBridge;

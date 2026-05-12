@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.config.ConfigUtils;
 import toutouchien.itemsadderadditions.common.inject.ParameterInjector;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.common.util.ReflectionUtils;
+import toutouchien.itemsadderadditions.common.utils.ReflectionUtils;
 import toutouchien.itemsadderadditions.feature.component.annotation.Property;
 import toutouchien.itemsadderadditions.feature.component.property.UseCooldownProperty;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;

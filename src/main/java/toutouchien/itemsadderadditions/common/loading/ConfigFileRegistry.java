@@ -3,7 +3,7 @@ package toutouchien.itemsadderadditions.common.loading;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.common.util.FileUtils;
+import toutouchien.itemsadderadditions.common.utils.FileUtils;
 
 import java.io.File;
 import java.util.*;

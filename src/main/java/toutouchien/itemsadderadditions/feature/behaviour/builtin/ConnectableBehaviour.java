@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.annotation.Parameter;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
-import toutouchien.itemsadderadditions.common.util.Task;
+import toutouchien.itemsadderadditions.common.utils.Task;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;

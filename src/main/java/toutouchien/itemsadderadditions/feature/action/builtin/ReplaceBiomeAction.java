@@ -10,7 +10,7 @@ import org.bukkit.util.Vector;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.common.util.BlocksShape;
+import toutouchien.itemsadderadditions.common.utils.BlocksShape;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionExecutor;
 import toutouchien.itemsadderadditions.feature.action.annotation.Action;
