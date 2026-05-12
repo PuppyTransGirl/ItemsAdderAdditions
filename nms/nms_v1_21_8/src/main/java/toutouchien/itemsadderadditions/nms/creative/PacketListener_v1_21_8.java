@@ -19,7 +19,7 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.utils.NamespaceUtils;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 import java.util.Collection;
 import java.util.HashMap;

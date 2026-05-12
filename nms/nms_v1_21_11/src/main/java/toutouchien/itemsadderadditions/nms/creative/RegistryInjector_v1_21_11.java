@@ -13,7 +13,7 @@ import net.minecraft.world.entity.decoration.painting.PaintingVariant;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.CraftServer;
 import org.jspecify.annotations.NullMarked;
-import toutouchien.itemsadderadditions.utils.other.Log;
+import toutouchien.itemsadderadditions.common.logging.Log;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

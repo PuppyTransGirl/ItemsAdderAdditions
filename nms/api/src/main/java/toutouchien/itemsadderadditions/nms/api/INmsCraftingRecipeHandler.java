@@ -1,6 +1,6 @@
 package toutouchien.itemsadderadditions.nms.api;
 
-import toutouchien.itemsadderadditions.recipes.crafting.CraftingRecipeData;
+import toutouchien.itemsadderadditions.feature.recipe.crafting.CraftingRecipeData;
 
 public interface INmsCraftingRecipeHandler {
     /**

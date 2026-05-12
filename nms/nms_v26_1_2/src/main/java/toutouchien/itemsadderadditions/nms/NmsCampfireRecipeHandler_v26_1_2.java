@@ -8,8 +8,8 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.*;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.nms.api.INmsCampfireRecipeHandler;
-import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.ArrayList;
 import java.util.List;

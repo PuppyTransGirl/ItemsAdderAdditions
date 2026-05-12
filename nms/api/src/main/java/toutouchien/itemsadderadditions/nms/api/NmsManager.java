@@ -2,7 +2,7 @@ package toutouchien.itemsadderadditions.nms.api;
 
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Bukkit;
-import toutouchien.itemsadderadditions.utils.VersionUtils;
+import toutouchien.itemsadderadditions.common.version.VersionUtils;
 
 public class NmsManager {
     private static NmsManager instance;

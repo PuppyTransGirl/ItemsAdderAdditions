@@ -13,8 +13,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.nms.api.INmsBiomeHandler;
-import toutouchien.itemsadderadditions.utils.other.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;

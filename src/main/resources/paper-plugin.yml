@@ -1,8 +1,8 @@
 name: ItemsAdderAdditions
 version: '${version}'
-main: toutouchien.itemsadderadditions.ItemsAdderAdditions
-loader: toutouchien.itemsadderadditions.ItemsAdderAdditionsLoader
-bootstrapper: toutouchien.itemsadderadditions.ItemsAdderAdditionsBootstrap
+main: toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions
+loader: toutouchien.itemsadderadditions.plugin.ItemsAdderAdditionsLoader
+bootstrapper: toutouchien.itemsadderadditions.plugin.ItemsAdderAdditionsBootstrap
 api-version: '${minMinecraftVersion}'
 authors: [ PuppyTransGirl ]
 
