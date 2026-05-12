@@ -78,7 +78,7 @@ public final class RecipeLoader {
                 ConfigFileCategory.CRAFTING_RECIPES
         );
 
-        Log.info(LOG_TAG, "Processing {} YAML file(s) for custom recipes...", files.size());
+        Log.debug(LOG_TAG, "Processing {} YAML file(s) for custom recipes...", files.size());
 
         for (CategorizedConfigFile ccf : files) {
             loadFile(ccf);

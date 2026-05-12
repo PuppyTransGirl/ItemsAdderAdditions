@@ -35,7 +35,7 @@ public final class PatchTransformer implements ClassFileTransformer {
         List<ClassPatch> patches = patchesByClass.get(className);
         if (patches == null) return null;
 
-        Log.info("PatchTransformer", "Transforming class: " + className);
+        Log.debug("PatchTransformer", "Transforming class: " + className);
 
         try {
             ClassReader reader = new ClassReader(classfileBuffer);

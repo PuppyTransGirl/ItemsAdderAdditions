@@ -33,7 +33,7 @@ public final class CustomPaintingLoader {
     }
 
     public List<CustomPaintingDefinition> loadAll(List<CategorizedConfigFile> files) {
-        Log.info(TAG, "Processing {} YAML file(s) for custom painting entries...", files.size());
+        Log.debug(TAG, "Processing {} YAML file(s) for custom painting entries...", files.size());
 
         List<CustomPaintingDefinition> definitions = new ArrayList<>();
         for (CategorizedConfigFile ccf : files) {

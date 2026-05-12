@@ -105,7 +105,7 @@ public abstract class AbstractFurnitureLoader<C> {
      * @param files files pre-filtered to this loader's category by the registry
      */
     public final void loadAll(java.util.List<CategorizedConfigFile> files) {
-        Log.info(tag(), "Processing {} YAML file(s) for {} entries...", files.size(), entryTypeName());
+        Log.debug(tag(), "Processing {} YAML file(s) for {} entries...", files.size(), entryTypeName());
         for (CategorizedConfigFile ccf : files) {
             try {
                 loadFile(ccf.yaml(), ccf.file().getPath());

@@ -86,7 +86,7 @@ public final class PatchManager {
         // Report deferred patches (target class not yet loaded)
         for (String internalName : byClass.keySet()) {
             if (!patched.contains(internalName)) {
-                Log.info("Patcher", "Deferred (not loaded yet): "
+                Log.debug("Patcher", "Deferred (not loaded yet): "
                         + internalName.replace('/', '.'));
             }
         }
@@ -101,7 +101,7 @@ public final class PatchManager {
             if (patch.supportedVersions().test(version)) {
                 active.add(patch);
             } else {
-                Log.info("Patcher", "Skipped (incompatible version): "
+                Log.debug("Patcher", "Skipped (incompatible version): "
                         + patch.getClass().getSimpleName()
                         + " - requires " + patch.supportedVersions()
                         + ", got " + version);

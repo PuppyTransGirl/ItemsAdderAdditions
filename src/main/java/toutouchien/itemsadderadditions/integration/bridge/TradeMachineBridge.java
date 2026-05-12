@@ -25,7 +25,7 @@ public final class TradeMachineBridge {
     public static void capture(Object handler) {
         if (handlerInstance != null) return;
         handlerInstance = handler;
-        Log.info(
+        Log.debug(
                 "TradeMachineBridge",
                 "Trade-machine handler captured: " + handler.getClass().getName()
         );
