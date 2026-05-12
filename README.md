@@ -23,7 +23,6 @@ files.
 - [Documentation](#documentation)
 - [Creative Inventory Integration](#creative-inventory-integration)
 - [Custom Paintings](#custom-paintings)
-- [Client Registry Refresh](#client-registry-refresh)
 - [Contributing](#contributing)
 - [Support](#support)
 - [License](#license)
@@ -128,7 +127,7 @@ paintings:
 The `asset` value points to the painting texture asset. For example, `mynamespace:sunset` uses:
 
 ```text
-contents/mynamespace/resourcepack/assets/mynamespace/textures/painting/sunset.png
+contents/mynamespace/textures/painting/sunset.png
 ```
 
 No datapack files are required for this feature. The plugin injects the painting variants and updates the vanilla
@@ -140,29 +139,6 @@ custom painting and follows normal interaction cancellation/protection checks as
 Set `include_in_random: true` to let vanilla painting items randomly choose this custom painting when it fits the wall.
 Leave it false or omit it to make the custom painting placeable only through its linked ItemsAdder item.
 
-## Client Registry Refresh
-
-Some features inject or update server registries at runtime, such as custom painting variants and the creative inventory
-painting variants. On supported Paper versions, ItemsAdderAdditions can briefly send online players back through the
-configuration phase after an ItemsAdderAdditions reload when one of its managed registry entries changed.
-
-This lets the client receive the updated registry data without requiring a full server restart or a manual reconnect.
-No datapacks are generated or required.
-
-```yaml
-features:
-  client_registry_refresh: true
-
-client_registry_refresh:
-  delay_ticks: 20
-  complete_delay_ticks: 10
-  notify_players: true
-  message: "<gray>Refreshing client registries..."
-```
-
-The refresh only runs when ItemsAdderAdditions detects that one of its own managed registry systems changed something.
-It does not run after every reload by default.
-
 ## Runtime Configuration
 
 The plugin-level `config.yml` keeps feature gates separate from ItemsAdder content files:
@@ -171,7 +147,6 @@ The plugin-level `config.yml` keeps feature gates separate from ItemsAdder conte
 features:
   creative_inventory_integration: true
   custom_paintings: true
-  client_registry_refresh: true
 
 behaviours:
   bed: true
@@ -250,8 +225,6 @@ formats and examples.
 Full documentation is available here:
 
 - [ItemsAdderAdditions Documentation](https://itemsadderadditions.com/docs)
-
-For maintainers, internal architecture notes are available in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 The documentation contains:
 
