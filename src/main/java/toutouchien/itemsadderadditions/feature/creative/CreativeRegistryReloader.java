@@ -42,8 +42,24 @@ public final class CreativeRegistryReloader implements ReloadableContentSystem {
     private static boolean shouldSkipCreativeItem(CustomStack item) {
         FileConfiguration config = item.getConfig();
         String path = "items." + item.getId() + ".";
-        return config.getBoolean(path + "template", false)
-                || config.getBoolean(path + "hide_from_inventory", false);
+
+        if (config.getBoolean(path + "template", false)
+                || config.getBoolean(path + "hide_from_inventory", false)) {
+            return true;
+        }
+
+        // Check if item is a directional variant and base item is valid
+        String fullId = item.getNamespacedID();
+        String[] directions = {"_north", "_south", "_east", "_west", "_up", "_down"};
+
+        for (String direction : directions) {
+            if (fullId.endsWith(direction)) {
+                String baseFullId = fullId.substring(0, fullId.length() - direction.length());
+                return CustomStack.isInRegistry(baseFullId);
+            }
+        }
+
+        return false;
     }
 
     private static String variantId(CustomStack item) {
