@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.plugin;
 
+import net.momirealms.antigrieflib.AntiGriefLib;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -104,6 +105,10 @@ public class ItemsAdderAdditions extends JavaPlugin {
 
     public RecipeManager recipeManager() {
         return runtime().recipeManager();
+    }
+
+    public AntiGriefLib antiGriefLib() {
+        return runtime().antiGriefLib();
     }
 
     private PluginRuntime runtime() {

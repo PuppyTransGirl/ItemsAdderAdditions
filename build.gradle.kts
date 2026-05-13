@@ -15,6 +15,7 @@ val byteBuddyAgentVersion: String by project
 val bStatsVersion: String by project
 val customBlockDataVersion: String by project
 val morePersistentDataTypesVersion: String by project
+val antiGriefLibVersion: String by project
 
 group = "toutouchien.itemsadderadditions"
 version = "1.0.8-beta-11"
@@ -29,6 +30,7 @@ repositories {
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://mvn.lumine.io/repository/maven-public/")
     maven("https://maven.playpro.com/")
+    maven("https://repo.momirealms.net/releases/")
 }
 
 dependencies {
@@ -63,9 +65,10 @@ dependencies {
     compileOnly("net.bytebuddy:byte-buddy-agent:${byteBuddyAgentVersion}")
 
     // Dependencies
+    implementation("org.bstats:bstats-bukkit:${bStatsVersion}")
     implementation("com.jeff-media:custom-block-data:${customBlockDataVersion}")
     implementation("com.jeff-media:MorePersistentDataTypes:${morePersistentDataTypesVersion}")
-    implementation("org.bstats:bstats-bukkit:${bStatsVersion}")
+    implementation("net.momirealms:antigrieflib:${antiGriefLibVersion}")
 }
 
 tasks {
@@ -115,13 +118,21 @@ tasks {
     shadowJar {
         archiveFileName.set("${project.name}-${project.version}.jar")
 
-        // Original relocation
-        relocate("org.bstats", "${project.group}.libs.org.bstats")
-
-        relocate("com.jeff_media.customblockdata", "${project.group}.libs.com.jeff_media.customblockdata")
+        relocate(
+            "org.bstats",
+            "${project.group}.libs.org.bstats"
+        )
+        relocate(
+            "com.jeff_media.customblockdata",
+            "${project.group}.libs.com.jeff_media.customblockdata"
+        )
         relocate(
             "com.jeff_media.morepersistentdatatypes",
             "${project.group}.libs.com.jeff_media.morepersistentdatatypes"
+        )
+        relocate(
+            "net.momirealms.antigrieflib",
+            "${project.group}.libs.net.momirealms.antigrieflib"
         )
     }
 

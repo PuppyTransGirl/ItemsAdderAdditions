@@ -3,6 +3,8 @@ package toutouchien.itemsadderadditions.feature.action.builtin;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
+import net.momirealms.antigrieflib.AntiGriefLib;
+import net.momirealms.antigrieflib.Flag;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
@@ -15,6 +17,7 @@ import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionExecutor;
 import toutouchien.itemsadderadditions.feature.action.annotation.Action;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
+import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 
 import java.util.List;
 
@@ -139,11 +142,15 @@ public final class ReplaceBiomeAction extends ActionExecutor {
     protected void execute(ActionContext context) {
         if (biome == null) return;
 
-        Location center = context.runOn().getLocation();
+        Location location = context.runOn().getLocation();
+        Location center = location;
         Vector dir = shape.isDirectional()
-                ? context.runOn().getLocation().getDirection().normalize()
+                ? location.getDirection().normalize()
                 : null;
+
         List<Location> targets = shape.collectBiomeQuanta(center, radiusX, radiusY, radiusZ, dir);
+        AntiGriefLib antiGriefLib = ItemsAdderAdditions.instance().antiGriefLib();
+        targets.removeIf(target -> !antiGriefLib.test(context.player(), Flag.PLACE, target));
 
         Log.debug("ReplaceBiome", "Replacing {} biome quanta with biome {} (shape={}, rx={}, ry={}, rz={})",
                 targets.size(), biome.getKey(), shape, radiusX, radiusY, radiusZ);

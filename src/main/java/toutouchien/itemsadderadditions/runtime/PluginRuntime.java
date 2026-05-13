@@ -1,7 +1,9 @@
 package toutouchien.itemsadderadditions.runtime;
 
+import net.momirealms.antigrieflib.AntiGriefLib;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
@@ -22,10 +24,7 @@ import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadCoordinator;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadResult;
 import toutouchien.itemsadderadditions.settings.PluginSettings;
-import toutouchien.itemsadderadditions.settings.migration.ConverterV100V101;
-import toutouchien.itemsadderadditions.settings.migration.ConverterV101V102;
-import toutouchien.itemsadderadditions.settings.migration.ConverterV102V106;
-import toutouchien.itemsadderadditions.settings.migration.ConverterV106V107;
+import toutouchien.itemsadderadditions.settings.migration.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,11 +50,12 @@ public final class PluginRuntime {
     private BehavioursManager behavioursManager;
     private CustomPaintingManager customPaintingManager;
     private RecipeManager recipeManager;
+    private @Nullable CreativeMenuManager creativeMenuManager;
     private ReloadCoordinator reloadCoordinator;
     private CreativeRegistryReloader creativeRegistryReloader;
 
-    private @Nullable CreativeMenuManager creativeMenuManager;
-    private @Nullable Metrics bStats;
+    private Metrics bStats;
+    private AntiGriefLib antiGriefLib;
 
     public PluginRuntime(ItemsAdderAdditions plugin) {
         this.plugin = plugin;
@@ -66,17 +66,18 @@ public final class PluginRuntime {
         ConverterV101V102.run();
         ConverterV102V106.run();
         ConverterV106V107.run();
+        ConverterV107V108.run();
     }
 
     private static void registerListeners(JavaPlugin plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
-        for (org.bukkit.event.Listener listener : listeners()) {
+        for (Listener listener : listeners()) {
             pm.registerEvents(listener, plugin);
         }
     }
 
-    private static List<org.bukkit.event.Listener> listeners() {
-        List<org.bukkit.event.Listener> listeners = new ArrayList<>();
+    private static List<Listener> listeners() {
+        List<Listener> listeners = new ArrayList<>();
         listeners.addAll(ActionsListener.createAll());
         listeners.add(new FurniturePopulatorWorldListener());
         listeners.add(new ItemsAdderLoadListener());
@@ -93,6 +94,7 @@ public final class PluginRuntime {
         reloadSettings();
 
         startMetrics();
+        setupAntiGriefLib();
         NamespaceUtils.initVanillaCache();
         NmsManager.initialize(plugin.getComponentLogger());
 
@@ -116,17 +118,11 @@ public final class PluginRuntime {
     }
 
     public void disable() {
-        shutdownMetrics();
+        bStats.shutdown();
 
-        if (actionsManager != null) {
-            actionsManager.shutdown();
-        }
-        if (behavioursManager != null) {
-            behavioursManager.shutdown();
-        }
-        if (recipeManager != null) {
-            recipeManager.shutdown();
-        }
+        actionsManager.shutdown();
+        behavioursManager.shutdown();
+        recipeManager.shutdown();
 
         plugin.getServer().getScheduler().cancelTasks(plugin);
         NmsManager.shutdown();
@@ -171,6 +167,10 @@ public final class PluginRuntime {
         return require(recipeManager, "recipeManager");
     }
 
+    public AntiGriefLib antiGriefLib() {
+        return require(antiGriefLib, "antiGriefLib");
+    }
+
     private void reloadSettings() {
         this.settings = PluginSettings.load(plugin.getConfig());
     }
@@ -185,11 +185,9 @@ public final class PluginRuntime {
         bStats.addCustomChart(new SimplePie("platform", () -> "Other"));
     }
 
-    private void shutdownMetrics() {
-        if (bStats != null) {
-            bStats.shutdown();
-            bStats = null;
-        }
+    private void setupAntiGriefLib() {
+        this.antiGriefLib = AntiGriefLib.builder(plugin)
+                .build();
     }
 
     private void setupCreativeInventoryIntegration() {
