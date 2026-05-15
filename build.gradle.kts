@@ -91,7 +91,7 @@ tasks {
 //            modrinth("LuckPerms", "v5.5.17-bukkit")
 //            modrinth("TabTPS", "1.3.30")
 //            modrinth("ServerLogViewer-Paper", "1.0.0")
-//            modrinth("PlaceholderAPI", placeholderApiVersion)
+            modrinth("PlaceholderAPI", placeholderApiVersion)
         }
     }
 

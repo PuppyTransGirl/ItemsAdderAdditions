@@ -21,6 +21,8 @@ public interface INmsHandler {
 
     INmsToastHandler toasts();
 
+    INmsTextDisplayHandler textDisplays();
+
     /**
      * Calls {@code RecipeManager#finalizeRecipeLoading()} once.
      * Must be invoked by {@code RecipeManager} after <em>all</em> recipe

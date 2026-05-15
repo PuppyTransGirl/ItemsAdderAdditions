@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.feature.behaviour;
 
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.*;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.textdisplay.TextDisplayBehaviour;
 
 import java.util.List;
 
@@ -19,7 +20,8 @@ final class BuiltInBehaviours {
                 new ConnectableBehaviour(),
                 new ContactDamageBehaviour(),
                 new StackableBehaviour(),
-                new StorageBehaviour()
+                new StorageBehaviour(),
+                new TextDisplayBehaviour()
         );
     }
 }

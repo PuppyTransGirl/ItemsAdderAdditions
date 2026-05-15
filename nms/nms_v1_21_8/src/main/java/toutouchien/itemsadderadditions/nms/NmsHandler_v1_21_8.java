@@ -14,6 +14,7 @@ public final class NmsHandler_v1_21_8 implements INmsHandler {
     private final NmsPaintingHandler_v1_21_8 paintings = new NmsPaintingHandler_v1_21_8();
     private final NmsStonecutterRecipeHandler_v1_21_8 stonecutterRecipes = new NmsStonecutterRecipeHandler_v1_21_8();
     private final NmsToastHandler_v1_21_8 toasts = new NmsToastHandler_v1_21_8();
+    private final NmsTextDisplayHandler_v1_21_8 textDisplays = new NmsTextDisplayHandler_v1_21_8();
 
     @Override
     public INmsBedHandler bed() {
@@ -54,6 +55,12 @@ public final class NmsHandler_v1_21_8 implements INmsHandler {
     @Override
     public INmsToastHandler toasts() {
         return toasts;
+    }
+
+
+    @Override
+    public INmsTextDisplayHandler textDisplays() {
+        return textDisplays;
     }
 
     @Override

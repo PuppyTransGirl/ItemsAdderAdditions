@@ -8,6 +8,7 @@ behaviours:
   contact_damage: true
   stackable: true
   storage: true
+  text_display: true
 
 actions:
   actionbar: true
