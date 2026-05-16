@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id("java")
     alias(libs.plugins.run.paper)
@@ -11,7 +13,7 @@ val minMinecraftVersion: String by project
 fun enabled(name: String) = (findProperty(name) as? String)?.toBoolean() ?: true
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.8-beta-12"
+version = "1.0.8"
 
 repositories {
     mavenCentral()
@@ -145,6 +147,44 @@ tasks {
         from(listOf("LICENSE", "THIRD_PARTY_LICENSES.md")) {
             into("META-INF")
         }
+    }
+
+    val releaseDir = layout.buildDirectory.dir("release")
+    val platforms = listOf("Hangar", "SpigotMC", "Modrinth")
+
+    val platformTasks = platforms.map { platform ->
+        register<ShadowJar>("shadowJar$platform") {
+            group = "build"
+            description = "Builds the $platform distribution jar"
+
+            archiveBaseName.set(project.name)
+            archiveVersion.set(project.version.toString())
+            archiveClassifier.set(platform.lowercase())
+            destinationDirectory.set(releaseDir)
+
+            from(sourceSets.main.get().output)
+            configurations.set(setOf(project.configurations["runtimeClasspath"]))
+
+            filesMatching("iaadditions_platform.properties") {
+                filter { line: String ->
+                    if (line.startsWith("platform=")) "platform=$platform" else line
+                }
+            }
+
+            relocate("org.bstats", "${project.group}.libs.org.bstats")
+            relocate("com.jeff_media.customblockdata", "${project.group}.libs.com.jeff_media.customblockdata")
+            relocate(
+                "com.jeff_media.morepersistentdatatypes",
+                "${project.group}.libs.com.jeff_media.morepersistentdatatypes"
+            )
+            relocate("net.momirealms.antigrieflib", "${project.group}.libs.net.momirealms.antigrieflib")
+        }
+    }
+
+    register("release") {
+        group = "build"
+        description = "Builds one jar per distribution platform into build/release/"
+        dependsOn(platformTasks)
     }
 }
 

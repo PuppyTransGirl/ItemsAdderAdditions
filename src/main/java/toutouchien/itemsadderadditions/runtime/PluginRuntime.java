@@ -4,6 +4,7 @@ import net.momirealms.antigrieflib.AntiGriefLib;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
@@ -26,9 +27,12 @@ import toutouchien.itemsadderadditions.runtime.reload.ReloadResult;
 import toutouchien.itemsadderadditions.settings.PluginSettings;
 import toutouchien.itemsadderadditions.settings.migration.*;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * Owns the enabled runtime state of the plugin.
@@ -182,7 +186,30 @@ public final class PluginRuntime {
 
     private void startMetrics() {
         this.bStats = new Metrics(plugin, BSTATS_PLUGIN_ID);
-        bStats.addCustomChart(new SimplePie("platform", () -> "Other"));
+        bStats.addCustomChart(new SimplePie("platform", this::detectPlatform));
+        bStats.addCustomChart(new SimplePie("default_pack", () -> isUsingDefaultPack() ? "Yes" : "No"));
+    }
+
+    private String detectPlatform() {
+        try (InputStream is = plugin.getClass().getClassLoader()
+                .getResourceAsStream("iaadditions_platform.properties")) {
+            if (is != null) {
+                Properties props = new Properties();
+                props.load(is);
+                String platform = props.getProperty("platform");
+                if (platform != null && !platform.isBlank()) {
+                    return platform;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "Other";
+    }
+
+    private boolean isUsingDefaultPack() {
+        Plugin itemsAdder = plugin.getServer().getPluginManager().getPlugin("ItemsAdder");
+        if (itemsAdder == null) return false;
+        return new File(itemsAdder.getDataFolder(), "contents/iaadditions").isDirectory();
     }
 
     private void setupAntiGriefLib() {
