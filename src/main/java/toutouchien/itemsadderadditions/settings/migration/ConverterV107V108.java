@@ -8,7 +8,9 @@ import java.util.Map;
  */
 public final class ConverterV107V108 {
     private static final Map<String, Object> DEFAULTS = Map.of(
-            "features.custom_paintings", true
+            "features.custom_paintings", true,
+
+            "behaviours.text_display", true
     );
 
     private ConverterV107V108() {
