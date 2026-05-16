@@ -1,13 +1,20 @@
 ---
 title: Clear Item
-description: Remove custom or vanilla items from a player's inventory as an ItemsAdder action. Useful for crafting systems, quests, or cost-based interactions.
+description: Remove custom or vanilla items from a player's inventory as an ItemsAdder action.
 ---
 
 ```yaml
 clear_item:
   item: my_item
-  amount: 2 # Optional (Default value: 1)
+  amount: 2 # optional, default: 1
 ```
 
-For `item`, use a vanilla item from [this list](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary)
-or a custom item with `namespace:value` or just `value`.
+## Parameters
+
+### `item`
+
+Required. The item to remove. Use a vanilla material from [this list](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), or a custom ItemsAdder item with `namespace:id` or just `id`.
+
+### `amount`
+
+Optional. Defaults to `1`. The number of items to remove.

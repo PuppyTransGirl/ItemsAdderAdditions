@@ -1,6 +1,6 @@
 ---
 title: Message
-description: Send a chat message to a player on any ItemsAdder event. Supports PlaceholderAPI and MiniMessage formatting for colors and gradients.
+description: Send a chat message to a player on any ItemsAdder event.
 ---
 
 ```yaml
@@ -8,4 +8,8 @@ message:
   text: "<rainbow>My custom message sent to %player_name%"
 ```
 
-Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
+## Parameters
+
+### `text`
+
+Required. The message to send. Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi), and font images.

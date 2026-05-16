@@ -1,15 +1,35 @@
 ---
 title: Title
-description: Show a title and subtitle on screen as an ItemsAdder action. Supports MiniMessage formatting, custom fade-in, stay, and fade-out durations.
+description: Show a title and subtitle on screen as an ItemsAdder action.
 ---
 
 ```yaml
 title:
   title: "<bold><gold>Welcome!"
-  subtitle: "<gray>Enjoy your stay"
-  fade_in: 5 # Optional (default: 10 ticks)
-  stay: 40 # Optional (default: 70 ticks)
-  fade_out: 30 # Optional (default: 20 ticks)
+  subtitle: "<gray>Enjoy your stay" # optional
+  fade_in: 5 # optional, default: 10 ticks
+  stay: 40 # optional, default: 70 ticks
+  fade_out: 30 # optional, default: 20 ticks
 ```
 
-Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
+## Parameters
+
+### `title`
+
+Required. The large title text. Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi), and font images.
+
+### `subtitle`
+
+Optional. The smaller text shown below the title. Supports MiniMessage, PlaceholderAPI, and font images.
+
+### `fade_in`
+
+Optional. Defaults to `10` ticks. Fade-in duration.
+
+### `stay`
+
+Optional. Defaults to `70` ticks. How long the title stays on screen.
+
+### `fade_out`
+
+Optional. Defaults to `20` ticks. Fade-out duration.

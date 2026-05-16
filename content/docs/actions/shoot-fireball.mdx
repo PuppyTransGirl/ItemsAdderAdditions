@@ -1,11 +1,25 @@
 ---
 title: Shoot Fireball
-description: Shoot a fireball from a player or entity as an ItemsAdder action. Configure power, speed, and whether the fireball leaves fire on impact.
+description: Shoot a fireball from a player or entity as an ItemsAdder action.
 ---
 
 ```yaml
 shoot_fireball:
   power: 1
-  speed: 2.0 # Optional (Default value: 1.0)
-  fire: false # Optional (Default value: true)
+  speed: 2.0 # optional, default: 1.0
+  fire: false # optional, default: true
 ```
+
+## Parameters
+
+### `power`
+
+Required. The explosion power of the fireball.
+
+### `speed`
+
+Optional. Defaults to `1.0`. The projectile speed multiplier.
+
+### `fire`
+
+Optional. Defaults to `true`. Whether the fireball leaves fire on impact.

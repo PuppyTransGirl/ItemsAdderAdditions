@@ -7,25 +7,25 @@ description: Make ItemsAdder custom blocks and furniture deal damage to players 
 behaviours:
   contact_damage:
     amount: 1.0
-    interval: 10 # Optional (Default value: 20) - Value in ticks (20 ticks = 1 second)
-    fire_duration: 60 # Optional (Default value: 0) - Value in ticks (20 ticks = 1 second)
-    damage_when_sneaking: false # Optional (Default value: true)
-    block_faces: # Optional
-      top: true # Optional (Default value: true)
-      north: false # Optional (Default value: true)
-      south: false # Optional (Default value: true)
-      west: false # Optional (Default value: true)
-      east: false # Optional (Default value: true)
-    potion_effect: # Optional
+    interval: 10 # optional, default: 20 ticks
+    fire_duration: 60 # optional, default: 0 ticks
+    damage_when_sneaking: false # optional, default: true
+    block_faces: # optional
+      top: true # optional, default: true
+      north: false # optional, default: true
+      south: false # optional, default: true
+      west: false # optional, default: true
+      east: false # optional, default: true
+    potion_effect: # optional
       type: NAUSEA
-      amplifier: 0 # Optional (Default value: 1) - Amplifier 0 = Level 1
-      duration: 200 # Optional (Default value: 40) - Value in ticks (20 ticks = 1 second)
-      ambient: false # Optional (Default value: false) - Makes particles more translucent
-      particles: false # Optional (Default value: true) - Whether to show particles
-      icon: false # Optional (Default value: true) - Whether to show the icon on screen
+      amplifier: 0 # optional, default: 0 (0 = level 1)
+      duration: 200 # optional, default: 40 ticks
+      ambient: false # optional, default: false
+      particles: false # optional, default: true
+      icon: false # optional, default: true
     # Add another effect
     potion_effect_1:
       ...
 ```
 
-For `type`, refer to [this list](https://jd.papermc.io/paper/org/bukkit/potion/PotionEffectType.html#field-summary) for the value.
+For `type`, use a value from [PotionEffectType](https://jd.papermc.io/paper/org/bukkit/potion/PotionEffectType.html#field-summary).

@@ -2016,7 +2016,7 @@ export function Builder() {
                                     t: 'number',
                                     r: false,
                                     p: '-1',
-                                    h: '0–100 per chunk · -1 = always (default: -1)'
+                                    h: '0-100 per chunk · -1 = always (default: -1)'
                                 }} value={values['wg_chunk_chance'] ?? ''}
                                        onChange={v => setVal('wg_chunk_chance', v)}/>
                                 <Field def={{k: 'wg_min_height', l: 'min_height', t: 'number', r: false, p: '60'}}

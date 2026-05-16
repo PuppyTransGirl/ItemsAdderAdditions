@@ -182,9 +182,10 @@ my_recipe:
 
 ### Pattern notes
 
-- ingredient keys must be a single character
-- any character not defined in `ingredients` is treated as empty space
-- multiple patterns are supported using keys such as `pattern_1`, `pattern_2`, and so on
+- Ingredient keys must be a single character.
+- `X` marks empty slots. Do not define `X` as an ingredient.
+- Any other character not defined in `ingredients` is also treated as empty.
+- Multiple patterns are supported using keys such as `pattern_1`, `pattern_2`, and so on.
 
 ## Shapeless recipes
 
@@ -373,6 +374,6 @@ Ingredient and result items can use:
 
 ## Notes
 
-- `replacement` and `damage` are applied during crafting
-- shapeless recipes with advanced predicates should use the list format
-- `iaa_crafting_table` is an additional advanced recipe type, not a replacement for ItemsAdder `crafting_table`
+- `replacement` and `damage` are applied during crafting.
+- Shapeless recipes with advanced predicates should use the list format.
+- `iaa_crafting_table` is an additional advanced recipe type, not a replacement for ItemsAdder `crafting_table`.

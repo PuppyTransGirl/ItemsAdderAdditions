@@ -1,10 +1,15 @@
 ---
 title: Ignite
-description: Set a player or nearby entity on fire as an ItemsAdder action. Configure duration in ticks and target (self or other entity).
+description: Set a player or nearby entity on fire as an ItemsAdder action.
 ---
 
 ```yaml
 ignite:
-  duration: 200 # Value in ticks (20 ticks = 1 second)
-  target: other # Optional (Default value: self) - Sets the target on fire instead of the player
+  duration: 200 # ticks
 ```
+
+## Parameters
+
+### `duration`
+
+Required. How long to set the target on fire, in ticks. 20 ticks = 1 second.

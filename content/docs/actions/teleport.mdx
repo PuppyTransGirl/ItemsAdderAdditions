@@ -1,6 +1,6 @@
 ---
 title: Teleport
-description: Teleport a player or entity to fixed coordinates as an ItemsAdder action. Useful for traps, portals, or interactive custom blocks.
+description: Teleport a player or entity to fixed coordinates as an ItemsAdder action.
 ---
 
 ```yaml
@@ -8,7 +8,25 @@ teleport:
   x: 100.5
   y: 64.0
   z: -50.5
-  yaw: 90.0 # Optional (Defaults to the player's current yaw)
-  pitch: 0.0 # Optional (Defaults to the player's current pitch)
-  world: "world_nether" # Optional (Defaults to the player's current world)
+  yaw: 90.0 # optional
+  pitch: 0.0 # optional
+  world: "world_nether" # optional
 ```
+
+## Parameters
+
+### `x`, `y`, `z`
+
+Required. The target coordinates.
+
+### `yaw`
+
+Optional. Defaults to the player's current yaw.
+
+### `pitch`
+
+Optional. Defaults to the player's current pitch.
+
+### `world`
+
+Optional. Defaults to the player's current world.

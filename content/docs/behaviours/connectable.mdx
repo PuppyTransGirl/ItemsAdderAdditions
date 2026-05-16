@@ -48,16 +48,14 @@ description: Make ItemsAdder custom blocks automatically change their shape when
   </Tab>
 </Tabs>
 
-The IDs specified must be custom furnitures.
+The IDs must be custom furnitures.
 
 ## Default ID resolution
 
-All furniture type IDs are optional.
+All furniture type IDs are optional. If not specified, the plugin automatically looks for matching furniture IDs:
 
-If not specified, the behaviour will automatically look for matching furniture IDs using the following rules:
-
-- `default` inherits the furniture ID the behaviour is configured on
-- every other type uses `<furniture_name>_<type>`
+- `default` inherits the furniture ID the behaviour is configured on.
+- Every other type uses `<furniture_name>_<type>`.
 
 For example, if the behaviour is configured on a furniture named `connectable_furniture`:
 
@@ -81,12 +79,10 @@ For example, if the behaviour is configured on a furniture named `connectable_fu
 
 ## Minimal config
 
-Because of automatic ID resolution, the minimal config is:
-
 ```yaml
 behaviours:
   connectable:
     type: stair # or table
 ```
 
-This simplifies configuration, since in many cases you only need to set the connectable behaviour and choose the connection type.
+In most cases you only need to set the type; automatic ID resolution handles the rest.

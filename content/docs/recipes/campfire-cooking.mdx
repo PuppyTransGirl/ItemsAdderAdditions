@@ -1,59 +1,19 @@
 ---
 title: Campfire Cooking
-description: Add campfire cooking recipes for custom or vanilla items in ItemsAdder. Configure ingredient, result, cook time, and experience directly in YML.
+description: Add campfire cooking recipes for custom or vanilla items in ItemsAdder.
 ---
 
 Add campfire cooking recipes without creating extra recipe files.
-
-## Example
-
-```yaml
-info:
-  namespace: some_namespace
-
-recipes:
-  campfire_cooking:
-    my_roasted_item:
-      enabled: true # Optional (Default value: true)
-      ingredient:
-        item: my_item:my_custom_item
-      result:
-        item: my_item:my_cooked_custom_item
-        amount: 2 # Optional (Default value: 1)
-      cook_time: 200 # Optional (Default value: 600) - Value in ticks (20 ticks = 1 second)
-      exp: 0.1 # Optional (Default value: 0.0)
-```
-
-## Structure
-
-```yaml
-info:
-  namespace: some_namespace
-
-recipes:
-  campfire_cooking:
-    my_recipe:
-      ingredient:
-        item: my_item:raw_item
-      result:
-        item: my_item:cooked_item
-```
 
 ## Parameters
 
 ### `enabled`
 
-Optional. Defaults to `true`.
-
-If set to `false`, the recipe is not registered.
+Optional. Defaults to `true`. Set to `false` to skip registering the recipe.
 
 ### `ingredient.item`
 
-Required.
-
-The input item for the recipe.
-
-Supports vanilla items and custom ItemsAdder items.
+Required. The input item for the recipe. Use a vanilla material or a custom ItemsAdder item.
 
 ```yaml
 ingredient:
@@ -67,9 +27,7 @@ ingredient:
 
 ### `result.item`
 
-Required.
-
-The cooked output item.
+Required. The cooked output item.
 
 ```yaml
 result:
@@ -78,37 +36,15 @@ result:
 
 ### `result.amount`
 
-Optional. Defaults to `1`.
-
-The amount of items produced.
-
-```yaml
-result:
-  item: my_pack:cooked_item
-  amount: 2
-```
+Optional. Defaults to `1`. The number of items produced.
 
 ### `cook_time`
 
-Optional. Defaults to `600`.
-
-Cooking time in ticks.
-
-20 ticks = 1 second.
-
-```yaml
-cook_time: 200
-```
+Optional. Defaults to `600` ticks. Cooking time. 20 ticks = 1 second.
 
 ### `exp`
 
-Optional. Defaults to `0.0`.
-
-The amount of experience granted when taking the cooked result.
-
-```yaml
-exp: 0.1
-```
+Optional. Defaults to `0.0`. Experience granted when taking the cooked result.
 
 ## Full example
 
@@ -130,6 +66,6 @@ recipes:
 
 ## Notes
 
-- supports vanilla and custom ItemsAdder items
-- recipe IDs such as `my_roasted_item` are internal identifiers
-- the namespace comes from `info.namespace`
+- Supports vanilla and custom ItemsAdder items.
+- Recipe IDs such as `roasted_berry_skewer` are internal identifiers.
+- The namespace comes from `info.namespace`.

@@ -1,57 +1,19 @@
 ---
 title: Stonecutter
-description: Add stonecutter recipes for custom or vanilla items in ItemsAdder. Convert blocks and materials into other variants directly from YML.
+description: Add stonecutter recipes for custom or vanilla items in ItemsAdder.
 ---
 
 Add stonecutter recipes without creating extra recipe files.
-
-## Example
-
-```yaml
-info:
-  namespace: some_namespace
-
-recipes:
-  stonecutter:
-    my_cut_block:
-      enabled: true # Optional (Default value: true)
-      ingredient:
-        item: my_item:my_custom_stone
-      result:
-        item: my_item:my_cut_custom_stone
-        amount: 4 # Optional (Default value: 1)
-```
-
-## Structure
-
-```yaml
-info:
-  namespace: some_namespace
-
-recipes:
-  stonecutter:
-    my_recipe:
-      ingredient:
-        item: my_item:raw_block
-      result:
-        item: my_item:cut_block
-```
 
 ## Parameters
 
 ### `enabled`
 
-Optional. Defaults to `true`.
-
-If set to `false`, the recipe is not registered.
+Optional. Defaults to `true`. Set to `false` to skip registering the recipe.
 
 ### `ingredient.item`
 
-Required.
-
-The input item shown in the stonecutter.
-
-Supports vanilla items and custom ItemsAdder items.
+Required. The input item shown in the stonecutter. Use a vanilla material or a custom ItemsAdder item.
 
 ```yaml
 ingredient:
@@ -65,9 +27,7 @@ ingredient:
 
 ### `result.item`
 
-Required.
-
-The output item.
+Required. The output item.
 
 ```yaml
 result:
@@ -76,15 +36,7 @@ result:
 
 ### `result.amount`
 
-Optional. Defaults to `1`.
-
-The amount produced by the recipe.
-
-```yaml
-result:
-  item: my_pack:marble_tiles
-  amount: 4
-```
+Optional. Defaults to `1`. The number of items produced.
 
 ## Full example
 
@@ -104,6 +56,6 @@ recipes:
 
 ## Notes
 
-- supports vanilla and custom ItemsAdder items
-- recipe IDs such as `my_cut_block` are internal identifiers
-- the namespace comes from `info.namespace`
+- Supports vanilla and custom ItemsAdder items.
+- Recipe IDs such as `marble_tiles` are internal identifiers.
+- The namespace comes from `info.namespace`.

@@ -1,10 +1,20 @@
 ---
 title: Mythic Mobs Skill
-description: Cast a MythicMobs skill as an ItemsAdder action. Trigger complex MythicMobs abilities from custom item interactions, block events, and more.
+description: Cast a MythicMobs skill as an ItemsAdder action.
 ---
 
 ```yaml
 mythic_mobs_skill:
   skill: "mega_attack"
-  power: 0.75 # Optional (Default value: 1.0)
+  power: 0.75 # optional, default: 1.0
 ```
+
+## Parameters
+
+### `skill`
+
+Required. The name of the MythicMobs skill to cast.
+
+### `power`
+
+Optional. Defaults to `1.0`. The power multiplier passed to the skill.
