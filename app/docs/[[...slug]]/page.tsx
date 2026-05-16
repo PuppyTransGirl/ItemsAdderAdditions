@@ -39,6 +39,12 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
             <DocsTitle>{page.data.title}</DocsTitle>
             <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
             <div className="flex flex-row gap-2 items-center border-b pb-6">
+                {page.data.version && (
+                    <span
+                        className="text-xs font-medium px-2 py-0.5 rounded-full border border-fd-primary/30 bg-fd-primary/10 text-fd-primary">
+                        Since v{page.data.version}
+                    </span>
+                )}
                 <MarkdownCopyButton markdownUrl={markdownUrl} />
                 <ViewOptionsPopover
                     markdownUrl={markdownUrl}
