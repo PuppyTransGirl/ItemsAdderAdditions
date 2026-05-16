@@ -1,9 +1,8 @@
 plugins {
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21"
+    alias(libs.plugins.paperweight.userdev)
 }
 
 val nmsVersion: String = rootProject.properties["nmsVersion_v1_21_8"] as String
-val itemsAdderApiVersion: String by rootProject
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -12,8 +11,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("${nmsVersion}-R0.1-SNAPSHOT")
-    compileOnly("dev.lone:api-itemsadder:${itemsAdderApiVersion}")
-
+    compileOnly(libs.itemsadder)
     compileOnly(project(":nms:api"))
 }
 

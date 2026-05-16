@@ -1,0 +1,45 @@
+[versions]
+# Paper / NMS
+paper-api = "1.21.11-R0.1-SNAPSHOT"
+commons-io = "2.21.0"
+asm = "9.9.1"
+jspecify = "1.0.0"
+bytebuddy = "1.18.8"
+
+# Minecraft plugins (compile-only)
+itemsadder = "4.0.10"
+placeholderapi = "2.11.7"
+mythicmobs = "5.6.1"
+coreprotect = "23.1"
+
+# Bundled dependencies
+bstats = "3.1.0"
+custom-block-data = "2.2.4"
+more-persistent-data-types = "2.4.0"
+antigrieflib = "1.0.10"
+
+# Gradle plugins
+paperweight-userdev = "2.0.0-beta.21"
+run-paper = "3.0.2"
+shadow = "9.3.1"
+
+[libraries]
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+itemsadder = { module = "dev.lone:api-itemsadder", version.ref = "itemsadder" }
+placeholderapi = { module = "me.clip:placeholderapi", version.ref = "placeholderapi" }
+mythicmobs = { module = "io.lumine:Mythic-Dist", version.ref = "mythicmobs" }
+coreprotect = { module = "net.coreprotect:coreprotect", version.ref = "coreprotect" }
+bytebuddy-agent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "bytebuddy" }
+bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+custom-block-data = { module = "com.jeff-media:custom-block-data", version.ref = "custom-block-data" }
+more-persistent-data-types = { module = "com.jeff-media:MorePersistentDataTypes", version.ref = "more-persistent-data-types" }
+antigrieflib = { module = "net.momirealms:antigrieflib", version.ref = "antigrieflib" }
+
+[plugins]
+paperweight-userdev = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight-userdev" }
+run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run-paper" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

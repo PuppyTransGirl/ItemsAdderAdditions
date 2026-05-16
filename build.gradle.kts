@@ -1,24 +1,17 @@
 plugins {
     id("java")
-    id("xyz.jpenilla.run-paper") version "3.0.2"
-    id("com.gradleup.shadow") version "9.3.1"
+    alias(libs.plugins.run.paper)
+    alias(libs.plugins.shadow)
     id("maven-publish")
 }
 
 val minecraftVersion: String by project
 val minMinecraftVersion: String by project
-val itemsAdderApiVersion: String by project
-val placeholderApiVersion: String by project
-val mythicMobsVersion: String by project
-val coreProtectVersion: String by project
-val byteBuddyAgentVersion: String by project
-val bStatsVersion: String by project
-val customBlockDataVersion: String by project
-val morePersistentDataTypesVersion: String by project
-val antiGriefLibVersion: String by project
+
+fun enabled(name: String) = (findProperty(name) as? String)?.toBoolean() ?: true
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.8-beta-11"
+version = "1.0.8-beta-12"
 
 repositories {
     mavenCentral()
@@ -34,41 +27,41 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly(libs.paper.api)
 
     // Dependencies inside Paper NMS
-    compileOnly("commons-io:commons-io:2.21.0")
-    compileOnly("org.ow2.asm:asm:9.9.1")
-    compileOnly("org.ow2.asm:asm-commons:9.9.1")
+    compileOnly(libs.commons.io)
+    compileOnly(libs.asm)
+    compileOnly(libs.asm.commons)
 
     // NMS modules
     implementation(project(":nms:api"))
-    implementation(project(":nms:nms_v26_1_2"))
-    implementation(project(":nms:nms_v1_21_11"))
-    implementation(project(":nms:nms_v1_21_10"))
-    implementation(project(":nms:nms_v1_21_8"))
-    implementation(project(":nms:nms_v1_21_7"))
-    implementation(project(":nms:nms_v1_21_6"))
-    implementation(project(":nms:nms_v1_21_5"))
-    implementation(project(":nms:nms_v1_21_4"))
-    implementation(project(":nms:nms_v1_21_3"))
-    implementation(project(":nms:nms_v1_21_1"))
-    implementation(project(":nms:nms_v1_20_6"))
+    if (enabled("enable_nms_v26_1_2")) implementation(project(":nms:nms_v26_1_2"))
+    if (enabled("enable_nms_v1_21_11")) implementation(project(":nms:nms_v1_21_11"))
+    if (enabled("enable_nms_v1_21_10")) implementation(project(":nms:nms_v1_21_10"))
+    if (enabled("enable_nms_v1_21_8")) implementation(project(":nms:nms_v1_21_8"))
+    if (enabled("enable_nms_v1_21_7")) implementation(project(":nms:nms_v1_21_7"))
+    if (enabled("enable_nms_v1_21_6")) implementation(project(":nms:nms_v1_21_6"))
+    if (enabled("enable_nms_v1_21_5")) implementation(project(":nms:nms_v1_21_5"))
+    if (enabled("enable_nms_v1_21_4")) implementation(project(":nms:nms_v1_21_4"))
+    if (enabled("enable_nms_v1_21_3")) implementation(project(":nms:nms_v1_21_3"))
+    if (enabled("enable_nms_v1_21_1")) implementation(project(":nms:nms_v1_21_1"))
+    if (enabled("enable_nms_v1_20_6")) implementation(project(":nms:nms_v1_20_6"))
 
     // Plugins
-    compileOnly("dev.lone:api-itemsadder:${itemsAdderApiVersion}")
-    compileOnly("me.clip:placeholderapi:${placeholderApiVersion}")
-    compileOnly("io.lumine:Mythic-Dist:${mythicMobsVersion}")
-    compileOnly("net.coreprotect:coreprotect:${coreProtectVersion}")
+    compileOnly(libs.itemsadder)
+    compileOnly(libs.placeholderapi)
+    compileOnly(libs.mythicmobs)
+    compileOnly(libs.coreprotect)
 
     // Other
-    compileOnly("net.bytebuddy:byte-buddy-agent:${byteBuddyAgentVersion}")
+    compileOnly(libs.bytebuddy.agent)
 
     // Dependencies
-    implementation("org.bstats:bstats-bukkit:${bStatsVersion}")
-    implementation("com.jeff-media:custom-block-data:${customBlockDataVersion}")
-    implementation("com.jeff-media:MorePersistentDataTypes:${morePersistentDataTypesVersion}")
-    implementation("net.momirealms:antigrieflib:${antiGriefLibVersion}")
+    implementation(libs.bstats.bukkit)
+    implementation(libs.custom.block.data)
+    implementation(libs.more.persistent.data.types)
+    implementation(libs.antigrieflib)
 }
 
 tasks {
@@ -76,22 +69,22 @@ tasks {
         minecraftVersion(minecraftVersion)
         systemProperty(
             "net.kyori.adventure.text.warnWhenLegacyFormattingDetected",
-            false
-        ) // This thing is useless; we can disable it
+            findProperty("net.kyori.adventure.text.warnWhenLegacyFormattingDetected") ?: false
+        )
+        systemProperty(
+            "com.mojang.eula.agree",
+            findProperty("com.mojang.eula.agree") ?: true
+        )
 
         jvmArgs(
             "-Xmx4096M",
             "-Xms4096M",
 //            "-XX:+AllowEnhancedClassRedefinition",
 //            "-XX:HotswapAgent=core",
-            "-Dcom.mojang.eula.agree=true"
         )
 
         downloadPlugins {
-//            modrinth("LuckPerms", "v5.5.17-bukkit")
-//            modrinth("TabTPS", "1.3.30")
-//            modrinth("ServerLogViewer-Paper", "1.0.0")
-            modrinth("PlaceholderAPI", placeholderApiVersion)
+            modrinth("PlaceholderAPI", libs.versions.placeholderapi.get())
         }
     }
 
@@ -184,4 +177,6 @@ java {
 
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(21)
+    options.isIncremental = true
+    options.isFork = true
 }
