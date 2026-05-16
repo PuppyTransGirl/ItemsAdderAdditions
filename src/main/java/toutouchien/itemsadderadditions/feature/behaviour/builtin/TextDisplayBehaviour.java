@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.textdisplay;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,6 +11,7 @@ import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.textdisplay.*;
 
 import java.util.ArrayList;
 import java.util.List;
