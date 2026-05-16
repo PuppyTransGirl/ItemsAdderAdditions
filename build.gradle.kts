@@ -13,7 +13,7 @@ val minMinecraftVersion: String by project
 fun enabled(name: String) = (findProperty(name) as? String)?.toBoolean() ?: true
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.8"
+version = "1.0.9"
 
 repositories {
     mavenCentral()
