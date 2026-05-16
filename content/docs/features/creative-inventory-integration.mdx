@@ -25,7 +25,8 @@ You just need to run `/iazip` to regenerate the resource pack.
 That's it! Your creative inventory will now contain all your custom items.
 
 <Callout>
-  Every time you add or remove custom items via ItemsAdder, you must restart the server and run `/iazip` again to see the updates reflected in your creative inventory.
+    Every time you add or remove custom items via ItemsAdder, you must rejoin the server and run `/iazip` again to see
+    the updates reflected in your creative inventory.
 </Callout>
 
 ## Enabling / Disabling
@@ -56,5 +57,7 @@ If for any reason this entry is missing (e.g., the file wasn't writable), you ca
 ## Notes
 
 - **Template items** are excluded. Items marked with `template: true` in their ItemsAdder configuration won't appear in the creative menu.
+- **Directional variants** are excluded. Items whose namespaced ID ends in `_north`, `_south`, `_east`, `_west`, `_up`, or `_down` are skipped when the base item (without the direction suffix) exists in the registry. This prevents duplicate entries for rotatable blocks.
+- Items with `hide_from_inventory: true` in their ItemsAdder config are excluded.
 - Items using `graphics.icon` or `resource.icon` will display their flat GUI icon. All other items will use the 3D model they normally show when held in-hand.
 - Vanilla paintings are unaffected; regular painting items will continue to function normally.

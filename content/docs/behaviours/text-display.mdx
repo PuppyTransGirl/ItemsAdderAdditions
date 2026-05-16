@@ -50,14 +50,17 @@ behaviours:
 | `offset` | `"x, y, z"` or list | `"0, 0.25, 0"` | Position offset relative to the block or furniture center. |
 | `billboard` | `FIXED` \| `VERTICAL` \| `HORIZONTAL` \| `CENTER` | `VERTICAL` | How the display rotates to face players. |
 | `alignment` | `LEFT` \| `CENTER` \| `RIGHT` | `CENTER` | Text alignment within the display. |
-| `shadow` | boolean | `true` | Whether text has a drop shadow. |
+| `text_shadow` | boolean | `true` | Whether text has a drop shadow. |
 | `see_through` | boolean | `false` | Whether text is visible through blocks. |
-| `line_width` | integer ≥ 1 | `200` | Maximum line width in pixels before wrapping. |
-| `background` | `#RRGGBB`, `#RRGGBBAA`, or `null` | `null` | Background color. `null` uses the vanilla default dark background. |
-| `opacity` | integer, `-1`..`255` | `-1` | Text opacity. `-1` means fully opaque. |
-| `scale` | float > 0 | `1.0` | Text size multiplier. |
+| `line_width` | integer ≥ 1 | `1403` | Maximum line width in pixels before wrapping. |
+| `background` | `#RRGGBB`, `#RRGGBBAA`, `false`, or `null` | `null` | Background color. `null` or `false` uses the vanilla default dark background. |
+| `text_opacity` | float 0.0–1.0 | *(omit for default)* | Text opacity. `0.0` is fully transparent, `1.0` is fully opaque. Omit the key entirely for the vanilla default (fully opaque). |
+| `scale` | float > 0, `"x, y, z"`, or list | `1.0` | Text size multiplier. A single value applies uniformly; use `"x, y, z"` or a 3-element list for non-uniform scaling. |
 | `view_range` | float > 0 | `16.0` | Distance in blocks at which the display becomes visible. |
 | `refresh_interval` | integer ≥ 0 | `0` | How often (in ticks) the text is refreshed per player. `0` disables auto-refresh. Set to a positive value when using PlaceholderAPI placeholders that change over time. |
+| `brightness` | integer 0–15, `[block, sky]`, or section | *(omit for world lighting)* | Override the light level. A single integer sets both block and sky light equally. Use a two-element list `[block, sky]` or a section with `block:` and `sky:` keys to set them separately. Omit to inherit from world lighting. |
+| `shadow_radius` | float ≥ 0 | `0.0` | Radius of the drop shadow behind the text. |
+| `shadow_strength` | float ≥ 0 | `1.0` | Strength (opacity) of the drop shadow. |
 
 ## Full example
 
@@ -70,11 +73,10 @@ behaviours:
     offset: "0, 0.6, 0"
     billboard: VERTICAL
     alignment: CENTER
-    shadow: true
+    text_shadow: true
     see_through: false
-    line_width: 200
+    line_width: 1403
     background: "#00000080"
-    opacity: -1
     scale: 1.0
     view_range: 16.0
     refresh_interval: 20
