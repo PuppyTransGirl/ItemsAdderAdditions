@@ -15,6 +15,12 @@ import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Behaviour that attaches packet-based text displays to a block or furniture item.
+ * <p>
+ * Reads its configuration via {@link TextDisplayConfigLoader} and delegates all
+ * runtime management to {@link TextDisplayRuntime}.
+ */
 @SuppressWarnings("unused")
 @NullMarked
 @Behaviour(key = "text_display")

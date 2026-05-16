@@ -46,13 +46,39 @@ public enum ItemCategory {
      * </ol>
      */
     public static ItemCategory determine(CustomStack customStack, FileConfiguration config, String itemID) {
-        String base = "items." + itemID;
+        // Walk the variant_of chain up to 16 levels deep (guards against cycles).
+        // Same-file parents (most common, includes template: true items) are resolved directly
+        // from the FileConfiguration. Cross-file parents fall back to CustomStack.getInstance.
+        String currentItemId = itemID;
+        FileConfiguration currentConfig = config;
+        String namespace = customStack.getNamespacedID().contains(":")
+                ? customStack.getNamespacedID().substring(0, customStack.getNamespacedID().indexOf(':'))
+                : "";
 
-        if (config.contains(base + ".behaviours.complex_furniture"))
-            return COMPLEX_FURNITURE;
+        for (int depth = 0; depth < 16; depth++) {
+            String base = "items." + currentItemId;
 
-        if (config.contains(base + ".events.placed_furniture") || config.contains(base + ".behaviours.furniture"))
-            return FURNITURE;
+            if (currentConfig.contains(base + ".behaviours.complex_furniture"))
+                return COMPLEX_FURNITURE;
+
+            if (currentConfig.contains(base + ".events.placed_furniture") || currentConfig.contains(base + ".behaviours.furniture"))
+                return FURNITURE;
+
+            String variantOf = currentConfig.getString(base + ".variant_of");
+            if (variantOf == null || variantOf.isBlank()) break;
+
+            String parentId = variantOf.contains(":") ? variantOf.substring(variantOf.indexOf(':') + 1) : variantOf;
+
+            if (currentConfig.contains("items." + parentId)) {
+                currentItemId = parentId;
+            } else {
+                String parentNsId = variantOf.contains(":") ? variantOf : namespace + ":" + variantOf;
+                CustomStack parent = CustomStack.getInstance(parentNsId);
+                if (parent == null) break;
+                currentConfig = parent.getConfig();
+                currentItemId = parent.getId();
+            }
+        }
 
         if (customStack.isBlock())
             return BLOCK;

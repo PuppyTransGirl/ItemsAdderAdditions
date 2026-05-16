@@ -8,6 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Per-viewer tracking state for one {@link TextDisplayRuntime}.
+ * <p>
+ * Tracks which packet displays are currently visible, when failed spawns can be retried,
+ * and when repeated update-failure log messages should be suppressed.
+ */
 @NullMarked
 public final class TextDisplayViewerState {
     private static final long FAILURE_LOG_COOLDOWN_TICKS = 20L;
@@ -31,14 +37,22 @@ public final class TextDisplayViewerState {
         return visibleDisplays;
     }
 
+    /**
+     * Returns true if enough ticks have passed since the last failed spawn attempt.
+     */
     public boolean canAttemptSpawn(TextDisplayDisplayKey key, long currentTick) {
         return currentTick >= nextSpawnAttempts.getOrDefault(key, 0L);
     }
 
+    /** Records a spawn failure and sets the cooldown before the next attempt. */
     public void markSpawnFailed(TextDisplayDisplayKey key, long currentTick) {
         nextSpawnAttempts.put(key, currentTick + FAILURE_LOG_COOLDOWN_TICKS);
     }
 
+    /**
+     * Returns true and advances the cooldown if an update failure should be logged now.
+     * Repeated failures within the cooldown window are silently dropped.
+     */
     public boolean shouldLogUpdateFailure(TextDisplayDisplayKey key, long currentTick) {
         if (currentTick < nextUpdateFailureLogs.getOrDefault(key, 0L)) return false;
         nextUpdateFailureLogs.put(key, currentTick + FAILURE_LOG_COOLDOWN_TICKS);

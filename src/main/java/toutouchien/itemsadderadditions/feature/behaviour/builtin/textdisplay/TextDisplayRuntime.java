@@ -27,6 +27,13 @@ import toutouchien.itemsadderadditions.nms.api.textdisplay.PacketTextDisplayHand
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Manages the lifecycle of packet-based text displays for one ItemsAdder item type.
+ * <p>
+ * Tracks all placed instances (owners) of the item, and for each online player determines
+ * which displays are in range and sends the appropriate spawn, update, or destroy packets.
+ * One runtime exists per {@code text_display} behaviour instance.
+ */
 @NullMarked
 public final class TextDisplayRuntime {
     private static final String LOG_TAG = "TextDisplay";
@@ -66,6 +73,10 @@ public final class TextDisplayRuntime {
         return category;
     }
 
+    /**
+     * Returns true if the given item ID belongs to this runtime's target.
+     * For blocks this also accepts rotation variant suffixes (e.g. {@code _south}).
+     */
     public boolean matchesId(String actualNamespacedId) {
         return category == ItemCategory.BLOCK
                 ? NamespaceUtils.matchesWithRotation(actualNamespacedId, namespacedId)
@@ -95,26 +106,33 @@ public final class TextDisplayRuntime {
         }
     }
 
+    /**
+     * Registers or updates an owner and immediately syncs visibility for all online players.
+     */
     public void track(TextDisplayOwner owner) {
         if (!running) return;
         upsertOwner(owner, true);
     }
 
+    /** Destroys all displays for the given owner and removes it from tracking. */
     public void untrack(UUID ownerId) {
         hideOwner(ownerId);
         owners.remove(ownerId);
     }
 
+    /** Clears all viewer state for a player, typically called when they disconnect. */
     public void forgetViewer(UUID playerId) {
         TextDisplayViewerState state = viewerStates.remove(playerId);
         if (state != null) state.clear();
     }
 
+    /** Forces an immediate visibility sync for one player, e.g. after a teleport or world change. */
     public void resync(Player player) {
         if (!running) return;
         syncViewer(player);
     }
 
+    /** Destroys all active displays for all viewers and clears all state. Used during unload. */
     public void destroyAll() {
         for (Map.Entry<UUID, TextDisplayViewerState> entry : viewerStates.entrySet()) {
             Player viewer = Bukkit.getPlayer(entry.getKey());
@@ -129,6 +147,7 @@ public final class TextDisplayRuntime {
         owners.clear();
     }
 
+    /** Scans every currently loaded chunk across all worlds to restore owners that were missed on startup. */
     public void restoreLoadedChunks() {
         if (!running) return;
         for (World world : Bukkit.getWorlds()) {
@@ -139,6 +158,7 @@ public final class TextDisplayRuntime {
         syncOnlineViewers();
     }
 
+    /** Scans a freshly loaded chunk for matching owners and syncs visibility for online players. */
     public void scanChunk(Chunk chunk) {
         scanChunk(chunk, true);
     }
@@ -153,6 +173,7 @@ public final class TextDisplayRuntime {
         if (syncAfter) syncOnlineViewers();
     }
 
+    /** Removes and hides all owners whose base location falls within the given chunk. */
     public void untrackChunk(Chunk chunk) {
         if (owners.isEmpty()) return;
 
@@ -239,15 +260,26 @@ public final class TextDisplayRuntime {
     }
 
     private void syncViewer(Player viewer) {
-        if (!running) return;
-        TextDisplayViewerState state = viewerStates.computeIfAbsent(viewer.getUniqueId(), ignored -> new TextDisplayViewerState());
-        Set<TextDisplayDisplayKey> desiredKeys = new HashSet<>();
+        if (!running || owners.isEmpty()) return;
+
+        Location viewerLoc = viewer.getLocation();
+        World viewerWorld = viewerLoc.getWorld();
+        if (viewerWorld == null) return;
+        UUID viewerWorldId = viewerWorld.getUID();
+
+        TextDisplayViewerState state = viewerStates.computeIfAbsent(viewer.getUniqueId(), k -> new TextDisplayViewerState());
+        Set<TextDisplayDisplayKey> desiredKeys = new HashSet<>(owners.size() * specs.size());
 
         for (TextDisplayOwner owner : owners.values()) {
-            for (TextDisplaySpec spec : specs) {
-                TextDisplayDisplayKey key = new TextDisplayDisplayKey(owner.ownerId(), spec.id());
-                if (!shouldSee(viewer, owner, spec)) continue;
+            Location ownerLoc = owner.baseLocation();
+            World ownerWorld = ownerLoc.getWorld();
+            if (ownerWorld == null || !ownerWorld.getUID().equals(viewerWorldId)) continue;
 
+            for (TextDisplaySpec spec : specs) {
+                double range = spec.viewRange();
+                if (viewerLoc.distanceSquared(ownerLoc) > range * range) continue;
+
+                TextDisplayDisplayKey key = new TextDisplayDisplayKey(owner.ownerId(), spec.id());
                 desiredKeys.add(key);
                 syncDisplay(viewer, state, owner, spec, key);
             }
@@ -288,16 +320,6 @@ public final class TextDisplayRuntime {
         if (shouldRefresh(spec)) {
             updateDisplay(viewer, state, key, visual, spec);
         }
-    }
-
-    private boolean shouldSee(Player viewer, TextDisplayOwner owner, TextDisplaySpec spec) {
-        Location viewerLocation = viewer.getLocation();
-        Location base = owner.baseLocation();
-        if (viewerLocation.getWorld() == null || base.getWorld() == null) return false;
-        if (!viewerLocation.getWorld().getUID().equals(base.getWorld().getUID())) return false;
-
-        double range = spec.viewRange();
-        return viewerLocation.distanceSquared(base) <= range * range;
     }
 
     private boolean shouldRefresh(TextDisplaySpec spec) {

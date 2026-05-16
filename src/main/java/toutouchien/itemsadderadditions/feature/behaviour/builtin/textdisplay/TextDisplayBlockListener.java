@@ -8,6 +8,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.jspecify.annotations.NullMarked;
 
+/**
+ * Tracks custom block placements and breaks for a {@link TextDisplayRuntime}.
+ */
 @NullMarked
 public final class TextDisplayBlockListener implements Listener {
     private final TextDisplayRuntime runtime;

@@ -11,6 +11,9 @@ import toutouchien.itemsadderadditions.common.utils.Task;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Triggers chunk scans on load and removes owners when a chunk unloads.
+ */
 @NullMarked
 public final class TextDisplayChunkListener implements Listener {
     private final TextDisplayRuntime runtime;

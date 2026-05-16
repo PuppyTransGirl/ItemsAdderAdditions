@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.util.Brightness;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import org.bukkit.Location;
@@ -54,9 +55,14 @@ public final class NmsTextDisplayHandler_v26_1_2 implements INmsTextDisplayHandl
         entity.setTransformation(new Transformation(
                 new Vector3f(0.0F, 0.0F, 0.0F),
                 new Quaternionf(),
-                new Vector3f(visual.scale(), visual.scale(), visual.scale()),
+                new Vector3f(visual.scaleX(), visual.scaleY(), visual.scaleZ()),
                 new Quaternionf()
         ));
+        if (visual.brightnessBlock() != null && visual.brightnessSky() != null) {
+            entity.setBrightnessOverride(new Brightness(visual.brightnessBlock(), visual.brightnessSky()));
+        }
+        entity.setShadowRadius(visual.shadowRadius());
+        entity.setShadowStrength(visual.shadowStrength());
     }
 
     private static byte textFlags(PacketTextDisplayVisual visual) {

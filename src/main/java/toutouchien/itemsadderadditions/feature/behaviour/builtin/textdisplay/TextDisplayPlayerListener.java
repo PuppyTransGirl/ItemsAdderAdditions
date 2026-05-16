@@ -13,6 +13,9 @@ import toutouchien.itemsadderadditions.common.utils.Task;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Handles player join, quit, teleport, and world change events for a {@link TextDisplayRuntime}.
+ */
 @NullMarked
 public final class TextDisplayPlayerListener implements Listener {
     private final JavaPlugin plugin;

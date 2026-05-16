@@ -6,6 +6,9 @@ import toutouchien.itemsadderadditions.common.logging.Log;
 
 import java.util.Locale;
 
+/**
+ * Parses background color values from config into ARGB integers for the text display entity.
+ */
 @NullMarked
 public final class TextDisplayColorParser {
     private static final String LOG_TAG = "TextDisplay";
@@ -14,6 +17,13 @@ public final class TextDisplayColorParser {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * Parses a background color from a config value.
+     * <p>
+     * Accepted formats: {@code #RRGGBB} (fully opaque), {@code #RRGGBBAA} (with alpha),
+     * {@code false} or {@code null} string (no background). Returns {@code null} to indicate
+     * that no background should be shown (fully transparent).
+     */
     @Nullable
     public static Integer parse(@Nullable Object raw, String namespacedId, String displayId) {
         if (raw == null) return null;
