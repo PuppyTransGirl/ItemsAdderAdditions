@@ -16,6 +16,8 @@ public record TextDisplaySpec(
         String id,
         List<String> textLines,
         Vector offset,
+        float yawOffset,
+        float pitchOffset,
         PacketTextDisplayVisual visual,
         double viewRange,
         int refreshInterval

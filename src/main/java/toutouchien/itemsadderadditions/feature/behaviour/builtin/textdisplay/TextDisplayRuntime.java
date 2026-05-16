@@ -335,6 +335,8 @@ public final class TextDisplayRuntime {
             TextDisplayDisplayKey key
     ) {
         Location location = TextDisplayLocationMath.applyLocalOffset(owner.baseLocation(), owner.yaw(), spec.offset());
+        location.setYaw(owner.yaw() + spec.yawOffset());
+        location.setPitch(spec.pitchOffset());
         Component text = TextRenderer.render(viewer, spec.rawText());
 
         try {

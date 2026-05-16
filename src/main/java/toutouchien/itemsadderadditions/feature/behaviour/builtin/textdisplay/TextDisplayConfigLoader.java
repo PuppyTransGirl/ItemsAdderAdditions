@@ -61,6 +61,8 @@ public final class TextDisplayConfigLoader {
         if (text.isEmpty()) return null;
 
         Vector offset = parseVector3(section.get("offset"), DEFAULT_OFFSET.clone(), "offset", ctx);
+        float yawOffset = (float) section.getDouble("yaw", 0.0);
+        float pitchOffset = (float) section.getDouble("pitch", 0.0);
         PacketTextDisplayBillboard billboard = parseBillboard(section.getString("billboard"), ctx);
         PacketTextDisplayAlignment alignment = parseAlignment(section.getString("alignment"), ctx);
         boolean shadow = section.getBoolean("text_shadow", true);
@@ -92,7 +94,7 @@ public final class TextDisplayConfigLoader {
                 shadowStrength
         );
 
-        return new TextDisplaySpec(ctx.displayId(), text, offset, visual, viewRange, refreshInterval);
+        return new TextDisplaySpec(ctx.displayId(), text, offset, yawOffset, pitchOffset, visual, viewRange, refreshInterval);
     }
 
     private static List<String> parseText(@Nullable Object raw, LoadContext ctx) {
