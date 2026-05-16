@@ -1,0 +1,87 @@
+---
+title: Text Display
+description: Show floating text above any ItemsAdder custom block or furniture. Supports MiniMessage formatting, PlaceholderAPI, and multiple independent displays per item.
+---
+
+Attaches one or more floating text displays to a custom block or furniture. Supports MiniMessage formatting, PlaceholderAPI placeholders, and ItemsAdder font images.
+
+Works on **blocks**, **furniture**, and **complex furniture**.
+
+## Basic configuration
+
+```yaml
+behaviours:
+  text_display:
+    text: "<yellow>Hello!"
+```
+
+Multi-line text (one line per list entry):
+
+```yaml
+behaviours:
+  text_display:
+    text:
+      - "<bold>Storage"
+      - "<gray>Right-click to open"
+```
+
+## Multiple displays
+
+Use the `displays` section to attach more than one text display to the same item. Each entry is independently positioned and styled.
+
+```yaml
+behaviours:
+  text_display:
+    displays:
+      label:
+        text: "<gold><bold>My Chest"
+        offset: "0, 0.5, 0"
+      hint:
+        text: "<gray><i>Right-click to open"
+        offset: "0, 0.25, 0"
+```
+
+## Options
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `text` | string or list | *(required)* | The text to display. Supports MiniMessage, PlaceholderAPI, and `:icon:` font images. |
+| `offset` | `"x, y, z"` or list | `"0, 0.25, 0"` | Position offset relative to the block or furniture center. |
+| `billboard` | `FIXED` \| `VERTICAL` \| `HORIZONTAL` \| `CENTER` | `VERTICAL` | How the display rotates to face players. |
+| `alignment` | `LEFT` \| `CENTER` \| `RIGHT` | `CENTER` | Text alignment within the display. |
+| `shadow` | boolean | `true` | Whether text has a drop shadow. |
+| `see_through` | boolean | `false` | Whether text is visible through blocks. |
+| `line_width` | integer ≥ 1 | `200` | Maximum line width in pixels before wrapping. |
+| `background` | `#RRGGBB`, `#RRGGBBAA`, or `null` | `null` | Background color. `null` uses the vanilla default dark background. |
+| `opacity` | integer, `-1`..`255` | `-1` | Text opacity. `-1` means fully opaque. |
+| `scale` | float > 0 | `1.0` | Text size multiplier. |
+| `view_range` | float > 0 | `16.0` | Distance in blocks at which the display becomes visible. |
+| `refresh_interval` | integer ≥ 0 | `0` | How often (in ticks) the text is refreshed per player. `0` disables auto-refresh. Set to a positive value when using PlaceholderAPI placeholders that change over time. |
+
+## Full example
+
+```yaml
+behaviours:
+  text_display:
+    text:
+      - "<aqua><player_name>"
+      - "<gray>Score: <gold>%vault_eco_balance%"
+    offset: "0, 0.6, 0"
+    billboard: VERTICAL
+    alignment: CENTER
+    shadow: true
+    see_through: false
+    line_width: 200
+    background: "#00000080"
+    opacity: -1
+    scale: 1.0
+    view_range: 16.0
+    refresh_interval: 20
+```
+
+## Notes
+
+- Text supports [MiniMessage](https://docs.advntr.dev/minimessage/format.html) formatting tags.
+- PlaceholderAPI placeholders are resolved per-player if PlaceholderAPI is installed.
+- ItemsAdder font images (`:my_icon:`) are supported.
+- When using placeholders that update over time, set `refresh_interval` to a positive value (e.g. `20` for once per second).

@@ -1,0 +1,76 @@
+---
+title: Custom Paintings
+description: Register custom Minecraft painting variants directly from your ItemsAdder YML files. Requires Paper 1.21.5 or higher.
+---
+
+<Callout type="warn">
+    **Version Requirement:** Requires **Paper 1.21.5 or higher**. The feature is disabled on older versions.
+</Callout>
+
+Custom paintings are defined directly in ItemsAdder content YML files using a top-level `paintings` section. Each entry registers a real Minecraft painting variant that players can encounter in-game.
+
+## Configuration
+
+```yaml
+info:
+  namespace: mynamespace
+
+paintings:
+  sunset:
+    enabled: true
+    width: 2
+    height: 1
+    asset: mynamespace:sunset
+    title: "<yellow>Sunset"
+    author: "Toutou"
+    item: mynamespace:sunset_painting
+    include_in_random: true
+```
+
+## Options
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `enabled` | boolean | `true` | Set to `false` to skip this painting without removing the entry. |
+| `width` | integer | *(required)* | Width of the painting in blocks. |
+| `height` | integer | *(required)* | Height of the painting in blocks. |
+| `asset` | `namespace:key` | *(required)* | Texture asset key. See [Texture path](#texture-path) below. |
+| `title` | string | *(none)* | Optional display title shown in tooltips. Supports MiniMessage. |
+| `author` | string | *(none)* | Optional author name shown in tooltips. |
+| `item` | `namespace:item_id` | *(none)* | Optional linked ItemsAdder item. When right-clicked on a valid wall face, this item places the custom painting. |
+| `include_in_random` | boolean | `false` | When `true`, vanilla painting items can randomly select this custom painting when the wall space fits. |
+
+## Texture path
+
+The `asset` value maps to a texture file inside your ItemsAdder content folder. For `asset: mynamespace:sunset`, the plugin expects:
+
+```
+contents/mynamespace/textures/painting/sunset.png
+```
+
+No datapack files are needed. The plugin injects the painting variants at runtime and updates the vanilla `minecraft:placeable` painting tag automatically.
+
+## Placing paintings in-game
+
+If you set an `item`, that ItemsAdder item behaves like a custom painting item:
+
+- Right-clicking a valid wall face places the custom painting.
+- Protection plugin checks are respected.
+- The off-hand duplicate-placement issue is handled automatically.
+
+If `include_in_random` is `false` (the default), the painting can only be placed through its linked item. Set it to `true` to also allow vanilla painting items to pick it randomly.
+
+## Enabling / Disabling
+
+You can toggle this feature in the plugin's `config.yml`:
+
+```yaml
+features:
+  custom_paintings: true
+```
+
+## Notes
+
+- This feature is only available on Minecraft **1.21.5** and newer. On older versions, the `paintings` section is silently ignored.
+- No `/iazip` or manual resource pack step is needed for the painting variants themselves, but your texture file must be included in your resource pack as usual.
+- The linked `item` must be an existing ItemsAdder item. If it is missing, the painting variant is still registered, but no placement item will work.

@@ -1,0 +1,100 @@
+---
+title: World Generation
+description: Spawn custom ItemsAdder furniture during chunk generation.
+---
+
+Two world generation modes let you spawn custom furniture in newly generated chunks. Both are defined directly in your ItemsAdder content YML files.
+
+| | World Populator | Surface Decorator |
+|-|-----------------|-------------------|
+| YAML key | `blocks_populators` | `surface_decorators` |
+| Placement style | Vein-based (clustered) | Surface scatter |
+| Density control | `vein_blocks` + `chunk_veins` | `amount` |
+| Surface config key | `replaceable_blocks` | `bottom_blocks` |
+
+Use the **World Populator** for clustered spawns (mushrooms, ore-like groups). Use the **Surface Decorator** for evenly scattered surface objects (flowers, small rocks).
+
+## World Populator
+
+Spawns furniture in vein-style clusters during chunk generation. Uses the `blocks_populators` key (the legacy key `worlds_populators` is also accepted).
+
+```yaml
+info:
+  namespace: my_pack
+
+blocks_populators:
+  big_mushroom:
+    enabled: true
+    furniture: "my_pack:big_mushroom"
+    worlds:
+      - world
+    biomes:
+      - minecraft:dark_forest
+    replaceable_blocks:
+      - GRASS_BLOCK
+      - DIRT
+    vein_blocks: 1
+    chunk_veins: 3
+    chunk_chance: 25.0
+    min_height: 60
+    max_height: 100
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `enabled` | boolean | `true` | Set to `false` to skip without removing. |
+| `furniture` | `namespace:id` | *(required)* | The ItemsAdder furniture to spawn. |
+| `worlds` | list | *(all)* | World names to restrict to. Supports `*` wildcard. |
+| `biomes` | list | *(all)* | Biome IDs (e.g. `minecraft:forest`). All must be valid or the entry is skipped. |
+| `replaceable_blocks` | list | *(any)* | Allowed materials for the block directly below the spawn point. |
+| `vein_blocks` | integer | `1` | Furniture pieces per vein attempt. |
+| `chunk_veins` | integer | `4` | Vein attempts per chunk. |
+| `chunk_chance` | double | `-1` | 0-100 chance per chunk. `-1` = always. |
+| `min_height` | integer | `60` | Minimum Y level. Must be less than `max_height`. |
+| `max_height` | integer | `80` | Maximum Y level. |
+| `allow_liquid_placement` | boolean | `false` | Allow spawning inside water or lava. |
+
+## Surface Decorator
+
+Scatters furniture across the surface of newly generated terrain. Uses the `surface_decorators` key.
+
+```yaml
+info:
+  namespace: my_pack
+
+surface_decorators:
+  small_flower:
+    enabled: true
+    furniture: "my_pack:small_flower"
+    worlds:
+      - world
+    biomes:
+      - minecraft:plains
+      - minecraft:sunflower_plains
+    bottom_blocks:
+      - GRASS_BLOCK
+    amount: 4
+    chunk_chance: 50.0
+    min_height: 60
+    max_height: 120
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `enabled` | boolean | `true` | Set to `false` to skip without removing. |
+| `furniture` | `namespace:id` | *(required)* | The ItemsAdder furniture to spawn. |
+| `worlds` | list | *(all)* | World names to restrict to. Supports `*` wildcard. |
+| `biomes` | list | *(all)* | Biome IDs (e.g. `minecraft:plains`). All must be valid or the entry is skipped. |
+| `bottom_blocks` | list | *(any)* | Allowed materials for the block directly below the spawn point. |
+| `amount` | integer | `4` | Placement attempts per chunk. |
+| `chunk_chance` | double | `-1` | 0-100 chance per chunk. `-1` = always. |
+| `min_height` | integer | `60` | Minimum Y level. Must be less than `max_height`. |
+| `max_height` | integer | `80` | Maximum Y level. |
+| `allow_liquid_surface` | boolean | `false` | Allow a liquid block below the spawn point as a valid surface. |
+| `allow_liquid_placement` | boolean | `false` | Allow spawning inside water or lava. |
+
+## Notes
+
+- Only newly generated chunks trigger spawning. Existing chunks are unaffected.
+- The furniture must be registered by ItemsAdder before the entry is loaded.
+- Invalid biome IDs cause the entire entry to be skipped.

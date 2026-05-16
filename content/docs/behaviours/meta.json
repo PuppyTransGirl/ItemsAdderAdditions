@@ -4,6 +4,7 @@
   "pages": [
     "bed",
     "...",
-    "storage"
+    "storage",
+    "text-display"
   ]
 }

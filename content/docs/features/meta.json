@@ -2,6 +2,7 @@
   "title": "Features",
   "icon": "Toolbox",
   "pages": [
-    "creative-inventory-integration"
+    "creative-inventory-integration",
+    "custom-paintings"
   ]
 }

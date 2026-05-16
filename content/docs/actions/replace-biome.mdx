@@ -1,6 +1,6 @@
 ---
 title: Replace Biome
-description: Change the biome in an area as an ItemsAdder action. Supports multiple shape types, directional shapes, and configurable radius to create biome-changing items, tools, or effects.
+description: Change the biome in an area as an ItemsAdder action.
 ---
 
 ```yaml
@@ -93,21 +93,19 @@ These shapes are affected by the player's rotation when the action runs.
 
 For these shapes, `x`, `y`, and `z` still control the final shape dimensions, even though the shape is oriented using the player's facing direction.
 
+## Protection plugin compatibility
+
+Locations where the player does not have build permission (checked via [AntiGriefLib](https://github.com/MomirealmsLib/AntiGriefLib)) are skipped silently. Supported plugins include WorldGuard, GriefPrevention, Towny, GriefDefender, RedProtect, and others supported by AntiGriefLib.
+
 ## Important limitation
 
-Minecraft biome editing is not perfectly precise at small scales.
+Minecraft biome editing is not perfectly precise at small scales. The result may look slightly randomized or rough, especially with small radius values. This is a game limitation.
 
-Because of how Minecraft handles biome data internally, the final result may look slightly randomized or less exact than the visual shape name suggests, especially with small radius. This is a game limitation, not a configuration issue.
+- Small `SPHERE` shapes may not look perfectly spherical.
+- Directional shapes may appear slightly uneven.
+- Some edges may look rough.
 
-Examples:
-
-- small `SPHERE` shapes may not look perfectly spherical
-- directional shapes may appear slightly uneven
-- some edges may look rough or natural instead of mathematically exact
-
-With bigger radius, the shape will generally look much closer to the expected result.
-
-This behavior is normal and should be documented to avoid confusion.
+With a larger radius the shape will look much closer to what is expected.
 
 ## Examples
 
