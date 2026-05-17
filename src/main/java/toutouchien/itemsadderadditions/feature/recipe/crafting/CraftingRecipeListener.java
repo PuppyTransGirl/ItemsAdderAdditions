@@ -161,7 +161,17 @@ public final class CraftingRecipeListener implements Listener {
         if (event.isShiftClick()) {
             CraftingPredicateEngine.giveOrDrop(player, result);
         } else {
-            event.getView().setCursor(result);
+            ItemStack cursor = event.getView().getCursor();
+            if (cursor == null || cursor.getType().isAir()) {
+                event.getView().setCursor(result);
+            } else if (cursor.isSimilar(result)) {
+                int newAmount = cursor.getAmount() + result.getAmount();
+                if (newAmount > cursor.getMaxStackSize()) return;
+                cursor.setAmount(newAmount);
+                event.getView().setCursor(cursor);
+            } else {
+                return;
+            }
         }
 
         for (int c = 0; c < craftCount; c++) {
