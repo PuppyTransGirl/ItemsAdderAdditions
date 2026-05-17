@@ -11,6 +11,11 @@
 /build
 *.tsbuildinfo
 
+# gradle & ide
+.gradle/
+.idea/
+run/
+
 # misc
 .DS_Store
 *.pem
