@@ -24,7 +24,7 @@ import java.util.*;
  *       values; eliminates repeated {@code List.copyOf(values())} in
  *       {@code applyPredicatesOnce}.</li>
  *   <li>{@link #materialIndex} - {@link Material} → candidate {@link ParsedIngredient}
- *       list; turns the O(matrix × ingredients) double-loop in
+ *       list; turns the O(matrix * ingredients) double-loop in
  *       {@code ingredientsSatisfied} into an O(matrix) single pass.</li>
  * </ul>
  */
@@ -101,7 +101,7 @@ public final class CraftingRecipeData {
     private static Map<Material, List<ParsedIngredient>> buildMaterialIndex(
             List<ParsedIngredient> ingredients
     ) {
-        // Avoid resizing; typical recipe has ≤6 distinct ingredients
+        // Avoid resizing; typical recipe has <=6 distinct ingredients
         Map<Material, List<ParsedIngredient>> index =
                 new HashMap<>(ingredients.size() * 4);
 

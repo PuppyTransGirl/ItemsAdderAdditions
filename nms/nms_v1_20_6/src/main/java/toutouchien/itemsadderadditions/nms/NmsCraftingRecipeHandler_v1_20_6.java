@@ -3,7 +3,7 @@ package toutouchien.itemsadderadditions.nms;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.*;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
@@ -93,12 +93,11 @@ final class NmsCraftingRecipeHandler_v1_20_6 implements INmsCraftingRecipeHandle
         if (choice instanceof RecipeChoice.MaterialChoice material) {
             // Convert each Bukkit Material to an NMS ItemType (Item).
             // CraftItemType.asNMS(Material) is the canonical bridge in Paper.
-            ItemStack[] nmsStacks = material.getChoices()
+            Item[] nmsItems = material.getChoices()
                     .stream()
-                    .map(mat -> new ItemStack(
-                            CraftMagicNumbers.getItem(mat)))
-                    .toArray(ItemStack[]::new);
-            return Ingredient.of(nmsStacks);
+                    .map(CraftMagicNumbers::getItem)
+                    .toArray(Item[]::new);
+            return Ingredient.of(nmsItems);
         }
 
         // Fallback - should never be reached with the current IngredientResolver.
@@ -110,7 +109,7 @@ final class NmsCraftingRecipeHandler_v1_20_6 implements INmsCraftingRecipeHandle
     public void register(CraftingRecipeData data) {
         // Derive an NMS Identifier from the Bukkit NamespacedKey already in CraftingRecipeData.
         ResourceLocation identifier = ResourceLocation.of(
-                "iaadditions:" + data.key().getKey(), // key().getKey() is already "namespace_recipeId"
+                data.key().getNamespace() + ":" + data.key().getKey(),
                 ':'
         );
 

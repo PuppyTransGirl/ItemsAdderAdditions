@@ -4,8 +4,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.*;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.inventory.RecipeChoice;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.logging.Log;
@@ -92,12 +94,11 @@ final class NmsCraftingRecipeHandler_v1_21_10 implements INmsCraftingRecipeHandl
         if (choice instanceof RecipeChoice.MaterialChoice material) {
             // Convert each Bukkit Material to an NMS ItemType (Item).
             // CraftItemType.asNMS(Material) is the canonical bridge in Paper.
-            List<net.minecraft.world.item.ItemStack> nmsStacks = material.getChoices()
+            Item[] nmsItems = material.getChoices()
                     .stream()
-                    .map(mat -> new net.minecraft.world.item.ItemStack(
-                            org.bukkit.craftbukkit.util.CraftMagicNumbers.getItem(mat)))
-                    .toList();
-            return Ingredient.ofStacks(nmsStacks);
+                    .map(CraftMagicNumbers::getItem)
+                    .toArray(Item[]::new);
+            return Ingredient.of(nmsItems);
         }
 
         // Fallback - should never be reached with the current IngredientResolver.
@@ -114,8 +115,8 @@ final class NmsCraftingRecipeHandler_v1_21_10 implements INmsCraftingRecipeHandl
     public void register(CraftingRecipeData data) {
         // Derive an NMS Identifier from the Bukkit NamespacedKey already in CraftingRecipeData.
         ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath(
-                "iaadditions",
-                data.key().getKey() // key().getKey() is already "namespace_recipeId"
+                data.key().getNamespace(),
+                data.key().getKey()
         );
         ResourceKey<Recipe<?>> resourceKey = ResourceKey.create(Registries.RECIPE, identifier);
 

@@ -21,8 +21,8 @@ import java.util.List;
  * <ul>
  *   <li>{@code campfire_cooking}    → {@link CampfireRecipeHandler}</li>
  *   <li>{@code stonecutter}         → {@link StonecutterRecipeHandler}</li>
- *   <li>{@code iaa_crafting_table}  → {@link CraftingRecipeHandler} (shaped, 3×3)</li>
- *   <li>{@code iaa_crafting}        → {@link CraftingRecipeHandler} (shaped or shapeless, 2×2)</li>
+ *   <li>{@code iaa_crafting_table}  → {@link CraftingRecipeHandler} (shaped, 3*3)</li>
+ *   <li>{@code iaa_crafting}        → {@link CraftingRecipeHandler} (shaped or shapeless, 2*2)</li>
  * </ul>
  *
  * <h3>Optimized flow (preferred)</h3>

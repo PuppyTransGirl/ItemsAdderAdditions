@@ -37,7 +37,7 @@ import java.util.Arrays;
  *   <li><b>Material-indexed ingredient lookup</b> - {@link CraftingPredicateEngine#ingredientsSatisfied}
  *       uses {@link CraftingRecipeData#materialIndex} to skip ingredients that
  *       can never match a given slot's material, reducing the inner loop from
- *       O(matrix × all_ingredients) to O(matrix × candidates_for_material)
+ *       O(matrix * all_ingredients) to O(matrix * candidates_for_material)
  *       (usually 1).</li>
  *
  *   <li><b>Cached ingredient list</b> - {@link CraftingPredicateEngine#applyPredicatesOnce} uses
