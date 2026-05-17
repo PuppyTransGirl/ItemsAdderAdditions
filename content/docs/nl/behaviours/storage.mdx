@@ -6,10 +6,10 @@ version: "1.0.0"
 
 Verandert elk aangepast blok of meubel in een opslagcontainer. Er zijn drie modi beschikbaar.
 
-| Type       | Gedrag                                                                         |
-|------------|--------------------------------------------------------------------------------|
-| `STORAGE`  | Gedeelde container - alle spelers zien dezelfde inventaris                     |
-| `SHULKER`  | Inhoud reist mee in het item bij afbreken en wordt hersteld bij herplaatsen   |
+| Type       | Gedrag                                                                          |
+|------------|---------------------------------------------------------------------------------|
+| `STORAGE`  | Gedeelde container - alle spelers zien dezelfde inventaris                      |
+| `SHULKER`  | Inhoud reist mee in het item bij afbreken en wordt hersteld bij herplaatsen     |
 | `DISPOSAL` | Prullenbak - inhoud wordt stilzwijgend verwijderd wanneer de GUI wordt gesloten |
 
 ## Configuratie
@@ -21,6 +21,7 @@ Verandert elk aangepast blok of meubel in een opslagcontainer. Er zijn drie modi
         storage:
         type: STORAGE
         rows: 3 # optioneel, standaard: 3
+        inventory_type: furnace # optioneel, vervangt rows indien ingesteld
         title: "
         <gold>Community Chest</gold>
         " # optioneel, standaard is de naam van het blok/meubel
@@ -43,6 +44,7 @@ Verandert elk aangepast blok of meubel in een opslagcontainer. Er zijn drie modi
         storage:
         type: SHULKER
         rows: 3 # optioneel, standaard: 3
+        inventory_type: furnace # optioneel, vervangt rows indien ingesteld
         title: "
         <dark_purple>Portable Storage</dark_purple>
         " # optioneel, standaard is de naam van het blok/meubel
@@ -86,6 +88,29 @@ Verandert elk aangepast blok of meubel in een opslagcontainer. Er zijn drie modi
 Gebruik voor `name` een waarde uit [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) of een aangepast geluid met `namespace:value`.
 
 Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/)-opmaak, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi)-placeholders en [ItemsAdder](https://itemsadder.com/)-lettertypeafbeeldingen.
+
+## Inventaristype
+
+Standaard opent opslag een kist-achtig inventaris waarvan de hoogte wordt bepaald door `rows` (1–6, standaard: 3).
+Stel `inventory_type` in om een getypeerd inventaris te openen — `rows` wordt genegeerd als dit is ingesteld.
+
+| Waarde          | GUI-vorm                                    |
+|-----------------|---------------------------------------------|
+| `furnace`       | Oven (invoer + brandstof + uitvoer)         |
+| `blast_furnace` | Hoogoven                                    |
+| `smoker`        | Roker                                       |
+| `brewing_stand` | Brouwstandaard (3 flesjes + 2 vakjes)       |
+| `dispenser`     | Verdeler (3×3)                              |
+| `dropper`       | Dropper (3×3)                               |
+| `hopper`        | Trechter (1×5)                              |
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    inventory_type: furnace
+    title: "<gray>Aangepaste Oven</gray>"
+```
 
 ## Open variant
 

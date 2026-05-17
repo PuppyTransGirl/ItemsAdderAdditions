@@ -6,9 +6,9 @@ version: "1.0.0"
 
 Transforme n'importe quel bloc ou meuble personnalisé en conteneur de stockage. Trois modes sont disponibles.
 
-| Type       | Comportement                                                                    |
-|------------|---------------------------------------------------------------------------------|
-| `STORAGE`  | Conteneur partagé - tous les joueurs voient le même inventaire                  |
+| Type       | Comportement                                                                     |
+|------------|----------------------------------------------------------------------------------|
+| `STORAGE`  | Conteneur partagé - tous les joueurs voient le même inventaire                   |
 | `SHULKER`  | Le contenu voyage dans l'objet quand il est cassé et est restauré au replacement |
 | `DISPOSAL` | Poubelle - le contenu est supprimé silencieusement à la fermeture de l'interface |
 
@@ -21,6 +21,7 @@ Transforme n'importe quel bloc ou meuble personnalisé en conteneur de stockage.
         storage:
         type: STORAGE
         rows: 3 # optionnel, défaut : 3
+        inventory_type: furnace # optionnel, remplace rows si défini
         title: "
         <gold>Coffre Communautaire</gold>
         " # optionnel, par défaut le nom du bloc/meuble
@@ -43,6 +44,7 @@ Transforme n'importe quel bloc ou meuble personnalisé en conteneur de stockage.
         storage:
         type: SHULKER
         rows: 3 # optionnel, défaut : 3
+        inventory_type: furnace # optionnel, remplace rows si défini
         title: "
         <dark_purple>Stockage Portable</dark_purple>
         " # optionnel, par défaut le nom du bloc/meuble
@@ -86,6 +88,29 @@ Transforme n'importe quel bloc ou meuble personnalisé en conteneur de stockage.
 Pour `name`, utilisez une valeur depuis [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) ou un son personnalisé avec `namespace:value`.
 
 Supporte le formatage [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), les placeholders [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police [ItemsAdder](https://itemsadder.com/).
+
+## Type d'inventaire
+
+Par défaut, le stockage ouvre un inventaire de type coffre dont la hauteur est contrôlée par `rows` (1–6, défaut : 3).
+Définissez `inventory_type` pour ouvrir un inventaire typé à la place — `rows` est ignoré quand cette option est définie.
+
+| Valeur          | Interface                                  |
+|-----------------|--------------------------------------------|
+| `furnace`       | Fourneau (entrée + combustible + sortie)   |
+| `blast_furnace` | Haut-fourneau                              |
+| `smoker`        | Fumoir                                     |
+| `brewing_stand` | Support à potions (3 bouteilles + 2 cases) |
+| `dispenser`     | Distributeur (3×3)                         |
+| `dropper`       | Déposeur (3×3)                             |
+| `hopper`        | Entonnoir (1×5)                            |
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    inventory_type: furnace
+    title: "<gray>Fourneau Personnalisé</gray>"
+```
 
 ## Variante ouverte
 

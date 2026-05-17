@@ -21,6 +21,7 @@ Turns any custom block or furniture into a storage container. Three modes are av
         storage:
         type: STORAGE
         rows: 3 # optional, default: 3
+        inventory_type: furnace # optional, replaces rows when set
         title: "
         <gold>Community Chest</gold>
         " # optional, defaults to the block/furniture's name
@@ -43,6 +44,7 @@ Turns any custom block or furniture into a storage container. Three modes are av
         storage:
         type: SHULKER
         rows: 3 # optional, default: 3
+        inventory_type: furnace # optional, replaces rows when set
         title: "
         <dark_purple>Portable Storage</dark_purple>
         " # optional, defaults to the block/furniture's name
@@ -86,6 +88,29 @@ Turns any custom block or furniture into a storage container. Three modes are av
 For `name`, use a value from [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) or a custom sound with `namespace:value`.
 
 Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
+
+## Inventory type
+
+By default, storage opens a chest-style inventory whose height is controlled by `rows` (1–6, default: 3).
+Set `inventory_type` to open a typed inventory instead — `rows` is ignored when this is set.
+
+| Value           | GUI shape                              |
+|-----------------|----------------------------------------|
+| `furnace`       | Furnace (input + fuel + output)        |
+| `blast_furnace` | Blast furnace                          |
+| `smoker`        | Smoker                                 |
+| `brewing_stand` | Brewing stand (3 bottles + 2 slots)    |
+| `dispenser`     | Dispenser (3×3)                        |
+| `dropper`       | Dropper (3×3)                          |
+| `hopper`        | Hopper (1×5)                           |
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    inventory_type: furnace
+    title: "<gray>Custom Furnace</gray>"
+```
 
 ## Open variant
 
