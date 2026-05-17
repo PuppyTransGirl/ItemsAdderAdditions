@@ -122,7 +122,9 @@ gradle-app.setting
 run/**
 
 # docs
-node_modules/**
-.next/**
-.source/**
+node_modules/
+.next/
+.source/
 next-env.d.ts
+tsconfig.tsbuildinfo
+.env.local

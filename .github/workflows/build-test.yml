@@ -53,6 +53,9 @@ jobs:
       - name: Derive short SHA
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
+      - name: Run tests
+        run: ./gradlew test --no-daemon --stacktrace
+
       - name: Build with snapshot version
         env:
           SNAPSHOT: true

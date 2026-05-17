@@ -18,6 +18,12 @@ custom-block-data = "2.2.4"
 more-persistent-data-types = "2.4.0"
 antigrieflib = "1.0.10"
 
+# Test dependencies
+junit-jupiter = "5.11.4"
+junit-platform = "1.11.4"
+paper-api-test = "26.1.2.build.+"
+mockbukkit = "4.113.1"
+
 # Gradle plugins
 paperweight-userdev = "2.0.0-beta.21"
 run-paper = "3.0.2"
@@ -38,6 +44,10 @@ bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 custom-block-data = { module = "com.jeff-media:custom-block-data", version.ref = "custom-block-data" }
 more-persistent-data-types = { module = "com.jeff-media:MorePersistentDataTypes", version.ref = "more-persistent-data-types" }
 antigrieflib = { module = "net.momirealms:antigrieflib", version.ref = "antigrieflib" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
+paper-api-test = { module = "io.papermc.paper:paper-api", version.ref = "paper-api-test" }
+mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v26.1.2", version.ref = "mockbukkit" }
 
 [plugins]
 paperweight-userdev = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight-userdev" }
