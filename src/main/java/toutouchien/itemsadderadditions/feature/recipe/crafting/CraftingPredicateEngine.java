@@ -254,7 +254,10 @@ final class CraftingPredicateEngine {
             if (isAir(slot) || !testIngredient(ingredient, slot)) continue;
 
             int durability = getRemainingDurability(slot);
-            int crafts = durability > 0 ? Math.max(1, durability / ingredient.damageAmount()) : 1;
+            int da = ingredient.damageAmount();
+            // Ceiling division: the last craft may over-damage and break the item,
+            // which applyDamage handles correctly.
+            int crafts = durability > 0 ? (durability + da - 1) / da : 1;
             min = Math.min(min, crafts);
         }
         return min;
