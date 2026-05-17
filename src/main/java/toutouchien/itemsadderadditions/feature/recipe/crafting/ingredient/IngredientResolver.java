@@ -1,19 +1,21 @@
 package toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient;
 
 import dev.lone.itemsadder.api.CustomStack;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.set.RegistrySet;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.RecipeChoice;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -252,8 +254,8 @@ public final class IngredientResolver {
             RecipeChoice exactChoice =
                     new RecipeChoice.ExactChoice(customStack.getItemStack());
 
-            RecipeChoice registrationChoice = new RecipeChoice.MaterialChoice(
-                    customStack.getItemStack().getType());
+            RecipeChoice registrationChoice = RecipeChoice.itemType(
+                    customStack.getItemStack().getType().asItemType());
 
             // Store the namespaced ID - hash is derived in the compact constructor
             String namespacedId = customStack.getNamespacedID();
@@ -268,7 +270,7 @@ public final class IngredientResolver {
 
         Material mat = Material.matchMaterial(itemRef);
         if (mat != null) {
-            RecipeChoice matChoice = new RecipeChoice.MaterialChoice(mat);
+            RecipeChoice matChoice = RecipeChoice.itemType(mat.asItemType());
             return new ParsedIngredient(
                     matChoice, matChoice,
                     requiredAmount, damageAmount, replacement,
@@ -305,7 +307,8 @@ public final class IngredientResolver {
             return null;
         }
 
-        return new RecipeChoice.MaterialChoice(new ArrayList<>(tag.getValues()));
+        List<ItemType> itemTypes = tag.getValues().stream().map(Material::asItemType).toList();
+        return RecipeChoice.itemType(RegistrySet.keySetFromValues(RegistryKey.ITEM, itemTypes));
     }
 
     @Nullable
