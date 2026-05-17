@@ -10,6 +10,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -58,6 +59,9 @@ public final class StorageBehaviour extends BehaviourExecutor {
     @Parameter(key = "open_variant", type = String.class)
     @Nullable
     private String openVariant;
+    @Parameter(key = "inventory_type", type = String.class)
+    @Nullable
+    private String inventoryTypeName;
     @Nullable
     private Sound openSound;
     @Nullable
@@ -94,8 +98,11 @@ public final class StorageBehaviour extends BehaviourExecutor {
                 ? new OpenVariantTransformer(resolvedVariantConfig)
                 : null;
 
+        @Nullable InventoryType resolvedInventoryType = StorageInventoryTypes.resolve(inventoryTypeName, namespacedID);
+
         StorageSessionManager sessionManager = new StorageSessionManager(
                 rows,
+                resolvedInventoryType,
                 buildTitle(),
                 storageType,
                 contentsKey,

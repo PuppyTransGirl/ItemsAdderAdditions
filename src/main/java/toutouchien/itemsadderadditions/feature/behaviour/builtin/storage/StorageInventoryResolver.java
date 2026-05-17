@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +17,7 @@ import org.jspecify.annotations.Nullable;
 final class StorageInventoryResolver {
     private final StorageSessionRegistry sessions;
     private final int rows;
+    @Nullable private final InventoryType inventoryType;
     private final Component title;
     private final StorageType storageType;
     private final NamespacedKey contentsKey;
@@ -24,6 +26,7 @@ final class StorageInventoryResolver {
     StorageInventoryResolver(
             StorageSessionRegistry sessions,
             int rows,
+            @Nullable InventoryType inventoryType,
             Component title,
             StorageType storageType,
             NamespacedKey contentsKey,
@@ -31,6 +34,7 @@ final class StorageInventoryResolver {
     ) {
         this.sessions = sessions;
         this.rows = rows;
+        this.inventoryType = inventoryType;
         this.title = title;
         this.storageType = storageType;
         this.contentsKey = contentsKey;
@@ -46,7 +50,9 @@ final class StorageInventoryResolver {
         }
 
         StorageInventoryHolder holder = new StorageInventoryHolder(location);
-        Inventory inventory = Bukkit.createInventory(holder, rows * 9, title);
+        Inventory inventory = inventoryType != null
+                ? Bukkit.createInventory(holder, inventoryType, title)
+                : Bukkit.createInventory(holder, rows * 9, title);
         holder.inventory(inventory);
         StorageInventoryManager.populateInventory(inventory, storedContents(block, entity));
         return inventory;

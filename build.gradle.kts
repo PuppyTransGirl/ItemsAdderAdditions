@@ -13,7 +13,7 @@ val minMinecraftVersion: String by project
 fun enabled(name: String) = (findProperty(name) as? String)?.toBoolean() ?: true
 
 group = "toutouchien.itemsadderadditions"
-version = "1.0.9-beta-3"
+version = "1.0.9-beta-5"
 
 repositories {
     mavenCentral()
@@ -69,6 +69,7 @@ dependencies {
 tasks {
     runServer {
         minecraftVersion(minecraftVersion)
+        runDirectory(layout.projectDirectory.dir("run/1.21.11").asFile)
         systemProperty(
             "net.kyori.adventure.text.warnWhenLegacyFormattingDetected",
             findProperty("net.kyori.adventure.text.warnWhenLegacyFormattingDetected") ?: false
@@ -83,6 +84,28 @@ tasks {
             "-Xms4096M",
 //            "-XX:+AllowEnhancedClassRedefinition",
 //            "-XX:HotswapAgent=core",
+        )
+
+        downloadPlugins {
+            modrinth("PlaceholderAPI", libs.versions.placeholderapi.get())
+        }
+    }
+
+    register<xyz.jpenilla.runpaper.task.RunServer>("runServer1_20_6") {
+        minecraftVersion("1.20.6")
+        runDirectory(layout.projectDirectory.dir("run/1.20.6").asFile)
+        systemProperty(
+            "net.kyori.adventure.text.warnWhenLegacyFormattingDetected",
+            findProperty("net.kyori.adventure.text.warnWhenLegacyFormattingDetected") ?: false
+        )
+        systemProperty(
+            "com.mojang.eula.agree",
+            findProperty("com.mojang.eula.agree") ?: true
+        )
+
+        jvmArgs(
+            "-Xmx4096M",
+            "-Xms4096M",
         )
 
         downloadPlugins {
@@ -211,7 +234,7 @@ publishing {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 

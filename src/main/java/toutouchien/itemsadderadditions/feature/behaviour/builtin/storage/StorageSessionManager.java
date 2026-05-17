@@ -7,6 +7,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,6 +41,7 @@ public final class StorageSessionManager {
 
     public StorageSessionManager(
             int rows,
+            @Nullable InventoryType inventoryType,
             Component title,
             StorageType storageType,
             NamespacedKey contentsKey,
@@ -51,7 +53,7 @@ public final class StorageSessionManager {
     ) {
         this.storageType = storageType;
         this.openVariantTransformer = openVariantTransformer;
-        this.inventories = new StorageInventoryResolver(sessions, rows, title, storageType, contentsKey, plugin);
+        this.inventories = new StorageInventoryResolver(sessions, rows, inventoryType, title, storageType, contentsKey, plugin);
         this.persister = new StorageSessionPersister(
                 plugin, storageType, contentsKey, originalNamespacedId, openVariantTransformer);
         this.sounds = new StorageSoundPlayer(openSound, closeSound);
