@@ -31,8 +31,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Run unit tests
-        run: ./gradlew jacocoTestReport --refresh-dependencies --no-daemon
+      - name: Run unit tests with coverage
+        run: ./gradlew test jacocoTestReport --refresh-dependencies --no-daemon
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

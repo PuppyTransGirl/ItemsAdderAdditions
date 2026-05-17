@@ -1,5 +1,6 @@
 plugins {
     java
+    jacoco
 }
 
 repositories {
@@ -29,4 +30,16 @@ tasks.withType<JavaCompile>().configureEach {
 tasks.withType<Javadoc>().configureEach {
     isFailOnError = false
     options.encoding = "UTF-8"
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.test {
+    finalizedBy("jacocoTestReport")
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }

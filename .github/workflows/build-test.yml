@@ -60,7 +60,7 @@ jobs:
         env:
           SNAPSHOT: true
           GITHUB_SHA: ${{ github.sha }}
-        run: ./gradlew shadowJar javadocJar sourcesJar --no-daemon --stacktrace
+        run: ./gradlew shadowJar javadoc sourcesJar --no-daemon --stacktrace
 
       - name: Upload Plugin JAR
         uses: actions/upload-artifact@v6
