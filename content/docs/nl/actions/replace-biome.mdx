@@ -1,0 +1,171 @@
+---
+title: Bioom vervangen
+description: Verander het bioom in een gebied als een ItemsAdder-actie.
+version: "1.0.7"
+---
+
+```yaml
+replace_biome:
+  biome: "minecraft:cherry_grove"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+Verander het bioom in een geselecteerd gebied wanneer een ItemsAdder-gebeurtenis wordt geactiveerd.
+
+## Parameters
+
+### `biome`
+
+Het toe te passen bioom.
+
+Gebruik een geldig bioom-namespaced ID zoals `minecraft:plains`, `minecraft:desert` of `minecraft:cherry_grove`.
+Je kunt ook biomen van aangepaste plugins/datapacks gebruiken.
+
+```yaml
+replace_biome:
+  biome: "minecraft:desert"
+```
+
+### `shape`
+
+De vorm die wordt gebruikt voor het bioomvervangingsgebied.
+
+Ondersteunde vormen:
+
+- `CUBOID`
+- `RHOMBUS`
+- `SPHERE`
+- `CYLINDER`
+- `SHELL`
+- `TORUS`
+- `CONE`
+- `BEAM`
+- `PYRAMID`
+
+```yaml
+replace_biome:
+  biome: "minecraft:swamp"
+  shape: CYLINDER
+```
+
+### `radius`
+
+Bepaalt de grootte van de vorm.
+
+Er zijn twee ondersteunde straalformaten, afhankelijk van de vorm en hoe je het wilt configureren.
+
+#### Uniforme straal
+
+Handig voor ronde vormen zoals `SPHERE`.
+
+```yaml
+replace_biome:
+  biome: "minecraft:snowy_taiga"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+#### Straal per as
+
+Handig voor uitgerekte of aangepast formaat vormen.
+
+```yaml
+replace_biome:
+  biome: "minecraft:jungle"
+  shape: CUBOID
+  radius:
+    x: 5
+    y: 4
+    z: 3
+```
+
+## Vormopmerkingen
+
+Sommige vormen zijn rotatiegebaseerd:
+
+- `PYRAMID`
+- `BEAM`
+- `CONE`
+
+Deze vormen worden beinvloed door de rotatie van de speler wanneer de actie wordt uitgevoerd.
+
+Voor deze vormen bepalen `x`, `y` en `z` nog steeds de uiteindelijke vormdimensies, ook al is de vorm gebaseerd op de kijkrichting van de speler.
+
+## Compatibiliteit beschermplugins
+
+Locaties waar de speler geen bouwrechten heeft (gecontroleerd via [AntiGriefLib](https://github.com/MomirealmsLib/AntiGriefLib)) worden stilzwijgend overgeslagen. Ondersteunde plugins zijn onder andere WorldGuard, GriefPrevention, Towny, GriefDefender, RedProtect en andere plugins ondersteund door AntiGriefLib.
+
+## Belangrijke beperking
+
+Minecraft bioombewerking is niet perfect precies op kleine schaal. Het resultaat kan er iets willekeurig of ruw uitzien, vooral bij kleine straalwaarden. Dit is een beperking van het spel.
+
+- Kleine `SPHERE`-vormen zien er misschien niet perfect bolvormig uit.
+- Directionele vormen kunnen er iets ongelijkmatig uitzien.
+- Sommige randen kunnen er ruw uitzien.
+
+Met een grotere straal ziet de vorm er veel dichter bij het verwachte resultaat uit.
+
+## Voorbeelden
+
+### Bol
+
+```yaml
+replace_biome:
+  biome: "minecraft:mushroom_fields"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 6
+```
+
+### Quader
+
+```yaml
+replace_biome:
+  biome: "minecraft:badlands"
+  shape: CUBOID
+  radius:
+    x: 5
+    y: 4
+    z: 3
+```
+
+### Straal gebaseerd op spelerrotatie
+
+```yaml
+replace_biome:
+  biome: "minecraft:nether_wastes"
+  shape: BEAM
+  radius:
+    x: 12
+    y: 2
+    z: 2
+```
+
+### Kegel gebaseerd op spelerrotatie
+
+```yaml
+replace_biome:
+  biome: "minecraft:soul_sand_valley"
+  shape: CONE
+  radius:
+    x: 10
+    y: 4
+    z: 4
+```
+
+## Volledig voorbeeld
+
+```yaml
+my_item:
+  events:
+    interact:
+      right:
+        replace_biome:
+          biome: "minecraft:cherry_grove"
+          shape: SPHERE
+          radius:
+            blocks_from_center: 5
+```

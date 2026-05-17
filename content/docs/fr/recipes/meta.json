@@ -1,0 +1,9 @@
+{
+  "title": "Recettes",
+  "icon": "Menu",
+  "pages": [
+    "campfire-cooking",
+    "...",
+    "stonecutter"
+  ]
+}

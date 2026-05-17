@@ -1,6 +1,25 @@
 import type {BaseLayoutProps} from 'fumadocs-ui/layouts/shared';
-import {appName, gitConfig} from './shared';
+import type {LayoutTab} from 'fumadocs-ui/layouts/shared';
+import {appName, gitConfig, localizedDocsRoute} from './shared';
 import Image from 'next/image';
+
+export const langTabs: LayoutTab[] = [
+    {
+        title: 'English',
+        url: localizedDocsRoute('en'),
+        icon: <span className="text-base leading-none">🇬🇧</span>,
+    },
+    {
+        title: 'Français',
+        url: localizedDocsRoute('fr'),
+        icon: <span className="text-base leading-none">🇫🇷</span>,
+    },
+    {
+        title: 'Nederlands',
+        url: localizedDocsRoute('nl'),
+        icon: <span className="text-base leading-none">🇳🇱</span>,
+    },
+];
 
 export function baseOptions(): BaseLayoutProps {
     return {

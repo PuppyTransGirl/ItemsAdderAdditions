@@ -1,0 +1,26 @@
+---
+title: Tirer une boule de feu
+description: Tirer une boule de feu depuis un joueur ou une entité en tant qu'action ItemsAdder.
+version: "1.0.2"
+---
+
+```yaml
+shoot_fireball:
+  power: 1
+  speed: 2.0 # optionnel, défaut : 1.0
+  fire: false # optionnel, défaut : true
+```
+
+## Paramètres
+
+### `power`
+
+Obligatoire. La puissance d'explosion de la boule de feu.
+
+### `speed`
+
+Optionnel. Par défaut : `1.0`. Le multiplicateur de vitesse du projectile.
+
+### `fire`
+
+Optionnel. Par défaut : `true`. Si la boule de feu laisse du feu à l'impact.

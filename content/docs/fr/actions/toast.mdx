@@ -1,0 +1,30 @@
+---
+title: Toast
+description: Afficher une notification de style avancement à un joueur en tant qu'action ItemsAdder.
+version: "1.0.0"
+---
+
+```yaml
+toast:
+  icon: my_item
+  text:
+    - "<white>Mon <gradient:#AC52D4:#6C3484>ItemsAdderAdditions"
+    - "<#E6FBFE><bold>Toast personnalisé"
+  frame: "task" # optionnel, défaut : goal
+```
+
+## Paramètres
+
+### `icon`
+
+Obligatoire. L'objet affiché comme icône du toast. Utilisez un matériau vanilla depuis [cette liste](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), ou un objet ItemsAdder personnalisé avec `namespace:id` ou simplement `id`.
+
+### `text`
+
+Obligatoire. Le message du toast. Peut être une chaîne unique ou une liste (une entrée par ligne). Supporte [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police.
+
+### `frame`
+
+Optionnel. Par défaut : `goal`. Le style du toast : `task`, `goal` ou `challenge`.
+
+<VideoGif src="/assets/actions_toast_example"/>

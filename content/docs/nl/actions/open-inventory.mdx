@@ -1,0 +1,29 @@
+---
+title: Inventaris openen
+description: Open een vanilla-werkstation-GUI voor een speler als ItemsAdder-actie.
+version: "1.0.0"
+---
+
+<Callout type="warn">
+    Vereist Paper 1.21.4 of hoger voor de `title`-parameter.
+</Callout>
+
+```yaml
+open_inventory:
+  type: "anvil"
+  title: "<blue>Mijn geweldige aangepaste aambeeld" # Optioneel
+```
+
+Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/)-opmaak, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi)-placeholders en [ItemsAdder](https://itemsadder.com/)-lettertypeafbeeldingen.
+
+## Ondersteunde typen
+
+- `anvil`
+- `cartography`, `cartography_table`
+- `crafting_table`, `workbench`
+- `enchanting`, `enchanting_table`
+- `ender_chest`
+- `grindstone`
+- `loom`
+- `smithing`, `smithing_table`
+- `stonecutter`

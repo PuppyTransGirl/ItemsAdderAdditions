@@ -1,0 +1,36 @@
+---
+title: Titre
+description: Afficher un titre et un sous-titre à l'écran en tant qu'action ItemsAdder.
+version: "1.0.0"
+---
+
+```yaml
+title:
+  title: "<bold><gold>Bienvenue !"
+  subtitle: "<gray>Bonne visite" # optionnel
+  fade_in: 5 # optionnel, défaut : 10 ticks
+  stay: 40 # optionnel, défaut : 70 ticks
+  fade_out: 30 # optionnel, défaut : 20 ticks
+```
+
+## Paramètres
+
+### `title`
+
+Obligatoire. Le grand texte du titre. Supporte [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police.
+
+### `subtitle`
+
+Optionnel. Le texte plus petit affiché sous le titre. Supporte MiniMessage, PlaceholderAPI et les images de police.
+
+### `fade_in`
+
+Optionnel. Par défaut : `10` ticks. Durée de fondu à l'entrée.
+
+### `stay`
+
+Optionnel. Par défaut : `70` ticks. Durée d'affichage du titre à l'écran.
+
+### `fade_out`
+
+Optionnel. Par défaut : `20` ticks. Durée de fondu à la sortie.

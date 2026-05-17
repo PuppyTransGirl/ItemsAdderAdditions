@@ -1,0 +1,66 @@
+---
+title: /iatrademachine
+description: Ouvrir une interface de machine à échange ItemsAdder pour un joueur sans avoir besoin du bloc dans le monde.
+version: "1.0.7"
+---
+
+## `/iatrademachine`
+
+Ouvrir une interface `trade_machine` ou `block_trade_machine` ItemsAdder pour un joueur sans que le bloc ou meuble physique soit placé dans le monde.
+
+Utile si vous souhaitez ouvrir différentes interfaces de machines à échange via d'autres plugins tels que des systèmes de menus, des NPCs ou des flux de commandes personnalisés.
+
+## Syntaxe
+
+```text
+/iatrademachine <joueur> <namespace:id> [-silent]
+```
+
+## Paramètres
+
+### `<joueur>`
+
+Le joueur en ligne pour lequel ouvrir la machine à échange.
+
+### `<namespace:id>`
+
+L'ID du bloc ou meuble personnalisé qui possède un comportement `trade_machine` ou `block_trade_machine`.
+
+Exemple :
+
+```text
+stations:alchemy_table
+```
+
+### `-silent`
+
+Indicateur optionnel.
+
+S'il est ajouté, la commande supprime le message de confirmation normalement envoyé à l'exécuteur de la commande.
+
+## Exemples
+
+```text
+/iatrademachine twinkycome stations:alchemy_table
+```
+
+```text
+/iatrademachine twinkycome stations:alchemy_table -silent
+```
+
+## Permission
+
+```text
+ia.admin.iatrademachine
+```
+
+## Notes
+
+- Fonctionne depuis les joueurs et la console.
+- Nécessite que l'ID cible ait un comportement `trade_machine` ou `block_trade_machine`.
+- L'ID complet avec namespace doit être utilisé.
+- Si l'ID n'a pas de comportement de machine à échange supporté, la commande échoue.
+
+## Exemple d'utilisation
+
+Combinez cette commande avec un plugin GUI tel que DeluxeMenus pour créer un menu de sélection de catégories qui ouvre directement différentes machines à échange, au lieu de faire défiler les joueurs dans une grande interface de machine à échange.

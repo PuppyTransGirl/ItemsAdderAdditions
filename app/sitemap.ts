@@ -1,16 +1,18 @@
 import {source} from '@/lib/source';
+import {languages} from '@/lib/shared';
 import type {MetadataRoute} from 'next';
 
 export const dynamic = 'force-static'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const pages = source.getPages();
-    const docPages = pages.map((page) => ({
-        url: `https://itemsadderadditions.com/docs/${page.slugs.join('/')}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: page.slugs.length === 0 ? 0.9 : 0.7,
-    }));
+    const docPages = languages.flatMap((lang) =>
+        source.getPages(lang).map((page) => ({
+            url: `https://itemsadderadditions.com${page.url}`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: page.slugs.length === 0 ? 0.9 : 0.7,
+        }))
+    );
 
     return [
         {

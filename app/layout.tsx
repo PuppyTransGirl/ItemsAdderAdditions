@@ -1,5 +1,6 @@
 import {RootProvider} from 'fumadocs-ui/provider/next';
 import StaticSearchDialog from '@/components/search';
+import {ClipboardPolyfill} from '@/components/clipboard-polyfill';
 import './global.css';
 import {Inter} from 'next/font/google';
 import type {Metadata} from 'next';
@@ -14,20 +15,24 @@ export const metadata: Metadata = {
     metadataBase: new URL('https://itemsadderadditions.com'),
     title: {
         template: '%s | ItemsAdderAdditions',
-        default: 'ItemsAdderAdditions - ItemsAdder Plugin Addon for Minecraft Servers',
+        default: 'ItemsAdderAdditions - Free ItemsAdder Addons for Minecraft Servers',
     },
-    description: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with custom behaviours, actions, and features - configured directly inside your existing YML files. No restart needed.',
+    description: 'Free ItemsAdder addons for Minecraft servers. Add contact damage, storage containers, connectable furniture, veinminer, MythicMobs skills, and more, directly in your existing YML files. No restart needed.',
     keywords: [
+        'ItemsAdder addons',
         'ItemsAdder addon',
-        'ItemsAdder plugin',
+        'ItemsAdder addon free',
+        'free ItemsAdder addon',
+        'ItemsAdder plugin addon',
         'ItemsAdderAdditions',
-        'Minecraft custom items plugin',
+        'ItemsAdder extension',
         'ItemsAdder behaviours',
         'ItemsAdder actions',
+        'items adder addon',
+        'Minecraft custom items plugin',
         'Minecraft server plugin',
         'Paper plugin',
         'SpigotMC plugin',
-        'ItemsAdder extension',
         'custom blocks Minecraft',
         'custom furniture Minecraft',
     ],
@@ -37,14 +42,14 @@ export const metadata: Metadata = {
         siteName: 'ItemsAdderAdditions',
         url: 'https://itemsadderadditions.com',
         type: 'website',
-        title: 'ItemsAdderAdditions - ItemsAdder Plugin Addon for Minecraft Servers',
-        description: 'Extend ItemsAdder with custom behaviours, actions, and features - configured directly in your existing YML files. No restart needed.',
+        title: 'ItemsAdderAdditions - Free ItemsAdder Addons for Minecraft Servers',
+        description: 'Free ItemsAdder addons for Minecraft servers. Add contact damage, storage, connectable furniture, veinminer, MythicMobs skills, and more, in your existing YML files.',
         locale: 'en_US',
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'ItemsAdderAdditions - ItemsAdder Plugin Addon',
-        description: 'Extend ItemsAdder with custom behaviours, actions, and features - configured in your existing YML files.',
+        title: 'ItemsAdderAdditions - Free ItemsAdder Addons',
+        description: 'Free ItemsAdder addons: contact damage, storage, connectable furniture, veinminer, MythicMobs skills, and more.',
     },
     icons: {
         icon: '/favicon.ico',
@@ -71,6 +76,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     return (
         <html lang="en" className={inter.className} suppressHydrationWarning>
         <body className="flex flex-col min-h-screen">
+        <ClipboardPolyfill/>
         <RootProvider search={{ SearchDialog: StaticSearchDialog }}>{children}</RootProvider>
         <GoogleAnalytics gaId="G-XJSY3N88FX" />
         </body>

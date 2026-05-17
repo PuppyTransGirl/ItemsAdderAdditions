@@ -1,6 +1,11 @@
 'use client';
 
-import {useCallback, useState} from 'react';
+import {createContext, useCallback, useContext, useState} from 'react';
+import {builderTranslations} from '@/lib/builder-i18n';
+import type {BuilderTranslations} from '@/lib/builder-i18n';
+
+const TCtx = createContext<BuilderTranslations>(builderTranslations.en);
+const useT = () => useContext(TCtx);
 
 type FieldType = 'text' | 'number' | 'select' | 'textarea';
 type Mode = 'action' | 'behaviour' | 'recipe' | 'worldgen';
@@ -144,7 +149,7 @@ const ACTIONS: Record<string, FieldDef[]> = {
         },
     ],
     mythic_mobs_skill: [
-        {k: 'skill', l: 'skill name', t: 'text', r: true, p: 'mega_attack'},
+        {k: 'skill', l: '__skillName', t: 'text', r: true, p: 'mega_attack'},
         {k: 'power', l: 'power', t: 'number', r: false, p: '1.0', h: 'default: 1.0'},
     ],
     open_inventory: [
@@ -158,10 +163,10 @@ const ACTIONS: Record<string, FieldDef[]> = {
         {k: 'title', l: 'title', t: 'text', r: false, p: '<blue>Custom title', h: 'Requires Paper 1.21.4+'},
     ],
     play_animation: [
-        {k: 'name', l: 'animation name', t: 'text', r: true, p: 'spin'},
+        {k: 'name', l: '__animationName', t: 'text', r: true, p: 'spin'},
     ],
     play_emote: [
-        {k: 'name', l: 'emote name', t: 'text', r: true, p: 'wave'},
+        {k: 'name', l: '__emoteName', t: 'text', r: true, p: 'wave'},
     ],
     replace_biome: [
         {k: 'biome', l: 'biome', t: 'text', r: true, p: 'minecraft:cherry_grove'},
@@ -174,7 +179,7 @@ const ACTIONS: Record<string, FieldDef[]> = {
         },
         {
             k: 'radius_mode',
-            l: 'radius format',
+            l: '__radiusFormat',
             t: 'select',
             r: true,
             opts: ['blocks_from_center', 'xyz'],
@@ -210,7 +215,7 @@ const ACTIONS: Record<string, FieldDef[]> = {
     ],
     toast: [
         {k: 'icon', l: 'icon', t: 'text', r: true, p: 'minecraft:diamond or namespace:item'},
-        {k: 'text', l: 'text (one per line)', t: 'textarea', r: true, p: '<white>Line one\n<bold>Line two'},
+        {k: 'text', l: '__textOneLine', t: 'textarea', r: true, p: '<white>Line one\n<bold>Line two'},
         {k: 'frame', l: 'frame', t: 'select', r: false, opts: ['', 'task', 'goal', 'challenge'], h: 'default: goal'},
     ],
     veinminer: [{k: 'max_blocks', l: 'max_blocks', t: 'number', r: true, p: '16'}],
@@ -243,21 +248,42 @@ function CheckToggle({label, checked, onChange}: { label: string; checked: boole
 
 const inputCls = 'w-full rounded-md border border-fd-border bg-fd-background px-2 py-1.5 text-sm text-fd-foreground focus:outline-none focus:ring-1 focus:ring-fd-ring';
 
+const LABEL_KEYS: Record<string, keyof BuilderTranslations> = {
+    __skillName: 'labelSkillName',
+    __animationName: 'labelAnimationName',
+    __emoteName: 'labelEmoteName',
+    __radiusFormat: 'labelRadiusFormat',
+    __textOneLine: 'labelTextOneLine',
+    __itemsOneLine: 'labelItemsOneLine',
+    __blockIdsOneLine: 'labelBlockIdsOneLine',
+    __slotsOneLine: 'labelSlotsOneLine',
+    __displayId: 'labelDisplayId',
+    __ingredientItem: 'labelIngredientItem',
+    __resultItem: 'labelResultItem',
+    __resultAmount: 'labelResultAmount',
+    __recipeId: 'labelRecipeId',
+    __entryId: 'labelEntryId',
+    __worldsOneLine: 'labelWorldsOneLine',
+    __biomesOneLine: 'labelBiomesOneLine',
+};
+
 function Field({def, value, onChange}: { def: FieldDef; value: string; onChange: (v: string) => void }) {
+    const t = useT();
+    const label = def.l.startsWith('__') ? String(t[LABEL_KEYS[def.l] ?? 'labelTextOneLine']) : def.l;
     return (
         <div className="flex flex-col gap-1">
             <label className="flex items-center gap-1.5 text-xs text-fd-muted-foreground">
-                {def.l}
+                {label}
                 {def.r ? (
-                    <span className="text-[10px] text-red-500">required</span>
+                    <span className="text-[10px] text-red-500">{t.badgeRequired}</span>
                 ) : (
                     <span
-                        className="rounded px-1 py-0.5 text-[10px] bg-fd-muted text-fd-muted-foreground">optional</span>
+                        className="rounded px-1 py-0.5 text-[10px] bg-fd-muted text-fd-muted-foreground">{t.badgeOptional}</span>
                 )}
             </label>
             {def.t === 'select' ? (
                 <select value={value} onChange={e => onChange(e.target.value)} className={inputCls}>
-                    {(def.opts ?? []).map(o => <option key={o} value={o}>{o || '(default)'}</option>)}
+                    {(def.opts ?? []).map(o => <option key={o} value={o}>{o || t.selectDefault}</option>)}
                 </select>
             ) : def.t === 'textarea' ? (
                 <textarea
@@ -283,7 +309,7 @@ function Field({def, value, onChange}: { def: FieldDef; value: string; onChange:
 
 function SoundFields({sound: s, onChange}: {
     sound: { sound_name: string; sound_volume: string; sound_pitch: string; sound_category: string };
-    onChange: (k: string, v: string) => void
+    onChange: (k: string, v: string) => void;
 }) {
     return (
         <div className="flex flex-col gap-3">
@@ -315,15 +341,16 @@ function PotionEffectFields({pe, index, onChange, onRemove}: {
     pe: PotionEffect;
     index: number;
     onChange: (k: keyof PotionEffect, v: string) => void;
-    onRemove: () => void
+    onRemove: () => void;
 }) {
+    const t = useT();
     return (
         <div className="flex flex-col gap-3 rounded-lg border border-fd-border p-3">
             <div className="flex items-center justify-between">
                 <span
                     className="text-xs font-medium text-fd-muted-foreground">{index === 0 ? 'potion_effect' : `potion_effect_${index}`}</span>
                 {index > 0 && <button onClick={onRemove}
-                                      className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">Remove</button>}
+                                      className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">{t.remove}</button>}
             </div>
             <Field def={{k: 'type', l: 'type', t: 'text', r: true, p: 'POISON', h: 'e.g. POISON, WITHER, NAUSEA'}}
                    value={pe.type} onChange={v => onChange('type', v)}/>
@@ -363,22 +390,23 @@ function StackStepFields({step, index, onChange, onRemove}: {
     step: StackStep;
     index: number;
     onChange: (k: keyof StackStep, v: string) => void;
-    onRemove: () => void
+    onRemove: () => void;
 }) {
+    const t = useT();
     const [showSound, setShowSound] = useState(false);
     return (
         <div className="flex flex-col gap-3 rounded-lg border border-fd-border p-3">
             <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-fd-muted-foreground">step_{index + 1}</span>
                 <button onClick={onRemove}
-                        className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">Remove
+                        className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">{t.remove}
                 </button>
             </div>
             <Field def={{k: 'block', l: 'block', t: 'text', r: true, p: 'namespace:block_next'}} value={step.block}
                    onChange={v => onChange('block', v)}/>
             <Field def={{
                 k: 'items',
-                l: 'items (one per line)',
+                l: '__itemsOneLine',
                 t: 'textarea',
                 r: false,
                 p: 'namespace:my_item\nBONE_MEAL',
@@ -386,7 +414,7 @@ function StackStepFields({step, index, onChange, onRemove}: {
             }} value={step.items} onChange={v => onChange('items', v)}/>
             <Field def={{k: 'decrement_amount', l: 'decrement_amount', t: 'number', r: false, p: '1', h: 'default: 1'}}
                    value={step.decrement_amount} onChange={v => onChange('decrement_amount', v)}/>
-            <CheckToggle label="Add sound" checked={showSound} onChange={setShowSound}/>
+            <CheckToggle label={t.toggleAddSound} checked={showSound} onChange={setShowSound}/>
             {showSound && (
                 <SubSection>
                     <SoundFields sound={{
@@ -405,8 +433,9 @@ function TextDisplayEntryFields({entry, index, onChange, onRemove}: {
     entry: TextDisplayEntry;
     index: number;
     onChange: (k: keyof TextDisplayEntry, v: string) => void;
-    onRemove: () => void
+    onRemove: () => void;
 }) {
+    const t = useT();
     const [showAdvanced, setShowAdvanced] = useState(false);
     return (
         <div className="flex flex-col gap-3 rounded-lg border border-fd-border p-3">
@@ -414,14 +443,14 @@ function TextDisplayEntryFields({entry, index, onChange, onRemove}: {
                 <span
                     className="text-xs font-medium text-fd-muted-foreground">{entry.id || `display_${index + 1}`}</span>
                 <button onClick={onRemove}
-                        className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">Remove
+                        className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">{t.remove}
                 </button>
             </div>
-            <Field def={{k: 'id', l: 'display id', t: 'text', r: true, p: 'label'}} value={entry.id}
+            <Field def={{k: 'id', l: '__displayId', t: 'text', r: true, p: 'label'}} value={entry.id}
                    onChange={v => onChange('id', v)}/>
             <Field def={{
                 k: 'text',
-                l: 'text (one per line)',
+                l: '__textOneLine',
                 t: 'textarea',
                 r: true,
                 p: '<yellow>Hello!',
@@ -468,7 +497,7 @@ function TextDisplayEntryFields({entry, index, onChange, onRemove}: {
                 p: '0',
                 h: 'ticks · 0 = disabled'
             }} value={entry.refresh_interval} onChange={v => onChange('refresh_interval', v)}/>
-            <CheckToggle label="Advanced options" checked={showAdvanced} onChange={setShowAdvanced}/>
+            <CheckToggle label={t.toggleAdvancedOptions} checked={showAdvanced} onChange={setShowAdvanced}/>
             {showAdvanced && (
                 <SubSection>
                     <Field def={{
@@ -504,15 +533,16 @@ function TextDisplayEntryFields({entry, index, onChange, onRemove}: {
 function CraftingIngredientRow({char, ing, onChange}: {
     char: string;
     ing: CraftingIngredient;
-    onChange: (k: keyof CraftingIngredient, v: string) => void
+    onChange: (k: keyof CraftingIngredient, v: string) => void;
 }) {
+    const t = useT();
     const [showAdv, setShowAdv] = useState(false);
     return (
         <div className="flex flex-col gap-3 rounded-lg border border-fd-border p-3">
             <span className="font-mono text-xs font-semibold text-fd-muted-foreground">{char}</span>
             <Field def={{k: `ing_${char}_item`, l: 'item', t: 'text', r: false, p: 'STICK or namespace:item or #tag'}}
                    value={ing.item} onChange={v => onChange('item', v)}/>
-            <CheckToggle label="Advanced options" checked={showAdv} onChange={setShowAdv}/>
+            <CheckToggle label={t.toggleAdvancedOptions} checked={showAdv} onChange={setShowAdv}/>
             {showAdv && (
                 <SubSection>
                     <Field def={{
@@ -559,22 +589,23 @@ function ShapelessIngredientFields({ing, index, onChange, onRemove}: {
     ing: ShapelessIngredient;
     index: number;
     onChange: (k: keyof ShapelessIngredient, v: string) => void;
-    onRemove: () => void
+    onRemove: () => void;
 }) {
+    const t = useT();
     const [showAdvanced, setShowAdvanced] = useState(false);
     return (
         <div className="flex flex-col gap-3 rounded-lg border border-fd-border p-3">
             <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-fd-muted-foreground">ingredient {index + 1}</span>
+                <span className="text-xs font-medium text-fd-muted-foreground">{t.labelIngredientN(index + 1)}</span>
                 <button onClick={onRemove}
-                        className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">Remove
+                        className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">{t.remove}
                 </button>
             </div>
             <Field def={{k: 'item', l: 'item', t: 'text', r: true, p: 'STICK or namespace:item or #tag'}}
                    value={ing.item} onChange={v => onChange('item', v)}/>
             <Field def={{k: 'amount', l: 'amount', t: 'number', r: false, p: '1', h: 'default: 1'}} value={ing.amount}
                    onChange={v => onChange('amount', v)}/>
-            <CheckToggle label="Advanced options" checked={showAdvanced} onChange={setShowAdvanced}/>
+            <CheckToggle label={t.toggleAdvancedOptions} checked={showAdvanced} onChange={setShowAdvanced}/>
             {showAdvanced && (
                 <SubSection>
                     <Field def={{
@@ -1110,7 +1141,8 @@ function resetAll(
     setShapelessIngredients([emptyShapeless()]);
 }
 
-export function Builder() {
+export function Builder({locale = 'en'}: { locale?: string }) {
+    const t = builderTranslations[locale] ?? builderTranslations.en;
     const [mode, setMode] = useState<Mode>('action');
     const [actionType, setActionType] = useState('actionbar');
     const [behaviourType, setBehaviourType] = useState('contact_damage');
@@ -1184,11 +1216,23 @@ export function Builder() {
         });
     };
 
-    const copy = () =>
-        navigator.clipboard.writeText(yaml).then(() => {
+    const copy = () => {
+        const done = () => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        });
+        };
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(yaml).then(done);
+        } else {
+            const el = document.createElement('textarea');
+            el.value = yaml;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            done();
+        }
+    };
 
     const connType = values['conn_type'] ?? 'stair';
     const connKeys = connType === 'table' ? TABLE_KEYS : STAIR_KEYS;
@@ -1199,10 +1243,10 @@ export function Builder() {
     const usedChars = [...new Set(craftingGrid.filter(c => c.trim()))].sort();
 
     const modeLabel: Record<Mode, string> = {
-        action: 'Actions',
-        behaviour: 'Behaviours',
-        recipe: 'Recipes',
-        worldgen: 'World Gen'
+        action: t.tabActions,
+        behaviour: t.tabBehaviours,
+        recipe: t.tabRecipes,
+        worldgen: t.tabWorldGen,
     };
     const behaviourTypes: Record<string, number> = {
         bed: 1,
@@ -1216,6 +1260,7 @@ export function Builder() {
     const worldgenTypes: Record<string, number> = {blocks_populators: 1, surface_decorators: 1};
 
     return (
+        <TCtx.Provider value={t}>
         <div className="my-6 flex flex-col gap-4 not-prose">
             <div className="flex gap-1 rounded-lg border border-fd-border bg-fd-muted p-1 w-fit">
                 {(['action', 'behaviour', 'recipe', 'worldgen'] as const).map(m => (
@@ -1245,7 +1290,7 @@ export function Builder() {
                     {/* ── Actions ─────────────────────────────────────────── */}
                     {mode === 'action' && (
                         <>
-                            <SectionLabel>Parameters</SectionLabel>
+                            <SectionLabel>{t.sectionParameters}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 {actionType === 'replace_biome' ? (
                                     <>
@@ -1270,9 +1315,7 @@ export function Builder() {
                                                        onChange={v => setVal('radius_z', v)}/>
                                             </>
                                         )}
-                                        <p className="text-[11px] text-fd-muted-foreground">Note: Minecraft biome
-                                            editing is not perfectly exact at small scales. Small shapes may look a bit
-                                            randomized or rough.</p>
+                                        <p className="text-[11px] text-fd-muted-foreground">{t.noteReplaceBiome}</p>
                                     </>
                                 ) : (
                                     ACTIONS[actionType]?.map(f => <Field key={f.k} def={f} value={values[f.k] ?? ''}
@@ -1281,7 +1324,7 @@ export function Builder() {
                             </div>
 
                             <Divider/>
-                            <SectionLabel>Universal parameters</SectionLabel>
+                            <SectionLabel>{t.sectionUniversalParameters}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 <Field def={{k: 'permission', l: 'permission', t: 'text', r: false, p: 'myplugin.use'}}
                                        value={values['permission'] ?? ''} onChange={v => setVal('permission', v)}/>
@@ -1330,10 +1373,10 @@ export function Builder() {
                     {/* ── Behaviours ──────────────────────────────────────── */}
                     {mode === 'behaviour' && behaviourType === 'bed' && (
                         <>
-                            <SectionLabel>Parameters</SectionLabel>
+                            <SectionLabel>{t.sectionParameters}</SectionLabel>
                             <Field def={{
                                 k: 'bed_slots',
-                                l: 'slots (one per line)',
+                                l: '__slotsOneLine',
                                 t: 'textarea',
                                 r: false,
                                 p: '0,0,0\n0,0,1',
@@ -1344,7 +1387,7 @@ export function Builder() {
 
                     {mode === 'behaviour' && behaviourType === 'contact_damage' && (
                         <>
-                            <SectionLabel>Parameters</SectionLabel>
+                            <SectionLabel>{t.sectionParameters}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 <Field def={{k: 'amount', l: 'amount', t: 'number', r: true, p: '1.0'}}
                                        value={values['amount'] ?? ''} onChange={v => setVal('amount', v)}/>
@@ -1375,7 +1418,7 @@ export function Builder() {
                                        onChange={v => setVal('damage_when_sneaking', v)}/>
                             </div>
                             <Divider/>
-                            <CheckToggle label="Configure block_faces" checked={!!extras['faces']}
+                            <CheckToggle label={t.toggleConfigureBlockFaces} checked={!!extras['faces']}
                                          onChange={v => setExtra('faces', v)}/>
                             {extras['faces'] && (
                                 <SubSection>
@@ -1393,7 +1436,8 @@ export function Builder() {
                                 </SubSection>
                             )}
                             <Divider/>
-                            <CheckToggle label="Configure potion effects" checked={!!extras['potions']} onChange={v => {
+                            <CheckToggle label={t.toggleConfigurePotionEffects} checked={!!extras['potions']}
+                                         onChange={v => {
                                 setExtra('potions', v);
                                 if (v && potions.length === 0) setPotions([emptyPotion()]);
                             }}/>
@@ -1403,8 +1447,8 @@ export function Builder() {
                                                                                   onChange={(k, v) => updatePotion(idx, k, v)}
                                                                                   onRemove={() => removePotion(idx)}/>)}
                                     <button onClick={() => setPotions(prev => [...prev, emptyPotion()])}
-                                            className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">+
-                                        Add potion effect
+                                            className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">
+                                        {t.addPotionEffect}
                                     </button>
                                 </div>
                             )}
@@ -1413,7 +1457,7 @@ export function Builder() {
 
                     {mode === 'behaviour' && behaviourType === 'storage' && (
                         <>
-                            <SectionLabel>Parameters</SectionLabel>
+                            <SectionLabel>{t.sectionParameters}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 <Field def={{
                                     k: 'type',
@@ -1443,7 +1487,7 @@ export function Builder() {
                                 }} value={values['open_variant'] ?? ''} onChange={v => setVal('open_variant', v)}/>
                             </div>
                             <Divider/>
-                            <CheckToggle label="Add open_sound" checked={!!extras['open_sound']}
+                            <CheckToggle label={t.toggleAddOpenSound} checked={!!extras['open_sound']}
                                          onChange={v => setExtra('open_sound', v)}/>
                             {extras['open_sound'] && <SubSection><SoundFields sound={{
                                 sound_name: values['open_sound_name'] ?? '',
@@ -1452,7 +1496,7 @@ export function Builder() {
                                 sound_category: values['open_sound_category'] ?? ''
                             }} onChange={(k, v) => setVal(`open_sound_${k.replace('sound_', '')}`, v)}/></SubSection>}
                             <Divider/>
-                            <CheckToggle label="Add close_sound" checked={!!extras['close_sound']}
+                            <CheckToggle label={t.toggleAddCloseSound} checked={!!extras['close_sound']}
                                          onChange={v => setExtra('close_sound', v)}/>
                             {extras['close_sound'] && <SubSection><SoundFields sound={{
                                 sound_name: values['close_sound_name'] ?? '',
@@ -1465,7 +1509,7 @@ export function Builder() {
 
                     {mode === 'behaviour' && behaviourType === 'stackable' && (
                         <>
-                            <SectionLabel>Format</SectionLabel>
+                            <SectionLabel>{t.sectionFormat}</SectionLabel>
                             <Field def={{
                                 k: 'stackable_mode',
                                 l: 'mode',
@@ -1477,10 +1521,10 @@ export function Builder() {
                             <Divider/>
                             {stackMode === 'simple' && (
                                 <>
-                                    <SectionLabel>Parameters</SectionLabel>
+                                    <SectionLabel>{t.sectionParameters}</SectionLabel>
                                     <Field def={{
                                         k: 'stack_blocks',
-                                        l: 'block IDs (one per line)',
+                                        l: '__blockIdsOneLine',
                                         t: 'textarea',
                                         r: true,
                                         p: 'namespace:block_2\nnamespace:block_3',
@@ -1490,11 +1534,11 @@ export function Builder() {
                             )}
                             {stackMode === 'complex' && (
                                 <>
-                                    <SectionLabel>Parameters</SectionLabel>
+                                    <SectionLabel>{t.sectionParameters}</SectionLabel>
                                     <div className="flex flex-col gap-3">
                                         <Field def={{
                                             k: 'stack_blocks',
-                                            l: 'block IDs (one per line)',
+                                            l: '__blockIdsOneLine',
                                             t: 'textarea',
                                             r: true,
                                             p: 'namespace:block_2\nnamespace:block_3',
@@ -1503,7 +1547,7 @@ export function Builder() {
                                                onChange={v => setVal('stack_blocks', v)}/>
                                         <Field def={{
                                             k: 'stack_items',
-                                            l: 'items (one per line)',
+                                            l: '__itemsOneLine',
                                             t: 'textarea',
                                             r: false,
                                             p: 'namespace:my_item\nBONE_MEAL',
@@ -1521,7 +1565,7 @@ export function Builder() {
                                                onChange={v => setVal('decrement_amount', v)}/>
                                     </div>
                                     <Divider/>
-                                    <CheckToggle label="Add sound" checked={!!extras['stack_sound']}
+                                    <CheckToggle label={t.toggleAddSound} checked={!!extras['stack_sound']}
                                                  onChange={v => setExtra('stack_sound', v)}/>
                                     {extras['stack_sound'] && <SubSection><SoundFields sound={{
                                         sound_name: values['stack_sound_name'] ?? '',
@@ -1534,15 +1578,15 @@ export function Builder() {
                             )}
                             {stackMode === 'full' && (
                                 <>
-                                    <SectionLabel>Steps</SectionLabel>
+                                    <SectionLabel>{t.sectionSteps}</SectionLabel>
                                     <div className="flex flex-col gap-3">
                                         {stackSteps.map((step, idx) => <StackStepFields key={idx} step={step}
                                                                                         index={idx}
                                                                                         onChange={(k, v) => updateStep(idx, k, v)}
                                                                                         onRemove={() => removeStep(idx)}/>)}
                                         <button onClick={() => setStackSteps(prev => [...prev, emptyStep()])}
-                                                className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">+
-                                            Add step
+                                                className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">
+                                            {t.addStep}
                                         </button>
                                     </div>
                                 </>
@@ -1552,15 +1596,11 @@ export function Builder() {
 
                     {mode === 'behaviour' && behaviourType === 'connectable' && (
                         <>
-                            <SectionLabel>Parameters</SectionLabel>
+                            <SectionLabel>{t.sectionParameters}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 <Field def={{k: 'conn_type', l: 'type', t: 'select', r: true, opts: ['stair', 'table']}}
                                        value={connType} onChange={v => setVal('conn_type', v)}/>
-                                <p className="text-[11px] text-fd-muted-foreground">
-                                    All variant IDs are optional. If omitted:<br/>
-                                    - <code>default</code> uses the furniture this behaviour is on<br/>
-                                    - every other type uses <code>{'<furniture_name>_<type>'}</code>
-                                </p>
+                                <p className="text-[11px] text-fd-muted-foreground">{t.noteConnectable}</p>
                                 {connKeys.map(k => (
                                     <Field key={k} def={{
                                         k: `conn_${k}`,
@@ -1577,7 +1617,7 @@ export function Builder() {
 
                     {mode === 'behaviour' && behaviourType === 'text_display' && (
                         <>
-                            <SectionLabel>Mode</SectionLabel>
+                            <SectionLabel>{t.sectionMode}</SectionLabel>
                             <Field def={{
                                 k: 'td_mode',
                                 l: 'mode',
@@ -1590,7 +1630,7 @@ export function Builder() {
 
                             {tdMode === 'single' ? (
                                 <>
-                                    <SectionLabel>Display</SectionLabel>
+                                    <SectionLabel>{t.sectionDisplay}</SectionLabel>
                                     <div className="flex flex-col gap-3">
                                         <Field def={{
                                             k: 'td_text',
@@ -1665,7 +1705,7 @@ export function Builder() {
                                                onChange={v => setVal('td_refresh_interval', v)}/>
                                     </div>
                                     <Divider/>
-                                    <CheckToggle label="Advanced options" checked={!!extras['td_advanced']}
+                                    <CheckToggle label={t.toggleAdvancedOptions} checked={!!extras['td_advanced']}
                                                  onChange={v => setExtra('td_advanced', v)}/>
                                     {extras['td_advanced'] && (
                                         <SubSection>
@@ -1701,7 +1741,7 @@ export function Builder() {
                                 </>
                             ) : (
                                 <>
-                                    <SectionLabel>Displays</SectionLabel>
+                                    <SectionLabel>{t.sectionDisplays}</SectionLabel>
                                     <div className="flex flex-col gap-3">
                                         {textDisplays.map((td, idx) => <TextDisplayEntryFields key={idx} entry={td}
                                                                                                index={idx}
@@ -1709,8 +1749,8 @@ export function Builder() {
                                                                                                onRemove={() => removeTextDisplay(idx)}/>)}
                                         <button
                                             onClick={() => setTextDisplays(prev => [...prev, emptyTextDisplay(`display_${prev.length + 1}`)])}
-                                            className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">+
-                                            Add display
+                                            className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">
+                                            {t.addDisplay}
                                         </button>
                                     </div>
                                 </>
@@ -1721,7 +1761,7 @@ export function Builder() {
                     {/* ── Recipes ─────────────────────────────────────────── */}
                     {mode === 'recipe' && (
                         <>
-                            <SectionLabel>Recipe info</SectionLabel>
+                            <SectionLabel>{t.sectionRecipeInfo}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 <Field def={{
                                     k: 'rcp_namespace',
@@ -1733,7 +1773,7 @@ export function Builder() {
                                 }} value={values['rcp_namespace'] ?? ''} onChange={v => setVal('rcp_namespace', v)}/>
                                 <Field def={{
                                     k: 'rcp_id',
-                                    l: 'recipe id',
+                                    l: '__recipeId',
                                     t: 'text',
                                     r: true,
                                     p: 'my_recipe',
@@ -1759,11 +1799,11 @@ export function Builder() {
 
                             {(recipeType === 'campfire_cooking' || recipeType === 'stonecutter') && (
                                 <>
-                                    <SectionLabel>Parameters</SectionLabel>
+                                    <SectionLabel>{t.sectionParameters}</SectionLabel>
                                     <div className="flex flex-col gap-3">
                                         <Field def={{
                                             k: 'rcp_ingredient',
-                                            l: 'ingredient item',
+                                            l: '__ingredientItem',
                                             t: 'text',
                                             r: true,
                                             p: 'BEEF or namespace:raw_item'
@@ -1771,14 +1811,14 @@ export function Builder() {
                                                onChange={v => setVal('rcp_ingredient', v)}/>
                                         <Field def={{
                                             k: 'rcp_result',
-                                            l: 'result item',
+                                            l: '__resultItem',
                                             t: 'text',
                                             r: true,
                                             p: 'COOKED_BEEF or namespace:cooked_item'
                                         }} value={values['rcp_result'] ?? ''} onChange={v => setVal('rcp_result', v)}/>
                                         <Field def={{
                                             k: 'rcp_result_amount',
-                                            l: 'result amount',
+                                            l: '__resultAmount',
                                             t: 'number',
                                             r: false,
                                             p: '1',
@@ -1813,7 +1853,7 @@ export function Builder() {
 
                             {recipeType === 'iaa_crafting_table' && (
                                 <>
-                                    <SectionLabel>Recipe type</SectionLabel>
+                                    <SectionLabel>{t.sectionRecipeType}</SectionLabel>
                                     <Field def={{
                                         k: 'rcp_shapeless',
                                         l: 'shapeless',
@@ -1827,10 +1867,8 @@ export function Builder() {
 
                                     {!rcpShapeless ? (
                                         <>
-                                            <SectionLabel>Crafting grid</SectionLabel>
-                                            <p className="text-[11px] text-fd-muted-foreground">Type a letter in each
-                                                cell. Cells with the same letter use the same ingredient. Empty cells
-                                                become X in the pattern. X cannot be used as an ingredient key.</p>
+                                            <SectionLabel>{t.sectionCraftingGrid}</SectionLabel>
+                                            <p className="text-[11px] text-fd-muted-foreground">{t.noteCraftingGrid}</p>
                                             <div className="grid grid-cols-3 gap-1.5" style={{maxWidth: '180px'}}>
                                                 {craftingGrid.map((cell, idx) => (
                                                     <input
@@ -1847,9 +1885,8 @@ export function Builder() {
 
                                             {usedChars.length > 0 && (
                                                 <>
-                                                    <SectionLabel>Ingredients</SectionLabel>
-                                                    <p className="text-[11px] text-fd-muted-foreground">Characters
-                                                        without an item defined are treated as empty slots.</p>
+                                                    <SectionLabel>{t.sectionIngredients}</SectionLabel>
+                                                    <p className="text-[11px] text-fd-muted-foreground">{t.noteIngredientEmpty}</p>
                                                     <div className="flex flex-col gap-3">
                                                         {usedChars.map(char => (
                                                             <CraftingIngredientRow
@@ -1865,7 +1902,7 @@ export function Builder() {
                                         </>
                                     ) : (
                                         <>
-                                            <SectionLabel>Ingredients</SectionLabel>
+                                            <SectionLabel>{t.sectionIngredients}</SectionLabel>
                                             <div className="flex flex-col gap-3">
                                                 {shapelessIngredients.map((ing, idx) => <ShapelessIngredientFields
                                                     key={idx} ing={ing} index={idx}
@@ -1873,26 +1910,26 @@ export function Builder() {
                                                     onRemove={() => removeShapeless(idx)}/>)}
                                                 <button
                                                     onClick={() => setShapelessIngredients(prev => [...prev, emptyShapeless()])}
-                                                    className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">+
-                                                    Add ingredient
+                                                    className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">
+                                                    {t.addIngredient}
                                                 </button>
                                             </div>
                                         </>
                                     )}
 
                                     <Divider/>
-                                    <SectionLabel>Result</SectionLabel>
+                                    <SectionLabel>{t.sectionResult}</SectionLabel>
                                     <div className="flex flex-col gap-3">
                                         <Field def={{
                                             k: 'rcp_result',
-                                            l: 'result item',
+                                            l: '__resultItem',
                                             t: 'text',
                                             r: true,
                                             p: 'DIAMOND or namespace:item'
                                         }} value={values['rcp_result'] ?? ''} onChange={v => setVal('rcp_result', v)}/>
                                         <Field def={{
                                             k: 'rcp_result_amount',
-                                            l: 'result amount',
+                                            l: '__resultAmount',
                                             t: 'number',
                                             r: false,
                                             p: '1',
@@ -1908,7 +1945,7 @@ export function Builder() {
                     {/* ── World Gen ────────────────────────────────────────── */}
                     {mode === 'worldgen' && (
                         <>
-                            <SectionLabel>Entry info</SectionLabel>
+                            <SectionLabel>{t.sectionEntryInfo}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 <Field def={{
                                     k: 'wg_namespace',
@@ -1920,7 +1957,7 @@ export function Builder() {
                                 }} value={values['wg_namespace'] ?? ''} onChange={v => setVal('wg_namespace', v)}/>
                                 <Field def={{
                                     k: 'wg_id',
-                                    l: 'entry id',
+                                    l: '__entryId',
                                     t: 'text',
                                     r: true,
                                     p: 'my_entry',
@@ -1944,11 +1981,11 @@ export function Builder() {
                             </div>
                             <Divider/>
 
-                            <SectionLabel>Filters</SectionLabel>
+                            <SectionLabel>{t.sectionFilters}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 <Field def={{
                                     k: 'wg_worlds',
-                                    l: 'worlds (one per line)',
+                                    l: '__worldsOneLine',
                                     t: 'textarea',
                                     r: false,
                                     p: 'world\nworld_nether',
@@ -1956,7 +1993,7 @@ export function Builder() {
                                 }} value={values['wg_worlds'] ?? ''} onChange={v => setVal('wg_worlds', v)}/>
                                 <Field def={{
                                     k: 'wg_biomes',
-                                    l: 'biomes (one per line)',
+                                    l: '__biomesOneLine',
                                     t: 'textarea',
                                     r: false,
                                     p: 'minecraft:forest\nminecraft:plains',
@@ -1977,7 +2014,7 @@ export function Builder() {
                             </div>
                             <Divider/>
 
-                            <SectionLabel>Placement</SectionLabel>
+                            <SectionLabel>{t.sectionPlacement}</SectionLabel>
                             <div className="flex flex-col gap-3">
                                 {worldgenType === 'blocks_populators' ? (
                                     <>
@@ -2051,17 +2088,18 @@ export function Builder() {
                 </div>
 
                 <div className="flex flex-col gap-3 rounded-xl border border-fd-border bg-fd-card p-4">
-                    <SectionLabel>Generated YAML</SectionLabel>
+                    <SectionLabel>{t.sectionGeneratedYaml}</SectionLabel>
                     <pre
                         className="flex-1 overflow-x-auto rounded-lg bg-fd-muted p-3 font-mono text-xs leading-relaxed text-fd-foreground whitespace-pre">
                         {yaml}
                     </pre>
                     <button onClick={copy}
                             className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-sm text-fd-foreground transition-colors hover:bg-fd-muted">
-                        {copied ? 'Copied!' : 'Copy'}
+                        {copied ? t.copied : t.copy}
                     </button>
                 </div>
             </div>
         </div>
+        </TCtx.Provider>
     );
 }

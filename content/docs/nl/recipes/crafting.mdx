@@ -1,0 +1,380 @@
+---
+title: Werkbank
+description: Voeg geavanceerde knutselrecepten toe met tags, ingrediënthoeveelheden, duurzaamheidsafhandeling en shapeless-ondersteuning.
+version: "1.0.7"
+---
+
+ItemsAdderAdditions voegt een extra knutselwerkbankrecept-type toe genaamd `iaa_crafting_table`.
+
+Het vervangt of overschrijft het normale ItemsAdder `crafting_table`-recepttype niet. In plaats daarvan biedt het een ander receptsysteem voor gevallen waarbij je extra functies voor ingredientvalidatie nodig hebt.
+
+Dit recepttype ondersteunt normale knutselreceptopties die al bekend zijn van ItemsAdder, en voegt ook extra functies toe zoals:
+
+- tags
+- ingredienthoeveelheden
+- duurzaamheidsschade op ingredienten
+- vervangingitems
+- duurzaamheidsmatch negeren
+- potiotype-filtering
+- shapeless ingredientenlijsten
+
+## Belangrijk
+
+Recepten die deze extra functies gebruiken, moeten worden geplaatst onder:
+
+```yaml
+recipes:
+  iaa_crafting_table:
+```
+
+Als je alleen normale ItemsAdder-knutselfuncties nodig hebt, kun je het gewone `crafting_table`-recepttype blijven gebruiken.
+
+## Basis gevormd recept
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    wooden_scythe:
+      pattern:
+        - "XPP"
+        - "PXS"
+        - "XXS"
+      ingredients:
+        P: "#minecraft:planks"
+        S: STICK
+      result:
+        item: "my_pack:wooden_scythe"
+```
+
+## Basis shapeless recept
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    mega_diamond:
+      shapeless: true
+      ingredients:
+        - item: IRON_INGOT
+          amount: 2
+        - item: GOLD_INGOT
+          amount: 2
+        - item: COPPER_INGOT
+          amount: 2
+      result:
+        item: DIAMOND
+        amount: 3
+```
+
+## Structuur
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    my_recipe:
+      enabled: true
+      permission: "myplugin.recipe.use"
+      pattern:
+        - "ABC"
+        - "DEF"
+        - "GHI"
+      ingredients:
+        A: STICK
+      result:
+        item: DIAMOND
+        amount: 1
+```
+
+## Ondersteunde standaard receptfuncties
+
+`iaa_crafting_table` ondersteunt ook veelgebruikte knutselfuncties die je mogelijk al kent van ItemsAdder, zoals:
+
+- `enabled`
+- `permission`
+- gevormde recepten met `pattern`
+- shapeless recepten
+- meerdere `pattern...`-varianten
+- `potion_type` ingredientfiltering
+
+## Extra ItemsAdderAdditions-functies
+
+De belangrijkste reden om `iaa_crafting_table` te gebruiken is de aanvullende ondersteuning voor ingredientpredicaten:
+
+- tags met `#namespace:tag`
+- per-ingredient `amount`
+- per-ingredient `damage`
+- per-ingredient `replacement`
+- `ignore_durability`
+- shapeless lijststijl ingredientformaat
+
+## Parameters
+
+### `enabled`
+
+Optioneel. Standaard: `true`.
+
+Als ingesteld op `false`, wordt het recept niet geregistreerd.
+
+### `permission`
+
+Optioneel.
+
+Als ingesteld, moeten spelers deze toestemming hebben om het receptresultaat te zien en te knutselen.
+
+```yaml
+permission: "myplugin.recipe.use"
+```
+
+### `shapeless`
+
+Optioneel. Standaard: `false`.
+
+Als `true`, wordt het recept behandeld als shapeless.
+
+## Resultaat
+
+### `result.item`
+
+Verplicht.
+
+Het uitvoeritem.
+
+Ondersteunt vanilla materialen en ItemsAdder-items.
+
+```yaml
+result:
+  item: "my_pack:custom_sword"
+```
+
+### `result.amount`
+
+Optioneel. Standaard: `1`.
+
+```yaml
+result:
+  item: DIAMOND
+  amount: 3
+```
+
+## Gevormde recepten
+
+Gevormde recepten gebruiken een `pattern` en een met tekens gesleutelde `ingredients`-sectie.
+
+```yaml
+my_recipe:
+  pattern:
+    - "XPP"
+    - "PXS"
+    - "XXS"
+  ingredients:
+    P: "#minecraft:planks"
+    S: STICK
+  result:
+    item: "my_pack:wooden_scythe"
+```
+
+### Patroonopmerkingen
+
+- Ingredientsleutels moeten een enkel teken zijn.
+- `X` markeert lege slots. Definieer `X` niet als ingredient.
+- Elk ander teken dat niet in `ingredients` is gedefinieerd, wordt ook als leeg behandeld.
+- Meerdere patronen worden ondersteund met sleutels zoals `pattern_1`, `pattern_2`, enzovoort.
+
+## Shapeless recepten
+
+Shapeless recepten gebruiken:
+
+```yaml
+shapeless: true
+```
+
+en kunnen een lijst van ingredienten gebruiken:
+
+```yaml
+my_recipe:
+  shapeless: true
+  ingredients:
+    - item: IRON_INGOT
+      amount: 2
+    - item: GOLD_INGOT
+      amount: 2
+  result:
+    item: DIAMOND
+```
+
+## Ingredientformaten
+
+Ingredienten ondersteunen meerdere formaten.
+
+### Eenvoudige string
+
+```yaml
+ingredients:
+  S: STICK
+  P: "#minecraft:planks"
+  C: "my_pack:custom_part"
+```
+
+### Gedetailleerd object
+
+```yaml
+ingredients:
+  S:
+    item: STICK
+    amount: 2
+    damage: 5
+    replacement: STICK
+    ignore_durability: true
+    potion_type: minecraft:water
+```
+
+### Shapeless lijststijl
+
+```yaml
+ingredients:
+  - SNOWBALL
+  - item: WATER_BUCKET
+    replacement: BUCKET
+```
+
+## Geavanceerde ingredientfuncties
+
+### Tags
+
+Gebruik Minecraft item- of bloktags door de waarde te prefixen met `#`.
+
+```yaml
+ingredients:
+  P: "#minecraft:planks"
+```
+
+Dit laat elk item in die tag overeenkomen.
+
+### `amount`
+
+Vereist meer dan een van hetzelfde ingredient.
+
+```yaml
+ingredients:
+  I:
+    item: IRON_INGOT
+    amount: 3
+```
+
+### `damage`
+
+In plaats van het ingredient te verbruiken, wordt het beschadigd met het geconfigureerde bedrag.
+
+Handig voor gereedschappen gebruikt bij knutselen.
+
+```yaml
+ingredients:
+  H:
+    item: IRON_PICKAXE
+    damage: 10
+```
+
+### `replacement`
+
+Vervang het ingredient door een ander item na het knutselen.
+
+Handig voor emmers, flessen, vormen en soortgelijke containers.
+
+```yaml
+ingredients:
+  W:
+    item: WATER_BUCKET
+    replacement: BUCKET
+```
+
+### `ignore_durability`
+
+Negeer de huidige duurzaamheidswaarde bij het matchen van een item.
+
+```yaml
+ingredients:
+  T:
+    item: IRON_PICKAXE
+    ignore_durability: true
+```
+
+### `potion_type`
+
+Beperk een potioningredient tot een specifiek basispotiotype.
+
+```yaml
+ingredients:
+  P:
+    item: POTION
+    potion_type: minecraft:jump_boost
+```
+
+## Volledig gevormd voorbeeld
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    reinforced_blade:
+      enabled: true
+      permission: "my_pack.recipes.reinforced_blade"
+      pattern:
+        - "XIT"
+        - "XSI"
+        - "SXX"
+      ingredients:
+        I:
+          item: IRON_INGOT
+          amount: 2
+        S: STICK
+        T:
+          item: IRON_PICKAXE
+          damage: 8
+          ignore_durability: true
+      result:
+        item: "my_pack:reinforced_blade"
+        amount: 1
+```
+
+## Volledig shapeless voorbeeld
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    purified_bottle:
+      shapeless: true
+      ingredients:
+        - item: POTION
+          potion_type: minecraft:water
+        - item: DIAMOND
+          amount: 2
+      result:
+        item: "my_pack:purified_bottle"
+```
+
+## Ondersteunde itemreferenties
+
+Ingredient- en resultaatitems kunnen gebruiken:
+
+- vanilla materiaalnamen zoals `STICK` of `DIAMOND`
+- ItemsAdder-ID's zoals `namespace:item`
+- tags zoals `#minecraft:planks`
+
+## Opmerkingen
+
+- `replacement` en `damage` worden toegepast tijdens het knutselen.
+- Shapeless recepten met geavanceerde predicaten moeten het lijstformaat gebruiken.
+- `iaa_crafting_table` is een aanvullend geavanceerd recepttype, geen vervanging voor ItemsAdder `crafting_table`.

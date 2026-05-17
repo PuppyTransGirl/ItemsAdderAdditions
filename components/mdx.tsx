@@ -1,19 +1,19 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import {Tab, Tabs} from 'fumadocs-ui/components/tabs';
 import type {MDXComponents} from 'mdx/types';
-import {HangarIcon, ModrinthIcon, SpigotIcon} from './icons';
+import {ModrinthIcon, SpigotIcon} from './icons';
 import {VideoGif} from './video-gif';
 import {Builder} from './builder';
 
-export function getMDXComponents(components?: MDXComponents) {
+export function getMDXComponents(components?: MDXComponents, locale = 'en') {
     return {
         ...defaultMdxComponents,
         Tab,
         Tabs,
         ...components,
-        ModrinthIcon, HangarIcon, SpigotIcon,
+        ModrinthIcon, SpigotIcon,
         VideoGif,
-        Builder,
+        Builder: () => <Builder locale={locale}/>,
     } satisfies MDXComponents;
 }
 

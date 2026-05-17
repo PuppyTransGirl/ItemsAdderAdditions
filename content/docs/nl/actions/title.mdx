@@ -1,0 +1,36 @@
+---
+title: Titel
+description: Toon een titel en ondertitel op het scherm als ItemsAdder-actie.
+version: "1.0.0"
+---
+
+```yaml
+title:
+  title: "<bold><gold>Welkom!"
+  subtitle: "<gray>Geniet van je verblijf" # optioneel
+  fade_in: 5 # optioneel, standaard: 10 ticks
+  stay: 40 # optioneel, standaard: 70 ticks
+  fade_out: 30 # optioneel, standaard: 20 ticks
+```
+
+## Parameters
+
+### `title`
+
+Verplicht. De grote titeltekst. Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) en lettertypeafbeeldingen.
+
+### `subtitle`
+
+Optioneel. De kleinere tekst onder de titel. Ondersteunt MiniMessage, PlaceholderAPI en lettertypeafbeeldingen.
+
+### `fade_in`
+
+Optioneel. Standaard: `10` ticks. Duur van het infaden.
+
+### `stay`
+
+Optioneel. Standaard: `70` ticks. Hoe lang de titel op het scherm blijft.
+
+### `fade_out`
+
+Optioneel. Standaard: `20` ticks. Duur van het uitfaden.

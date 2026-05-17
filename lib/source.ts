@@ -1,17 +1,23 @@
 import {docs} from 'collections/server';
 import {type InferPageType, loader} from 'fumadocs-core/source';
 import {lucideIconsPlugin} from 'fumadocs-core/source/lucide-icons';
-import {docsContentRoute, docsImageRoute, docsRoute} from './shared';
+import {defaultLanguage, docsContentRoute, docsImageRoute, docsRoute, languages} from './shared';
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
   baseUrl: docsRoute,
+    i18n: {
+        languages: [...languages],
+        defaultLanguage,
+        parser: 'dir',
+    },
   source: docs.toFumadocsSource(),
   plugins: [lucideIconsPlugin()],
 });
 
 export function getPageImage(page: InferPageType<typeof source>) {
-  const segments = [...page.slugs, 'image.png'];
+    const locale = page.locale ?? defaultLanguage;
+    const segments = [locale, ...page.slugs, 'image.png'];
 
   return {
     segments,
@@ -20,7 +26,8 @@ export function getPageImage(page: InferPageType<typeof source>) {
 }
 
 export function getPageMarkdownUrl(page: InferPageType<typeof source>) {
-  const segments = [...page.slugs, 'content.md'];
+    const locale = page.locale ?? defaultLanguage;
+    const segments = [locale, ...page.slugs, 'content.md'];
 
   return {
     segments,

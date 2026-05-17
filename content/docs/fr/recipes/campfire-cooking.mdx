@@ -1,0 +1,72 @@
+---
+title: Cuisson au feu de camp
+description: Ajouter des recettes de cuisson au feu de camp pour des objets personnalisés ou vanilla dans ItemsAdder.
+version: "1.0.7"
+---
+
+Ajoutez des recettes de cuisson au feu de camp sans créer de fichiers de recettes supplémentaires.
+
+## Paramètres
+
+### `enabled`
+
+Optionnel. Par défaut : `true`. Définissez à `false` pour ignorer l'enregistrement de la recette.
+
+### `ingredient.item`
+
+Obligatoire. L'objet d'entrée pour la recette. Utilisez un matériau vanilla ou un objet ItemsAdder personnalisé.
+
+```yaml
+ingredient:
+  item: BEEF
+```
+
+```yaml
+ingredient:
+  item: my_pack:raw_fish_fillet
+```
+
+### `result.item`
+
+Obligatoire. L'objet cuit en sortie.
+
+```yaml
+result:
+  item: COOKED_BEEF
+```
+
+### `result.amount`
+
+Optionnel. Par défaut : `1`. Le nombre d'objets produits.
+
+### `cook_time`
+
+Optionnel. Par défaut : `600` ticks. Temps de cuisson. 20 ticks = 1 seconde.
+
+### `exp`
+
+Optionnel. Par défaut : `0.0`. Expérience accordée lors de la récupération du résultat cuit.
+
+## Exemple complet
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  campfire_cooking:
+    roasted_berry_skewer:
+      ingredient:
+        item: my_pack:berry_skewer_raw
+      result:
+        item: my_pack:berry_skewer_roasted
+        amount: 1
+      cook_time: 160
+      exp: 0.25
+```
+
+## Notes
+
+- Supporte les objets vanilla et ItemsAdder personnalisés.
+- Les IDs de recette comme `roasted_berry_skewer` sont des identifiants internes.
+- Le namespace provient de `info.namespace`.

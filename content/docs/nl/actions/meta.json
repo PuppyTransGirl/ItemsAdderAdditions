@@ -1,0 +1,9 @@
+{
+  "title": "Acties",
+  "icon": "Hammer",
+  "pages": [
+    "parameters",
+    "...",
+    "veinminer"
+  ]
+}

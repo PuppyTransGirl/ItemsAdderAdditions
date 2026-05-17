@@ -1,0 +1,16 @@
+{
+  "title": "ItemsAdderAdditions",
+  "pages": [
+    "index",
+    "---",
+    "builder",
+    "---",
+    "commands",
+    "recipes",
+    "---",
+    "features",
+    "behaviours",
+    "actions",
+    "worldgen"
+  ]
+}

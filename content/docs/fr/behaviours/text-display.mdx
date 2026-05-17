@@ -1,0 +1,92 @@
+---
+title: Affichage de texte
+description: Afficher du texte flottant au-dessus d'un bloc ou meuble personnalisé. Supporte MiniMessage et PlaceholderAPI.
+version: "1.0.8"
+---
+
+Attache un ou plusieurs affichages de texte flottants à un bloc ou meuble personnalisé. Supporte le formatage MiniMessage, les placeholders PlaceholderAPI et les images de police ItemsAdder.
+
+Fonctionne sur les **blocs**, **meubles** et **meubles complexes**.
+
+## Configuration de base
+
+```yaml
+behaviours:
+  text_display:
+    text: "<yellow>Bonjour !"
+```
+
+Texte multiligne (une ligne par entrée de liste) :
+
+```yaml
+behaviours:
+  text_display:
+    text:
+      - "<bold>Stockage"
+      - "<gray>Clic droit pour ouvrir"
+```
+
+## Affichages multiples
+
+Utilisez la section `displays` pour attacher plus d'un affichage de texte au même objet. Chaque entrée est positionnée et stylisée indépendamment.
+
+```yaml
+behaviours:
+  text_display:
+    displays:
+      label:
+        text: "<gold><bold>Mon Coffre"
+        offset: "0, 0.5, 0"
+      hint:
+        text: "<gray><i>Clic droit pour ouvrir"
+        offset: "0, 0.25, 0"
+```
+
+## Options
+
+| Clé | Type | Défaut | Description |
+|-----|------|--------|-------------|
+| `text` | chaîne ou liste | *(obligatoire)* | Le texte à afficher. Supporte MiniMessage, PlaceholderAPI et les images de police `:icon:`. |
+| `offset` | `"x, y, z"` ou liste | `"0, 0.25, 0"` | Décalage de position relatif au centre du bloc ou meuble. |
+| `billboard` | `FIXED` \| `VERTICAL` \| `HORIZONTAL` \| `CENTER` | `VERTICAL` | Comment l'affichage pivote pour faire face aux joueurs. |
+| `alignment` | `LEFT` \| `CENTER` \| `RIGHT` | `CENTER` | Alignement du texte dans l'affichage. |
+| `text_shadow` | booléen | `true` | Si le texte a une ombre portée. |
+| `see_through` | booléen | `false` | Si le texte est visible à travers les blocs. |
+| `line_width` | entier ≥ 1 | `1403` | Largeur maximale de ligne en pixels avant le retour à la ligne. |
+| `background` | `#RRGGBB`, `#RRGGBBAA`, `false` ou `null` | `null` | Couleur de fond. `null` ou `false` utilise le fond sombre vanilla par défaut. |
+| `text_opacity` | float 0.0-1.0 | *(omettre pour défaut)* | Opacité du texte. `0.0` est entièrement transparent, `1.0` est entièrement opaque. Omettre la clé entièrement pour le défaut vanilla (entièrement opaque). |
+| `scale` | float > 0, `"x, y, z"` ou liste | `1.0` | Multiplicateur de taille du texte. Une valeur unique s'applique uniformément ; utilisez `"x, y, z"` ou une liste de 3 éléments pour une mise à l'échelle non uniforme. |
+| `view_range` | float > 0 | `16.0` | Distance en blocs à laquelle l'affichage devient visible. |
+| `refresh_interval` | entier ≥ 0 | `0` | Fréquence (en ticks) à laquelle le texte est rafraîchi par joueur. `0` désactive le rafraîchissement automatique. Définir une valeur positive lors de l'utilisation de placeholders PlaceholderAPI qui changent dans le temps. |
+| `brightness` | entier 0-15, `[block, sky]` ou section | *(omettre pour l'éclairage du monde)* | Forcer le niveau de lumière. Un entier unique définit également les lumières de bloc et de ciel. Utilisez une liste de deux éléments `[block, sky]` ou une section avec les clés `block:` et `sky:` pour les définir séparément. Omettre pour hériter de l'éclairage du monde. |
+| `shadow_radius` | float ≥ 0 | `0.0` | Rayon de l'ombre portée derrière le texte. |
+| `shadow_strength` | float ≥ 0 | `1.0` | Force (opacité) de l'ombre portée. |
+| `yaw` | float | `0.0` | Rotation horizontale de l'affichage en degrés. Significatif uniquement quand `billboard` est `FIXED`. |
+| `pitch` | float | `0.0` | Rotation verticale de l'affichage en degrés. Significatif uniquement quand `billboard` est `FIXED`. |
+
+## Exemple complet
+
+```yaml
+behaviours:
+  text_display:
+    text:
+      - "<aqua><player_name>"
+      - "<gray>Score : <gold>%vault_eco_balance%"
+    offset: "0, 0.6, 0"
+    billboard: VERTICAL
+    alignment: CENTER
+    text_shadow: true
+    see_through: false
+    line_width: 1403
+    background: "#00000080"
+    scale: 1.0
+    view_range: 16.0
+    refresh_interval: 20
+```
+
+## Notes
+
+- Le texte supporte les balises de formatage [MiniMessage](https://docs.advntr.dev/minimessage/format.html).
+- Les placeholders PlaceholderAPI sont résolus par joueur si PlaceholderAPI est installé.
+- Les images de police ItemsAdder (`:my_icon:`) sont supportées.
+- Lors de l'utilisation de placeholders qui se mettent à jour dans le temps, définissez `refresh_interval` à une valeur positive (ex. `20` pour une fois par seconde).

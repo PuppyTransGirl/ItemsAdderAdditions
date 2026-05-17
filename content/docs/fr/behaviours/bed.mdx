@@ -1,0 +1,75 @@
+---
+title: Lit
+description: Transformer n'importe quel meuble ItemsAdder en lit fonctionnel à plusieurs emplacements.
+version: "1.0.7"
+---
+
+Transforme n'importe quel meuble personnalisé en lit fonctionnel. Supporte plusieurs emplacements de couchage sur une même pièce, permettant à un lit double d'accueillir deux joueurs simultanément.
+
+Fonctionne avec les **meubles personnalisés** et les **meubles complexes**.
+
+## Configuration
+
+```yaml
+behaviours:
+  bed:
+    slots:
+      - "0,0,0"   # obligatoire - au moins un emplacement
+      - "1,0,0"   # second emplacement, ex. pour un lit double
+```
+
+Chaque entrée dans `slots` est un décalage entier `"dx,dy,dz"` relatif au bloc de base du meuble.
+Les axes de décalage suivent la **direction propre du meuble**, pas les axes du monde :
+
+| Axe   | Signification                                                |
+|-------|--------------------------------------------------------------|
+| `dx`  | Avant / arrière selon la direction du meuble                 |
+| `dy`  | Haut / bas                                                   |
+| `dz`  | Gauche / droite (perpendiculaire à la direction)             |
+
+Cela signifie que `"1,0,0"` correspond toujours à un bloc devant la base, quelle que soit la direction dans laquelle le meuble a été placé.
+
+### Emplacement unique (par défaut)
+
+```yaml
+behaviours:
+  bed:
+    slots:
+      - "0,0,0"
+```
+
+Omettre `slots` entièrement revient à utiliser un seul emplacement en `0,0,0`.
+
+### Lit double (deux emplacements côte à côte)
+
+```yaml
+behaviours:
+  bed:
+    slots:
+      - "0,0,0"
+      - "0,0,1"
+```
+
+`dz: 1` place le second emplacement un bloc à droite de la base en faisant face au meuble.
+
+### Lit double (deux emplacements l'un devant l'autre)
+
+```yaml
+behaviours:
+  bed:
+    slots:
+      - "0,0,0"
+      - "1,0,0"
+```
+
+`dx: 1` place le second emplacement un bloc devant la base.
+
+## Comportement
+
+- Un clic droit sur le meuble (ou ses blocs barrière) tente de faire dormir le joueur dans le prochain emplacement disponible.
+- Si tous les emplacements sont occupés, le joueur voit le message **"Ce lit est occupé"** dans la barre d'action.
+- Un bloc de lit vanilla temporaire est placé à l'emplacement pour que le mécanisme de sommeil Minecraft fonctionne. Il est retiré lorsque le joueur se réveille, se déconnecte ou que le meuble est cassé.
+- Casser le meuble réveille les joueurs endormis.
+- S'accroupir en cliquant droit est ignoré pour que les joueurs puissent interagir normalement en se baissant.
+
+![Exemple de lit](/assets/behaviours_bed_example.webp)

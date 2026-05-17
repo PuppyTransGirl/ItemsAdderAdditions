@@ -1,0 +1,67 @@
+---
+title: Stapelbaar
+description: Laat aangepaste ItemsAdder-blokken op elkaar stapelen in een gedefinieerde volgorde. Ondersteunt eenvoudige, complexe en meerlaagse stapelconfiguraties.
+version: "1.0.0"
+---
+
+<Tabs items={['Eenvoudig', 'Complex', 'Volledig']}>
+    <Tab value="Eenvoudig">
+        ```yaml
+        behaviours:
+        stackable:
+        - my_block_2
+        - my_block_3
+        - my_block_4
+        ```
+    </Tab>
+    <Tab value="Complex">
+        ```yaml
+        behaviours:
+        stackable:
+        blocks:
+        - my_block_2
+        - my_block_3
+        - my_block_4
+        items: # optioneel, standaard is het item waarop dit gedrag is ingesteld
+        - my_item
+        - BONE_MEAL
+        sound: # optioneel
+        name: entity.villager.ambient # of een aangepast geluid
+        volume: 1.0 # optioneel, standaard: 1.0
+        pitch: 1.0 # optioneel, standaard: 1.0
+        category: MASTER # optioneel, standaard: MASTER
+        decrement_amount: 2 # optioneel, standaard: 1
+        ```
+
+        Gebruik voor `name` een waarde uit [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) of
+        een aangepast
+        geluid met `namespace:value`.
+    </Tab>
+    <Tab value="Volledig">
+        ```yaml
+        behaviours:
+        stackable:
+        first_step:
+        block: my_block_2
+        items: # optioneel, standaard is het item waarop dit gedrag is ingesteld
+        - my_item
+        - BONE_MEAL
+        sound: # optioneel
+        name: entity.villager.ambient # of een aangepast geluid
+        volume: 1.0 # optioneel, standaard: 1.0
+        pitch: 1.0 # optioneel, standaard: 1.0
+        category: MASTER # optioneel, standaard: MASTER
+        decrement_amount: 2 # optioneel, standaard: 1
+        another_step:
+        ...
+        ```
+
+        Gebruik voor `name` een waarde uit [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) of
+        een aangepast
+        geluid met `namespace:value`.
+    </Tab>
+</Tabs>
+
+De ID's moeten aangepaste blokken zijn. Ondersteunde typen: `REAL`, `REAL_NOTE`, `REAL_TRANSPARENT` en `REAL_WIRE`. Je kunt zoveel stappen toevoegen als nodig.
+
+<VideoGif src="/assets/behaviours_stackable_example"/>

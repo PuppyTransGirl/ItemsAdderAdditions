@@ -1,0 +1,83 @@
+---
+title: Actieparameters
+description: Universele parameters voor alle acties. Beheer rechten, uitvoeringsvertragingen en het targeten van entiteiten.
+version: "1.0.0"
+---
+
+Elke actie ondersteunt een set gedeelde parameters. Hiermee kun je acties beperken tot bepaalde rechten, vertragingen toevoegen en bepalen op wie de actie van toepassing is. Je kunt ze naar wens combineren op dezelfde actie.
+
+## Parameters
+
+### `permission`
+
+Als dit is ingesteld, wordt de actie alleen uitgevoerd als de speler dit rechtenknooppunt heeft. Spelers zonder dit recht worden stilzwijgend genegeerd.
+
+```yaml
+actionbar:
+  text: "<green>Hallo!"
+  permission: "myplugin.greet"
+```
+
+### `delay`
+
+Wacht dit aantal ticks voordat de actie wordt uitgevoerd. 20 ticks = 1 seconde. Standaard: `0` (direct).
+
+```yaml
+message:
+  text: "<gold>Laden..."
+  delay: 40 # 2 seconden na de trigger
+```
+
+### `target`
+
+Bepaalt op wie de actie van toepassing is. Standaard: `self`.
+
+| Waarde             | Beschrijving                                                                                      |
+|--------------------|---------------------------------------------------------------------------------------------------|
+| `self`             | De speler die de gebeurtenis heeft geactiveerd *(standaard)*                                      |
+| `other`            | De entiteit waarmee de speler interageert (bijv. degene die wordt aangevallen)                    |
+| `all`              | Zowel de activerende speler **als** de doelentiteit                                               |
+| `radius`           | Alle entiteiten binnen een bol rond het interactiepunt - vereist `target_radius`                  |
+| `in_sight`         | De entiteit waar de speler naar kijkt - vereist `target_in_sight_distance`                        |
+
+```yaml
+message:
+  text: "<red>Je hebt iemand geraakt!"
+  target: other
+```
+
+### `target_radius`
+
+Alleen gebruikt bij `target: radius`. Bepaalt de diameter van de bol (in blokken) gecentreerd op het interactiepunt.
+
+```yaml
+actionbar:
+  text: "<yellow>Gebiedseffect!"
+  target: radius
+  target_radius: 10
+```
+
+### `target_in_sight_distance`
+
+Alleen gebruikt bij `target: in_sight`. Het maximale aantal blokken dat vanuit de oogpositie van de speler wordt gescand bij het zoeken naar een entiteit. Als er geen entiteit wordt gevonden binnen dat bereik, wordt de actie volledig overgeslagen.
+
+```yaml
+ignite:
+  duration: 100
+  target: in_sight
+  target_in_sight_distance: 10
+```
+
+## Volledig voorbeeld
+
+```yaml
+my_item:
+  events:
+    interact:
+      right:
+        actionbar:
+          text: "<aqua>Rechtsgeklikt!"
+          permission: "some.permission" # Alleen spelers met dit recht activeren dit
+          delay: 10 # Een halve seconde vertraging
+          target: self # Alleen van toepassing op de klikker
+```

@@ -1,0 +1,75 @@
+---
+title: Bed
+description: Verander elk ItemsAdder-meubel in een functioneel bed met meerdere slaapplaatsen.
+version: "1.0.7"
+---
+
+Verandert elk aangepast meubel in een functioneel bed. Ondersteunt meerdere slaapplaatsen op een enkel stuk, zodat een tweepersoonsbed twee spelers tegelijkertijd kan herbergen.
+
+Werkt met **aangepaste meubels** en **complexe meubels**.
+
+## Configuratie
+
+```yaml
+behaviours:
+  bed:
+    slots:
+      - "0,0,0"   # verplicht - minimaal een slot
+      - "1,0,0"   # tweede slot, bijv. voor een tweepersoonsbed
+```
+
+Elk item in `slots` is een `"dx,dy,dz"` integer-offset ten opzichte van het basisblok van het meubel.
+De offsetassen volgen de **eigen kijkrichting van het meubel**, niet de wereldassen:
+
+| As   | Betekenis                                                 |
+|------|-----------------------------------------------------------|
+| `dx` | Naar voren / achteren langs de kijkrichting van het meubel |
+| `dy` | Omhoog / omlaag                                          |
+| `dz` | Links / rechts (loodrecht op de kijkrichting)             |
+
+Dit betekent dat `"1,0,0"` altijd een blok voor de basis is, ongeacht in welke richting het meubel is geplaatst.
+
+### Enkelvoudig slot (standaard)
+
+```yaml
+behaviours:
+  bed:
+    slots:
+      - "0,0,0"
+```
+
+Als `slots` volledig wordt weggelaten, is er ook standaard een enkel slot op `0,0,0`.
+
+### Tweepersoonsbed (twee slots naast elkaar)
+
+```yaml
+behaviours:
+  bed:
+    slots:
+      - "0,0,0"
+      - "0,0,1"
+```
+
+`dz: 1` plaatst het tweede slot een blok rechts van de basis bij het kijken naar het meubel.
+
+### Tweepersoonsbed (twee slots voor en achter)
+
+```yaml
+behaviours:
+  bed:
+    slots:
+      - "0,0,0"
+      - "1,0,0"
+```
+
+`dx: 1` plaatst het tweede slot een blok voor de basis.
+
+## Gedrag
+
+- Rechtsklikken op het meubel (of de barrierblokken) probeert de speler in het volgende beschikbare slot te laten slapen.
+- Als alle slots bezet zijn, ziet de speler het bericht **"Dit bed is bezet"** in de actiebalk.
+- Er wordt tijdelijk een vanilla bedblok op het slot geplaatst zodat het Minecraft-slaapmechanisme werkt. Het wordt verwijderd wanneer de speler wakker wordt, de verbinding verbreekt of het meubel wordt afgebroken.
+- Het afbreken van het meubel wekt slapende spelers.
+- Sluipen terwijl je rechtsklikt wordt genegeerd zodat spelers normaal kunnen interacteren terwijl ze gehurkt lopen.
+
+![Bed voorbeeld](/assets/behaviours_bed_example.webp)

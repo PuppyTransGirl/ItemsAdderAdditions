@@ -1,0 +1,113 @@
+---
+title: Stockage
+description: Transformer n'importe quel bloc ou meuble personnalisé ItemsAdder en conteneur de stockage. Supporte le stockage partagé, le stockage portable style shulker, et la corbeille.
+version: "1.0.0"
+---
+
+Transforme n'importe quel bloc ou meuble personnalisé en conteneur de stockage. Trois modes sont disponibles.
+
+| Type       | Comportement                                                                    |
+|------------|---------------------------------------------------------------------------------|
+| `STORAGE`  | Conteneur partagé - tous les joueurs voient le même inventaire                  |
+| `SHULKER`  | Le contenu voyage dans l'objet quand il est cassé et est restauré au replacement |
+| `DISPOSAL` | Poubelle - le contenu est supprimé silencieusement à la fermeture de l'interface |
+
+## Configuration
+
+<Tabs items={['STORAGE', 'SHULKER', 'DISPOSAL']}>
+    <Tab value="STORAGE">
+        ```yaml
+        behaviours:
+        storage:
+        type: STORAGE
+        rows: 3 # optionnel, défaut : 3
+        title: "
+        <gold>Coffre Communautaire</gold>
+        " # optionnel, par défaut le nom du bloc/meuble
+        open_variant: my_open_storage # optionnel
+        open_sound: # optionnel
+        name: entity.villager.celebrate # ou un son personnalisé
+        volume: 1.0 # optionnel, défaut : 1.0
+        pitch: 1.0 # optionnel, défaut : 1.0
+        category: MASTER # optionnel, défaut : MASTER
+        close_sound: # optionnel
+        name: entity.villager.ambient # ou un son personnalisé
+        volume: 1.0 # optionnel, défaut : 1.0
+        pitch: 1.0 # optionnel, défaut : 1.0
+        category: MASTER # optionnel, défaut : MASTER
+        ```
+    </Tab>
+    <Tab value="SHULKER">
+        ```yaml
+        behaviours:
+        storage:
+        type: SHULKER
+        rows: 3 # optionnel, défaut : 3
+        title: "
+        <dark_purple>Stockage Portable</dark_purple>
+        " # optionnel, par défaut le nom du bloc/meuble
+        open_variant: my_open_storage # optionnel
+        open_sound: # optionnel
+        name: entity.villager.celebrate # ou un son personnalisé
+        volume: 1.0 # optionnel, défaut : 1.0
+        pitch: 1.0 # optionnel, défaut : 1.0
+        category: MASTER # optionnel, défaut : MASTER
+        close_sound: # optionnel
+        name: entity.villager.ambient # ou un son personnalisé
+        volume: 1.0 # optionnel, défaut : 1.0
+        pitch: 1.0 # optionnel, défaut : 1.0
+        category: MASTER # optionnel, défaut : MASTER
+        ```
+    </Tab>
+    <Tab value="DISPOSAL">
+        ```yaml
+        behaviours:
+        storage:
+        type: DISPOSAL
+        rows: 1 # optionnel, défaut : 3
+        title: "
+        <red>Poubelle</red>
+        " # optionnel, par défaut le nom du bloc/meuble
+        open_variant: my_open_storage # optionnel
+        open_sound: # optionnel
+        name: entity.villager.celebrate # ou un son personnalisé
+        volume: 1.0 # optionnel, défaut : 1.0
+        pitch: 1.0 # optionnel, défaut : 1.0
+        category: MASTER # optionnel, défaut : MASTER
+        close_sound: # optionnel
+        name: entity.villager.ambient # ou un son personnalisé
+        volume: 1.0 # optionnel, défaut : 1.0
+        pitch: 1.0 # optionnel, défaut : 1.0
+        category: MASTER # optionnel, défaut : MASTER
+        ```
+    </Tab>
+</Tabs>
+
+Pour `name`, utilisez une valeur depuis [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) ou un son personnalisé avec `namespace:value`.
+
+Supporte le formatage [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), les placeholders [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police [ItemsAdder](https://itemsadder.com/).
+
+## Variante ouverte
+
+Vous pouvez optionnellement définir `open_variant` pour faire changer le bloc, meuble ou meuble complexe en une autre variante tant qu'au moins un joueur a le stockage ouvert.
+
+Utile pour des éléments comme :
+
+- les coffres qui s'ouvrent visuellement
+- les tonneaux avec un modèle ouvert
+- les conteneurs avec un état actif différent
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    open_variant: my_open_storage
+```
+
+`open_variant` doit être l'ID d'un autre bloc, meuble ou meuble complexe personnalisé, en utilisant soit :
+- `id`
+- `namespace:id`
+
+Quand l'inventaire est fermé par tous les joueurs, le stockage retourne à sa variante normale.
+
+<VideoGif src="/assets/behaviours_storage_example"/>

@@ -2,20 +2,24 @@ import Link from 'next/link';
 import type {Metadata} from 'next';
 
 export const metadata: Metadata = {
-    title: 'ItemsAdderAdditions - Free ItemsAdder Addon for Minecraft Paper Servers',
-    description: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with custom behaviours (contact damage, storage, connectable blocks), actions (messages, titles, MythicMobs skills, veinminer), and features - all configured inside your existing YML files.',
+    title: 'ItemsAdderAdditions - Free ItemsAdder Addons for Minecraft Servers',
+    description: 'Free ItemsAdder addons for Minecraft servers. Add contact damage, storage containers, connectable furniture, veinminer, MythicMobs skills, and more, directly in your existing YML files. No restart needed.',
     alternates: {
         canonical: 'https://itemsadderadditions.com',
+        languages: {
+            'en': 'https://itemsadderadditions.com/en/docs',
+            'fr': 'https://itemsadderadditions.com/fr/docs',
+            'nl': 'https://itemsadderadditions.com/nl/docs',
+        },
     },
     openGraph: {
-        title: 'ItemsAdderAdditions - Free ItemsAdder Addon for Minecraft Servers',
-        description: 'Extend ItemsAdder with custom behaviours, actions, and features. No extra config files, no restart - just /iareload.',
+        title: 'ItemsAdderAdditions - Free ItemsAdder Addons for Minecraft Servers',
+        description: 'Free ItemsAdder addons for Minecraft servers. Add contact damage, storage, connectable furniture, veinminer, MythicMobs skills, and more, in your existing YML files.',
         url: 'https://itemsadderadditions.com',
     },
 };
 
-// Each entry: [indent, key | null, value | null, isListItem]
-type YLine = { indent: string; key?: string; value?: string; list?: string; comment?: string };
+type YLine = { indent: string; key?: string; value?: string; list?: string };
 
 const yamlLines: YLine[] = [
     { indent: '', key: 'items' },
@@ -51,8 +55,8 @@ function YamlBlock() {
                     <div key={i}>
                         <span>{line.indent}</span>
                         <span className={isBehaviours ? 'text-fd-primary font-semibold' : 'text-fd-foreground'}>
-              {line.key}
-            </span>
+                            {line.key}
+                        </span>
                         <span className="text-fd-muted-foreground">:</span>
                         {line.value && (
                             <>
@@ -107,7 +111,7 @@ const jsonLd = {
                     name: 'What is ItemsAdderAdditions?',
                     acceptedAnswer: {
                         '@type': 'Answer',
-                        text: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with extra behaviours (such as contact damage, storage containers, connectable blocks, and stackable blocks), actions (messages, titles, veinminer, MythicMobs skills, and more), and quality-of-life features - all configured directly inside your existing YML files without restarting the server.',
+                        text: 'ItemsAdderAdditions is a free Minecraft plugin addon that extends ItemsAdder with extra behaviours (contact damage, storage containers, connectable blocks, stackable blocks), actions (messages, titles, veinminer, MythicMobs skills, and more), and extra features, all configured inside your existing YML files without restarting the server.',
                     },
                 },
                 {
@@ -147,8 +151,16 @@ export default function HomePage() {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
-            {/* -- Hero -- */}
+            {/* Hero */}
             <section className="flex flex-col items-center text-center px-6 pt-24 pb-20 gap-6 border-b border-fd-border">
+                <div
+                    className="flex items-center gap-2 text-xs text-fd-muted-foreground border border-fd-border rounded-full px-3 py-1 select-none">
+                    <span>Free</span>
+                    <span>·</span>
+                    <span>Open source</span>
+                    <span>·</span>
+                    <span>Paper 1.20.6+</span>
+                </div>
                 <h1 className="max-w-2xl text-4xl md:text-6xl font-bold tracking-tight leading-[1.1]">
                     More from ItemsAdder.
                     <br />
@@ -168,7 +180,7 @@ export default function HomePage() {
                         Download on Modrinth
                     </a>
                     <Link
-                        href="/docs"
+                        href="/en/docs"
                         className="rounded-md border border-fd-border bg-fd-card px-5 py-2.5 text-sm font-semibold text-fd-foreground hover:bg-fd-accent transition-colors"
                     >
                         Documentation
@@ -176,7 +188,7 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* -- What it adds -- */}
+            {/* What it adds */}
             <section className="w-full max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-3 gap-12">
                 <div className="flex flex-col gap-3">
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-fd-muted-foreground">Behaviours</h2>
@@ -185,7 +197,7 @@ export default function HomePage() {
                         Make ItemsAdder blocks deal contact damage, hold inventories, stack on top of each other, or
                         connect to adjacent blocks - all from a few lines of YML inside your existing item config.
                     </p>
-                    <Link href="/docs/behaviours/bed"
+                    <Link href="/en/docs/behaviours/bed"
                           className="text-sm font-medium text-fd-primary hover:underline mt-1">
                         Browse behaviours →
                     </Link>
@@ -198,19 +210,20 @@ export default function HomePage() {
                         Send messages, show titles, fire projectiles, run MythicMobs skills, veinmine blocks, and more.
                         Every action supports delays, permission gates, and flexible player targeting.
                     </p>
-                    <Link href="/docs/actions/parameters" className="text-sm font-medium text-fd-primary hover:underline mt-1">
+                    <Link href="/en/docs/actions/parameters"
+                          className="text-sm font-medium text-fd-primary hover:underline mt-1">
                         Browse actions →
                     </Link>
                 </div>
 
                 <div className="flex flex-col gap-3">
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-fd-muted-foreground">Features</h2>
-                    <p className="text-xl font-semibold leading-snug">Quality-of-life for server owners</p>
+                    <p className="text-xl font-semibold leading-snug">Extras for server owners</p>
                     <p className="text-fd-muted-foreground text-sm leading-relaxed">
                         Populate the creative inventory with your custom ItemsAdder items automatically, or add campfire
                         and stonecutter recipes - no new config files required.
                     </p>
-                    <Link href="/docs/features/creative-inventory-integration"
+                    <Link href="/en/docs/features/creative-inventory-integration"
                           className="text-sm font-medium text-fd-primary hover:underline mt-1">
                         Browse features →
                     </Link>
@@ -219,7 +232,7 @@ export default function HomePage() {
 
             <div className="border-t border-fd-border" />
 
-            {/* -- YML example -- */}
+            {/* YML example */}
             <section className="w-full max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16 items-center">
                 <div className="flex flex-col gap-4">
                     <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-snug">
@@ -239,14 +252,14 @@ export default function HomePage() {
                         <span className="text-xs font-mono text-fd-muted-foreground">my_items.yml</span>
                     </div>
                     <pre className="p-5 font-mono text-xs leading-relaxed overflow-x-auto bg-fd-card text-fd-foreground">
-            <YamlBlock />
-          </pre>
+                        <YamlBlock/>
+                    </pre>
                 </div>
             </section>
 
             <div className="border-t border-fd-border" />
 
-            {/* -- FAQ -- */}
+            {/* FAQ */}
             <section className="w-full max-w-5xl mx-auto px-6 py-16 flex flex-col gap-8">
                 <h2 className="text-sm font-semibold uppercase tracking-widest text-fd-muted-foreground">FAQ</h2>
                 <div className="grid md:grid-cols-2 gap-8">
@@ -271,7 +284,7 @@ export default function HomePage() {
                     <div className="flex flex-col gap-2">
                         <h3 className="font-semibold text-fd-foreground">Is ItemsAdderAdditions free?</h3>
                         <p className="text-sm text-fd-muted-foreground leading-relaxed">
-                            Yes, ItemsAdderAdditions is completely free to download on Modrinth, Hangar, or SpigotMC.
+                            Yes, ItemsAdderAdditions is completely free to download on Modrinth or SpigotMC.
                         </p>
                     </div>
                 </div>
@@ -279,7 +292,7 @@ export default function HomePage() {
 
             <div className="border-t border-fd-border" />
 
-            {/* -- Requirements + links -- */}
+            {/* Requirements + links */}
             <section className="w-full max-w-5xl mx-auto px-6 py-16 flex flex-col md:flex-row gap-12 justify-between">
                 <div className="flex flex-col gap-3">
                     <h2 className="text-sm font-semibold uppercase tracking-widest text-fd-muted-foreground">Requirements</h2>
@@ -299,7 +312,7 @@ export default function HomePage() {
                            className="text-sm font-medium text-fd-primary hover:underline">
                             Download example pack →
                         </a>
-                        <Link href="/docs" className="text-sm font-medium text-fd-primary hover:underline">
+                        <Link href="/en/docs" className="text-sm font-medium text-fd-primary hover:underline">
                             Read the docs →
                         </Link>
                     </div>

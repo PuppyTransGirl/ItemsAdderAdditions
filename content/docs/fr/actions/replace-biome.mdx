@@ -1,0 +1,171 @@
+---
+title: Remplacer le biome
+description: Changer le biome dans une zone en tant qu'action ItemsAdder.
+version: "1.0.7"
+---
+
+```yaml
+replace_biome:
+  biome: "minecraft:cherry_grove"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+Changer le biome dans une zone sélectionnée lorsqu'un événement ItemsAdder est déclenché.
+
+## Paramètres
+
+### `biome`
+
+Le biome à appliquer.
+
+Utilisez un identifiant de biome namespaced valide tel que `minecraft:plains`, `minecraft:desert` ou `minecraft:cherry_grove`.
+Vous pouvez également utiliser des biomes de plugins ou datapacks personnalisés.
+
+```yaml
+replace_biome:
+  biome: "minecraft:desert"
+```
+
+### `shape`
+
+La forme utilisée pour la zone de remplacement de biome.
+
+Formes supportées :
+
+- `CUBOID`
+- `RHOMBUS`
+- `SPHERE`
+- `CYLINDER`
+- `SHELL`
+- `TORUS`
+- `CONE`
+- `BEAM`
+- `PYRAMID`
+
+```yaml
+replace_biome:
+  biome: "minecraft:swamp"
+  shape: CYLINDER
+```
+
+### `radius`
+
+Définit la taille de la forme.
+
+Deux formats de rayon sont supportés selon la forme et la configuration souhaitée.
+
+#### Rayon uniforme
+
+Utile pour les formes rondes comme `SPHERE`.
+
+```yaml
+replace_biome:
+  biome: "minecraft:snowy_taiga"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+#### Rayon par axe
+
+Utile pour les formes étirées ou de taille personnalisée.
+
+```yaml
+replace_biome:
+  biome: "minecraft:jungle"
+  shape: CUBOID
+  radius:
+    x: 5
+    y: 4
+    z: 3
+```
+
+## Notes sur les formes
+
+Certaines formes sont basées sur la rotation :
+
+- `PYRAMID`
+- `BEAM`
+- `CONE`
+
+Ces formes sont affectées par la rotation du joueur lorsque l'action s'exécute.
+
+Pour ces formes, `x`, `y` et `z` contrôlent toujours les dimensions finales de la forme, même si elle est orientée selon la direction du joueur.
+
+## Compatibilité avec les plugins de protection
+
+Les emplacements où le joueur n'a pas la permission de construire (vérifiée via [AntiGriefLib](https://github.com/MomirealmsLib/AntiGriefLib)) sont ignorés silencieusement. Les plugins supportés incluent WorldGuard, GriefPrevention, Towny, GriefDefender, RedProtect et d'autres supportés par AntiGriefLib.
+
+## Limitation importante
+
+L'édition de biome dans Minecraft n'est pas parfaitement précise à petite échelle. Le résultat peut sembler légèrement aléatoire ou irrégulier, surtout avec de petites valeurs de rayon. C'est une limitation du jeu.
+
+- Les petites formes `SPHERE` peuvent ne pas sembler parfaitement sphériques.
+- Les formes directionnelles peuvent apparaître légèrement inégales.
+- Certains bords peuvent sembler rugueux.
+
+Avec un rayon plus grand, la forme ressemblera beaucoup plus à ce qui est attendu.
+
+## Exemples
+
+### Sphère
+
+```yaml
+replace_biome:
+  biome: "minecraft:mushroom_fields"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 6
+```
+
+### Cuboïde
+
+```yaml
+replace_biome:
+  biome: "minecraft:badlands"
+  shape: CUBOID
+  radius:
+    x: 5
+    y: 4
+    z: 3
+```
+
+### Faisceau basé sur la rotation du joueur
+
+```yaml
+replace_biome:
+  biome: "minecraft:nether_wastes"
+  shape: BEAM
+  radius:
+    x: 12
+    y: 2
+    z: 2
+```
+
+### Cône basé sur la rotation du joueur
+
+```yaml
+replace_biome:
+  biome: "minecraft:soul_sand_valley"
+  shape: CONE
+  radius:
+    x: 10
+    y: 4
+    z: 4
+```
+
+## Exemple complet
+
+```yaml
+my_item:
+  events:
+    interact:
+      right:
+        replace_biome:
+          biome: "minecraft:cherry_grove"
+          shape: SPHERE
+          radius:
+            blocks_from_center: 5
+```

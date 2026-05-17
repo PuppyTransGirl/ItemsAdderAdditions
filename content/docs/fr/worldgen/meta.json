@@ -1,0 +1,7 @@
+{
+  "title": "Génération du monde",
+  "icon": "Trees",
+  "pages": [
+    "world-generation"
+  ]
+}

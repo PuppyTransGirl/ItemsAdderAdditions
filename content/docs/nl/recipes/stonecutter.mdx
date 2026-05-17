@@ -1,0 +1,62 @@
+---
+title: Steensnijder
+description: Voeg steensnijderrecepten toe voor aangepaste of vanilla items in ItemsAdder.
+version: "1.0.7"
+---
+
+Voeg steensnijderrecepten toe zonder extra receptbestanden aan te maken.
+
+## Parameters
+
+### `enabled`
+
+Optioneel. Standaard: `true`. Stel in op `false` om het registreren van het recept over te slaan.
+
+### `ingredient.item`
+
+Verplicht. Het invoeritem dat in de steensnijder wordt getoond. Gebruik een vanilla materiaal of een aangepast ItemsAdder-item.
+
+```yaml
+ingredient:
+  item: STONE
+```
+
+```yaml
+ingredient:
+  item: my_pack:rough_marble
+```
+
+### `result.item`
+
+Verplicht. Het uitvoeritem.
+
+```yaml
+result:
+  item: STONE_BRICKS
+```
+
+### `result.amount`
+
+Optioneel. Standaard: `1`. Het aantal geproduceerde items.
+
+## Volledig voorbeeld
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  stonecutter:
+    marble_tiles:
+      ingredient:
+        item: my_pack:rough_marble
+      result:
+        item: my_pack:marble_tiles
+        amount: 2
+```
+
+## Opmerkingen
+
+- Ondersteunt vanilla en aangepaste ItemsAdder-items.
+- Recept-ID's zoals `marble_tiles` zijn interne identificatoren.
+- De namespace komt van `info.namespace`.

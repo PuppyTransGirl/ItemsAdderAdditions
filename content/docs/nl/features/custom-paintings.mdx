@@ -1,0 +1,77 @@
+---
+title: Aangepaste schilderijen
+description: Registreer aangepaste schilderijvarianten uit je ItemsAdder YML-bestanden. Vereist Paper 1.21.5+.
+version: "1.0.8"
+---
+
+<Callout type="warn">
+    **Versievereiste:** Vereist **Paper 1.21.5 of hoger**. De functie is uitgeschakeld op oudere versies.
+</Callout>
+
+Aangepaste schilderijen worden rechtstreeks gedefinieerd in ItemsAdder-inhoud YML-bestanden via een sectie `paintings` op het hoogste niveau. Elke invoer registreert een echte Minecraft-schilderijvariant die spelers in het spel kunnen tegenkomen.
+
+## Configuratie
+
+```yaml
+info:
+  namespace: mynamespace
+
+paintings:
+  sunset:
+    enabled: true
+    width: 2
+    height: 1
+    asset: mynamespace:sunset
+    title: "<yellow>Sunset"
+    author: "Toutou"
+    item: mynamespace:sunset_painting
+    include_in_random: true
+```
+
+## Opties
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `enabled` | boolean | `true` | Stel in op `false` om dit schilderij over te slaan zonder de invoer te verwijderen. |
+| `width` | integer | *(verplicht)* | Breedte van het schilderij in blokken. |
+| `height` | integer | *(verplicht)* | Hoogte van het schilderij in blokken. |
+| `asset` | `namespace:key` | *(verplicht)* | Texturassetsleutel. Zie [Tekstuurpad](#tekstuurpad) hieronder. |
+| `title` | string | *(geen)* | Optionele weergavetitel getoond in tooltips. Ondersteunt MiniMessage. |
+| `author` | string | *(geen)* | Optionele auteurnaam getoond in tooltips. |
+| `item` | `namespace:item_id` | *(geen)* | Optioneel gekoppeld ItemsAdder-item. Wanneer er rechts op een geldige muurvlak wordt geklikt, plaatst dit item het aangepaste schilderij. |
+| `include_in_random` | boolean | `false` | Wanneer `true`, kunnen vanilla schilderijitems willekeurig dit aangepaste schilderij selecteren wanneer de muurruimte past. |
+
+## Tekstuurpad
+
+De `asset`-waarde verwijst naar een textuurbestand in je ItemsAdder-inhoudsmap. Voor `asset: mynamespace:sunset` verwacht de plugin:
+
+```
+contents/mynamespace/textures/painting/sunset.png
+```
+
+Er zijn geen datapack-bestanden nodig. De plugin injecteert de schilderijvarianten bij runtime en werkt de vanilla `minecraft:placeable`-schilderijlabel automatisch bij.
+
+## Schilderijen in het spel plaatsen
+
+Als je een `item` instelt, gedraagt dat ItemsAdder-item zich als een aangepast schilderijitem:
+
+- Rechtsklikken op een geldig muurvlak plaatst het aangepaste schilderij.
+- Controleurs van beschermplugins worden gerespecteerd.
+- Het probleem met dubbele plaatsing via de tweede hand wordt automatisch afgehandeld.
+
+Als `include_in_random` `false` is (de standaard), kan het schilderij alleen worden geplaatst via het gekoppelde item. Stel het in op `true` om ook vanilla schilderijitems toe te staan het willekeurig te kiezen.
+
+## In- en uitschakelen
+
+Je kunt deze functie in- of uitschakelen in de `config.yml` van de plugin:
+
+```yaml
+features:
+  custom_paintings: true
+```
+
+## Opmerkingen
+
+- Deze functie is alleen beschikbaar op Minecraft **1.21.5** en nieuwer. Op oudere versies wordt de sectie `paintings` stilzwijgend genegeerd.
+- Er is geen `/iazip` of handmatige resourcepackstap nodig voor de schilderijvarianten zelf, maar je textuurbestand moet zoals gebruikelijk in je resourcepack zijn opgenomen.
+- Het gekoppelde `item` moet een bestaand ItemsAdder-item zijn. Als het ontbreekt, wordt de schilderijvariant nog steeds geregistreerd, maar werkt er geen plaatsingsitem.

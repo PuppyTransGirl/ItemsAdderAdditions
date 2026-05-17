@@ -1,0 +1,62 @@
+---
+title: Tailleur de pierre
+description: Ajouter des recettes de tailleur de pierre pour des objets personnalisés ou vanilla dans ItemsAdder.
+version: "1.0.7"
+---
+
+Ajoutez des recettes de tailleur de pierre sans créer de fichiers de recettes supplémentaires.
+
+## Paramètres
+
+### `enabled`
+
+Optionnel. Par défaut : `true`. Définissez à `false` pour ignorer l'enregistrement de la recette.
+
+### `ingredient.item`
+
+Obligatoire. L'objet d'entrée affiché dans le tailleur de pierre. Utilisez un matériau vanilla ou un objet ItemsAdder personnalisé.
+
+```yaml
+ingredient:
+  item: STONE
+```
+
+```yaml
+ingredient:
+  item: my_pack:rough_marble
+```
+
+### `result.item`
+
+Obligatoire. L'objet en sortie.
+
+```yaml
+result:
+  item: STONE_BRICKS
+```
+
+### `result.amount`
+
+Optionnel. Par défaut : `1`. Le nombre d'objets produits.
+
+## Exemple complet
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  stonecutter:
+    marble_tiles:
+      ingredient:
+        item: my_pack:rough_marble
+      result:
+        item: my_pack:marble_tiles
+        amount: 2
+```
+
+## Notes
+
+- Supporte les objets vanilla et ItemsAdder personnalisés.
+- Les IDs de recette comme `marble_tiles` sont des identifiants internes.
+- Le namespace provient de `info.namespace`.

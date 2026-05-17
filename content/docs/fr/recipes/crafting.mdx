@@ -1,0 +1,380 @@
+---
+title: Table de craft
+description: Ajouter des recettes de craft avancées avec des tags, des quantités d'ingrédients, la gestion de la durabilité et le support sans forme.
+version: "1.0.7"
+---
+
+ItemsAdderAdditions ajoute un type de recette de table de craft supplémentaire appelé `iaa_crafting_table`.
+
+Il ne remplace pas le type de recette `crafting_table` normal d'ItemsAdder. Il fournit un autre système de recettes pour les cas où vous avez besoin de fonctionnalités de validation d'ingrédients supplémentaires.
+
+Ce type de recette supporte les options de recette de craft habituelles déjà connues d'ItemsAdder, tout en ajoutant des fonctionnalités supplémentaires telles que :
+
+- les tags
+- les quantités d'ingrédients
+- les dégâts de durabilité sur les ingrédients
+- les objets de remplacement
+- l'ignorance de la correspondance de durabilité
+- le filtrage par type de potion
+- les listes d'ingrédients sans forme
+
+## Important
+
+Les recettes utilisant ces fonctionnalités supplémentaires doivent être placées sous :
+
+```yaml
+recipes:
+  iaa_crafting_table:
+```
+
+Si vous n'avez besoin que des fonctionnalités de craft normales d'ItemsAdder, vous pouvez continuer à utiliser le type de recette `crafting_table` classique.
+
+## Recette avec forme de base
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    wooden_scythe:
+      pattern:
+        - "XPP"
+        - "PXS"
+        - "XXS"
+      ingredients:
+        P: "#minecraft:planks"
+        S: STICK
+      result:
+        item: "my_pack:wooden_scythe"
+```
+
+## Recette sans forme de base
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    mega_diamond:
+      shapeless: true
+      ingredients:
+        - item: IRON_INGOT
+          amount: 2
+        - item: GOLD_INGOT
+          amount: 2
+        - item: COPPER_INGOT
+          amount: 2
+      result:
+        item: DIAMOND
+        amount: 3
+```
+
+## Structure
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    my_recipe:
+      enabled: true
+      permission: "myplugin.recipe.use"
+      pattern:
+        - "ABC"
+        - "DEF"
+        - "GHI"
+      ingredients:
+        A: STICK
+      result:
+        item: DIAMOND
+        amount: 1
+```
+
+## Fonctionnalités de recette standard supportées
+
+`iaa_crafting_table` supporte également les fonctionnalités de craft courantes que vous connaissez peut-être déjà d'ItemsAdder, comme :
+
+- `enabled`
+- `permission`
+- les recettes avec forme via `pattern`
+- les recettes sans forme
+- plusieurs variantes `pattern...`
+- le filtrage par `potion_type`
+
+## Fonctionnalités supplémentaires d'ItemsAdderAdditions
+
+La principale raison d'utiliser `iaa_crafting_table` est son support de prédicats d'ingrédients supplémentaires :
+
+- les tags avec `#namespace:tag`
+- `amount` par ingrédient
+- `damage` par ingrédient
+- `replacement` par ingrédient
+- `ignore_durability`
+- le format de liste d'ingrédients sans forme
+
+## Paramètres
+
+### `enabled`
+
+Optionnel. Par défaut : `true`.
+
+Si défini à `false`, la recette n'est pas enregistrée.
+
+### `permission`
+
+Optionnel.
+
+Si défini, les joueurs doivent avoir cette permission pour que le résultat de la recette apparaisse et soit fabricable.
+
+```yaml
+permission: "myplugin.recipe.use"
+```
+
+### `shapeless`
+
+Optionnel. Par défaut : `false`.
+
+Si `true`, la recette est traitée comme une recette sans forme.
+
+## Résultat
+
+### `result.item`
+
+Obligatoire.
+
+L'objet en sortie.
+
+Supporte les matériaux vanilla et les objets ItemsAdder.
+
+```yaml
+result:
+  item: "my_pack:custom_sword"
+```
+
+### `result.amount`
+
+Optionnel. Par défaut : `1`.
+
+```yaml
+result:
+  item: DIAMOND
+  amount: 3
+```
+
+## Recettes avec forme
+
+Les recettes avec forme utilisent un `pattern` et une section `ingredients` indexée par caractères.
+
+```yaml
+my_recipe:
+  pattern:
+    - "XPP"
+    - "PXS"
+    - "XXS"
+  ingredients:
+    P: "#minecraft:planks"
+    S: STICK
+  result:
+    item: "my_pack:wooden_scythe"
+```
+
+### Notes sur le pattern
+
+- Les clés d'ingrédients doivent être un seul caractère.
+- `X` marque les emplacements vides. Ne définissez pas `X` comme ingrédient.
+- Tout autre caractère non défini dans `ingredients` est également traité comme vide.
+- Plusieurs patterns sont supportés en utilisant des clés comme `pattern_1`, `pattern_2`, etc.
+
+## Recettes sans forme
+
+Les recettes sans forme utilisent :
+
+```yaml
+shapeless: true
+```
+
+et peuvent utiliser une liste d'ingrédients :
+
+```yaml
+my_recipe:
+  shapeless: true
+  ingredients:
+    - item: IRON_INGOT
+      amount: 2
+    - item: GOLD_INGOT
+      amount: 2
+  result:
+    item: DIAMOND
+```
+
+## Formats d'ingrédients
+
+Les ingrédients supportent plusieurs formats.
+
+### Chaîne simple
+
+```yaml
+ingredients:
+  S: STICK
+  P: "#minecraft:planks"
+  C: "my_pack:custom_part"
+```
+
+### Objet détaillé
+
+```yaml
+ingredients:
+  S:
+    item: STICK
+    amount: 2
+    damage: 5
+    replacement: STICK
+    ignore_durability: true
+    potion_type: minecraft:water
+```
+
+### Style liste sans forme
+
+```yaml
+ingredients:
+  - SNOWBALL
+  - item: WATER_BUCKET
+    replacement: BUCKET
+```
+
+## Fonctionnalités d'ingrédients avancées
+
+### Tags
+
+Utilisez des tags d'objets ou de blocs Minecraft en préfixant la valeur avec `#`.
+
+```yaml
+ingredients:
+  P: "#minecraft:planks"
+```
+
+Cela permet à n'importe quel objet de ce tag de correspondre.
+
+### `amount`
+
+Exiger plus d'un exemplaire du même ingrédient.
+
+```yaml
+ingredients:
+  I:
+    item: IRON_INGOT
+    amount: 3
+```
+
+### `damage`
+
+Au lieu de consommer l'ingrédient, l'endommager du montant configuré.
+
+Utile pour les outils utilisés dans le craft.
+
+```yaml
+ingredients:
+  H:
+    item: IRON_PICKAXE
+    damage: 10
+```
+
+### `replacement`
+
+Remplacer l'ingrédient par un autre objet après le craft.
+
+Utile pour les seaux, bouteilles, moules et contenants similaires.
+
+```yaml
+ingredients:
+  W:
+    item: WATER_BUCKET
+    replacement: BUCKET
+```
+
+### `ignore_durability`
+
+Ignorer la valeur de durabilité actuelle lors de la correspondance d'un objet.
+
+```yaml
+ingredients:
+  T:
+    item: IRON_PICKAXE
+    ignore_durability: true
+```
+
+### `potion_type`
+
+Restreindre un ingrédient potion à un type de potion de base spécifique.
+
+```yaml
+ingredients:
+  P:
+    item: POTION
+    potion_type: minecraft:jump_boost
+```
+
+## Exemple complet avec forme
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    reinforced_blade:
+      enabled: true
+      permission: "my_pack.recipes.reinforced_blade"
+      pattern:
+        - "XIT"
+        - "XSI"
+        - "SXX"
+      ingredients:
+        I:
+          item: IRON_INGOT
+          amount: 2
+        S: STICK
+        T:
+          item: IRON_PICKAXE
+          damage: 8
+          ignore_durability: true
+      result:
+        item: "my_pack:reinforced_blade"
+        amount: 1
+```
+
+## Exemple complet sans forme
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    purified_bottle:
+      shapeless: true
+      ingredients:
+        - item: POTION
+          potion_type: minecraft:water
+        - item: DIAMOND
+          amount: 2
+      result:
+        item: "my_pack:purified_bottle"
+```
+
+## Références d'objets supportées
+
+Les objets des ingrédients et résultats peuvent utiliser :
+
+- les noms de matériaux vanilla comme `STICK` ou `DIAMOND`
+- les IDs ItemsAdder comme `namespace:item`
+- les tags comme `#minecraft:planks`
+
+## Notes
+
+- `replacement` et `damage` sont appliqués lors du craft.
+- Les recettes sans forme avec des prédicats avancés doivent utiliser le format liste.
+- `iaa_crafting_table` est un type de recette avancé supplémentaire, pas un remplacement du `crafting_table` d'ItemsAdder.

@@ -1,0 +1,83 @@
+---
+title: Paramètres des actions
+description: Paramètres universels pour toutes les actions. Contrôlez les permissions, les délais d'exécution et le ciblage des entités.
+version: "1.0.0"
+---
+
+Chaque action supporte un ensemble de paramètres partagés. Ils vous permettent de conditionner les actions à des permissions, d'ajouter des délais et de contrôler à qui l'action s'applique. Vous pouvez en combiner autant que vous voulez sur une même action.
+
+## Paramètres
+
+### `permission`
+
+Si défini, l'action ne se déclenche que si le joueur possède ce nœud de permission. Les joueurs sans la permission sont ignorés silencieusement.
+
+```yaml
+actionbar:
+  text: "<green>Bonjour !"
+  permission: "myplugin.greet"
+```
+
+### `delay`
+
+Attendre ce nombre de ticks avant d'exécuter l'action. 20 ticks = 1 seconde. Par défaut : `0` (immédiat).
+
+```yaml
+message:
+  text: "<gold>Chargement..."
+  delay: 40 # 2 secondes après le déclencheur
+```
+
+### `target`
+
+Contrôle à qui l'action s'applique. Par défaut : `self`.
+
+| Valeur             | Description                                                                                         |
+|--------------------|-----------------------------------------------------------------------------------------------------|
+| `self`             | Le joueur qui a déclenché l'événement *(par défaut)*                                                |
+| `other`            | L'entité avec laquelle le joueur interagit (ex. celle qui est attaquée)                             |
+| `all`              | Le joueur déclencheur **et** l'entité cible                                                         |
+| `radius`           | Toutes les entités dans une sphère autour du point d'interaction - nécessite `target_radius`        |
+| `in_sight`         | L'entité que le joueur regarde - nécessite `target_in_sight_distance`                               |
+
+```yaml
+message:
+  text: "<red>Vous avez touché quelqu'un !"
+  target: other
+```
+
+### `target_radius`
+
+Utilisé uniquement avec `target: radius`. Définit le diamètre de la sphère (en blocs) centrée sur le point d'interaction.
+
+```yaml
+actionbar:
+  text: "<yellow>Effet de zone !"
+  target: radius
+  target_radius: 10
+```
+
+### `target_in_sight_distance`
+
+Utilisé uniquement avec `target: in_sight`. Le nombre maximum de blocs à parcourir depuis les yeux du joueur lors de la recherche d'une entité. Si aucune entité n'est trouvée dans cette portée, l'action est entièrement ignorée.
+
+```yaml
+ignite:
+  duration: 100
+  target: in_sight
+  target_in_sight_distance: 10
+```
+
+## Exemple complet
+
+```yaml
+my_item:
+  events:
+    interact:
+      right:
+        actionbar:
+          text: "<aqua>Clic droit !"
+          permission: "some.permission" # Seuls les joueurs avec cette permission déclencheront ceci
+          delay: 10 # Délai d'une demi-seconde
+          target: self # Appliquer uniquement au cliqueur
+```

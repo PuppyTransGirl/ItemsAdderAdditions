@@ -1,0 +1,10 @@
+{
+  "title": "Gedrag",
+  "icon": "Zap",
+  "pages": [
+    "bed",
+    "...",
+    "storage",
+    "text-display"
+  ]
+}

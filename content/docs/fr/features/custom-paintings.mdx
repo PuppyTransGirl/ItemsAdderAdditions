@@ -1,0 +1,78 @@
+---
+title: Tableaux personnalisés
+description: Enregistrer des variantes de tableaux personnalisés depuis vos fichiers YML ItemsAdder. Nécessite Paper 1.21.5+.
+version: "1.0.8"
+---
+
+<Callout type="warn">
+    **Exigence de version :** Nécessite **Paper 1.21.5 ou supérieur**. La fonctionnalité est désactivée sur les versions
+    antérieures.
+</Callout>
+
+Les tableaux personnalisés sont définis directement dans les fichiers YML de contenu ItemsAdder en utilisant une section `paintings` de niveau supérieur. Chaque entrée enregistre une véritable variante de tableau Minecraft que les joueurs peuvent rencontrer en jeu.
+
+## Configuration
+
+```yaml
+info:
+  namespace: mynamespace
+
+paintings:
+  sunset:
+    enabled: true
+    width: 2
+    height: 1
+    asset: mynamespace:sunset
+    title: "<yellow>Coucher de soleil"
+    author: "Toutou"
+    item: mynamespace:sunset_painting
+    include_in_random: true
+```
+
+## Options
+
+| Clé | Type | Défaut | Description |
+|-----|------|--------|-------------|
+| `enabled` | booléen | `true` | Définir à `false` pour ignorer ce tableau sans supprimer l'entrée. |
+| `width` | entier | *(obligatoire)* | Largeur du tableau en blocs. |
+| `height` | entier | *(obligatoire)* | Hauteur du tableau en blocs. |
+| `asset` | `namespace:key` | *(obligatoire)* | Clé de la ressource de texture. Voir [Chemin de texture](#chemin-de-texture) ci-dessous. |
+| `title` | chaîne | *(aucun)* | Titre d'affichage optionnel affiché dans les infobulles. Supporte MiniMessage. |
+| `author` | chaîne | *(aucun)* | Nom d'auteur optionnel affiché dans les infobulles. |
+| `item` | `namespace:item_id` | *(aucun)* | Objet ItemsAdder lié optionnel. Quand on clique droit sur une face de mur valide, cet objet place le tableau personnalisé. |
+| `include_in_random` | booléen | `false` | Quand `true`, les objets tableau vanilla peuvent sélectionner aléatoirement ce tableau personnalisé si l'espace sur le mur convient. |
+
+## Chemin de texture
+
+La valeur `asset` correspond à un fichier de texture dans votre dossier de contenu ItemsAdder. Pour `asset: mynamespace:sunset`, le plugin attend :
+
+```
+contents/mynamespace/textures/painting/sunset.png
+```
+
+Aucun fichier datapack n'est nécessaire. Le plugin injecte les variantes de tableau à l'exécution et met à jour automatiquement le tag vanilla `minecraft:placeable`.
+
+## Placer des tableaux en jeu
+
+Si vous définissez un `item`, cet objet ItemsAdder se comporte comme un objet tableau personnalisé :
+
+- Un clic droit sur une face de mur valide place le tableau personnalisé.
+- Les vérifications des plugins de protection sont respectées.
+- Le problème de placement en double avec la main secondaire est géré automatiquement.
+
+Si `include_in_random` est `false` (par défaut), le tableau ne peut être placé que via son objet lié. Définissez-le à `true` pour permettre également aux objets tableau vanilla de le choisir aléatoirement.
+
+## Activation / Désactivation
+
+Vous pouvez activer ou désactiver cette fonctionnalité dans le `config.yml` du plugin :
+
+```yaml
+features:
+  custom_paintings: true
+```
+
+## Notes
+
+- Cette fonctionnalité n'est disponible que sur Minecraft **1.21.5** et ultérieur. Sur les versions antérieures, la section `paintings` est ignorée silencieusement.
+- Aucun `/iazip` ni étape manuelle de pack de ressources n'est nécessaire pour les variantes de tableaux elles-mêmes, mais votre fichier de texture doit être inclus dans votre pack de ressources comme d'habitude.
+- L'`item` lié doit être un objet ItemsAdder existant. S'il est manquant, la variante de tableau est quand même enregistrée, mais aucun objet de placement ne fonctionnera.

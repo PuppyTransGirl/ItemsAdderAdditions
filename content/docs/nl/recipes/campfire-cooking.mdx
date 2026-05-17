@@ -1,0 +1,72 @@
+---
+title: Kampvuurbereiding
+description: Voeg kampvuurbereidingsrecepten toe voor aangepaste of vanilla items in ItemsAdder.
+version: "1.0.7"
+---
+
+Voeg kampvuurbereidingsrecepten toe zonder extra receptbestanden aan te maken.
+
+## Parameters
+
+### `enabled`
+
+Optioneel. Standaard: `true`. Stel in op `false` om het registreren van het recept over te slaan.
+
+### `ingredient.item`
+
+Verplicht. Het invoeritems voor het recept. Gebruik een vanilla materiaal of een aangepast ItemsAdder-item.
+
+```yaml
+ingredient:
+  item: BEEF
+```
+
+```yaml
+ingredient:
+  item: my_pack:raw_fish_fillet
+```
+
+### `result.item`
+
+Verplicht. Het bereide uitvoeritem.
+
+```yaml
+result:
+  item: COOKED_BEEF
+```
+
+### `result.amount`
+
+Optioneel. Standaard: `1`. Het aantal geproduceerde items.
+
+### `cook_time`
+
+Optioneel. Standaard: `600` ticks. Bereidingstijd. 20 ticks = 1 seconde.
+
+### `exp`
+
+Optioneel. Standaard: `0.0`. Ervaring verdiend bij het nemen van het bereide resultaat.
+
+## Volledig voorbeeld
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  campfire_cooking:
+    roasted_berry_skewer:
+      ingredient:
+        item: my_pack:berry_skewer_raw
+      result:
+        item: my_pack:berry_skewer_roasted
+        amount: 1
+      cook_time: 160
+      exp: 0.25
+```
+
+## Opmerkingen
+
+- Ondersteunt vanilla en aangepaste ItemsAdder-items.
+- Recept-ID's zoals `roasted_berry_skewer` zijn interne identificatoren.
+- De namespace komt van `info.namespace`.

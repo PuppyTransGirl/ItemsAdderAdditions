@@ -1,0 +1,64 @@
+---
+title: Creatieve inventarisintegratie
+description: Vul de Minecraft creatieve inventaris automatisch met al je aangepaste ItemsAdder-items. Vereist Paper 1.21.5+.
+version: "1.0.0"
+---
+
+**Credits:** Deze functie is oorspronkelijk gecodeerd door **Misieur** ([GitHub](https://github.com/Misieur)).
+
+<Callout type="warn">
+    **Versievereiste:** Vereist **Paper 1.21.5 of hoger**. De functie is uitgeschakeld op oudere versies.
+</Callout>
+
+Deze functie injecteert automatisch elk aangepast item dat door ItemsAdder is geregistreerd in het vanilla creatieve menu. Er is geen handmatige configuratie per item nodig; het pikt alles op wat ItemsAdder laadt.
+
+<Callout type="error">
+    **Belangrijk**: Je hebt operatorrechten en het **Operator Items Tab**
+    nodig om ItemsAdder-items in de creatieve inventaris te zien.
+</Callout>
+
+## Instellen
+
+De plugin regelt alles automatisch bij de eerste run.
+Je hoeft alleen `/iazip` uit te voeren om het resourcepack opnieuw te genereren.
+
+Dat is alles! Je creatieve inventaris bevat nu al je aangepaste items.
+
+<Callout>
+    Elke keer dat je aangepaste items toevoegt of verwijdert via ItemsAdder, moet je opnieuw de server betreden en
+    `/iazip` uitvoeren om
+    de wijzigingen zichtbaar te maken in je creatieve inventaris.
+</Callout>
+
+## In- en uitschakelen
+
+Je kunt deze functie in- of uitschakelen in de `config.yml` van de plugin:
+
+```yaml
+features:
+  creative_inventory_integration: true
+```
+
+Stel dit in op `false` om de functie volledig uit te schakelen. De plugin genereert geen resourcepack-bestanden en injecteert geen registeritems wanneer uitgeschakeld.
+
+## ItemsAdder-configuratie
+
+Tijdens de eerste instelling voegt de plugin zichzelf automatisch toe aan de resourcepack-samenvoeglijst van ItemsAdder:
+
+```yaml
+# In ItemsAdder/config.yml (automatisch beheerd)
+resource-pack:
+  zip:
+    merge_other_plugins_resourcepacks_folders:
+      - ItemsAdderAdditions/resourcepack
+```
+
+Als dit item om welke reden dan ook ontbreekt (bijv. het bestand was niet beschrijfbaar), kun je het veilig handmatig toevoegen. De plugin logt een waarschuwing als het de wijziging niet automatisch kon toepassen.
+
+## Opmerkingen
+
+- **Sjabloonitems** zijn uitgesloten. Items gemarkeerd met `template: true` in hun ItemsAdder-configuratie verschijnen niet in het creatieve menu.
+- **Directionele varianten** zijn uitgesloten. Items waarvan de namespace-ID eindigt op `_north`, `_south`, `_east`, `_west`, `_up` of `_down` worden overgeslagen wanneer het basisitem (zonder het richtingsachtervoegsel) bestaat in het register. Dit voorkomt dubbele vermeldingen voor roteerbare blokken.
+- Items met `hide_from_inventory: true` in hun ItemsAdder-configuratie zijn uitgesloten.
+- Items die `graphics.icon` of `resource.icon` gebruiken, tonen hun platte GUI-pictogram. Alle andere items gebruiken het 3D-model dat ze normaal tonen wanneer ze in de hand worden gehouden.
+- Vanilla schilderijen zijn niet beinvloed; reguliere schilderijitems blijven normaal functioneren.

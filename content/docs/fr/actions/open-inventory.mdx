@@ -1,0 +1,29 @@
+---
+title: Ouvrir un inventaire
+description: Ouvrir une interface de poste de travail vanilla pour un joueur en tant qu'action ItemsAdder.
+version: "1.0.0"
+---
+
+<Callout type="warn">
+    Nécessite Paper 1.21.4 ou supérieur pour le paramètre `title`.
+</Callout>
+
+```yaml
+open_inventory:
+  type: "anvil"
+  title: "<blue>Mon super enclume personnalisée" # Optionnel
+```
+
+Supporte le formatage [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), les placeholders [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police [ItemsAdder](https://itemsadder.com/).
+
+## Types supportés
+
+- `anvil`
+- `cartography`, `cartography_table`
+- `crafting_table`, `workbench`
+- `enchanting`, `enchanting_table`
+- `ender_chest`
+- `grindstone`
+- `loom`
+- `smithing`, `smithing_table`
+- `stonecutter`

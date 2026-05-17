@@ -1,0 +1,63 @@
+---
+title: Creative Inventory Integration
+description: Automatically populate the Minecraft creative inventory with all your ItemsAdder custom items. Requires Paper 1.21.5+.
+version: "1.0.0"
+---
+
+**Credits:** This feature was originally coded by **Misieur** ([GitHub](https://github.com/Misieur)).
+
+<Callout type="warn">
+    **Version Requirement:** Requires **Paper 1.21.5 or higher**. The feature is disabled on older versions.
+</Callout>
+
+This feature automatically injects every custom item registered by ItemsAdder into the vanilla creative menu. No manual configuration per item is needed; it picks up everything ItemsAdder loads.
+
+<Callout type="error">
+    **Important**: You need operator permissions and the **Operator Items Tab**
+    enabled to see ItemsAdder items in the creative inventory.
+</Callout>
+
+## Setup
+
+The plugin handles everything automatically on the first run.
+You just need to run `/iazip` to regenerate the resource pack.
+
+That's it! Your creative inventory will now contain all your custom items.
+
+<Callout>
+    Every time you add or remove custom items via ItemsAdder, you must rejoin the server and run `/iazip` again to see
+    the updates reflected in your creative inventory.
+</Callout>
+
+## Enabling / Disabling
+
+You can toggle this feature in the plugin's `config.yml`:
+
+```yaml
+features:
+  creative_inventory_integration: true
+```
+
+Set to `false` to disable the feature entirely. The plugin will not generate any resource pack files or inject any registry entries when disabled.
+
+## ItemsAdder Config
+
+During the first setup, the plugin automatically adds itself to ItemsAdder's resource pack merge list:
+
+```yaml
+# In ItemsAdder/config.yml (managed automatically)
+resource-pack:
+  zip:
+    merge_other_plugins_resourcepacks_folders:
+      - ItemsAdderAdditions/resourcepack
+```
+
+If for any reason this entry is missing (e.g., the file wasn't writable), you can safely add it manually. The plugin will log a warning if it couldn't apply the change automatically.
+
+## Notes
+
+- **Template items** are excluded. Items marked with `template: true` in their ItemsAdder configuration won't appear in the creative menu.
+- **Directional variants** are excluded. Items whose namespaced ID ends in `_north`, `_south`, `_east`, `_west`, `_up`, or `_down` are skipped when the base item (without the direction suffix) exists in the registry. This prevents duplicate entries for rotatable blocks.
+- Items with `hide_from_inventory: true` in their ItemsAdder config are excluded.
+- Items using `graphics.icon` or `resource.icon` will display their flat GUI icon. All other items will use the 3D model they normally show when held in-hand.
+- Vanilla paintings are unaffected; regular painting items will continue to function normally.

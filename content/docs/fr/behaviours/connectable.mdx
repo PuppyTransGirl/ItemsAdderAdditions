@@ -1,0 +1,89 @@
+---
+title: Connectable
+description: Faire en sorte que les meubles personnalisés ItemsAdder se connectent automatiquement aux pièces adjacentes identiques. Supporte les escaliers, tables, barrières et tout meuble multi-variante.
+version: "1.0.0"
+---
+
+<Tabs items={['Type escalier', 'Type table']}>
+    <Tab value="Type escalier">
+        ```yaml
+        behaviours:
+        connectable:
+        type: stair # Optionnel (valeur par défaut : stair)
+        ```
+
+        ```yaml
+        behaviours:
+        connectable:
+        type: stair # Optionnel (valeur par défaut : stair)
+        default: connectable_furniture
+        straight: connectable_furniture_straight
+        left: connectable_furniture_left
+        right: connectable_furniture_right
+        outer: connectable_furniture_outer
+        inner: connectable_furniture_inner
+        ```
+
+        ![Exemple de type escalier connectable](/assets/behaviours_connectable_stair_type_example.webp)
+    </Tab>
+    <Tab value="Type table">
+        ```yaml
+        behaviours:
+        connectable:
+        type: table
+        ```
+
+        ```yaml
+        behaviours:
+        connectable:
+        type: table
+        default: connectable_furniture
+        straight: connectable_furniture_straight
+        middle: connectable_furniture_middle
+        border: connectable_furniture_border
+        corner: connectable_furniture_corner
+        end: connectable_furniture_end
+        ```
+
+        ![Exemple de type table connectable](/assets/behaviours_connectable_table_type_example.webp)
+    </Tab>
+</Tabs>
+
+Les IDs doivent être des meubles personnalisés.
+
+## Résolution automatique des IDs
+
+Tous les IDs de type de meuble sont optionnels. Si non spécifiés, le plugin recherche automatiquement les IDs de meubles correspondants :
+
+- `default` hérite de l'ID du meuble sur lequel le comportement est configuré.
+- Chaque autre type utilise `<nom_meuble>_<type>`.
+
+Par exemple, si le comportement est configuré sur un meuble nommé `connectable_furniture` :
+
+### Résolution automatique pour le type escalier
+
+- `default` → `connectable_furniture`
+- `straight` → `connectable_furniture_straight`
+- `left` → `connectable_furniture_left`
+- `right` → `connectable_furniture_right`
+- `outer` → `connectable_furniture_outer`
+- `inner` → `connectable_furniture_inner`
+
+### Résolution automatique pour le type table
+
+- `default` → `connectable_furniture`
+- `straight` → `connectable_furniture_straight`
+- `middle` → `connectable_furniture_middle`
+- `border` → `connectable_furniture_border`
+- `corner` → `connectable_furniture_corner`
+- `end` → `connectable_furniture_end`
+
+## Configuration minimale
+
+```yaml
+behaviours:
+  connectable:
+    type: stair # ou table
+```
+
+Dans la plupart des cas, il suffit de définir le type ; la résolution automatique des IDs s'occupe du reste.

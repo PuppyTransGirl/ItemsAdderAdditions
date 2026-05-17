@@ -1,0 +1,33 @@
+---
+title: Téléportation
+description: Téléporter un joueur ou une entité à des coordonnées fixes en tant qu'action ItemsAdder.
+version: "1.0.0"
+---
+
+```yaml
+teleport:
+  x: 100.5
+  y: 64.0
+  z: -50.5
+  yaw: 90.0 # optionnel
+  pitch: 0.0 # optionnel
+  world: "world_nether" # optionnel
+```
+
+## Paramètres
+
+### `x`, `y`, `z`
+
+Obligatoire. Les coordonnées cibles.
+
+### `yaw`
+
+Optionnel. Par défaut : le yaw actuel du joueur.
+
+### `pitch`
+
+Optionnel. Par défaut : le pitch actuel du joueur.
+
+### `world`
+
+Optionnel. Par défaut : le monde actuel du joueur.

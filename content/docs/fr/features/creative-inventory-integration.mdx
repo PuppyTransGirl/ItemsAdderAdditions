@@ -1,0 +1,64 @@
+---
+title: Intégration à l'inventaire créatif
+description: Remplir automatiquement l'inventaire créatif Minecraft avec tous vos objets personnalisés ItemsAdder. Nécessite Paper 1.21.5+.
+version: "1.0.0"
+---
+
+**Crédits :** Cette fonctionnalité a été initialement codée par **Misieur** ([GitHub](https://github.com/Misieur)).
+
+<Callout type="warn">
+    **Exigence de version :** Nécessite **Paper 1.21.5 ou supérieur**. La fonctionnalité est désactivée sur les versions
+    antérieures.
+</Callout>
+
+Cette fonctionnalité injecte automatiquement tous les objets personnalisés enregistrés par ItemsAdder dans le menu créatif vanilla. Aucune configuration manuelle par objet n'est nécessaire ; elle récupère tout ce qu'ItemsAdder charge.
+
+<Callout type="error">
+    **Important** : Vous avez besoin des permissions opérateur et de l'**onglet Objets Opérateur**
+    activé pour voir les objets ItemsAdder dans l'inventaire créatif.
+</Callout>
+
+## Configuration
+
+Le plugin gère tout automatiquement au premier démarrage.
+Il vous suffit d'exécuter `/iazip` pour régénérer le pack de ressources.
+
+C'est tout ! Votre inventaire créatif contiendra désormais tous vos objets personnalisés.
+
+<Callout>
+    Chaque fois que vous ajoutez ou supprimez des objets personnalisés via ItemsAdder, vous devez vous reconnecter au
+    serveur et relancer `/iazip` pour voir les mises à jour reflétées dans votre inventaire créatif.
+</Callout>
+
+## Activation / Désactivation
+
+Vous pouvez activer ou désactiver cette fonctionnalité dans le `config.yml` du plugin :
+
+```yaml
+features:
+  creative_inventory_integration: true
+```
+
+Définissez à `false` pour désactiver entièrement la fonctionnalité. Le plugin ne générera aucun fichier de pack de ressources ni n'injectera d'entrées de registre lorsqu'il est désactivé.
+
+## Configuration ItemsAdder
+
+Lors de la première configuration, le plugin s'ajoute automatiquement à la liste de fusion du pack de ressources d'ItemsAdder :
+
+```yaml
+# Dans ItemsAdder/config.yml (géré automatiquement)
+resource-pack:
+  zip:
+    merge_other_plugins_resourcepacks_folders:
+      - ItemsAdderAdditions/resourcepack
+```
+
+Si cette entrée est manquante pour une raison quelconque (par ex., le fichier n'était pas accessible en écriture), vous pouvez l'ajouter manuellement sans problème. Le plugin affichera un avertissement s'il n'a pas pu appliquer la modification automatiquement.
+
+## Notes
+
+- Les **objets templates** sont exclus. Les objets marqués avec `template: true` dans leur configuration ItemsAdder n'apparaîtront pas dans le menu créatif.
+- Les **variantes directionnelles** sont exclues. Les objets dont l'ID namespaced se termine par `_north`, `_south`, `_east`, `_west`, `_up` ou `_down` sont ignorés si l'objet de base (sans le suffixe de direction) existe dans le registre. Cela évite les entrées en double pour les blocs pivotables.
+- Les objets avec `hide_from_inventory: true` dans leur configuration ItemsAdder sont exclus.
+- Les objets utilisant `graphics.icon` ou `resource.icon` afficheront leur icône GUI plate. Tous les autres objets utiliseront le modèle 3D qu'ils affichent normalement en main.
+- Les tableaux vanilla ne sont pas affectés ; les objets tableau classiques continueront à fonctionner normalement.

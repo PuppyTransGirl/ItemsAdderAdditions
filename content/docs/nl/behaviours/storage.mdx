@@ -1,0 +1,113 @@
+---
+title: Opslag
+description: Verander elk aangepast ItemsAdder-blok of -meubel in een opslagcontainer. Ondersteunt gedeelde opslag, draagbare shulker-opslag en prullenbakken.
+version: "1.0.0"
+---
+
+Verandert elk aangepast blok of meubel in een opslagcontainer. Er zijn drie modi beschikbaar.
+
+| Type       | Gedrag                                                                         |
+|------------|--------------------------------------------------------------------------------|
+| `STORAGE`  | Gedeelde container - alle spelers zien dezelfde inventaris                     |
+| `SHULKER`  | Inhoud reist mee in het item bij afbreken en wordt hersteld bij herplaatsen   |
+| `DISPOSAL` | Prullenbak - inhoud wordt stilzwijgend verwijderd wanneer de GUI wordt gesloten |
+
+## Configuratie
+
+<Tabs items={['STORAGE', 'SHULKER', 'DISPOSAL']}>
+    <Tab value="STORAGE">
+        ```yaml
+        behaviours:
+        storage:
+        type: STORAGE
+        rows: 3 # optioneel, standaard: 3
+        title: "
+        <gold>Community Chest</gold>
+        " # optioneel, standaard is de naam van het blok/meubel
+        open_variant: my_open_storage # optioneel
+        open_sound: # optioneel
+        name: entity.villager.celebrate # of een aangepast geluid
+        volume: 1.0 # optioneel, standaard: 1.0
+        pitch: 1.0 # optioneel, standaard: 1.0
+        category: MASTER # optioneel, standaard: MASTER
+        close_sound: # optioneel
+        name: entity.villager.ambient # of een aangepast geluid
+        volume: 1.0 # optioneel, standaard: 1.0
+        pitch: 1.0 # optioneel, standaard: 1.0
+        category: MASTER # optioneel, standaard: MASTER
+        ```
+    </Tab>
+    <Tab value="SHULKER">
+        ```yaml
+        behaviours:
+        storage:
+        type: SHULKER
+        rows: 3 # optioneel, standaard: 3
+        title: "
+        <dark_purple>Portable Storage</dark_purple>
+        " # optioneel, standaard is de naam van het blok/meubel
+        open_variant: my_open_storage # optioneel
+        open_sound: # optioneel
+        name: entity.villager.celebrate # of een aangepast geluid
+        volume: 1.0 # optioneel, standaard: 1.0
+        pitch: 1.0 # optioneel, standaard: 1.0
+        category: MASTER # optioneel, standaard: MASTER
+        close_sound: # optioneel
+        name: entity.villager.ambient # of een aangepast geluid
+        volume: 1.0 # optioneel, standaard: 1.0
+        pitch: 1.0 # optioneel, standaard: 1.0
+        category: MASTER # optioneel, standaard: MASTER
+        ```
+    </Tab>
+    <Tab value="DISPOSAL">
+        ```yaml
+        behaviours:
+        storage:
+        type: DISPOSAL
+        rows: 1 # optioneel, standaard: 3
+        title: "
+        <red>Trash Can</red>
+        " # optioneel, standaard is de naam van het blok/meubel
+        open_variant: my_open_storage # optioneel
+        open_sound: # optioneel
+        name: entity.villager.celebrate # of een aangepast geluid
+        volume: 1.0 # optioneel, standaard: 1.0
+        pitch: 1.0 # optioneel, standaard: 1.0
+        category: MASTER # optioneel, standaard: MASTER
+        close_sound: # optioneel
+        name: entity.villager.ambient # of een aangepast geluid
+        volume: 1.0 # optioneel, standaard: 1.0
+        pitch: 1.0 # optioneel, standaard: 1.0
+        category: MASTER # optioneel, standaard: MASTER
+        ```
+    </Tab>
+</Tabs>
+
+Gebruik voor `name` een waarde uit [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) of een aangepast geluid met `namespace:value`.
+
+Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/)-opmaak, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi)-placeholders en [ItemsAdder](https://itemsadder.com/)-lettertypeafbeeldingen.
+
+## Open variant
+
+Je kunt optioneel `open_variant` instellen om het aangepaste blok, meubel of complexe meubel te laten veranderen naar een andere variant terwijl ten minste een speler de opslag open heeft.
+
+Dit is handig voor dingen zoals:
+
+- kisten die visueel openen
+- vaten met een geopend model
+- containers met een andere actieve toestand
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    open_variant: my_open_storage
+```
+
+`open_variant` moet de ID zijn van een ander aangepast blok, meubel of complex meubel, met gebruik van:
+- `id`
+- `namespace:id`
+
+Wanneer de inventaris door alle spelers wordt gesloten, keert de opslag terug naar zijn normale variant.
+
+<VideoGif src="/assets/behaviours_storage_example"/>

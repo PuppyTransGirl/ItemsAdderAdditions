@@ -1,0 +1,30 @@
+---
+title: Toast
+description: Toon een voortgangsmelding als ItemsAdder-actie.
+version: "1.0.0"
+---
+
+```yaml
+toast:
+  icon: my_item
+  text:
+    - "<white>Mijn <gradient:#AC52D4:#6C3484>ItemsAdderAdditions"
+    - "<#E6FBFE><bold>Aangepaste toast"
+  frame: "task" # optioneel, standaard: goal
+```
+
+## Parameters
+
+### `icon`
+
+Verplicht. Het item dat als toast-icoon wordt weergegeven. Gebruik een vanilla-materiaal uit [deze lijst](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), of een aangepast ItemsAdder-item met `namespace:id` of alleen `id`.
+
+### `text`
+
+Verplicht. Het toastbericht. Kan een enkele string of een lijst zijn (één item per regel). Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) en lettertypeafbeeldingen.
+
+### `frame`
+
+Optioneel. Standaard: `goal`. De toast-stijl: `task`, `goal` of `challenge`.
+
+<VideoGif src="/assets/actions_toast_example"/>

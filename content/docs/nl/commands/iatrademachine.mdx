@@ -1,0 +1,66 @@
+---
+title: /iatrademachine
+description: Open een ItemsAdder-handelsmachine-GUI voor een speler zonder het blok in de wereld nodig te hebben.
+version: "1.0.7"
+---
+
+## `/iatrademachine`
+
+Open een ItemsAdder `trade_machine`- of `block_trade_machine`-GUI voor een speler zonder dat het fysieke blok of meubel in de wereld geplaatst hoeft te zijn.
+
+Dit is handig als je verschillende handelsmachine-GUIs wilt openen via andere plugins zoals menusystemen, NPC's of aangepaste commandoflows.
+
+## Syntaxis
+
+```text
+/iatrademachine <speler> <namespace:id> [-silent]
+```
+
+## Parameters
+
+### `<speler>`
+
+De online speler voor wie de handelsmachine wordt geopend.
+
+### `<namespace:id>`
+
+De ID van het aangepaste blok of meubel dat een `trade_machine`- of `block_trade_machine`-gedrag heeft.
+
+Voorbeeld:
+
+```text
+stations:alchemy_table
+```
+
+### `-silent`
+
+Optionele vlag.
+
+Indien toegevoegd, onderdrukt het commando het bevestigingsbericht dat normaal naar de commandouitvoerder wordt gestuurd.
+
+## Voorbeelden
+
+```text
+/iatrademachine twinkycome stations:alchemy_table
+```
+
+```text
+/iatrademachine twinkycome stations:alchemy_table -silent
+```
+
+## Toestemming
+
+```text
+ia.admin.iatrademachine
+```
+
+## Opmerkingen
+
+- Werkt zowel van spelers als van de console.
+- Vereist dat de doel-ID een `trade_machine`- of `block_trade_machine`-gedrag heeft.
+- Het volledige namespace-ID moet worden gebruikt.
+- Als de ID geen ondersteund handelsmachinegedrag heeft, mislukt het commando.
+
+## Gebruiksscenario-voorbeeld
+
+Combineer dit commando met een GUI-plugin zoals DeluxeMenus om een categorieselectiemenu te maken dat verschillende handelsmachines rechtstreeks opent, in plaats van dat spelers door een grote handelsmachine-GUI moeten scrollen.

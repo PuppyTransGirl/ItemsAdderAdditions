@@ -1,0 +1,92 @@
+---
+title: Tekstweergave
+description: Toon zwevende tekst boven elk aangepast blok of meubel. Ondersteunt MiniMessage en PlaceholderAPI.
+version: "1.0.8"
+---
+
+Koppelt een of meer zwevende tekstweergaven aan een aangepast blok of meubel. Ondersteunt MiniMessage-opmaak, PlaceholderAPI-placeholders en ItemsAdder-lettertypeafbeeldingen.
+
+Werkt op **blokken**, **meubels** en **complexe meubels**.
+
+## Basisconfiguratie
+
+```yaml
+behaviours:
+  text_display:
+    text: "<yellow>Hallo!"
+```
+
+Meerdere regels tekst (een regel per lijstitem):
+
+```yaml
+behaviours:
+  text_display:
+    text:
+      - "<bold>Opslag"
+      - "<gray>Rechtsklik om te openen"
+```
+
+## Meerdere weergaven
+
+Gebruik de sectie `displays` om meer dan een tekstweergave aan hetzelfde item te koppelen. Elke invoer heeft een onafhankelijke positie en stijl.
+
+```yaml
+behaviours:
+  text_display:
+    displays:
+      label:
+        text: "<gold><bold>Mijn kist"
+        offset: "0, 0.5, 0"
+      hint:
+        text: "<gray><i>Rechtsklik om te openen"
+        offset: "0, 0.25, 0"
+```
+
+## Opties
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `text` | string of lijst | *(verplicht)* | De weer te geven tekst. Ondersteunt MiniMessage, PlaceholderAPI en `:icon:` lettertypeafbeeldingen. |
+| `offset` | `"x, y, z"` of lijst | `"0, 0.25, 0"` | Positie-offset ten opzichte van het blok- of meubelcentrum. |
+| `billboard` | `FIXED` \| `VERTICAL` \| `HORIZONTAL` \| `CENTER` | `VERTICAL` | Hoe de weergave roteert om spelers te volgen. |
+| `alignment` | `LEFT` \| `CENTER` \| `RIGHT` | `CENTER` | Tekstuitlijning binnen de weergave. |
+| `text_shadow` | boolean | `true` | Of tekst een slagschaduw heeft. |
+| `see_through` | boolean | `false` | Of tekst zichtbaar is door blokken heen. |
+| `line_width` | integer >= 1 | `1403` | Maximale regelbreedte in pixels voor terugloop. |
+| `background` | `#RRGGBB`, `#RRGGBBAA`, `false` of `null` | `null` | Achtergrondkleur. `null` of `false` gebruikt de standaard donkere achtergrond. |
+| `text_opacity` | float 0.0-1.0 | *(weglaten voor standaard)* | Tekstdoorzichtigheid. `0.0` is volledig transparant, `1.0` is volledig ondoorzichtig. Laat de sleutel volledig weg voor de standaard vanilla waarde (volledig ondoorzichtig). |
+| `scale` | float > 0, `"x, y, z"` of lijst | `1.0` | Tekstgrootte-vermenigvuldiger. Een enkele waarde wordt uniform toegepast; gebruik `"x, y, z"` of een lijst met 3 elementen voor niet-uniforme schaling. |
+| `view_range` | float > 0 | `16.0` | Afstand in blokken waarop de weergave zichtbaar wordt. |
+| `refresh_interval` | integer >= 0 | `0` | Hoe vaak (in ticks) de tekst per speler wordt vernieuwd. `0` schakelt automatisch vernieuwen uit. Stel dit in op een positieve waarde wanneer je PlaceholderAPI-placeholders gebruikt die in de loop der tijd veranderen. |
+| `brightness` | integer 0-15, `[blok, hemel]` of sectie | *(weglaten voor wereldverlichting)* | Overschrijf het lichtniveau. Een enkel geheel getal stelt zowel blok- als hemelverlichting gelijk in. Gebruik een lijst met twee elementen `[blok, hemel]` of een sectie met `block:` en `sky:` sleutels om ze afzonderlijk in te stellen. Laat weg om van de wereldverlichting te erven. |
+| `shadow_radius` | float >= 0 | `0.0` | Straal van de slagschaduw achter de tekst. |
+| `shadow_strength` | float >= 0 | `1.0` | Sterkte (ondoorzichtigheid) van de slagschaduw. |
+| `yaw` | float | `0.0` | Horizontale rotatie van de weergave in graden. Alleen zinvol wanneer `billboard` `FIXED` is. |
+| `pitch` | float | `0.0` | Verticale rotatie van de weergave in graden. Alleen zinvol wanneer `billboard` `FIXED` is. |
+
+## Volledig voorbeeld
+
+```yaml
+behaviours:
+  text_display:
+    text:
+      - "<aqua><player_name>"
+      - "<gray>Score: <gold>%vault_eco_balance%"
+    offset: "0, 0.6, 0"
+    billboard: VERTICAL
+    alignment: CENTER
+    text_shadow: true
+    see_through: false
+    line_width: 1403
+    background: "#00000080"
+    scale: 1.0
+    view_range: 16.0
+    refresh_interval: 20
+```
+
+## Opmerkingen
+
+- Tekst ondersteunt [MiniMessage](https://docs.advntr.dev/minimessage/format.html)-opmaak-tags.
+- PlaceholderAPI-placeholders worden per speler opgelost als PlaceholderAPI is geinstalleerd.
+- ItemsAdder-lettertypeafbeeldingen (`:my_icon:`) worden ondersteund.
+- Wanneer je placeholders gebruikt die in de loop der tijd bijwerken, stel `refresh_interval` in op een positieve waarde (bijv. `20` voor eens per seconde).

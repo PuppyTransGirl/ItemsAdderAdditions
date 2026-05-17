@@ -1,0 +1,10 @@
+{
+  "title": "Comportements",
+  "icon": "Zap",
+  "pages": [
+    "bed",
+    "...",
+    "storage",
+    "text-display"
+  ]
+}

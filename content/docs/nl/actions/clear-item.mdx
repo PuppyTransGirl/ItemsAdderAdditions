@@ -1,0 +1,21 @@
+---
+title: Item verwijderen
+description: Verwijder aangepaste of vanilla items uit de inventaris van een speler als ItemsAdder-actie.
+version: "1.0.0"
+---
+
+```yaml
+clear_item:
+  item: my_item
+  amount: 2 # optioneel, standaard: 1
+```
+
+## Parameters
+
+### `item`
+
+Verplicht. Het te verwijderen item. Gebruik een vanilla-materiaal uit [deze lijst](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), of een aangepast ItemsAdder-item met `namespace:id` of alleen `id`.
+
+### `amount`
+
+Optioneel. Standaard: `1`. Het aantal te verwijderen items.
