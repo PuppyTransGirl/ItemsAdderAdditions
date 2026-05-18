@@ -18,69 +18,63 @@ Turns any custom block or furniture into a storage container. Three modes are av
     <Tab value="STORAGE">
         ```yaml
         behaviours:
-        storage:
-        type: STORAGE
-        rows: 3 # optional, default: 3
-        inventory_type: furnace # optional, replaces rows when set
-        title: "
-        <gold>Community Chest</gold>
-        " # optional, defaults to the block/furniture's name
-        open_variant: my_open_storage # optional
-        open_sound: # optional
-        name: entity.villager.celebrate # or a custom sound
-        volume: 1.0 # optional, default: 1.0
-        pitch: 1.0 # optional, default: 1.0
-        category: MASTER # optional, default: MASTER
-        close_sound: # optional
-        name: entity.villager.ambient # or a custom sound
-        volume: 1.0 # optional, default: 1.0
-        pitch: 1.0 # optional, default: 1.0
-        category: MASTER # optional, default: MASTER
+          storage:
+            type: STORAGE
+            rows: 3 # optional, default: 3
+            inventory_type: furnace # optional, replaces rows when set
+            title: "<gold>Community Chest</gold>" # optional, defaults to the block/furniture's name
+            open_variant: my_open_storage # optional
+            open_sound: # optional
+              name: entity.villager.celebrate # or a custom sound
+              volume: 1.0 # optional, default: 1.0
+              pitch: 1.0 # optional, default: 1.0
+              category: MASTER # optional, default: MASTER
+            close_sound: # optional
+              name: entity.villager.ambient # or a custom sound
+              volume: 1.0 # optional, default: 1.0
+              pitch: 1.0 # optional, default: 1.0
+              category: MASTER # optional, default: MASTER
         ```
     </Tab>
     <Tab value="SHULKER">
         ```yaml
         behaviours:
-        storage:
-        type: SHULKER
-        rows: 3 # optional, default: 3
-        inventory_type: furnace # optional, replaces rows when set
-        title: "
-        <dark_purple>Portable Storage</dark_purple>
-        " # optional, defaults to the block/furniture's name
-        open_variant: my_open_storage # optional
-        open_sound: # optional
-        name: entity.villager.celebrate # or a custom sound
-        volume: 1.0 # optional, default: 1.0
-        pitch: 1.0 # optional, default: 1.0
-        category: MASTER # optional, default: MASTER
-        close_sound: # optional
-        name: entity.villager.ambient # or a custom sound
-        volume: 1.0 # optional, default: 1.0
-        pitch: 1.0 # optional, default: 1.0
-        category: MASTER # optional, default: MASTER
+          storage:
+            type: SHULKER
+            rows: 3 # optional, default: 3
+            inventory_type: furnace # optional, replaces rows when set
+            title: "<dark_purple>Portable Storage</dark_purple>" # optional, defaults to the block/furniture's name
+            open_variant: my_open_storage # optional
+            open_sound: # optional
+              name: entity.villager.celebrate # or a custom sound
+              volume: 1.0 # optional, default: 1.0
+              pitch: 1.0 # optional, default: 1.0
+              category: MASTER # optional, default: MASTER
+            close_sound: # optional
+              name: entity.villager.ambient # or a custom sound
+              volume: 1.0 # optional, default: 1.0
+              pitch: 1.0 # optional, default: 1.0
+              category: MASTER # optional, default: MASTER
         ```
     </Tab>
     <Tab value="DISPOSAL">
         ```yaml
         behaviours:
-        storage:
-        type: DISPOSAL
-        rows: 1 # optional, default: 3
-        title: "
-        <red>Trash Can</red>
-        " # optional, defaults to the block/furniture's name
-        open_variant: my_open_storage # optional
-        open_sound: # optional
-        name: entity.villager.celebrate # or a custom sound
-        volume: 1.0 # optional, default: 1.0
-        pitch: 1.0 # optional, default: 1.0
-        category: MASTER # optional, default: MASTER
-        close_sound: # optional
-        name: entity.villager.ambient # or a custom sound
-        volume: 1.0 # optional, default: 1.0
-        pitch: 1.0 # optional, default: 1.0
-        category: MASTER # optional, default: MASTER
+          storage:
+            type: DISPOSAL
+            rows: 1 # optional, default: 3
+            title: "<red>Trash Can</red>" # optional, defaults to the block/furniture's name
+            open_variant: my_open_storage # optional
+            open_sound: # optional
+              name: entity.villager.celebrate # or a custom sound
+              volume: 1.0 # optional, default: 1.0
+              pitch: 1.0 # optional, default: 1.0
+              category: MASTER # optional, default: MASTER
+            close_sound: # optional
+              name: entity.villager.ambient # or a custom sound
+              volume: 1.0 # optional, default: 1.0
+              pitch: 1.0 # optional, default: 1.0
+              category: MASTER # optional, default: MASTER
         ```
     </Tab>
 </Tabs>

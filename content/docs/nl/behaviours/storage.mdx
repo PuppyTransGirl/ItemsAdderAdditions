@@ -18,69 +18,63 @@ Verandert elk aangepast blok of meubel in een opslagcontainer. Er zijn drie modi
     <Tab value="STORAGE">
         ```yaml
         behaviours:
-        storage:
-        type: STORAGE
-        rows: 3 # optioneel, standaard: 3
-        inventory_type: furnace # optioneel, vervangt rows indien ingesteld
-        title: "
-        <gold>Community Chest</gold>
-        " # optioneel, standaard is de naam van het blok/meubel
-        open_variant: my_open_storage # optioneel
-        open_sound: # optioneel
-        name: entity.villager.celebrate # of een aangepast geluid
-        volume: 1.0 # optioneel, standaard: 1.0
-        pitch: 1.0 # optioneel, standaard: 1.0
-        category: MASTER # optioneel, standaard: MASTER
-        close_sound: # optioneel
-        name: entity.villager.ambient # of een aangepast geluid
-        volume: 1.0 # optioneel, standaard: 1.0
-        pitch: 1.0 # optioneel, standaard: 1.0
-        category: MASTER # optioneel, standaard: MASTER
+          storage:
+            type: STORAGE
+            rows: 3 # optioneel, standaard: 3
+            inventory_type: furnace # optioneel, vervangt rows indien ingesteld
+            title: "<gold>Community Chest</gold>" # optioneel, standaard is de naam van het blok/meubel
+            open_variant: my_open_storage # optioneel
+            open_sound: # optioneel
+              name: entity.villager.celebrate # of een aangepast geluid
+              volume: 1.0 # optioneel, standaard: 1.0
+              pitch: 1.0 # optioneel, standaard: 1.0
+              category: MASTER # optioneel, standaard: MASTER
+            close_sound: # optioneel
+              name: entity.villager.ambient # of een aangepast geluid
+              volume: 1.0 # optioneel, standaard: 1.0
+              pitch: 1.0 # optioneel, standaard: 1.0
+              category: MASTER # optioneel, standaard: MASTER
         ```
     </Tab>
     <Tab value="SHULKER">
         ```yaml
         behaviours:
-        storage:
-        type: SHULKER
-        rows: 3 # optioneel, standaard: 3
-        inventory_type: furnace # optioneel, vervangt rows indien ingesteld
-        title: "
-        <dark_purple>Portable Storage</dark_purple>
-        " # optioneel, standaard is de naam van het blok/meubel
-        open_variant: my_open_storage # optioneel
-        open_sound: # optioneel
-        name: entity.villager.celebrate # of een aangepast geluid
-        volume: 1.0 # optioneel, standaard: 1.0
-        pitch: 1.0 # optioneel, standaard: 1.0
-        category: MASTER # optioneel, standaard: MASTER
-        close_sound: # optioneel
-        name: entity.villager.ambient # of een aangepast geluid
-        volume: 1.0 # optioneel, standaard: 1.0
-        pitch: 1.0 # optioneel, standaard: 1.0
-        category: MASTER # optioneel, standaard: MASTER
+          storage:
+            type: SHULKER
+            rows: 3 # optioneel, standaard: 3
+            inventory_type: furnace # optioneel, vervangt rows indien ingesteld
+            title: "<dark_purple>Portable Storage</dark_purple>" # optioneel, standaard is de naam van het blok/meubel
+            open_variant: my_open_storage # optioneel
+            open_sound: # optioneel
+              name: entity.villager.celebrate # of een aangepast geluid
+              volume: 1.0 # optioneel, standaard: 1.0
+              pitch: 1.0 # optioneel, standaard: 1.0
+              category: MASTER # optioneel, standaard: MASTER
+            close_sound: # optioneel
+              name: entity.villager.ambient # of een aangepast geluid
+              volume: 1.0 # optioneel, standaard: 1.0
+              pitch: 1.0 # optioneel, standaard: 1.0
+              category: MASTER # optioneel, standaard: MASTER
         ```
     </Tab>
     <Tab value="DISPOSAL">
         ```yaml
         behaviours:
-        storage:
-        type: DISPOSAL
-        rows: 1 # optioneel, standaard: 3
-        title: "
-        <red>Trash Can</red>
-        " # optioneel, standaard is de naam van het blok/meubel
-        open_variant: my_open_storage # optioneel
-        open_sound: # optioneel
-        name: entity.villager.celebrate # of een aangepast geluid
-        volume: 1.0 # optioneel, standaard: 1.0
-        pitch: 1.0 # optioneel, standaard: 1.0
-        category: MASTER # optioneel, standaard: MASTER
-        close_sound: # optioneel
-        name: entity.villager.ambient # of een aangepast geluid
-        volume: 1.0 # optioneel, standaard: 1.0
-        pitch: 1.0 # optioneel, standaard: 1.0
-        category: MASTER # optioneel, standaard: MASTER
+          storage:
+            type: DISPOSAL
+            rows: 1 # optioneel, standaard: 3
+            title: "<red>Trash Can</red>" # optioneel, standaard is de naam van het blok/meubel
+            open_variant: my_open_storage # optioneel
+            open_sound: # optioneel
+              name: entity.villager.celebrate # of een aangepast geluid
+              volume: 1.0 # optioneel, standaard: 1.0
+              pitch: 1.0 # optioneel, standaard: 1.0
+              category: MASTER # optioneel, standaard: MASTER
+            close_sound: # optioneel
+              name: entity.villager.ambient # of een aangepast geluid
+              volume: 1.0 # optioneel, standaard: 1.0
+              pitch: 1.0 # optioneel, standaard: 1.0
+              category: MASTER # optioneel, standaard: MASTER
         ```
     </Tab>
 </Tabs>

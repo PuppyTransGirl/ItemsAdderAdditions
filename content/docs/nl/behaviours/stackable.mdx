@@ -8,29 +8,29 @@ version: "1.0.0"
     <Tab value="Eenvoudig">
         ```yaml
         behaviours:
-        stackable:
-        - my_block_2
-        - my_block_3
-        - my_block_4
+          stackable:
+            - my_block_2
+            - my_block_3
+            - my_block_4
         ```
     </Tab>
     <Tab value="Complex">
         ```yaml
         behaviours:
-        stackable:
-        blocks:
-        - my_block_2
-        - my_block_3
-        - my_block_4
-        items: # optioneel, standaard is het item waarop dit gedrag is ingesteld
-        - my_item
-        - BONE_MEAL
-        sound: # optioneel
-        name: entity.villager.ambient # of een aangepast geluid
-        volume: 1.0 # optioneel, standaard: 1.0
-        pitch: 1.0 # optioneel, standaard: 1.0
-        category: MASTER # optioneel, standaard: MASTER
-        decrement_amount: 2 # optioneel, standaard: 1
+          stackable:
+            blocks:
+              - my_block_2
+              - my_block_3
+              - my_block_4
+            items: # optioneel, standaard is het item waarop dit gedrag is ingesteld
+              - my_item
+              - BONE_MEAL
+            sound: # optioneel
+              name: entity.villager.ambient # of een aangepast geluid
+              volume: 1.0 # optioneel, standaard: 1.0
+              pitch: 1.0 # optioneel, standaard: 1.0
+              category: MASTER # optioneel, standaard: MASTER
+            decrement_amount: 2 # optioneel, standaard: 1
         ```
 
         Gebruik voor `name` een waarde uit [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) of
@@ -39,20 +39,20 @@ version: "1.0.0"
     <Tab value="Volledig">
         ```yaml
         behaviours:
-        stackable:
-        first_step:
-        block: my_block_2
-        items: # optioneel, standaard is het item waarop dit gedrag is ingesteld
-        - my_item
-        - BONE_MEAL
-        sound: # optioneel
-        name: entity.villager.ambient # of een aangepast geluid
-        volume: 1.0 # optioneel, standaard: 1.0
-        pitch: 1.0 # optioneel, standaard: 1.0
-        category: MASTER # optioneel, standaard: MASTER
-        decrement_amount: 2 # optioneel, standaard: 1
-        another_step:
-        ...
+          stackable:
+            first_step:
+              block: my_block_2
+              items: # optioneel, standaard is het item waarop dit gedrag is ingesteld
+                - my_item
+                - BONE_MEAL
+              sound: # optioneel
+                name: entity.villager.ambient # of een aangepast geluid
+                volume: 1.0 # optioneel, standaard: 1.0
+                pitch: 1.0 # optioneel, standaard: 1.0
+                category: MASTER # optioneel, standaard: MASTER
+              decrement_amount: 2 # optioneel, standaard: 1
+            another_step:
+              ...
         ```
 
         Gebruik voor `name` een waarde uit [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) of

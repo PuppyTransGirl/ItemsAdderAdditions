@@ -8,29 +8,29 @@ version: "1.0.0"
     <Tab value="Simple">
         ```yaml
         behaviours:
-        stackable:
-        - my_block_2
-        - my_block_3
-        - my_block_4
+          stackable:
+            - my_block_2
+            - my_block_3
+            - my_block_4
         ```
     </Tab>
     <Tab value="Complexe">
         ```yaml
         behaviours:
-        stackable:
-        blocks:
-        - my_block_2
-        - my_block_3
-        - my_block_4
-        items: # optionnel, par défaut l'objet sur lequel ce comportement est défini
-        - my_item
-        - BONE_MEAL
-        sound: # optionnel
-        name: entity.villager.ambient # ou un son personnalisé
-        volume: 1.0 # optionnel, défaut : 1.0
-        pitch: 1.0 # optionnel, défaut : 1.0
-        category: MASTER # optionnel, défaut : MASTER
-        decrement_amount: 2 # optionnel, défaut : 1
+          stackable:
+            blocks:
+              - my_block_2
+              - my_block_3
+              - my_block_4
+            items: # optionnel, par défaut l'objet sur lequel ce comportement est défini
+              - my_item
+              - BONE_MEAL
+            sound: # optionnel
+              name: entity.villager.ambient # ou un son personnalisé
+              volume: 1.0 # optionnel, défaut : 1.0
+              pitch: 1.0 # optionnel, défaut : 1.0
+              category: MASTER # optionnel, défaut : MASTER
+            decrement_amount: 2 # optionnel, défaut : 1
         ```
 
         Pour `name`, utilisez une valeur depuis [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values)
@@ -39,20 +39,20 @@ version: "1.0.0"
     <Tab value="Complet">
         ```yaml
         behaviours:
-        stackable:
-        first_step:
-        block: my_block_2
-        items: # optionnel, par défaut l'objet sur lequel ce comportement est défini
-        - my_item
-        - BONE_MEAL
-        sound: # optionnel
-        name: entity.villager.ambient # ou un son personnalisé
-        volume: 1.0 # optionnel, défaut : 1.0
-        pitch: 1.0 # optionnel, défaut : 1.0
-        category: MASTER # optionnel, défaut : MASTER
-        decrement_amount: 2 # optionnel, défaut : 1
-        another_step:
-        ...
+          stackable:
+            first_step:
+              block: my_block_2
+              items: # optionnel, par défaut l'objet sur lequel ce comportement est défini
+                - my_item
+                - BONE_MEAL
+              sound: # optionnel
+                name: entity.villager.ambient # ou un son personnalisé
+                volume: 1.0 # optionnel, défaut : 1.0
+                pitch: 1.0 # optionnel, défaut : 1.0
+                category: MASTER # optionnel, défaut : MASTER
+              decrement_amount: 2 # optionnel, défaut : 1
+            another_step:
+              ...
         ```
 
         Pour `name`, utilisez une valeur depuis [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values)

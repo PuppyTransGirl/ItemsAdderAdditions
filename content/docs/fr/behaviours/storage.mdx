@@ -18,69 +18,63 @@ Transforme n'importe quel bloc ou meuble personnalisé en conteneur de stockage.
     <Tab value="STORAGE">
         ```yaml
         behaviours:
-        storage:
-        type: STORAGE
-        rows: 3 # optionnel, défaut : 3
-        inventory_type: furnace # optionnel, remplace rows si défini
-        title: "
-        <gold>Coffre Communautaire</gold>
-        " # optionnel, par défaut le nom du bloc/meuble
-        open_variant: my_open_storage # optionnel
-        open_sound: # optionnel
-        name: entity.villager.celebrate # ou un son personnalisé
-        volume: 1.0 # optionnel, défaut : 1.0
-        pitch: 1.0 # optionnel, défaut : 1.0
-        category: MASTER # optionnel, défaut : MASTER
-        close_sound: # optionnel
-        name: entity.villager.ambient # ou un son personnalisé
-        volume: 1.0 # optionnel, défaut : 1.0
-        pitch: 1.0 # optionnel, défaut : 1.0
-        category: MASTER # optionnel, défaut : MASTER
+          storage:
+            type: STORAGE
+            rows: 3 # optionnel, défaut : 3
+            inventory_type: furnace # optionnel, remplace rows si défini
+            title: "<gold>Coffre Communautaire</gold>" # optionnel, par défaut le nom du bloc/meuble
+            open_variant: my_open_storage # optionnel
+            open_sound: # optionnel
+              name: entity.villager.celebrate # ou un son personnalisé
+              volume: 1.0 # optionnel, défaut : 1.0
+              pitch: 1.0 # optionnel, défaut : 1.0
+              category: MASTER # optionnel, défaut : MASTER
+            close_sound: # optionnel
+              name: entity.villager.ambient # ou un son personnalisé
+              volume: 1.0 # optionnel, défaut : 1.0
+              pitch: 1.0 # optionnel, défaut : 1.0
+              category: MASTER # optionnel, défaut : MASTER
         ```
     </Tab>
     <Tab value="SHULKER">
         ```yaml
         behaviours:
-        storage:
-        type: SHULKER
-        rows: 3 # optionnel, défaut : 3
-        inventory_type: furnace # optionnel, remplace rows si défini
-        title: "
-        <dark_purple>Stockage Portable</dark_purple>
-        " # optionnel, par défaut le nom du bloc/meuble
-        open_variant: my_open_storage # optionnel
-        open_sound: # optionnel
-        name: entity.villager.celebrate # ou un son personnalisé
-        volume: 1.0 # optionnel, défaut : 1.0
-        pitch: 1.0 # optionnel, défaut : 1.0
-        category: MASTER # optionnel, défaut : MASTER
-        close_sound: # optionnel
-        name: entity.villager.ambient # ou un son personnalisé
-        volume: 1.0 # optionnel, défaut : 1.0
-        pitch: 1.0 # optionnel, défaut : 1.0
-        category: MASTER # optionnel, défaut : MASTER
+          storage:
+            type: SHULKER
+            rows: 3 # optionnel, défaut : 3
+            inventory_type: furnace # optionnel, remplace rows si défini
+            title: "<dark_purple>Stockage Portable</dark_purple>" # optionnel, par défaut le nom du bloc/meuble
+            open_variant: my_open_storage # optionnel
+            open_sound: # optionnel
+              name: entity.villager.celebrate # ou un son personnalisé
+              volume: 1.0 # optionnel, défaut : 1.0
+              pitch: 1.0 # optionnel, défaut : 1.0
+              category: MASTER # optionnel, défaut : MASTER
+            close_sound: # optionnel
+              name: entity.villager.ambient # ou un son personnalisé
+              volume: 1.0 # optionnel, défaut : 1.0
+              pitch: 1.0 # optionnel, défaut : 1.0
+              category: MASTER # optionnel, défaut : MASTER
         ```
     </Tab>
     <Tab value="DISPOSAL">
         ```yaml
         behaviours:
-        storage:
-        type: DISPOSAL
-        rows: 1 # optionnel, défaut : 3
-        title: "
-        <red>Poubelle</red>
-        " # optionnel, par défaut le nom du bloc/meuble
-        open_variant: my_open_storage # optionnel
-        open_sound: # optionnel
-        name: entity.villager.celebrate # ou un son personnalisé
-        volume: 1.0 # optionnel, défaut : 1.0
-        pitch: 1.0 # optionnel, défaut : 1.0
-        category: MASTER # optionnel, défaut : MASTER
-        close_sound: # optionnel
-        name: entity.villager.ambient # ou un son personnalisé
-        volume: 1.0 # optionnel, défaut : 1.0
-        pitch: 1.0 # optionnel, défaut : 1.0
-        category: MASTER # optionnel, défaut : MASTER
+          storage:
+            type: DISPOSAL
+            rows: 1 # optionnel, défaut : 3
+            title: "<red>Poubelle</red>" # optionnel, par défaut le nom du bloc/meuble
+            open_variant: my_open_storage # optionnel
+            open_sound: # optionnel
+              name: entity.villager.celebrate # ou un son personnalisé
+              volume: 1.0 # optionnel, défaut : 1.0
+              pitch: 1.0 # optionnel, défaut : 1.0
+              category: MASTER # optionnel, défaut : MASTER
+            close_sound: # optionnel
+              name: entity.villager.ambient # ou un son personnalisé
+              volume: 1.0 # optionnel, défaut : 1.0
+              pitch: 1.0 # optionnel, défaut : 1.0
+              category: MASTER # optionnel, défaut : MASTER
         ```
     </Tab>
 </Tabs>
