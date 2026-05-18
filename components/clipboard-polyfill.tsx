@@ -29,7 +29,7 @@ export function ClipboardPolyfill() {
             read() {
                 return Promise.resolve([] as ClipboardItem[]);
             },
-        } as Clipboard;
+        } as unknown as Clipboard;
         Object.defineProperty(navigator, 'clipboard', {value: polyfill, configurable: true});
     }, []);
     return null;
