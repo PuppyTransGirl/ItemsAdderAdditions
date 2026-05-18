@@ -1,7 +1,6 @@
 # Translating the Wiki
 
-The wiki supports multiple languages via [Fumadocs](https://fumadocs.dev/) i18n. Each language lives in its own folder
-under `content/docs/` and a few lines of code register it with the site.
+The wiki supports multiple languages via [Fumadocs](https://fumadocs.dev/) i18n. Each language lives in its own folder under `content/docs/` and a few lines of code register it with the site.
 
 Currently supported: **English** (`en`), **French** (`fr`), **Dutch** (`nl`).
 
@@ -11,8 +10,7 @@ Currently supported: **English** (`en`), **French** (`fr`), **Dutch** (`nl`).
 
 ### 1. Create the content folder
 
-Copy the entire English content tree and rename it with your language
-code ([ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)):
+Copy the entire English content tree and rename it with your language code ([ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)):
 
 ```
 content/docs/
@@ -26,8 +24,7 @@ content/docs/
 cp -r content/docs/en content/docs/de
 ```
 
-Translate every `.mdx` file in the new folder. The `meta.json` files can generally be left as-is (they control sidebar
-structure), but you may translate the `"title"` value inside them if you want localized sidebar group names.
+Translate every `.mdx` file in the new folder. The `meta.json` files can generally be left as-is (they control sidebar structure), but you may translate the `"title"` value inside them if you want localized sidebar group names.
 
 ### 2. Register the language code
 
@@ -46,18 +43,12 @@ Open `lib/layout.shared.tsx` and add an entry to `langTabs`:
 // lib/layout.shared.tsx
 {
     title: 'Deutsch',
-        url
-:
-    localizedDocsRoute('de'),
-        icon
-:
-    <span className="text-base leading-none">🇩🇪</span>,
-}
-,
+    url: localizedDocsRoute('de'),
+    icon: <span className="text-base leading-none">🇩🇪</span>,
+},
 ```
 
-That's all the code changes needed. The routing, sitemap, and search index are all generated automatically from the
-`languages` array.
+That's all the code changes needed. The routing, sitemap, and search index are all generated automatically from the `languages` array.
 
 ---
 
@@ -104,8 +95,7 @@ description: Lade ItemsAdderAdditions herunter, ein kostenloses ItemsAdder-Addon
 
 ## Keeping translations up to date
 
-The English (`en`) folder is the source of truth. When a page is added or changed in English, the same file in each
-language folder needs to be updated.
+The English (`en`) folder is the source of truth. When a page is added or changed in English, the same file in each language folder needs to be updated.
 
 A quick way to spot outdated files is to diff them against the English original:
 
@@ -113,8 +103,7 @@ A quick way to spot outdated files is to diff them against the English original:
 diff content/docs/en/behaviours/storage.mdx content/docs/de/behaviours/storage.mdx
 ```
 
-If a translated page is missing content that exists in English, the English fallback is **not** shown automatically -
-the page will simply be incomplete. Keep translations in sync.
+If a translated page is missing content that exists in English, the English fallback is **not** shown automatically - the page will simply be incomplete. Keep translations in sync.
 
 ---
 
@@ -124,5 +113,4 @@ the page will simply be incomplete. Keep translations in sync.
 npm run dev
 ```
 
-Then navigate to `http://localhost:3000/de/docs` to preview your translation. Use the language switcher tabs in the top
-bar to switch between locales.
+Then navigate to `http://localhost:3000/de/docs` to preview your translation. Use the language switcher tabs in the top bar to switch between locales.
