@@ -6,18 +6,20 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
+@SuppressWarnings("UnstableApiUsage")
 final class StorageInventoryResolver {
     private final StorageSessionRegistry sessions;
     private final int rows;
-    @Nullable private final InventoryType inventoryType;
+    @Nullable private final StorageInventorySpec spec;
     private final Component title;
     private final StorageType storageType;
     private final NamespacedKey contentsKey;
@@ -26,7 +28,7 @@ final class StorageInventoryResolver {
     StorageInventoryResolver(
             StorageSessionRegistry sessions,
             int rows,
-            @Nullable InventoryType inventoryType,
+            @Nullable StorageInventorySpec spec,
             Component title,
             StorageType storageType,
             NamespacedKey contentsKey,
@@ -34,27 +36,48 @@ final class StorageInventoryResolver {
     ) {
         this.sessions = sessions;
         this.rows = rows;
-        this.inventoryType = inventoryType;
+        this.spec = spec;
         this.title = title;
         this.storageType = storageType;
         this.contentsKey = contentsKey;
         this.plugin = plugin;
     }
 
-    Inventory resolve(Location location, @Nullable Block block, @Nullable Entity entity) {
+    /**
+     * Creates (or retrieves) the inventory for {@code location}, populates it with saved
+     * contents, opens it for {@code player}, and returns it.
+     *
+     * <p>For {@link StorageInventorySpec.Menu} types the inventory is opened via
+     * {@link InventoryView#open()} so the client receives a fully functional menu
+     * (smelting, brewing, etc.). For all other types {@link Player#openInventory(Inventory)}
+     * is used.</p>
+     */
+    Inventory openFor(Player player, Location location, @Nullable Block block, @Nullable Entity entity) {
         if (storageType != StorageType.DISPOSAL) {
             Inventory live = sessions.liveInventoryAt(location);
             if (live != null) {
+                player.openInventory(live);
                 return live;
             }
         }
 
+        ItemStack[] contents = storedContents(block, entity);
+
+        if (spec instanceof StorageInventorySpec.Menu menu) {
+            InventoryView view = menu.menuType().create(player, title);
+            Inventory inventory = view.getTopInventory();
+            StorageInventoryManager.populateInventory(inventory, contents);
+            view.open();
+            return inventory;
+        }
+
         StorageInventoryHolder holder = new StorageInventoryHolder(location);
-        Inventory inventory = inventoryType != null
-                ? Bukkit.createInventory(holder, inventoryType, title)
+        Inventory inventory = spec instanceof StorageInventorySpec.Typed typed
+                ? Bukkit.createInventory(holder, typed.inventoryType(), title)
                 : Bukkit.createInventory(holder, rows * 9, title);
         holder.inventory(inventory);
-        StorageInventoryManager.populateInventory(inventory, storedContents(block, entity));
+        StorageInventoryManager.populateInventory(inventory, contents);
+        player.openInventory(inventory);
         return inventory;
     }
 

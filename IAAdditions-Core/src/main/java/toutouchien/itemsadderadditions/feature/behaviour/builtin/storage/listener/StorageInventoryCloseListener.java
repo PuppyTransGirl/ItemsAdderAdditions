@@ -6,7 +6,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jspecify.annotations.NullMarked;
-import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageInventoryHolder;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageRuntime;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageSession;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
@@ -22,13 +21,12 @@ public final class StorageInventoryCloseListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
-        if (!(event.getInventory().getHolder(false) instanceof StorageInventoryHolder holder)) return;
 
         StorageSession session = runtime.sessionManager().remove(player.getUniqueId());
         if (session == null) return;
 
         if (session.type() == StorageType.DISPOSAL) {
-            runtime.sessionManager().executeClose(holder.location(), true);
+            runtime.sessionManager().executeClose(session.holderLocation(), true);
             return;
         }
 

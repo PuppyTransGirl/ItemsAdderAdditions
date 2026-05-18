@@ -7,7 +7,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,7 +40,7 @@ public final class StorageSessionManager {
 
     public StorageSessionManager(
             int rows,
-            @Nullable InventoryType inventoryType,
+            @Nullable StorageInventorySpec spec,
             Component title,
             StorageType storageType,
             NamespacedKey contentsKey,
@@ -53,7 +52,7 @@ public final class StorageSessionManager {
     ) {
         this.storageType = storageType;
         this.openVariantTransformer = openVariantTransformer;
-        this.inventories = new StorageInventoryResolver(sessions, rows, inventoryType, title, storageType, contentsKey, plugin);
+        this.inventories = new StorageInventoryResolver(sessions, rows, spec, title, storageType, contentsKey, plugin);
         this.persister = new StorageSessionPersister(
                 plugin, storageType, contentsKey, originalNamespacedId, openVariantTransformer);
         this.sounds = new StorageSoundPlayer(openSound, closeSound);
@@ -62,7 +61,7 @@ public final class StorageSessionManager {
     public void openForBlock(Player player, Block block) {
         Location location = block.getLocation();
         boolean firstAtLocation = !sessions.hasAt(location);
-        Inventory inventory = inventories.resolve(location, block, null);
+        Inventory inventory = inventories.openFor(player, location, block, null);
 
         open(player, new StorageSession(player, inventory, block, null, storageType), location);
 
@@ -75,8 +74,8 @@ public final class StorageSessionManager {
         Location location = entity.getLocation();
         boolean firstAtLocation = !sessions.hasAt(location);
 
-        // Load contents before the transformer can remove/replace the entity.
-        Inventory inventory = inventories.resolve(location, null, entity);
+        // Load contents and open before the transformer can remove/replace the entity.
+        Inventory inventory = inventories.openFor(player, location, null, entity);
         open(player, new StorageSession(player, inventory, null, entity, storageType), location);
 
         if (firstAtLocation && openVariantTransformer != null) {
@@ -90,7 +89,7 @@ public final class StorageSessionManager {
             @Nullable Block block,
             @Nullable Entity entity
     ) {
-        Inventory inventory = inventories.resolve(location, block, entity);
+        Inventory inventory = inventories.openFor(player, location, block, entity);
         open(player, new StorageSession(player, inventory, block, entity, storageType), location);
     }
 
@@ -146,7 +145,6 @@ public final class StorageSessionManager {
 
     private void open(Player player, StorageSession session, Location location) {
         sessions.add(session);
-        player.openInventory(session.inventory());
         CoreProtectHook.INSTANCE.logInteraction(player.getName(), location);
         sounds.playOpen(location);
     }
