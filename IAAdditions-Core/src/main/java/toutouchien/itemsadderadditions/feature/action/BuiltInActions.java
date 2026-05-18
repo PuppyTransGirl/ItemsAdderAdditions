@@ -24,6 +24,7 @@ final class BuiltInActions {
                 new PlayAnimationAction(),
                 new PlayEmoteAction(),
                 new ReplaceBiomeAction(),
+                new ReplaceItemAction(),
                 new ShootFireballAction(),
                 new SwingHandAction(),
                 new TeleportAction(),
