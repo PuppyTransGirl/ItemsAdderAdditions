@@ -48,7 +48,7 @@ blocks_populators:
 | `worlds` | lijst | *(alle)* | Wereldnamen om tot te beperken. Ondersteunt `*` jokerteken. |
 | `biomes` | lijst | *(alle)* | Bioom-ID's (bijv. `minecraft:forest`). Alle moeten geldig zijn, anders wordt de invoer overgeslagen. |
 | `replaceable_blocks` | lijst | *(elk)* | Toegestane materialen voor het blok direct onder het spawnpunt. |
-| `vein_blocks` | integer | `1` | Meubelstuks per aderpog ing. |
+| `vein_blocks` | integer | `1` | Meubelstuks per aderpoging. |
 | `chunk_veins` | integer | `4` | Aderpogingen per chunk. |
 | `chunk_chance` | double | `-1` | 0-100 kans per chunk. `-1` = altijd. |
 | `min_height` | integer | `60` | Minimum Y-niveau. Moet minder zijn dan `max_height`. |
@@ -96,6 +96,6 @@ surface_decorators:
 
 ## Opmerkingen
 
-- Alleen nieuw gegenereerde chunks activeren spawning. Bestaande chunks worden niet beinvloed.
+- Alleen nieuw gegenereerde chunks activeren spawning. Bestaande chunks worden niet beïnvloed.
 - Het meubel moet door ItemsAdder zijn geregistreerd voordat de invoer wordt geladen.
 - Ongeldige bioom-ID's zorgen ervoor dat de volledige invoer wordt overgeslagen.

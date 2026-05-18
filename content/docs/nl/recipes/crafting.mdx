@@ -6,17 +6,17 @@ version: "1.0.7"
 
 ItemsAdderAdditions voegt een extra knutselwerkbankrecept-type toe genaamd `iaa_crafting_table`.
 
-Het vervangt of overschrijft het normale ItemsAdder `crafting_table`-recepttype niet. In plaats daarvan biedt het een ander receptsysteem voor gevallen waarbij je extra functies voor ingredientvalidatie nodig hebt.
+Het vervangt of overschrijft het normale ItemsAdder `crafting_table`-recepttype niet. In plaats daarvan biedt het een ander receptsysteem voor gevallen waarbij je extra functies voor ingrediëntvalidatie nodig hebt.
 
 Dit recepttype ondersteunt normale knutselreceptopties die al bekend zijn van ItemsAdder, en voegt ook extra functies toe zoals:
 
 - tags
-- ingredienthoeveelheden
-- duurzaamheidsschade op ingredienten
-- vervangingitems
+- ingrediënthoeveelheden
+- duurzaamheidsschade op ingrediënten
+- vervangingsitems
 - duurzaamheidsmatch negeren
-- potiotype-filtering
-- shapeless ingredientenlijsten
+- potiontype-filtering
+- shapeless ingrediëntenlijsten
 
 ## Belangrijk
 
@@ -102,18 +102,18 @@ recipes:
 - gevormde recepten met `pattern`
 - shapeless recepten
 - meerdere `pattern...`-varianten
-- `potion_type` ingredientfiltering
+- `potion_type` ingrediëntfiltering
 
 ## Extra ItemsAdderAdditions-functies
 
-De belangrijkste reden om `iaa_crafting_table` te gebruiken is de aanvullende ondersteuning voor ingredientpredicaten:
+De belangrijkste reden om `iaa_crafting_table` te gebruiken is de aanvullende ondersteuning voor ingrediëntpredicaten:
 
 - tags met `#namespace:tag`
-- per-ingredient `amount`
-- per-ingredient `damage`
-- per-ingredient `replacement`
+- per-ingrediënt `amount`
+- per-ingrediënt `damage`
+- per-ingrediënt `replacement`
 - `ignore_durability`
-- shapeless lijststijl ingredientformaat
+- shapeless lijststijl ingrediëntformaat
 
 ## Parameters
 
@@ -183,8 +183,8 @@ my_recipe:
 
 ### Patroonopmerkingen
 
-- Ingredientsleutels moeten een enkel teken zijn.
-- `X` markeert lege slots. Definieer `X` niet als ingredient.
+- Ingrediëntsleutels moeten een enkel teken zijn.
+- `X` markeert lege slots. Definieer `X` niet als ingrediënt.
 - Elk ander teken dat niet in `ingredients` is gedefinieerd, wordt ook als leeg behandeld.
 - Meerdere patronen worden ondersteund met sleutels zoals `pattern_1`, `pattern_2`, enzovoort.
 
@@ -196,7 +196,7 @@ Shapeless recepten gebruiken:
 shapeless: true
 ```
 
-en kunnen een lijst van ingredienten gebruiken:
+en kunnen een lijst van ingrediënten gebruiken:
 
 ```yaml
 my_recipe:
@@ -210,9 +210,9 @@ my_recipe:
     item: DIAMOND
 ```
 
-## Ingredientformaten
+## Ingrediëntformaten
 
-Ingredienten ondersteunen meerdere formaten.
+Ingrediënten ondersteunen meerdere formaten.
 
 ### Eenvoudige string
 
@@ -245,7 +245,7 @@ ingredients:
     replacement: BUCKET
 ```
 
-## Geavanceerde ingredientfuncties
+## Geavanceerde ingrediëntfuncties
 
 ### Tags
 
@@ -260,7 +260,7 @@ Dit laat elk item in die tag overeenkomen.
 
 ### `amount`
 
-Vereist meer dan een van hetzelfde ingredient.
+Vereist meer dan een van hetzelfde ingrediënt.
 
 ```yaml
 ingredients:
@@ -271,7 +271,7 @@ ingredients:
 
 ### `damage`
 
-In plaats van het ingredient te verbruiken, wordt het beschadigd met het geconfigureerde bedrag.
+In plaats van het ingrediënt te verbruiken, wordt het beschadigd met het geconfigureerde bedrag.
 
 Handig voor gereedschappen gebruikt bij knutselen.
 
@@ -284,7 +284,7 @@ ingredients:
 
 ### `replacement`
 
-Vervang het ingredient door een ander item na het knutselen.
+Vervang het ingrediënt door een ander item na het knutselen.
 
 Handig voor emmers, flessen, vormen en soortgelijke containers.
 
@@ -308,7 +308,7 @@ ingredients:
 
 ### `potion_type`
 
-Beperk een potioningredient tot een specifiek basispotiotype.
+Beperk een potioningrediënt tot een specifiek basispotiotype.
 
 ```yaml
 ingredients:
@@ -367,7 +367,7 @@ recipes:
 
 ## Ondersteunde itemreferenties
 
-Ingredient- en resultaatitems kunnen gebruiken:
+Ingrediënt- en resultaatitems kunnen gebruiken:
 
 - vanilla materiaalnamen zoals `STICK` of `DIAMOND`
 - ItemsAdder-ID's zoals `namespace:item`

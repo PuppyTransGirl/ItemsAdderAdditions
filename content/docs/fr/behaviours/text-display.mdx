@@ -58,7 +58,7 @@ behaviours:
 | `scale` | float > 0, `"x, y, z"` ou liste | `1.0` | Multiplicateur de taille du texte. Une valeur unique s'applique uniformément ; utilisez `"x, y, z"` ou une liste de 3 éléments pour une mise à l'échelle non uniforme. |
 | `view_range` | float > 0 | `16.0` | Distance en blocs à laquelle l'affichage devient visible. |
 | `refresh_interval` | entier ≥ 0 | `0` | Fréquence (en ticks) à laquelle le texte est rafraîchi par joueur. `0` désactive le rafraîchissement automatique. Définir une valeur positive lors de l'utilisation de placeholders PlaceholderAPI qui changent dans le temps. |
-| `brightness` | entier 0-15, `[block, sky]` ou section | *(omettre pour l'éclairage du monde)* | Forcer le niveau de lumière. Un entier unique définit également les lumières de bloc et de ciel. Utilisez une liste de deux éléments `[block, sky]` ou une section avec les clés `block:` et `sky:` pour les définir séparément. Omettre pour hériter de l'éclairage du monde. |
+| `brightness` | entier 0-15, `[block, sky]` ou section | *(omettre pour l'éclairage du monde)* | Forcer le niveau de lumière. Un entier unique fixe les lumières de bloc et de ciel au même niveau. Utilisez une liste de deux éléments `[block, sky]` ou une section avec les clés `block:` et `sky:` pour les définir séparément. Omettre pour hériter de l'éclairage du monde. |
 | `shadow_radius` | float ≥ 0 | `0.0` | Rayon de l'ombre portée derrière le texte. |
 | `shadow_strength` | float ≥ 0 | `1.0` | Force (opacité) de l'ombre portée. |
 | `yaw` | float | `0.0` | Rotation horizontale de l'affichage en degrés. Significatif uniquement quand `billboard` est `FIXED`. |

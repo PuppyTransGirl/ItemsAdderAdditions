@@ -58,7 +58,7 @@ behaviours:
 | `scale` | float > 0, `"x, y, z"` of lijst | `1.0` | Tekstgrootte-vermenigvuldiger. Een enkele waarde wordt uniform toegepast; gebruik `"x, y, z"` of een lijst met 3 elementen voor niet-uniforme schaling. |
 | `view_range` | float > 0 | `16.0` | Afstand in blokken waarop de weergave zichtbaar wordt. |
 | `refresh_interval` | integer >= 0 | `0` | Hoe vaak (in ticks) de tekst per speler wordt vernieuwd. `0` schakelt automatisch vernieuwen uit. Stel dit in op een positieve waarde wanneer je PlaceholderAPI-placeholders gebruikt die in de loop der tijd veranderen. |
-| `brightness` | integer 0-15, `[blok, hemel]` of sectie | *(weglaten voor wereldverlichting)* | Overschrijf het lichtniveau. Een enkel geheel getal stelt zowel blok- als hemelverlichting gelijk in. Gebruik een lijst met twee elementen `[blok, hemel]` of een sectie met `block:` en `sky:` sleutels om ze afzonderlijk in te stellen. Laat weg om van de wereldverlichting te erven. |
+| `brightness` | integer 0-15, `[block, sky]` of sectie | *(weglaten voor wereldverlichting)* | Overschrijf het lichtniveau. Een enkel geheel getal stelt zowel blok- als hemelverlichting gelijk in. Gebruik een lijst met twee elementen `[block, sky]` of een sectie met `block:` en `sky:` sleutels om ze afzonderlijk in te stellen. Laat weg om van de wereldverlichting te erven. |
 | `shadow_radius` | float >= 0 | `0.0` | Straal van de slagschaduw achter de tekst. |
 | `shadow_strength` | float >= 0 | `1.0` | Sterkte (ondoorzichtigheid) van de slagschaduw. |
 | `yaw` | float | `0.0` | Horizontale rotatie van de weergave in graden. Alleen zinvol wanneer `billboard` `FIXED` is. |
@@ -87,6 +87,6 @@ behaviours:
 ## Opmerkingen
 
 - Tekst ondersteunt [MiniMessage](https://docs.advntr.dev/minimessage/format.html)-opmaak-tags.
-- PlaceholderAPI-placeholders worden per speler opgelost als PlaceholderAPI is geinstalleerd.
+- PlaceholderAPI-placeholders worden per speler opgelost als PlaceholderAPI is geïnstalleerd.
 - ItemsAdder-lettertypeafbeeldingen (`:my_icon:`) worden ondersteund.
 - Wanneer je placeholders gebruikt die in de loop der tijd bijwerken, stel `refresh_interval` in op een positieve waarde (bijv. `20` voor eens per seconde).
