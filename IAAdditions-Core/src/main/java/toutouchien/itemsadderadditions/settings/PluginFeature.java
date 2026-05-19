@@ -11,7 +11,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public enum PluginFeature {
     CREATIVE_INVENTORY_INTEGRATION("creative_inventory_integration", true),
-    CUSTOM_PAINTINGS("custom_paintings", true);
+    CUSTOM_PAINTINGS("custom_paintings", true),
+    MOD_INTEGRATION("mod_integration", true);
 
     private final String key;
     private final boolean defaultValue;

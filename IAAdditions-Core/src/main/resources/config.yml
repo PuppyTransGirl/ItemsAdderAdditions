@@ -1,6 +1,7 @@
 features:
   creative_inventory_integration: true
   custom_paintings: true
+  mod_integration: true
 
 behaviours:
   bed: true

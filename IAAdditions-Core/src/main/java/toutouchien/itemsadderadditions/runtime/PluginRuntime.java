@@ -20,10 +20,12 @@ import toutouchien.itemsadderadditions.feature.recipe.RecipeManager;
 import toutouchien.itemsadderadditions.feature.update.UpdateChecker;
 import toutouchien.itemsadderadditions.feature.worldgen.FurniturePopulatorWorldListener;
 import toutouchien.itemsadderadditions.integration.itemsadder.ItemsAdderLoadListener;
+import toutouchien.itemsadderadditions.mod.IaModNetworkManager;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadCoordinator;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadResult;
+import toutouchien.itemsadderadditions.settings.PluginFeature;
 import toutouchien.itemsadderadditions.settings.PluginSettings;
 import toutouchien.itemsadderadditions.settings.migration.*;
 
@@ -57,6 +59,7 @@ public final class PluginRuntime {
     private @Nullable CreativeMenuManager creativeMenuManager;
     private ReloadCoordinator reloadCoordinator;
     private CreativeRegistryReloader creativeRegistryReloader;
+    private @Nullable IaModNetworkManager modNetworkManager;
 
     private Metrics bStats;
     private AntiGriefLib antiGriefLib;
@@ -118,6 +121,7 @@ public final class PluginRuntime {
         );
 
         registerListeners(plugin);
+        setupModIntegration();
         startUpdateCheckerIfEnabled();
     }
 
@@ -127,6 +131,11 @@ public final class PluginRuntime {
         actionsManager.shutdown();
         behavioursManager.shutdown();
         recipeManager.shutdown();
+
+        if (modNetworkManager != null) {
+            modNetworkManager.unregister();
+            modNetworkManager = null;
+        }
 
         plugin.getServer().getScheduler().cancelTasks(plugin);
         NmsManager.shutdown();
@@ -140,7 +149,11 @@ public final class PluginRuntime {
     }
 
     public ReloadResult reloadItemsAdderData() {
-        return reloadCoordinator().reloadItemsAdderData();
+        ReloadResult result = reloadCoordinator().reloadItemsAdderData();
+        if (modNetworkManager != null) {
+            modNetworkManager.resendTabsToAll();
+        }
+        return result;
     }
 
     public PluginSettings settings() {
@@ -225,6 +238,12 @@ public final class PluginRuntime {
         this.creativeMenuManager = new CreativeMenuManager();
         this.creativeMenuManager.setup();
         NmsManager.instance().handler().creativeMenu().injectListeners(plugin);
+    }
+
+    private void setupModIntegration() {
+        if (!settings().featureEnabled(PluginFeature.MOD_INTEGRATION)) return;
+        this.modNetworkManager = new IaModNetworkManager(plugin);
+        modNetworkManager.register();
     }
 
     private void startUpdateCheckerIfEnabled() {
