@@ -8,6 +8,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.item.ItemCategory;
 import toutouchien.itemsadderadditions.common.logging.Log;
 
 /**
@@ -78,10 +79,14 @@ public final class OpenVariantTransformer {
     ) {
         String rotationSuffix = captureOriginalBlockState(location, key, originalIsBlock);
 
-        return switch (config.type()) {
-            case ITEM_DISPLAY -> swapItemDisplayModel(key, originalIsBlock, originalEntity);
+        return switch (config.category()) {
+            case ITEM -> swapItemDisplayModel(key, originalIsBlock, originalEntity);
             case FURNITURE -> spawnOpenFurniture(location, key, originalIsBlock, originalEntity);
             case BLOCK -> placeOpenBlock(location, key, originalIsBlock, originalEntity, rotationSuffix);
+            default -> {
+                Log.error(LOG_TAG, "Unsupported open_variant category {} for '{}'.", config.category(), config.id());
+                yield null;
+            }
         };
     }
 
@@ -92,7 +97,7 @@ public final class OpenVariantTransformer {
             String originalId,
             boolean originalIsBlock
     ) {
-        if (config.type() == OpenVariantConfig.FormType.ITEM_DISPLAY) {
+        if (config.category() == ItemCategory.ITEM) {
             return restoreItemDisplayModel(key);
         }
 

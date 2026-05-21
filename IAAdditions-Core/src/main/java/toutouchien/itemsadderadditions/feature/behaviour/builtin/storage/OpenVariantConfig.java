@@ -4,6 +4,7 @@ import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.item.ItemCategory;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
@@ -11,17 +12,6 @@ import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
  * Immutable configuration for the visual "open variant" of a storage container -
  * the custom block, furniture, or plain custom-stack item displayed at the storage
  * location while at least one player has the GUI open.
- *
- * <p>The {@link FormType} is resolved automatically:
- * <ol>
- *   <li>{@link CustomStack#isBlock()} -> {@link FormType#BLOCK}</li>
- *   <li>{@link CustomFurniture#getInstance} returns non-null -> {@link FormType#FURNITURE}</li>
- *   <li>Otherwise -> {@link FormType#ITEM_DISPLAY}: the open-variant is a plain custom stack
- *       (not a registered block or furniture). Its {@link CustomStack#getItemStack()} is
- *       written directly onto the existing furniture entity's {@link org.bukkit.entity.ItemDisplay}
- *       so that its model changes in-place, without any entity being removed or spawned.
- *       On close the original ItemStack is restored.</li>
- * </ol>
  *
  * <p>No {@code type} field is required in the YAML. The ID is also normalised by
  * {@link NamespaceUtils#customItemByID}, so the namespace may be omitted when it
@@ -37,10 +27,10 @@ import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
  * </pre>
  */
 @NullMarked
-public record OpenVariantConfig(FormType type, String id) {
+public record OpenVariantConfig(ItemCategory category, String id) {
     /**
      * Resolves an {@link OpenVariantConfig} from a namespacedID string, auto-detecting
-     * the {@link FormType}.
+     * the {@link ItemCategory}.
      *
      * <p><strong>Must be called after ItemsAdder has finished loading</strong>
      * (i.e. from {@code onLoad} / {@code ItemsAdderLoadDataEvent}, not {@code onEnable}).
@@ -77,62 +67,22 @@ public record OpenVariantConfig(FormType type, String id) {
             return null;
         }
 
-        FormType type;
-        if (stack.isBlock()) {
-            type = FormType.BLOCK;
-            Log.debug("Storage",
-                    "open_variant for '{}': '{}' -> BLOCK (isBlock=true).",
-                    ownerNamespacedId, stack.getNamespacedID());
-        } else if (stack instanceof CustomFurniture) {
-            type = FormType.FURNITURE;
-            Log.debug("Storage",
-                    "open_variant for '{}': '{}' -> FURNITURE (stack instanceof CustomFurniture).",
-                    ownerNamespacedId, stack.getNamespacedID());
-        } else {
-            type = FormType.ITEM_DISPLAY;
-            Log.debug("Storage",
-                    "open_variant for '{}': '{}' -> ITEM_DISPLAY (plain custom stack, " +
-                            "model will be swapped in-place on the furniture's ItemDisplay entity).",
-                    ownerNamespacedId, stack.getNamespacedID());
-        }
+        ItemCategory category = ItemCategory.determine(stack, stack.getConfig(), stack.getId());
+        Log.debug("Storage",
+                "open_variant for '{}': '{}' -> {} (determined via ItemCategory).",
+                ownerNamespacedId, stack.getNamespacedID(), category);
 
-        return new OpenVariantConfig(type, stack.getNamespacedID());
+        return new OpenVariantConfig(category, stack.getNamespacedID());
     }
 
-    /**
-     * Convenience delegate to {@link FormType#isFurnitureBased()}.
-     */
     public boolean isFurnitureBased() {
-        return type.isFurnitureBased();
+        return category == ItemCategory.FURNITURE || category == ItemCategory.COMPLEX_FURNITURE;
     }
 
     /**
-     * Returns {@code true} when the open-variant is a plain custom stack whose model
-     * will be swapped in-place on the existing furniture {@link org.bukkit.entity.ItemDisplay}
-     * entity.
+     * Returns {@code true} when the open-variant is a plain custom item.
      */
-    public boolean isItemDisplay() {
-        return type == FormType.ITEM_DISPLAY;
-    }
-
-    public enum FormType {
-        /**
-         * A custom block registered through ItemsAdder.
-         */
-        BLOCK,
-        /**
-         * A custom furniture (single- or multi-entity, including complex furniture).
-         */
-        FURNITURE,
-        /**
-         * A plain custom stack (not a registered block or furniture).
-         * At runtime the model is swapped in-place on the holder's existing
-         * {@link org.bukkit.entity.ItemDisplay} entity; no entity is created or destroyed.
-         */
-        ITEM_DISPLAY;
-
-        public boolean isFurnitureBased() {
-            return this == FURNITURE;
-        }
+    public boolean isItem() {
+        return category == ItemCategory.ITEM;
     }
 }

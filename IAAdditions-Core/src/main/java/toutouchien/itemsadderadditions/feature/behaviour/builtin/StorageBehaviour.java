@@ -189,12 +189,11 @@ public final class StorageBehaviour extends BehaviourExecutor {
     }
 
     private boolean isOpenVariantCompatible(ItemCategory holderCategory, OpenVariantConfig config) {
-        if (holderCategory == ItemCategory.BLOCK) {
-            return config.type() == OpenVariantConfig.FormType.BLOCK;
-        }
+        if (holderCategory == ItemCategory.BLOCK)
+            return config.category() == ItemCategory.BLOCK;
 
-        return config.type() == OpenVariantConfig.FormType.FURNITURE
-                || config.type() == OpenVariantConfig.FormType.ITEM_DISPLAY;
+        return config.category() == ItemCategory.FURNITURE
+                || config.category() == ItemCategory.ITEM;
     }
 
     /**
