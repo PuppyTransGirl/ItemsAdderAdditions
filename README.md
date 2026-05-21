@@ -6,7 +6,7 @@
 [![Hangar](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/hangar_vector.svg)](https://hangar.papermc.io/PuppyTransGirl/ItemsAdderAdditions)
 [![Spigot](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/spigot_vector.svg)](https://www.spigotmc.org/resources/itemsadderadditions.133918/)
 
-[![Documentation](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/documentation/ghpages_vector.svg)](https://itemsadderadditions.com/docs)
+[![Documentation](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/documentation/ghpages_vector.svg)](https://itemsadderadditions.com/en/docs)
 [![Discord](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/social/discord-plural_vector.svg)](https://discord.gg/jbQmacZ58H)
 </div>
 
@@ -30,7 +30,7 @@ files.
 
 ## Features
 
-Please see the [documentation](https://itemsadderadditions.com/docs) for the full feature list, configuration details,
+Please see the [documentation](https://itemsadderadditions.com/en/docs) for the full feature list, configuration details,
 and examples.
 
 ### Extra Behaviours
@@ -39,9 +39,9 @@ ItemsAdderAdditions adds new behaviours that can be attached to your custom item
 
 Examples include:
 
-- [Connectable](https://itemsadderadditions.com/docs/behaviours/connectable)
-- [Contact Damage](https://itemsadderadditions.com/docs/behaviours/contact-damage)
-- [Storage](https://itemsadderadditions.com/docs/behaviours/storage)
+- [Connectable](https://itemsadderadditions.com/en/docs/behaviours/connectable)
+- [Contact Damage](https://itemsadderadditions.com/en/docs/behaviours/contact-damage)
+- [Storage](https://itemsadderadditions.com/en/docs/behaviours/storage)
 - And more...
 
 ### Extra Actions
@@ -50,9 +50,9 @@ ItemsAdderAdditions adds new actions that can be triggered by configured events.
 
 Examples include:
 
-- [Actionbar](https://itemsadderadditions.com/docs/actions/actionbar)
-- [Ignite](https://itemsadderadditions.com/docs/actions/ignite)
-- [Mythic Mobs Skill](https://itemsadderadditions.com/docs/actions/mythic-mobs-skill)
+- [Actionbar](https://itemsadderadditions.com/en/docs/actions/actionbar)
+- [Ignite](https://itemsadderadditions.com/en/docs/actions/ignite)
+- [Mythic Mobs Skill](https://itemsadderadditions.com/en/docs/actions/mythic-mobs-skill)
 - And more...
 
 ### New Recipe Types
@@ -61,8 +61,8 @@ ItemsAdderAdditions adds additional recipe types that are not available by defau
 
 Currently includes:
 
-- [Campfire recipes](https://itemsadderadditions.com/docs/recipes/campfire-cooking)
-- [Stonecutter recipes](https://itemsadderadditions.com/docs/recipes/stonecutter)
+- [Campfire recipes](https://itemsadderadditions.com/en/docs/recipes/campfire-cooking)
+- [Stonecutter recipes](https://itemsadderadditions.com/en/docs/recipes/stonecutter)
 - And more...
 
 ## Creative Inventory Integration
@@ -224,7 +224,7 @@ formats and examples.
 
 Full documentation is available here:
 
-- [ItemsAdderAdditions Documentation](https://itemsadderadditions.com/docs)
+- [ItemsAdderAdditions Documentation](https://itemsadderadditions.com/en/docs)
 
 The documentation contains:
 
@@ -256,7 +256,7 @@ Useful channels include:
 - `#suggestions` for feature requests and ideas
 - `#showcase` if you want to share what you made with the plugin
 
-You can also check the [documentation](https://itemsadderadditions.com/docs) for setup guides and feature references.
+You can also check the [documentation](https://itemsadderadditions.com/en/docs) for setup guides and feature references.
 
 ## License
 
