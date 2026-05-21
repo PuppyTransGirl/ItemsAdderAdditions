@@ -12,13 +12,13 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.item.Item;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.VarInt;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -73,6 +73,26 @@ public final class BytePacketListener_v1_21_11 {
             Connection connection = (Connection) channel.pipeline().get("packet_handler");
             return connection != null
                     && connection.getPacketListener() instanceof ServerGamePacketListenerImpl;
+        }
+
+        /**
+         * Clamps {@code itemCount} to the item's max stack size, promoting it to the full stack when
+         * the client sends 64 for an item whose real max exceeds 64.
+         *
+         * @param nmsItem   the item whose max stack size is used as the upper bound
+         * @param itemCount the raw count received from the client
+         * @return the adjusted item count
+         */
+        private static int realItemCount(ItemStack nmsItem, int itemCount) {
+            int maxStackSize = nmsItem.getMaxStackSize();
+
+            // if the maxStackSize is lower than 64, set the count to the maxStackSize
+            int finalItemCount = Math.min(itemCount, maxStackSize);
+
+            // if the maxStackSize is bigger than 64 and itemCount is equal to 64 set the count to the maxStackSize
+            if (maxStackSize > 64 && itemCount == 64)
+                finalItemCount = maxStackSize;
+            return finalItemCount;
         }
 
         /**
@@ -178,27 +198,6 @@ public final class BytePacketListener_v1_21_11 {
             }
 
             return true;
-        }
-
-
-        /**
-         * Clamps {@code itemCount} to the item's max stack size, promoting it to the full stack when
-         * the client sends 64 for an item whose real max exceeds 64.
-         *
-         * @param nmsItem   the item whose max stack size is used as the upper bound
-         * @param itemCount the raw count received from the client
-         * @return the adjusted item count
-         */
-        private static int realItemCount(ItemStack nmsItem, int itemCount) {
-            int maxStackSize = nmsItem.getMaxStackSize();
-
-            // if the maxStackSize is lower than 64, set the count to the maxStackSize
-            int finalItemCount = Math.min(itemCount, maxStackSize);
-
-            // if the maxStackSize is bigger than 64 and itemCount is equal to 64 set the count to the maxStackSize
-            if (maxStackSize > 64 && itemCount == 64)
-                finalItemCount = maxStackSize;
-            return finalItemCount;
         }
     }
 }
