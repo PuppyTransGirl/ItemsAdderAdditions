@@ -25,8 +25,8 @@ public final class MMOItemsHook extends PluginHook {
      * <p>Returns {@code null} when MMOItems is not loaded or the type/id
      * combination does not exist.
      *
-     * @param type the MMOItems type name (e.g. {@code "sword"}) — case-insensitive
-     * @param id   the item ID within that type (e.g. {@code "fire_sword"}) — case-insensitive
+     * @param type the MMOItems type name (e.g. {@code "sword"}) - case-insensitive
+     * @param id   the item ID within that type (e.g. {@code "fire_sword"}) - case-insensitive
      */
     @Nullable
     public ItemStack buildItemStack(String type, String id) {
@@ -50,8 +50,8 @@ public final class MMOItemsHook extends PluginHook {
      * the exact case stored internally.
      *
      * @param stack the item to inspect
-     * @param type  the expected type (e.g. {@code "sword"}) — case-insensitive
-     * @param id    the expected item ID (e.g. {@code "fire_sword"}) — case-insensitive
+     * @param type  the expected type (e.g. {@code "sword"}) - case-insensitive
+     * @param id    the expected item ID (e.g. {@code "fire_sword"}) - case-insensitive
      */
     public boolean isMmoItem(ItemStack stack, String type, String id) {
         if (!isAvailable()) return false;

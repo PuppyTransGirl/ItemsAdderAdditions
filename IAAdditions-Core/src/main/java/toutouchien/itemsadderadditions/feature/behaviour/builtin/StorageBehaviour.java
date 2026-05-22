@@ -154,11 +154,14 @@ public final class StorageBehaviour extends BehaviourExecutor {
     ) {
         StorageGuiGuard guiGuard = new StorageGuiGuard(SHULKER_ITEM_IDS);
 
-        registeredListeners.add(new StorageBlockListener(runtime));
-        registeredListeners.add(new StorageFurnitureListener(runtime));
+        if (runtime.category() == ItemCategory.BLOCK) {
+            registeredListeners.add(new StorageBlockListener(runtime));
+            registeredListeners.add(new StorageOpenVariantBlockListener(runtime));
+        } else {
+            registeredListeners.add(new StorageFurnitureListener(runtime));
+            registeredListeners.add(new StorageOpenVariantFurnitureListener(runtime));
+        }
         registeredListeners.add(new StorageInventoryCloseListener(runtime));
-        registeredListeners.add(new StorageOpenVariantBlockListener(runtime));
-        registeredListeners.add(new StorageOpenVariantFurnitureListener(runtime));
         registeredListeners.add(shulkerDropTracker);
         registeredListeners.add(guiGuard);
 

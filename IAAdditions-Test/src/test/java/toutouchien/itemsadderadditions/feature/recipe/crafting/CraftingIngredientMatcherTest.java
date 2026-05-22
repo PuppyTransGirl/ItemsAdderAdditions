@@ -136,10 +136,36 @@ class CraftingIngredientMatcherTest {
 
     @Test
     void matches_ingredientWithRequiredAmountTwo_matchesSlotOfAny() {
-        // requiredAmount is NOT checked by matches() itself — only material identity is tested
+        // requiredAmount is NOT checked by matches() itself - only material identity is tested
         RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
         ParsedIngredient ingredient = new ParsedIngredient(choice, 2, 0, null);
 
         assertTrue(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.STONE, 1)));
+    }
+
+    // --- matches with ignoreDurability ---
+
+    @Test
+    void matches_ignoreDurability_undamagedItem_returnsTrue() {
+        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
+        ParsedIngredient ingredient = new ParsedIngredient(
+                choice, choice, 1, 0, null, true, null, null, 0);
+        assertTrue(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.STONE)));
+    }
+
+    @Test
+    void matches_ignoreDurability_differentMaterial_returnsFalse() {
+        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
+        ParsedIngredient ingredient = new ParsedIngredient(
+                choice, choice, 1, 0, null, true, null, null, 0);
+        assertFalse(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.DIRT)));
+    }
+
+    @Test
+    void matches_ignoreDurabilityFalse_exactMatch_returnsTrue() {
+        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
+        ParsedIngredient ingredient = new ParsedIngredient(
+                choice, choice, 1, 0, null, false, null, null, 0);
+        assertTrue(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.STONE)));
     }
 }

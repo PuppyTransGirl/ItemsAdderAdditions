@@ -12,7 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
-import toutouchien.itemsadderadditions.common.item.ItemCategory;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageInventoryManager;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageRuntime;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
@@ -43,8 +42,6 @@ public final class StorageBlockListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreakPreLoad(BlockBreakEvent event) {
-        if (runtime.category() != ItemCategory.BLOCK) return;
-
         Block block = event.getBlock();
 
         // Let the open-variant listener deal with breaks on the open-form block.

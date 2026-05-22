@@ -21,6 +21,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.item.ItemCategory;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.utils.PlayerUtils;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
@@ -67,6 +68,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     private List<SlotOffset> configuredSlots = List.of(new SlotOffset(0, 0, 0));
 
     private String namespacedID = "";
+    private ItemCategory category = ItemCategory.FURNITURE;
     private @Nullable JavaPlugin plugin;
 
     /**
@@ -172,6 +174,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     @Override
     protected void onLoad(BehaviourHost host) {
         this.namespacedID = host.namespacedID();
+        this.category = host.category();
         this.plugin = host.plugin();
         Bukkit.getPluginManager().registerEvents(this, host.plugin());
     }
@@ -196,6 +199,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onFurnitureInteract(FurnitureInteractEvent event) {
+        if (category != ItemCategory.FURNITURE) return;
         if (!event.getNamespacedID().equals(namespacedID)) return;
         handleBedInteract(event.getPlayer(), event.getBukkitEntity().getLocation());
     }
@@ -206,6 +210,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onComplexFurnitureInteract(PlayerInteractEvent event) {
+        if (category != ItemCategory.COMPLEX_FURNITURE) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (PlayerUtils.isOffHandDuplicate(event.getPlayer(), event.getHand())) return;
 

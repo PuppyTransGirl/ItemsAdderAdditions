@@ -7,6 +7,8 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.feature.recipe.RecipeActions;
+import toutouchien.itemsadderadditions.feature.recipe.RecipeActionsParser;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.IngredientResolver;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.ParsedIngredient;
 import toutouchien.itemsadderadditions.nms.api.INmsCraftingRecipeHandler;
@@ -32,6 +34,7 @@ public final class CraftingRecipeHandler {
      * This map replaces that O(n) scan with an O(1) hash lookup.
      */
     private final Map<NamespacedKey, CraftingRecipeData> predicateByKey = new HashMap<>();
+    private final Map<NamespacedKey, RecipeActions> actionsMap = new HashMap<>();
     private int loadedCount = 0;
 
     public CraftingRecipeHandler(INmsCraftingRecipeHandler nms) {
@@ -200,6 +203,14 @@ public final class CraftingRecipeHandler {
         return predicateByKey.get(key);
     }
 
+    /**
+     * Returns the {@link RecipeActions} registered for this recipe key, or
+     * {@link RecipeActions#EMPTY} when none were configured.
+     */
+    public RecipeActions actionsFor(NamespacedKey key) {
+        return actionsMap.getOrDefault(key, RecipeActions.EMPTY);
+    }
+
     public void load(String namespace, @Nullable ConfigurationSection section) {
         if (section == null) return;
 
@@ -209,8 +220,9 @@ public final class CraftingRecipeHandler {
             if (!entry.getBoolean("enabled", true)) continue;
 
             List<CraftingRecipeData> variants = parse(namespace, recipeId, entry);
+            RecipeActions actions = RecipeActionsParser.parse(entry.getConfigurationSection("on_complete"));
             for (CraftingRecipeData data : variants) {
-                register(data);
+                register(data, actions);
                 Log.debug(LOG_TAG, "Registered: " + data.key());
             }
         }
@@ -220,6 +232,7 @@ public final class CraftingRecipeHandler {
         nms.unregisterAll();
         predicateRecipes.clear();
         predicateByKey.clear();
+        actionsMap.clear();
         loadedCount = 0;
     }
 
@@ -264,13 +277,16 @@ public final class CraftingRecipeHandler {
         return variants;
     }
 
-    private void register(CraftingRecipeData data) {
+    private void register(CraftingRecipeData data, RecipeActions actions) {
         try {
             nms.register(data);
             loadedCount++;
             if (data.hasPredicates) {
                 predicateRecipes.add(data);
                 predicateByKey.put(data.key(), data);
+            }
+            if (!actions.isEmpty()) {
+                actionsMap.put(data.key(), actions);
             }
         } catch (Exception e) {
             Log.error(LOG_TAG, "Failed to register recipe " + data.key(), e);

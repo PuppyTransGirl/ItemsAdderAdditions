@@ -9,6 +9,7 @@ import toutouchien.itemsadderadditions.feature.recipe.campfire.CampfireRecipeHan
 import toutouchien.itemsadderadditions.feature.recipe.crafting.CraftingRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.CraftingRecipeListener;
 import toutouchien.itemsadderadditions.feature.recipe.stonecutter.StonecutterRecipeHandler;
+import toutouchien.itemsadderadditions.feature.recipe.stonecutter.StonecutterRecipeListener;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.runtime.reload.ContentReloadContext;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadPhase;
@@ -28,6 +29,7 @@ public final class RecipeManager implements ReloadableContentSystem {
     public RecipeManager(Plugin plugin) {
         this.loader = new RecipeLoader(campfireHandler, stonecutterHandler, craftingHandler);
         Bukkit.getPluginManager().registerEvents(new CraftingRecipeListener(craftingHandler, plugin), plugin);
+        Bukkit.getPluginManager().registerEvents(new StonecutterRecipeListener(stonecutterHandler), plugin);
     }
 
     public int reload(ConfigFileRegistry registry) {

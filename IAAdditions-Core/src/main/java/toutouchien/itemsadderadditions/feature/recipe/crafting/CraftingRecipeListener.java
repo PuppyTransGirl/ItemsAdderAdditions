@@ -16,6 +16,7 @@ import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.feature.recipe.RecipeActions;
 
 import java.util.Arrays;
 
@@ -181,6 +182,35 @@ public final class CraftingRecipeListener implements Listener {
 
         inv.setMatrix(matrix);
         player.updateInventory();
+
+        RecipeActions actions = handler.actionsFor(data.key());
+        if (!actions.isEmpty()) {
+            actions.execute(player);
+        }
+    }
+
+    /**
+     * Fires {@code on_complete} actions for recipes that have no predicates (so
+     * vanilla handles the craft and {@link #onCraft} never runs for them).
+     *
+     * <p>Predicate recipes are skipped here because {@link #onCraft} already
+     * fires their actions - and because that handler cancels the event, this
+     * MONITOR handler with {@code ignoreCancelled = true} won't run for them.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onCraftNonPredicate(CraftItemEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        NamespacedKey key = CraftingPredicateEngine.recipeKey(event.getRecipe());
+        if (key == null) return;
+
+        // Predicate recipes are already handled (and their actions fired) in onCraft.
+        if (handler.predicateRecipeByKey(key) != null) return;
+
+        RecipeActions actions = handler.actionsFor(key);
+        if (actions.isEmpty()) return;
+
+        actions.execute(player);
     }
 
     /**

@@ -321,7 +321,7 @@ public final class IngredientResolver {
         int colon = rest.indexOf(':');
         if (colon <= 0) {
             Log.warn(LOG_TAG,
-                    "Ingredient '{}' in recipe '{}': invalid MMOItems reference '{}' — expected mmoitems:TYPE:ID.",
+                    "Ingredient '{}' in recipe '{}': invalid MMOItems reference '{}' - expected mmoitems:TYPE:ID.",
                     keyLabel, recipeId, itemRef);
             return null;
         }

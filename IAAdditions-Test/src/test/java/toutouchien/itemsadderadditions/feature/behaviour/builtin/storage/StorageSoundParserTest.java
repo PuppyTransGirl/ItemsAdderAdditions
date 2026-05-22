@@ -120,7 +120,7 @@ class StorageSoundParserTest {
 
     @Test
     void parse_openSoundMissingName_returnsNull() {
-        // A section with no name field — SoundUtils returns null → MALFORMED
+        // A section with no name field - SoundUtils returns null → MALFORMED
         YamlConfiguration config = yamlOf(
                 "open_sound:\n" +
                         "  source: block\n"
