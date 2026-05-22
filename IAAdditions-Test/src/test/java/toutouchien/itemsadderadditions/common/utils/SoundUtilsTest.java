@@ -17,7 +17,6 @@ class SoundUtilsTest {
         return cfg;
     }
 
-
     @Test
     void parseSound_nullSection_returnsNull() {
         assertNull(SoundUtils.parseSound(null));
@@ -30,82 +29,133 @@ class SoundUtilsTest {
 
     @Test
     void parseSound_blankName_returnsNull() {
-        YamlConfiguration yaml = yamlOf("name: \"  \"");
-        assertNull(SoundUtils.parseSound(yaml));
+        assertNull(SoundUtils.parseSound(yamlOf("""
+                name: "  "
+                """)));
     }
 
     @Test
     void parseSound_bareName_prependsMinecraft() {
-        YamlConfiguration yaml = yamlOf("name: block.grass.place");
-        Sound sound = SoundUtils.parseSound(yaml);
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                """));
         assertNotNull(sound);
         assertEquals("minecraft:block.grass.place", sound.name().asString());
     }
 
     @Test
     void parseSound_fullyQualifiedName_usedAsIs() {
-        YamlConfiguration yaml = yamlOf("name: minecraft:block.grass.place");
-        Sound sound = SoundUtils.parseSound(yaml);
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: minecraft:block.grass.place
+                """));
         assertNotNull(sound);
         assertEquals("minecraft:block.grass.place", sound.name().asString());
     }
 
     @Test
+    void parseSound_customNamespace_preservedInKey() {
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: mypack:custom_sound
+                """));
+        assertNotNull(sound);
+        assertEquals("mypack:custom_sound", sound.name().asString());
+    }
+
+    @Test
     void parseSound_defaultSource_isMaster() {
-        YamlConfiguration yaml = yamlOf("name: block.grass.place");
-        Sound sound = SoundUtils.parseSound(yaml);
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                """));
         assertNotNull(sound);
         assertEquals(Sound.Source.MASTER, sound.source());
     }
 
     @Test
     void parseSound_explicitSourceBlock_parsedCorrectly() {
-        YamlConfiguration yaml = yamlOf("name: block.grass.place\nsource: block");
-        Sound sound = SoundUtils.parseSound(yaml);
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                source: block
+                """));
         assertNotNull(sound);
         assertEquals(Sound.Source.BLOCK, sound.source());
     }
 
     @Test
     void parseSound_sourceUppercase_accepted() {
-        YamlConfiguration yaml = yamlOf("name: block.grass.place\nsource: HOSTILE");
-        Sound sound = SoundUtils.parseSound(yaml);
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                source: HOSTILE
+                """));
         assertNotNull(sound);
         assertEquals(Sound.Source.HOSTILE, sound.source());
     }
 
     @Test
-    void parseSound_invalidSource_returnsNull() {
-        YamlConfiguration yaml = yamlOf("name: block.grass.place\nsource: invalid");
-        assertNull(SoundUtils.parseSound(yaml));
+    void parseSound_sourceMixedCase_accepted() {
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                source: pLaYeR
+                """));
+        assertNotNull(sound);
+        assertEquals(Sound.Source.PLAYER, sound.source());
     }
 
     @Test
-    void parseSound_customVolumeAndPitch() {
-        YamlConfiguration yaml = yamlOf("name: block.grass.place\nvolume: 2.0\npitch: 0.5");
-        Sound sound = SoundUtils.parseSound(yaml);
-        assertNotNull(sound);
-        assertEquals(2.0f, sound.volume(), 0.001f);
-        assertEquals(0.5f, sound.pitch(), 0.001f);
+    void parseSound_invalidSource_returnsNull() {
+        assertNull(SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                source: invalid
+                """)));
     }
 
     @Test
     void parseSound_defaultVolumeAndPitch_areOne() {
-        YamlConfiguration yaml = yamlOf("name: block.grass.place");
-        Sound sound = SoundUtils.parseSound(yaml);
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                """));
         assertNotNull(sound);
         assertEquals(1.0f, sound.volume(), 0.001f);
         assertEquals(1.0f, sound.pitch(), 0.001f);
     }
 
     @Test
-    void parseSound_customNamespace_preservedInKey() {
-        YamlConfiguration yaml = yamlOf("name: mypack:custom_sound");
-        Sound sound = SoundUtils.parseSound(yaml);
+    void parseSound_customVolumeAndPitch() {
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                volume: 2.0
+                pitch: 0.5
+                """));
         assertNotNull(sound);
-        assertEquals("mypack:custom_sound", sound.name().asString());
+        assertEquals(2.0f, sound.volume(), 0.001f);
+        assertEquals(0.5f, sound.pitch(), 0.001f);
     }
 
+    @Test
+    void parseSound_integerVolumeAndPitch_acceptedAsFloat() {
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: block.grass.place
+                volume: 3
+                pitch: 2
+                """));
+        assertNotNull(sound);
+        assertEquals(3.0f, sound.volume(), 0.001f);
+        assertEquals(2.0f, sound.pitch(), 0.001f);
+    }
+
+    @Test
+    void parseSound_allFieldsSet_parsedCorrectly() {
+        Sound sound = SoundUtils.parseSound(yamlOf("""
+                name: minecraft:entity.player.levelup
+                source: player
+                volume: 1.5
+                pitch: 1.2
+                """));
+        assertNotNull(sound);
+        assertEquals("minecraft:entity.player.levelup", sound.name().asString());
+        assertEquals(Sound.Source.PLAYER, sound.source());
+        assertEquals(1.5f, sound.volume(), 0.001f);
+        assertEquals(1.2f, sound.pitch(), 0.001f);
+    }
 
     @Test
     void parseSource_null_returnsMaster() {
