@@ -2,7 +2,7 @@ plugins {
     id("iaadditions.java-conventions")
 }
 
-// MockBukkit requires Java 25+ — override the convention plugin default of 21.
+// MockBukkit requires Java 25+ - override the convention plugin default of 21.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)

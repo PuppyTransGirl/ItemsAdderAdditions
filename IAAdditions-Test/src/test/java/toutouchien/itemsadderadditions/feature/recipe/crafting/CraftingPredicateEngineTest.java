@@ -46,8 +46,6 @@ class CraftingPredicateEngineTest {
         return m;
     }
 
-    // --- toNineSlot ---
-
     @Test
     void toNineSlot_nineElements_returnsSameReference() {
         ItemStack[] nine = new ItemStack[9];
@@ -84,8 +82,6 @@ class CraftingPredicateEngineTest {
         assertNull(CraftingPredicateEngine.toNineSlot(new ItemStack[16]));
     }
 
-    // --- isAir ---
-
     @Test
     void isAir_null_returnsTrue() {
         assertTrue(CraftingPredicateEngine.isAir(null));
@@ -101,8 +97,6 @@ class CraftingPredicateEngineTest {
         assertFalse(CraftingPredicateEngine.isAir(new ItemStack(Material.STONE)));
     }
 
-    // --- itemInfo ---
-
     @Test
     void itemInfo_null_returnsNullString() {
         assertEquals("null", CraftingPredicateEngine.itemInfo(null));
@@ -114,8 +108,6 @@ class CraftingPredicateEngineTest {
         assertTrue(info.contains("STONE"), "Expected STONE in: " + info);
         assertTrue(info.contains("3"), "Expected amount in: " + info);
     }
-
-    // --- ingredientsSatisfied ---
 
     @Test
     void ingredientsSatisfied_exactAmount_returnsTrue() {
@@ -158,8 +150,6 @@ class CraftingPredicateEngineTest {
                 matrix(new ItemStack(Material.DIRT, 3))));
     }
 
-    // --- findIngredient ---
-
     @Test
     void findIngredient_matchingMaterial_returnsIngredient() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
@@ -171,8 +161,6 @@ class CraftingPredicateEngineTest {
         CraftingRecipeData data = recipe(Material.STONE, 1);
         assertNull(CraftingPredicateEngine.findIngredient(data, new ItemStack(Material.DIRT)));
     }
-
-    // --- canCraftAgain ---
 
     @Test
     void canCraftAgain_enoughItemsForAnotherCraft_returnsTrue() {
@@ -194,8 +182,6 @@ class CraftingPredicateEngineTest {
         assertFalse(CraftingPredicateEngine.canCraftAgain(data,
                 matrix(new ItemStack(Material.STONE, 1))));
     }
-
-    // --- applyPredicatesOnce ---
 
     @Test
     void applyPredicatesOnce_partialConsumption_reducesSlotAmount() {

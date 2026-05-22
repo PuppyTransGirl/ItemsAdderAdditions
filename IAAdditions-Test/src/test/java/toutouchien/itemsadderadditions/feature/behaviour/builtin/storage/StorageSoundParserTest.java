@@ -16,8 +16,6 @@ class StorageSoundParserTest {
         return cfg;
     }
 
-    // --- no sounds configured ---
-
     @Test
     void parse_emptySectionNoSounds_returnsStorageSoundsWithBothNull() {
         StorageSounds result = StorageSoundParser.parse(new YamlConfiguration(), "test:storage");
@@ -25,8 +23,6 @@ class StorageSoundParserTest {
         assertNull(result.open());
         assertNull(result.close());
     }
-
-    // --- valid sound configuration ---
 
     @Test
     void parse_validOpenSound_returnsNonNullOpenAndNullClose() {
@@ -93,8 +89,6 @@ class StorageSoundParserTest {
         assertEquals(2.0f, result.open().volume(), 0.001f);
         assertEquals(0.5f, result.open().pitch(), 0.001f);
     }
-
-    // --- malformed sound configuration ---
 
     @Test
     void parse_malformedOpenSoundInvalidSource_returnsNull() {

@@ -31,8 +31,6 @@ class CraftingIngredientMatcherTest {
         return new ParsedIngredient(choice, 1, 0, null);
     }
 
-    // --- isAir ---
-
     @Test
     void isAir_null_returnsTrue() {
         assertTrue(CraftingIngredientMatcher.isAir(null));
@@ -48,8 +46,6 @@ class CraftingIngredientMatcherTest {
         assertFalse(CraftingIngredientMatcher.isAir(new ItemStack(Material.STONE)));
     }
 
-    // --- itemInfo ---
-
     @Test
     void itemInfo_null_returnsNullString() {
         assertEquals("null", CraftingIngredientMatcher.itemInfo(null));
@@ -61,8 +57,6 @@ class CraftingIngredientMatcherTest {
         assertTrue(info.contains("STONE"), "Expected STONE in: " + info);
         assertTrue(info.contains("5"), "Expected amount in: " + info);
     }
-
-    // --- remainingDurability ---
 
     @Test
     void remainingDurability_undamageableItem_returnsMaxInt() {
@@ -87,8 +81,6 @@ class CraftingIngredientMatcherTest {
         int expected = Material.DIAMOND_SWORD.getMaxDurability() - 10;
         assertEquals(expected, CraftingIngredientMatcher.remainingDurability(sword));
     }
-
-    // --- applyDamage ---
 
     @Test
     void applyDamage_belowMaxDurability_returnsFalseAndAppliesDamage() {
@@ -120,8 +112,6 @@ class CraftingIngredientMatcherTest {
         assertTrue(broken);
     }
 
-    // --- matches ---
-
     @Test
     void matches_sameMaterial_returnsTrue() {
         ParsedIngredient ingredient = vanillaIngredient(Material.STONE);
@@ -142,8 +132,6 @@ class CraftingIngredientMatcherTest {
 
         assertTrue(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.STONE, 1)));
     }
-
-    // --- matches with ignoreDurability ---
 
     @Test
     void matches_ignoreDurability_undamagedItem_returnsTrue() {
