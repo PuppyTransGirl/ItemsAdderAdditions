@@ -19,6 +19,7 @@ import toutouchien.itemsadderadditions.feature.painting.CustomPaintingManager;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeManager;
 import toutouchien.itemsadderadditions.feature.update.UpdateChecker;
 import toutouchien.itemsadderadditions.feature.worldgen.FurniturePopulatorWorldListener;
+import toutouchien.itemsadderadditions.integration.hook.MMOItemsHook;
 import toutouchien.itemsadderadditions.integration.itemsadder.ItemsAdderLoadListener;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
@@ -100,6 +101,7 @@ public final class PluginRuntime {
         startMetrics();
         setupAntiGriefLib();
         NamespaceUtils.initVanillaCache();
+        NamespaceUtils.setMMOItemsProvider(MMOItemsHook.INSTANCE::buildItemStack);
         NmsManager.initialize(plugin.getComponentLogger());
 
         this.actionsManager = new ActionsManager(settings);
@@ -128,6 +130,7 @@ public final class PluginRuntime {
         behavioursManager.shutdown();
         recipeManager.shutdown();
 
+        NamespaceUtils.setMMOItemsProvider(null);
         plugin.getServer().getScheduler().cancelTasks(plugin);
         NmsManager.shutdown();
     }

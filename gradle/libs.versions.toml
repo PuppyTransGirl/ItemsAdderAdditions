@@ -11,6 +11,8 @@ itemsadder = "4.0.10"
 placeholderapi = "2.11.7"
 mythicmobs = "5.6.1"
 coreprotect = "23.1"
+mmoitems = "6.10.1-SNAPSHOT"
+mythiclib = "1.7.1-SNAPSHOT"
 
 # Bundled dependencies
 bstats = "3.1.0"
@@ -39,6 +41,8 @@ itemsadder = { module = "dev.lone:api-itemsadder", version.ref = "itemsadder" }
 placeholderapi = { module = "me.clip:placeholderapi", version.ref = "placeholderapi" }
 mythicmobs = { module = "io.lumine:Mythic-Dist", version.ref = "mythicmobs" }
 coreprotect = { module = "net.coreprotect:coreprotect", version.ref = "coreprotect" }
+mmoitems = { module = "net.Indyuce:MMOItems-API", version.ref = "mmoitems" }
+mythiclib = { module = "io.lumine:MythicLib-dist", version.ref = "mythiclib" }
 bytebuddy-agent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "bytebuddy" }
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 custom-block-data = { module = "com.jeff-media:custom-block-data", version.ref = "custom-block-data" }

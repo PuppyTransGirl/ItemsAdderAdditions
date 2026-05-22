@@ -15,6 +15,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.integration.hook.MMOItemsHook;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -249,6 +250,11 @@ public final class IngredientResolver {
                     null, 0);   // tags are never custom items
         }
 
+        if (itemRef.toLowerCase().startsWith("mmoitems:")) {
+            return buildMMOItemIngredient(itemRef, keyLabel, recipeId,
+                    requiredAmount, damageAmount, replacement, ignoreDurability, potionType);
+        }
+
         CustomStack customStack = NamespaceUtils.customItemByID(namespace, itemRef);
         if (customStack != null) {
             RecipeChoice exactChoice =
@@ -284,6 +290,63 @@ public final class IngredientResolver {
         return null;
     }
 
+    /**
+     * Builds a {@link ParsedIngredient} for an {@code mmoitems:TYPE:ID} reference.
+     *
+     * <p>The registration and validation choice is a {@link RecipeChoice.MaterialChoice}
+     * keyed on the MMOItem's base material.  At crafting time
+     * {@code CraftingIngredientMatcher} identifies the slot by reading the
+     * {@code MMOITEMS_ITEM_TYPE} / {@code MMOITEMS_ITEM_ID} NBT tags via
+     * {@link MMOItemsHook#isMmoItem}.
+     */
+    @Nullable
+    private static ParsedIngredient buildMMOItemIngredient(
+            String itemRef,
+            String keyLabel,
+            String recipeId,
+            int requiredAmount,
+            int damageAmount,
+            @Nullable ItemStack replacement,
+            boolean ignoreDurability,
+            @Nullable String potionType
+    ) {
+        if (!MMOItemsHook.INSTANCE.isAvailable()) {
+            Log.warn(LOG_TAG,
+                    "Ingredient '{}' in recipe '{}': MMOItems is not loaded.",
+                    keyLabel, recipeId);
+            return null;
+        }
+
+        String rest = itemRef.toLowerCase().substring("mmoitems:".length());
+        int colon = rest.indexOf(':');
+        if (colon <= 0) {
+            Log.warn(LOG_TAG,
+                    "Ingredient '{}' in recipe '{}': invalid MMOItems reference '{}' — expected mmoitems:TYPE:ID.",
+                    keyLabel, recipeId, itemRef);
+            return null;
+        }
+
+        String type = rest.substring(0, colon);
+        String id = rest.substring(colon + 1);
+
+        ItemStack mmoStack = MMOItemsHook.INSTANCE.buildItemStack(type, id);
+        if (mmoStack == null) {
+            Log.warn(LOG_TAG,
+                    "Ingredient '{}' in recipe '{}': MMOItems item '{}:{}' not found.",
+                    keyLabel, recipeId, type, id);
+            return null;
+        }
+
+        RecipeChoice materialChoice = RecipeChoice.itemType(mmoStack.getType().asItemType());
+        String customId = "mmoitems:" + type + ":" + id;
+
+        return new ParsedIngredient(
+                materialChoice, materialChoice,
+                requiredAmount, damageAmount, replacement,
+                ignoreDurability, potionType,
+                customId, 0);
+    }
+
     @Nullable
     private static RecipeChoice resolveTag(
             String tagRef, String recipeId, String key
@@ -315,11 +378,8 @@ public final class IngredientResolver {
     private static ItemStack resolveItem(
             String namespace, String ref, String recipeId, String context
     ) {
-        CustomStack customStack = NamespaceUtils.customItemByID(namespace, ref);
-        if (customStack != null) return customStack.getItemStack();
-
-        Material mat = Material.matchMaterial(ref);
-        if (mat != null) return new ItemStack(mat);
+        ItemStack item = NamespaceUtils.itemByID(namespace, ref);
+        if (item != null) return item;
 
         Log.warn(LOG_TAG,
                 "Could not resolve {} in recipe '{}': '{}'.",

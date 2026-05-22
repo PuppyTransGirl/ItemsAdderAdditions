@@ -17,6 +17,21 @@ import java.util.Map;
 @NullMarked
 public final class NamespaceUtils {
     private static final String LOG_TAG = "NamespaceUtils";
+
+    /**
+     * Provider for {@code mmoitems:TYPE:ID} resolution; {@code null} when MMOItems is absent.
+     */
+    private static volatile @Nullable ItemProvider mmoitemsProvider = null;
+
+    /**
+     * Registers the provider used to resolve {@code mmoitems:TYPE:ID} strings.
+     *
+     * <p>Call once at plugin enable (after checking MMOItems is loaded) and
+     * pass {@code null} on disable to release the reference.
+     */
+    public static void setMMOItemsProvider(@Nullable ItemProvider provider) {
+        mmoitemsProvider = provider;
+    }
     private static final String[] ROTATION_SUFFIXES = {
             "_north", "_south", "_east", "_west", "_up", "_down"
     };
@@ -198,6 +213,50 @@ public final class NamespaceUtils {
     }
 
     /**
+     * Resolves any item - vanilla Minecraft or custom IA - by ID.
+     *
+     * <p>For <strong>vanilla items</strong> the lookup hits {@link #vanillaItemCache},
+     * a pre-built {@link Map} populated once at enable time.  This avoids the
+     * {@link Key#key(String)} parse, the {@link Registry#get} traversal, and the
+     * {@link ItemType#createItemStack()} allocation that the previous
+     * implementation paid on every call.
+     *
+     * <p>The returned {@link ItemStack} for vanilla items is a <em>shared
+     * reference</em>.  Callers that need to mutate it (quantity, meta, ...) must
+     * {@link ItemStack#clone()} it first.
+     *
+     * @param currentNamespace namespace to prepend when {@code id} has none
+     * @param id               raw item id as written in the YAML config
+     */
+    @Nullable
+    public static ItemStack itemByID(@Nullable String currentNamespace, String id) {
+        // Normalise under "minecraft" to match keys stored in vanillaItemCache.
+        String normalizedId = normalizeID("minecraft", id);
+
+        // Check for external integration namespaces (e.g. mmoitems:TYPE:ID).
+        if (normalizedId.startsWith("mmoitems:")) {
+            ItemProvider provider = mmoitemsProvider;
+            if (provider == null) return null;
+            String rest = normalizedId.substring("mmoitems:".length());
+            int colon = rest.indexOf(':');
+            if (colon <= 0) return null;
+            return provider.getItem(rest.substring(0, colon), rest.substring(colon + 1));
+        }
+
+        // O(1) map lookup - no Key parse, no Registry scan, no ItemStack allocation.
+        ItemStack vanillaItem = vanillaItemCache.get(normalizedId);
+        if (vanillaItem != null)
+            return vanillaItem; // shared reference; clone if mutation is needed
+
+        // Fall through to the custom-item cache.
+        CustomStack customStack = customItemByID(currentNamespace, id);
+        if (customStack != null)
+            return customStack.getItemStack();
+
+        return null;
+    }
+
+    /**
      * Clears all cached data. Call this on plugin disable so stale references
      * are not held across server reloads.
      */
@@ -281,37 +340,20 @@ public final class NamespaceUtils {
     }
 
     /**
-     * Resolves any item - vanilla Minecraft or custom IA - by ID.
+     * Resolves an item for a specific external integration namespace.
      *
-     * <p>For <strong>vanilla items</strong> the lookup hits {@link #vanillaItemCache},
-     * a pre-built {@link Map} populated once at enable time.  This avoids the
-     * {@link Key#key(String)} parse, the {@link Registry#get} traversal, and the
-     * {@link ItemType#createItemStack()} allocation that the previous
-     * implementation paid on every call.
-     *
-     * <p>The returned {@link ItemStack} for vanilla items is a <em>shared
-     * reference</em>.  Callers that need to mutate it (quantity, meta, ...) must
-     * {@link ItemStack#clone()} it first.
-     *
-     * @param currentNamespace namespace to prepend when {@code id} has none
-     * @param id               raw item id as written in the YAML config
+     * <p>Implementations are registered once on plugin enable via
+     * {@link #setMMOItemsProvider} and called whenever {@link #itemByID}
+     * encounters a matching namespace prefix.
      */
-    @Nullable
-    public static ItemStack itemByID(@Nullable String currentNamespace, String id) {
-        // Normalise under "minecraft" to match keys stored in vanillaItemCache.
-        String normalizedId = normalizeID("minecraft", id);
-
-        // O(1) map lookup - no Key parse, no Registry scan, no ItemStack allocation.
-        ItemStack vanillaItem = vanillaItemCache.get(normalizedId);
-        if (vanillaItem != null)
-            return vanillaItem; // shared reference; clone if mutation is needed
-
-        // Fall through to the custom-item cache.
-        CustomStack customStack = customItemByID(currentNamespace, id);
-        if (customStack != null)
-            return customStack.getItemStack();
-
-        return null;
+    @FunctionalInterface
+    public interface ItemProvider {
+        /**
+         * @param type the type segment of the namespaced ID, already lowercased
+         * @param id   the item-ID segment, already lowercased
+         * @return the resolved stack, or {@code null} if the item does not exist
+         */
+        @Nullable ItemStack getItem(String type, String id);
     }
 
     /**

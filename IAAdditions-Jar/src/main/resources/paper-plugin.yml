@@ -19,3 +19,7 @@ dependencies:
     CoreProtect:
       load: BEFORE
       required: false
+
+    MMOItems:
+      load: BEFORE
+      required: false

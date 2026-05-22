@@ -72,7 +72,8 @@ public record ParsedIngredient(
     }
 
     public boolean hasPredicate() {
-        return requiredAmount > 1
+        return isCustomItem()       // custom items always need listener-level identity check
+                || requiredAmount > 1
                 || damageAmount > 0
                 || replacement != null
                 || ignoreDurability

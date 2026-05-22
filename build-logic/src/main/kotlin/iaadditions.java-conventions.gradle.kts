@@ -6,13 +6,14 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
-    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/") // Paper
     maven("https://jitpack.io")
-    maven("https://maven.devs.beer/")
-    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    maven("https://mvn.lumine.io/repository/maven-public/")
+    maven("https://maven.devs.beer/") // ItemsAdder pre 4.0.17
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") // PlaceholderAPI
+    maven("https://mvn.lumine.io/repository/maven-public/") // MythicMobs
     maven("https://maven.playpro.com/")
-    maven("https://repo.momirealms.net/releases/")
+    maven("https://repo.momirealms.net/releases/") // AntiGriefLib
+    maven("https://nexus.phoenixdevt.fr/repository/maven-public/") // MMOItems
 }
 
 java {

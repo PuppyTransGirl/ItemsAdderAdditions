@@ -9,4 +9,6 @@ dependencies {
     compileOnly(libs.placeholderapi)
     compileOnly(libs.mythicmobs)
     compileOnly(libs.coreprotect)
+    compileOnly(libs.mmoitems)
+    compileOnly(libs.mythiclib)
 }
