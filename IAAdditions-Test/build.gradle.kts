@@ -11,6 +11,7 @@ java {
 
 tasks.test {
     useJUnitPlatform()
+    outputs.upToDateWhen { false }
 }
 
 tasks.compileTestJava {
