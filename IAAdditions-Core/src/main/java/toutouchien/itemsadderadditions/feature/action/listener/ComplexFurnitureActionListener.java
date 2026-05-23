@@ -14,6 +14,7 @@ import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionDispatcher;
 import toutouchien.itemsadderadditions.feature.action.TriggerType;
+import toutouchien.itemsadderadditions.integration.itemsadder.CustomEntities;
 
 @NullMarked
 public final class ComplexFurnitureActionListener implements Listener {
@@ -25,7 +26,7 @@ public final class ComplexFurnitureActionListener implements Listener {
 
     private static CustomEntity findComplexFurnitureEntity(Block block) {
         for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation(), 0.1, 0.1, 0.1)) {
-            CustomEntity customEntity = CustomEntity.byAlreadySpawned(entity);
+            CustomEntity customEntity = CustomEntities.byAlreadySpawned(entity);
             if (customEntity != null) {
                 return customEntity;
             }

@@ -28,6 +28,7 @@ import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.bed.SlotOffset;
+import toutouchien.itemsadderadditions.integration.itemsadder.CustomEntities;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 
 import java.util.*;
@@ -127,7 +128,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
     private static CustomEntity findNearbyCustomEntity(Location loc) {
         if (loc.getWorld() == null) return null;
         for (Entity entity : loc.getWorld().getNearbyEntities(loc, 0.1, 0.1, 0.1)) {
-            CustomEntity ce = CustomEntity.byAlreadySpawned(entity);
+            CustomEntity ce = CustomEntities.byAlreadySpawned(entity);
             if (ce != null) return ce;
         }
         return null;

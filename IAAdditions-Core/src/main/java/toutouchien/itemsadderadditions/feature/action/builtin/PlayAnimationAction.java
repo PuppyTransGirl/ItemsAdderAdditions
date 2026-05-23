@@ -8,6 +8,7 @@ import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionExecutor;
 import toutouchien.itemsadderadditions.feature.action.TriggerType;
 import toutouchien.itemsadderadditions.feature.action.annotation.Action;
+import toutouchien.itemsadderadditions.integration.itemsadder.CustomEntities;
 
 /**
  * Plays an ItemsAdder animation on a complex furniture entity.
@@ -32,7 +33,7 @@ public final class PlayAnimationAction extends ActionExecutor {
         if (entity == null)
             return;
 
-        CustomEntity customEntity = CustomEntity.byAlreadySpawned(entity);
+        CustomEntity customEntity = CustomEntities.byAlreadySpawned(entity);
         if (customEntity == null)
             return;
 

@@ -9,6 +9,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.integration.itemsadder.CustomEntities;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -55,7 +56,7 @@ public final class ContactDetector {
         );
 
         for (Entity entity : nearby) {
-            CustomEntity ce = CustomEntity.byAlreadySpawned(entity);
+            CustomEntity ce = CustomEntities.byAlreadySpawned(entity);
             if (ce == null || !namespacedID.equals(ce.getNamespacedID())) continue;
             Block barrierBlock = entity.getLocation().getBlock();
             if (overlapsAny(player, barrierBlock::equals)) return true;
