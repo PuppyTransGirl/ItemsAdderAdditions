@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -13,10 +13,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionRegistry;
 
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
-final class StorageInventoryResolver {
+public final class StorageInventoryResolver {
     private final StorageSessionRegistry sessions;
     private final int rows;
     @Nullable private final StorageInventorySpec spec;
@@ -25,7 +27,7 @@ final class StorageInventoryResolver {
     private final NamespacedKey contentsKey;
     private final JavaPlugin plugin;
 
-    StorageInventoryResolver(
+    public StorageInventoryResolver(
             StorageSessionRegistry sessions,
             int rows,
             @Nullable StorageInventorySpec spec,
@@ -52,7 +54,7 @@ final class StorageInventoryResolver {
      * (smelting, brewing, etc.). For all other types {@link Player#openInventory(Inventory)}
      * is used.</p>
      */
-    Inventory openFor(Player player, Location location, @Nullable Block block, @Nullable Entity entity) {
+    public Inventory openFor(Player player, Location location, @Nullable Block block, @Nullable Entity entity) {
         if (storageType != StorageType.DISPOSAL) {
             Inventory live = sessions.liveInventoryAt(location);
             if (live != null) {
@@ -82,7 +84,7 @@ final class StorageInventoryResolver {
     }
 
     @Nullable
-    ItemStack[] liveContentsAt(Location location) {
+    public ItemStack[] liveContentsAt(Location location) {
         Inventory live = sessions.liveInventoryAt(location);
         return live == null ? null : live.getContents();
     }

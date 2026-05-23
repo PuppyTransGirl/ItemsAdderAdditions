@@ -1,9 +1,10 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 
 import java.util.HashMap;
 import java.util.Map;

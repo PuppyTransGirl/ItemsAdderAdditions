@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant;
 
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
@@ -10,6 +10,8 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.item.ItemCategory;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.common.utils.BlockCoord;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionPersister;
 
 /**
  * Handles visual closed/open swaps for one storage item.

@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
 
 /**
  * Immutable snapshot of a single open storage GUI session.

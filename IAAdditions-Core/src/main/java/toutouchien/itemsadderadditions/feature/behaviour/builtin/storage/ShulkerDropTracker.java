@@ -16,7 +16,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.StorageBehaviour;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -68,4 +68,54 @@ class MathUtilsTest {
     void floatNegativeScaleThrows() {
         assertThrows(IllegalArgumentException.class, () -> MathUtils.decimalRound(1.5f, -1));
     }
+
+    @Test
+    void floatHalfEvenRoundsDownToEven() {
+        assertEquals(0.2f, MathUtils.decimalRound(0.25f, 1));
+    }
+
+    @Test
+    void floatHalfEvenRoundsUpToEven() {
+        assertEquals(0.8f, MathUtils.decimalRound(0.75f, 1));
+    }
+
+    @Test
+    void floatNegativeRoundsDown() {
+        assertEquals(-1.3f, MathUtils.decimalRound(-1.26f, 1));
+    }
+
+    @Test
+    void floatNegativeRoundsUp() {
+        assertEquals(-1.2f, MathUtils.decimalRound(-1.24f, 1));
+    }
+
+    @Test
+    void floatScale2() {
+        assertEquals(3.14f, MathUtils.decimalRound(3.141f, 2));
+    }
+
+    @Test
+    void floatExactValuePreserved() {
+        assertEquals(2.0f, MathUtils.decimalRound(2.0f, 3));
+    }
+
+    @Test
+    void doubleNegativeRoundsDown() {
+        assertEquals(-1.3, MathUtils.decimalRound(-1.26, 1));
+    }
+
+    @Test
+    void doubleNegativeRoundsUp() {
+        assertEquals(-1.2, MathUtils.decimalRound(-1.24, 1));
+    }
+
+    @Test
+    void doubleZeroPreserved() {
+        assertEquals(0.0, MathUtils.decimalRound(0.0, 2));
+    }
+
+    @Test
+    void doubleNegativeHalfEven() {
+        assertEquals(-0.2, MathUtils.decimalRound(-0.25, 1));
+    }
 }

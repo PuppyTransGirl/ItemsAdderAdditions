@@ -7,8 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageRuntime;
-import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageSession;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSession;
 
 @NullMarked
 public final class StorageInventoryCloseListener implements Listener {

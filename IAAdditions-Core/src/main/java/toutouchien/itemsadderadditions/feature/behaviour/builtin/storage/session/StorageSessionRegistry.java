@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.*;
 
 @NullMarked
-final class StorageSessionRegistry {
+public final class StorageSessionRegistry {
     private static final double SAME_LOCATION_DISTANCE_SQUARED = 0.01;
 
     private final Map<UUID, StorageSession> sessions = new HashMap<>();
@@ -35,7 +35,7 @@ final class StorageSessionRegistry {
     }
 
     @Nullable
-    Inventory liveInventoryAt(Location location) {
+    public Inventory liveInventoryAt(Location location) {
         for (StorageSession session : sessions.values()) {
             if (sameLocation(session.holderLocation(), location)) {
                 return session.inventory();

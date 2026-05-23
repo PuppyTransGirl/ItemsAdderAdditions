@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.common.utils;
 
 import org.bukkit.Location;
 import org.jspecify.annotations.NullMarked;

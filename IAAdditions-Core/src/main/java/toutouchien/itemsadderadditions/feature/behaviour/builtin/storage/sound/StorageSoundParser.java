@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound;
 
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.configuration.ConfigurationSection;

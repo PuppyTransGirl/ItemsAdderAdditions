@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session;
 
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
@@ -12,6 +12,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.utils.BlockCoord;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryResolver;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventorySpec;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound.StorageSoundPlayer;
 import toutouchien.itemsadderadditions.integration.hook.CoreProtectHook;
 
 import java.util.HashSet;

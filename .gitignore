@@ -56,6 +56,13 @@ cmake-build-*/
 # IntelliJ
 out/
 
+# Claude
+.claudeignore
+.claude/
+CLAUDE.md
+graphify-out/
+docs/
+
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 

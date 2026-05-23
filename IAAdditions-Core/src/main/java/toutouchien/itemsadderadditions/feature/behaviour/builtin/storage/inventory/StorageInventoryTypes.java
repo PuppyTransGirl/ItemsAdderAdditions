@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory;
 
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.MenuType;

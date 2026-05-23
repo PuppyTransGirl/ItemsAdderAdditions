@@ -13,6 +13,11 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.item.ItemCategory;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.common.utils.BlockCoord;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantConfig;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionManager;
 
 import java.util.HashMap;
 import java.util.Map;

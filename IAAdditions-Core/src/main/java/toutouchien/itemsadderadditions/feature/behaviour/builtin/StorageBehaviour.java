@@ -20,7 +20,15 @@ import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.*;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventorySpec;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryTypes;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.listener.*;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantConfig;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionManager;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound.StorageSoundParser;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound.StorageSounds;
 
 import java.util.*;
 

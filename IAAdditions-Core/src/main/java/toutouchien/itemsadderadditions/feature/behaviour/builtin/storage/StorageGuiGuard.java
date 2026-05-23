@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryHolder;
 
 import java.util.Set;
 

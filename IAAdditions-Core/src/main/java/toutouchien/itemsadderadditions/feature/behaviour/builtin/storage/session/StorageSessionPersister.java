@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session;
 
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -9,13 +9,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.common.utils.BlockCoord;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 @NullMarked
-final class StorageSessionPersister {
+public final class StorageSessionPersister {
     private static final String LOG_TAG = "StorageSession";
 
     private final JavaPlugin plugin;

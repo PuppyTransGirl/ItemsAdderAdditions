@@ -12,9 +12,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
-import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageInventoryManager;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageRuntime;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
 
 @NullMarked
 public final class StorageBlockListener implements Listener {

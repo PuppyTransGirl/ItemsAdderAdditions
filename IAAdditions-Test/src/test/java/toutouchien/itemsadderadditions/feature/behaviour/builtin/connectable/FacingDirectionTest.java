@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.feature.behaviour.builtin.connectable;
 
+import org.bukkit.Location;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -189,5 +190,70 @@ class FacingDirectionTest {
     @Test
     void eastAndWestAreNotPerpendicular() {
         assertFalse(FacingDirection.EAST.isPerpendicular(FacingDirection.WEST));
+    }
+
+
+    @Test
+    void northOffsetDecreasesZ() {
+        Location origin = new Location(null, 0, 0, 0);
+        Location result = FacingDirection.NORTH.offset(origin);
+        assertEquals(0.0, result.getX());
+        assertEquals(0.0, result.getY());
+        assertEquals(-1.0, result.getZ());
+    }
+
+    @Test
+    void southOffsetIncreasesZ() {
+        Location origin = new Location(null, 0, 0, 0);
+        Location result = FacingDirection.SOUTH.offset(origin);
+        assertEquals(0.0, result.getX());
+        assertEquals(0.0, result.getY());
+        assertEquals(1.0, result.getZ());
+    }
+
+    @Test
+    void westOffsetDecreasesX() {
+        Location origin = new Location(null, 5, 64, 5);
+        Location result = FacingDirection.WEST.offset(origin);
+        assertEquals(4.0, result.getX());
+        assertEquals(64.0, result.getY());
+        assertEquals(5.0, result.getZ());
+    }
+
+    @Test
+    void eastOffsetIncreasesX() {
+        Location origin = new Location(null, 5, 64, 5);
+        Location result = FacingDirection.EAST.offset(origin);
+        assertEquals(6.0, result.getX());
+        assertEquals(64.0, result.getY());
+        assertEquals(5.0, result.getZ());
+    }
+
+    @Test
+    void offsetDoesNotMutateOrigin() {
+        Location origin = new Location(null, 3, 64, 3);
+        FacingDirection.NORTH.offset(origin);
+        // origin must remain at (3, 64, 3)
+        assertEquals(3.0, origin.getX());
+        assertEquals(3.0, origin.getZ());
+    }
+
+    @Test
+    void offsetPreservesY() {
+        Location origin = new Location(null, 0, 100, 0);
+        for (FacingDirection dir : FacingDirection.values()) {
+            assertEquals(100.0, dir.offset(origin).getY(), "Y should not change for " + dir);
+        }
+    }
+
+    @Test
+    void oppositeDirectionOffsetsCancelOut() {
+        Location origin = new Location(null, 0, 64, 0);
+        for (FacingDirection dir : FacingDirection.values()) {
+            Location afterFirst = dir.offset(origin);
+            Location afterSecond = dir.opposite().offset(afterFirst);
+            assertEquals(origin.getBlockX(), afterSecond.getBlockX(), dir + " round-trip X");
+            assertEquals(origin.getBlockZ(), afterSecond.getBlockZ(), dir + " round-trip Z");
+        }
     }
 }

@@ -1,6 +1,5 @@
-package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
+package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant;
 
-import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
