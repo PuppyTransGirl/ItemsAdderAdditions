@@ -1,6 +1,6 @@
 ---
 title: Triggers
-description: All 24 built-in trigger types for custom advancements and their conditions.
+description: All 40 built-in trigger types for custom advancements and their conditions.
 version: "1.0.9"
 ---
 
@@ -35,7 +35,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `items` | list of strings | `[]` | ItemsAdder item IDs. Any match triggers the criterion. |
+| `items` | list of strings | `[]` | Item IDs (IA, MMOItems, or vanilla). Any match triggers the criterion. |
 | `amount` | integer | `1` | Minimum stack size the player must pick up at once. |
 
 ---
@@ -54,7 +54,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `item` | string | yes | ItemsAdder item ID. |
+| `item` | string | yes | Item ID (IA, MMOItems, or vanilla). |
 
 ---
 
@@ -72,7 +72,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `item` | string | yes | ItemsAdder item ID. |
+| `item` | string | yes | Item ID (IA, MMOItems, or vanilla). |
 
 ---
 
@@ -168,7 +168,7 @@ criteria:
 
 ## craft_recipe
 
-Fires when the player crafts an item using a specific recipe.
+Fires when the player crafts an item using a specific IAA recipe.
 
 ```yaml
 criteria:
@@ -186,7 +186,7 @@ criteria:
 
 ## kill_entity_with_item
 
-Fires when the player kills an entity while holding a specific custom item in their main hand.
+Fires when the player kills an entity while holding a specific item in their main hand.
 
 ```yaml
 criteria:
@@ -199,7 +199,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(required)* | ItemsAdder item ID the player must be holding. |
+| `item` | string | *(required)* | Item ID (IA, MMOItems, or vanilla) the player must be holding. |
 | `entity_type` | string | *(any)* | Vanilla entity type key (e.g. `minecraft:zombie`). If omitted, any entity matches. |
 
 ---
@@ -219,7 +219,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | ItemsAdder item ID the player must be holding. If omitted, any item (or bare hands) matches. |
+| `item` | string | *(any)* | Item ID the player must be holding. If omitted, any item (or bare hands) matches. |
 | `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
 
 ---
@@ -239,6 +239,62 @@ criteria:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any attacker matches. |
+
+---
+
+## player_killed_entity
+
+Fires when the player kills an entity (regardless of the weapon used).
+
+```yaml
+criteria:
+  kill_creeper:
+    trigger: player_killed_entity
+    conditions:
+      entity_type: minecraft:creeper  # optional
+      item: my_pack:ruby_sword  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
+| `item` | string | *(any)* | Item ID the player must be holding. If omitted, any item matches. |
+
+---
+
+## entity_killed_player
+
+Fires when the player is killed by a non-player entity (projectile kills resolve to the shooter).
+
+```yaml
+criteria:
+  killed_by_skeleton:
+    trigger: entity_killed_player
+    conditions:
+      entity_type: minecraft:skeleton  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Vanilla entity type key of the killer. If omitted, any entity matches. |
+
+---
+
+## killed_by_arrow
+
+Fires when the player is killed by an arrow. The entity type matches the arrow's shooter, or the arrow itself if it had no shooter.
+
+```yaml
+criteria:
+  shot_by_skeleton:
+    trigger: killed_by_arrow
+    conditions:
+      entity_type: minecraft:skeleton  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Vanilla entity type key of the shooter. If omitted, any arrow source matches. |
 
 ---
 
@@ -269,24 +325,34 @@ criteria:
   breed_cows:
     trigger: bred_animals
     conditions:
-      entity_type: minecraft:cow  # optional, type of the offspring
+      entity_type: minecraft:cow   # optional, type of the offspring
+      parent_type: minecraft:cow   # optional
+      partner_type: minecraft:cow  # optional
 ```
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `entity_type` | string | *(any)* | Entity type of the offspring. If omitted, any breed matches. |
+| `entity_type` | string | *(any)* | Entity type of the offspring. |
+| `parent_type` | string | *(any)* | Entity type of the mother. |
+| `partner_type` | string | *(any)* | Entity type of the father. |
 
 ---
 
 ## villager_trade
 
-Fires when the player completes a trade with a villager. No conditions.
+Fires when the player completes a trade with a villager.
 
 ```yaml
 criteria:
-  first_trade:
+  buy_diamond:
     trigger: villager_trade
+    conditions:
+      item: minecraft:diamond  # optional
 ```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(any)* | Item ID of the trade result. If omitted, any trade matches. |
 
 ---
 
@@ -300,17 +366,21 @@ criteria:
     trigger: enchanted_item
     conditions:
       item: my_pack:ruby_sword  # optional
+      min_levels: 10            # optional
+      max_levels: 30            # optional
 ```
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | ItemsAdder item ID. If omitted, any item being enchanted matches. |
+| `item` | string | *(any)* | Item ID. If omitted, any item being enchanted matches. |
+| `min_levels` | integer | `0` | Minimum XP level cost of the enchantment. |
+| `max_levels` | integer | *(unlimited)* | Maximum XP level cost of the enchantment. |
 
 ---
 
 ## shoot_bow
 
-Fires when the player shoots a projectile from a bow or crossbow.
+Fires when the player shoots a projectile from a bow.
 
 ```yaml
 criteria:
@@ -322,31 +392,249 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | ItemsAdder item ID of the bow. If omitted, any bow matches. |
+| `item` | string | *(any)* | Item ID of the bow. If omitted, any bow matches. |
+
+---
+
+## shot_crossbow
+
+Fires when the player shoots a projectile from a crossbow.
+
+```yaml
+criteria:
+  shoot_crossbow:
+    trigger: shot_crossbow
+    conditions:
+      item: my_pack:ruby_crossbow  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(any)* | Item ID of the crossbow. If omitted, any crossbow matches. |
 
 ---
 
 ## fishing_rod_hooked
 
-Fires when the player reels in a fish or hooks an entity. No conditions.
+Fires when the player reels in a fish or hooks an entity.
 
 ```yaml
 criteria:
-  first_catch:
+  hook_fish:
     trigger: fishing_rod_hooked
+    conditions:
+      rod: my_pack:ruby_rod          # optional
+      caught_entity_type: minecraft:cod  # optional
 ```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `rod` | string | *(any)* | Item ID of the fishing rod. If omitted, any rod matches. |
+| `caught_entity_type` | string | *(any)* | Entity type of what was hooked. If omitted, any catch matches. |
 
 ---
 
 ## filled_bucket
 
-Fires when the player fills a bucket with a liquid. No conditions.
+Fires when the player fills a bucket with a liquid.
 
 ```yaml
 criteria:
-  fill_bucket:
+  fill_lava:
     trigger: filled_bucket
+    conditions:
+      item: minecraft:lava_bucket  # optional
 ```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(any)* | Item ID of the resulting bucket. If omitted, any filled bucket matches. |
+
+---
+
+## item_durability_changed
+
+Fires when an item in the player's hand takes durability damage.
+
+```yaml
+criteria:
+  damage_ruby_sword:
+    trigger: item_durability_changed
+    conditions:
+      item: my_pack:ruby_sword  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(any)* | Item ID of the damaged item. If omitted, any item matches. |
+
+---
+
+## item_used_on_block
+
+Fires when the player right-clicks a block with an item in their main hand.
+
+```yaml
+criteria:
+  use_on_crafting_table:
+    trigger: item_used_on_block
+    conditions:
+      item: my_pack:ruby_wand          # optional
+      block: minecraft:crafting_table  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(any)* | Item ID the player must be holding. |
+| `block` | string | *(any)* | Vanilla block type key. |
+
+---
+
+## recipe_crafted
+
+Fires when the player crafts any item using the vanilla crafting system.
+
+```yaml
+criteria:
+  craft_diamond_sword:
+    trigger: recipe_crafted
+    conditions:
+      recipe: minecraft:diamond_sword  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `recipe` | string | *(any)* | Recipe key as `namespace:id`. If omitted, any crafting action matches. |
+
+---
+
+## recipe_unlocked
+
+Fires when the player discovers a new recipe.
+
+```yaml
+criteria:
+  unlock_diamond_sword:
+    trigger: recipe_unlocked
+    conditions:
+      recipe: minecraft:diamond_sword
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `recipe` | string | yes | Recipe key as `namespace:id`. |
+
+---
+
+## player_interacted_with_entity
+
+Fires when the player right-clicks an entity with their main hand.
+
+```yaml
+criteria:
+  name_a_villager:
+    trigger: player_interacted_with_entity
+    conditions:
+      entity_type: minecraft:villager  # optional
+      item: minecraft:name_tag         # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
+| `item` | string | *(any)* | Item ID the player must be holding. If omitted, any item (or empty hand) matches. |
+
+---
+
+## player_sheared_equipment
+
+Fires when the player shears an entity.
+
+```yaml
+criteria:
+  shear_sheep:
+    trigger: player_sheared_equipment
+    conditions:
+      entity_type: minecraft:sheep  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any shearable entity matches. |
+
+---
+
+## bee_nest_destroyed
+
+Fires when the player breaks a beehive or bee nest.
+
+```yaml
+criteria:
+  break_beehive:
+    trigger: bee_nest_destroyed
+    conditions:
+      block: minecraft:beehive  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `block` | string | *(any)* | Block type key (`minecraft:beehive` or `minecraft:bee_nest`). If omitted, either matches. |
+
+---
+
+## started_riding
+
+Fires when the player mounts an entity.
+
+```yaml
+criteria:
+  ride_horse:
+    trigger: started_riding
+    conditions:
+      entity_type: minecraft:horse  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any mount matches. |
+
+---
+
+## effects_changed
+
+Fires when the player gains or has a potion effect changed.
+
+```yaml
+criteria:
+  get_speed:
+    trigger: effects_changed
+    conditions:
+      effect: minecraft:speed  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `effect` | string | *(any)* | Potion effect key (e.g. `minecraft:speed`). If omitted, any effect addition or change matches. |
+
+---
+
+## changed_dimension
+
+Fires when the player moves to a different dimension.
+
+```yaml
+criteria:
+  enter_nether:
+    trigger: changed_dimension
+    conditions:
+      to: minecraft:the_nether    # optional
+      from: minecraft:overworld   # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `to` | string | *(any)* | Dimension key the player traveled to (e.g. `minecraft:the_nether`). |
+| `from` | string | *(any)* | Dimension key the player traveled from. |
 
 ---
 
@@ -362,21 +650,57 @@ criteria:
 
 ---
 
-## changed_dimension
+## used_totem
 
-Fires when the player moves to a different dimension.
+Fires when the player is saved from death by a totem of undying. No conditions.
 
 ```yaml
 criteria:
-  enter_nether:
-    trigger: changed_dimension
+  totem_pop:
+    trigger: used_totem
+```
+
+---
+
+## fall_from_height
+
+Fires when the player takes fall damage. No conditions.
+
+```yaml
+criteria:
+  survived_fall:
+    trigger: fall_from_height
+```
+
+---
+
+## used_ender_eye
+
+Fires when the player throws an eye of ender. No conditions.
+
+```yaml
+criteria:
+  use_ender_eye:
+    trigger: used_ender_eye
+```
+
+---
+
+## held_item
+
+IAA custom trigger. Fires when the player scrolls to a hotbar slot that contains a specific item.
+
+```yaml
+criteria:
+  equip_ruby_sword:
+    trigger: held_item
     conditions:
-      dimension: nether  # optional
+      item: my_pack:ruby_sword  # optional
 ```
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `dimension` | string | *(any)* | Dimension name: `normal`, `nether`, or `the_end`. If omitted, any dimension change matches. |
+| `item` | string | *(any)* | Item ID. If omitted, any item scrolled to matches. |
 
 ---
 

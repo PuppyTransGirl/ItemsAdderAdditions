@@ -1,8 +1,8 @@
 'use client';
 
 import {createContext, useCallback, useContext, useState} from 'react';
-import {builderTranslations} from '@/lib/builder-i18n';
 import type {BuilderTranslations} from '@/lib/builder-i18n';
+import {builderTranslations} from '@/lib/builder-i18n';
 
 const TCtx = createContext<BuilderTranslations>(builderTranslations.en);
 const useT = () => useContext(TCtx);
@@ -81,10 +81,18 @@ interface AdvancementCriterion {
     furniture: string;
     recipe: string;
     entity_type: string;
+    parent_type: string;
+    partner_type: string;
     permission: string;
     biome: string;
     world: string;
-    dimension: string;
+    to: string;
+    from: string;
+    rod: string;
+    caught_entity_type: string;
+    effect: string;
+    min_levels: string;
+    max_levels: string;
 }
 
 interface AdvancementCommand {
@@ -146,10 +154,18 @@ function emptyAdvancementCriterion(): AdvancementCriterion {
         furniture: '',
         recipe: '',
         entity_type: '',
+        parent_type: '',
+        partner_type: '',
         permission: '',
         biome: '',
         world: '',
-        dimension: ''
+        to: '',
+        from: '',
+        rod: '',
+        caught_entity_type: '',
+        effect: '',
+        min_levels: '',
+        max_levels: '',
     };
 }
 
@@ -271,9 +287,13 @@ const SOUND_CATEGORIES = ['MASTER', 'MUSIC', 'RECORD', 'WEATHER', 'BLOCK', 'HOST
 const TRIGGER_TYPES = [
     'obtain_item', 'consume_item', 'using_item', 'place_block', 'break_block',
     'place_furniture', 'break_furniture', 'interact_furniture', 'craft_recipe',
-    'kill_entity_with_item', 'player_hurt_entity', 'entity_hurt_player',
-    'tame_animal', 'bred_animals', 'villager_trade', 'enchanted_item',
-    'shoot_bow', 'fishing_rod_hooked', 'filled_bucket', 'slept_in_bed',
+    'kill_entity_with_item', 'player_killed_entity', 'player_hurt_entity', 'entity_hurt_player',
+    'entity_killed_player', 'killed_by_arrow', 'tame_animal', 'bred_animals',
+    'villager_trade', 'enchanted_item', 'shoot_bow', 'shot_crossbow',
+    'fishing_rod_hooked', 'filled_bucket', 'item_durability_changed', 'item_used_on_block',
+    'recipe_crafted', 'recipe_unlocked', 'player_interacted_with_entity', 'player_sheared_equipment',
+    'bee_nest_destroyed', 'started_riding', 'effects_changed', 'held_item',
+    'slept_in_bed', 'used_totem', 'fall_from_height', 'used_ender_eye',
     'changed_dimension', 'permission', 'in_biome', 'impossible',
 ];
 const advancementTypes: Record<string, number> = {advancement: 1};
@@ -746,7 +766,7 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         t: 'text',
                         r: false,
                         p: 'minecraft:zombie',
-                        h: 'optional — any entity if omitted'
+                        h: 'optional - any entity if omitted'
                     }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
                 </>
             )}
@@ -758,7 +778,7 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         t: 'text',
                         r: false,
                         p: 'myplugin:ruby_sword',
-                        h: 'optional — any item if omitted'
+                        h: 'optional - any item if omitted'
                     }} value={criterion.item} onChange={v => onChange('item', v)}/>
                     <Field def={{
                         k: 'entity_type',
@@ -766,39 +786,259 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         t: 'text',
                         r: false,
                         p: 'minecraft:zombie',
-                        h: 'optional — any entity if omitted'
+                        h: 'optional - any entity if omitted'
                     }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
                 </>
             )}
-            {(tr === 'entity_hurt_player' || tr === 'tame_animal' || tr === 'bred_animals') && (
+            {tr === 'player_killed_entity' && (
+                <>
+                    <Field def={{
+                        k: 'item',
+                        l: 'item',
+                        t: 'text',
+                        r: false,
+                        p: 'myplugin:ruby_sword',
+                        h: 'optional - any item if omitted'
+                    }} value={criterion.item} onChange={v => onChange('item', v)}/>
+                    <Field def={{
+                        k: 'entity_type',
+                        l: 'entity_type',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:zombie',
+                        h: 'optional - any entity if omitted'
+                    }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
+                </>
+            )}
+            {(tr === 'entity_hurt_player' || tr === 'tame_animal') && (
                 <Field def={{
                     k: 'entity_type',
                     l: 'entity_type',
                     t: 'text',
                     r: false,
                     p: 'minecraft:wolf',
-                    h: 'optional — any entity if omitted'
+                    h: 'optional - any entity if omitted'
                 }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
             )}
-            {(tr === 'enchanted_item' || tr === 'shoot_bow') && (
+            {tr === 'bred_animals' && (
+                <>
+                    <Field def={{
+                        k: 'entity_type',
+                        l: 'entity_type',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:cow',
+                        h: 'optional - offspring type'
+                    }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
+                    <Field def={{
+                        k: 'parent_type',
+                        l: 'parent_type',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:cow',
+                        h: 'optional - first parent type'
+                    }} value={criterion.parent_type} onChange={v => onChange('parent_type', v)}/>
+                    <Field def={{
+                        k: 'partner_type',
+                        l: 'partner_type',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:cow',
+                        h: 'optional - second parent type'
+                    }} value={criterion.partner_type} onChange={v => onChange('partner_type', v)}/>
+                </>
+            )}
+            {(tr === 'villager_trade' || tr === 'filled_bucket') && (
+                <Field def={{
+                    k: 'item',
+                    l: 'item',
+                    t: 'text',
+                    r: false,
+                    p: 'myplugin:ruby_bucket',
+                    h: 'optional - any item if omitted'
+                }} value={criterion.item} onChange={v => onChange('item', v)}/>
+            )}
+            {tr === 'enchanted_item' && (
+                <>
+                    <Field def={{
+                        k: 'item',
+                        l: 'item',
+                        t: 'text',
+                        r: false,
+                        p: 'myplugin:ruby_sword',
+                        h: 'optional - any item if omitted'
+                    }} value={criterion.item} onChange={v => onChange('item', v)}/>
+                    <Field def={{
+                        k: 'min_levels',
+                        l: 'min_levels',
+                        t: 'number',
+                        r: false,
+                        p: '1',
+                        h: 'optional - minimum enchantment level cost'
+                    }} value={criterion.min_levels} onChange={v => onChange('min_levels', v)}/>
+                    <Field def={{
+                        k: 'max_levels',
+                        l: 'max_levels',
+                        t: 'number',
+                        r: false,
+                        p: '30',
+                        h: 'optional - maximum enchantment level cost'
+                    }} value={criterion.max_levels} onChange={v => onChange('max_levels', v)}/>
+                </>
+            )}
+            {tr === 'shoot_bow' && (
+                <Field def={{
+                    k: 'item',
+                    l: 'item',
+                    t: 'text',
+                    r: false,
+                    p: 'myplugin:ruby_bow',
+                    h: 'optional - any bow if omitted'
+                }} value={criterion.item} onChange={v => onChange('item', v)}/>
+            )}
+            {tr === 'shot_crossbow' && (
+                <Field def={{
+                    k: 'item',
+                    l: 'item',
+                    t: 'text',
+                    r: false,
+                    p: 'myplugin:ruby_crossbow',
+                    h: 'optional - any crossbow if omitted'
+                }} value={criterion.item} onChange={v => onChange('item', v)}/>
+            )}
+            {tr === 'fishing_rod_hooked' && (
+                <>
+                    <Field def={{
+                        k: 'rod',
+                        l: 'rod',
+                        t: 'text',
+                        r: false,
+                        p: 'myplugin:ruby_rod',
+                        h: 'optional - any rod if omitted'
+                    }} value={criterion.rod} onChange={v => onChange('rod', v)}/>
+                    <Field def={{
+                        k: 'caught_entity_type',
+                        l: 'caught_entity_type',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:cod',
+                        h: 'optional - any entity if omitted'
+                    }} value={criterion.caught_entity_type} onChange={v => onChange('caught_entity_type', v)}/>
+                </>
+            )}
+            {tr === 'item_durability_changed' && (
                 <Field def={{
                     k: 'item',
                     l: 'item',
                     t: 'text',
                     r: false,
                     p: 'myplugin:ruby_sword',
-                    h: 'optional — any item if omitted'
+                    h: 'optional - any item if omitted'
+                }} value={criterion.item} onChange={v => onChange('item', v)}/>
+            )}
+            {tr === 'item_used_on_block' && (
+                <>
+                    <Field def={{
+                        k: 'item',
+                        l: 'item',
+                        t: 'text',
+                        r: false,
+                        p: 'myplugin:ruby_sword',
+                        h: 'optional - any item if omitted'
+                    }} value={criterion.item} onChange={v => onChange('item', v)}/>
+                    <Field def={{
+                        k: 'block',
+                        l: 'block',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:crafting_table',
+                        h: 'optional - any block if omitted'
+                    }} value={criterion.block} onChange={v => onChange('block', v)}/>
+                </>
+            )}
+            {(tr === 'recipe_crafted' || tr === 'recipe_unlocked') && (
+                <Field def={{k: 'recipe', l: 'recipe', t: 'text', r: true, p: 'myplugin:ruby_sword_recipe'}}
+                       value={criterion.recipe} onChange={v => onChange('recipe', v)}/>
+            )}
+            {tr === 'player_interacted_with_entity' && (
+                <>
+                    <Field def={{
+                        k: 'entity_type',
+                        l: 'entity_type',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:villager',
+                        h: 'optional - any entity if omitted'
+                    }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
+                    <Field def={{
+                        k: 'item',
+                        l: 'item',
+                        t: 'text',
+                        r: false,
+                        p: 'myplugin:ruby_sword',
+                        h: 'optional - any item if omitted'
+                    }} value={criterion.item} onChange={v => onChange('item', v)}/>
+                </>
+            )}
+            {(tr === 'player_sheared_equipment' || tr === 'entity_killed_player' || tr === 'killed_by_arrow' || tr === 'started_riding') && (
+                <Field def={{
+                    k: 'entity_type',
+                    l: 'entity_type',
+                    t: 'text',
+                    r: false,
+                    p: 'minecraft:zombie',
+                    h: 'optional - any entity if omitted'
+                }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
+            )}
+            {tr === 'bee_nest_destroyed' && (
+                <Field def={{
+                    k: 'block',
+                    l: 'block',
+                    t: 'text',
+                    r: false,
+                    p: 'minecraft:bee_nest',
+                    h: 'optional - any nest/hive if omitted'
+                }} value={criterion.block} onChange={v => onChange('block', v)}/>
+            )}
+            {tr === 'effects_changed' && (
+                <Field def={{
+                    k: 'effect',
+                    l: 'effect',
+                    t: 'text',
+                    r: false,
+                    p: 'minecraft:speed',
+                    h: 'optional - any effect if omitted'
+                }} value={criterion.effect} onChange={v => onChange('effect', v)}/>
+            )}
+            {tr === 'held_item' && (
+                <Field def={{
+                    k: 'item',
+                    l: 'item',
+                    t: 'text',
+                    r: false,
+                    p: 'myplugin:ruby_sword',
+                    h: 'optional - any item if omitted'
                 }} value={criterion.item} onChange={v => onChange('item', v)}/>
             )}
             {tr === 'changed_dimension' && (
-                <Field def={{
-                    k: 'dimension',
-                    l: 'dimension',
-                    t: 'select',
-                    r: false,
-                    opts: ['', 'normal', 'nether', 'the_end'],
-                    h: 'optional — any dimension if omitted'
-                }} value={criterion.dimension} onChange={v => onChange('dimension', v)}/>
+                <>
+                    <Field def={{
+                        k: 'to',
+                        l: 'to',
+                        t: 'select',
+                        r: false,
+                        opts: ['', 'normal', 'nether', 'the_end'],
+                        h: 'optional - destination dimension'
+                    }} value={criterion.to} onChange={v => onChange('to', v)}/>
+                    <Field def={{
+                        k: 'from',
+                        l: 'from',
+                        t: 'select',
+                        r: false,
+                        opts: ['', 'normal', 'nether', 'the_end'],
+                        h: 'optional - source dimension'
+                    }} value={criterion.from} onChange={v => onChange('from', v)}/>
+                </>
             )}
             {tr === 'permission' && (
                 <Field def={{k: 'permission', l: 'permission', t: 'text', r: true, p: 'myserver.rank.vip'}}
@@ -814,7 +1054,7 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         t: 'text',
                         r: false,
                         p: 'world',
-                        h: 'optional — any world if omitted'
+                        h: 'optional - any world if omitted'
                     }} value={criterion.world} onChange={v => onChange('world', v)}/>
                 </>
             )}
@@ -1408,16 +1648,34 @@ function generateAdvancement(
 
             const t = criterion.trigger;
             const hasItems = t === 'obtain_item' && (criterion.items.trim() || criterion.amount.trim());
-            const hasItem = ['consume_item', 'using_item', 'kill_entity_with_item', 'player_hurt_entity', 'enchanted_item', 'shoot_bow'].includes(t) && criterion.item.trim();
-            const hasBlock = ['place_block', 'break_block'].includes(t) && criterion.block.trim();
+            const itemTriggers = ['consume_item', 'using_item', 'kill_entity_with_item', 'player_hurt_entity',
+                'player_killed_entity', 'enchanted_item', 'shoot_bow', 'shot_crossbow', 'item_durability_changed',
+                'item_used_on_block', 'player_interacted_with_entity', 'villager_trade', 'filled_bucket', 'held_item'];
+            const hasItem = itemTriggers.includes(t) && criterion.item.trim();
+            const blockTriggers = ['place_block', 'break_block', 'item_used_on_block', 'bee_nest_destroyed'];
+            const hasBlock = blockTriggers.includes(t) && criterion.block.trim();
             const hasFurniture = ['place_furniture', 'break_furniture', 'interact_furniture'].includes(t) && criterion.furniture.trim();
-            const hasRecipe = t === 'craft_recipe' && criterion.recipe.trim();
-            const hasEntityType = ['kill_entity_with_item', 'player_hurt_entity', 'entity_hurt_player', 'tame_animal', 'bred_animals'].includes(t) && criterion.entity_type.trim();
+            const recipeTriggers = ['craft_recipe', 'recipe_crafted', 'recipe_unlocked'];
+            const hasRecipe = recipeTriggers.includes(t) && criterion.recipe.trim();
+            const entityTypeTriggers = ['kill_entity_with_item', 'player_hurt_entity', 'player_killed_entity',
+                'entity_hurt_player', 'tame_animal', 'bred_animals', 'entity_killed_player', 'killed_by_arrow',
+                'player_sheared_equipment', 'started_riding', 'player_interacted_with_entity'];
+            const hasEntityType = entityTypeTriggers.includes(t) && criterion.entity_type.trim();
+            const hasParentType = t === 'bred_animals' && criterion.parent_type.trim();
+            const hasPartnerType = t === 'bred_animals' && criterion.partner_type.trim();
             const hasPermission = t === 'permission' && criterion.permission.trim();
             const hasBiome = t === 'in_biome' && criterion.biome.trim();
-            const hasDimension = t === 'changed_dimension' && criterion.dimension.trim();
+            const hasTo = t === 'changed_dimension' && criterion.to.trim();
+            const hasFrom = t === 'changed_dimension' && criterion.from.trim();
+            const hasRod = t === 'fishing_rod_hooked' && criterion.rod.trim();
+            const hasCaughtEntityType = t === 'fishing_rod_hooked' && criterion.caught_entity_type.trim();
+            const hasEffect = t === 'effects_changed' && criterion.effect.trim();
+            const hasMinLevels = t === 'enchanted_item' && criterion.min_levels.trim();
+            const hasMaxLevels = t === 'enchanted_item' && criterion.max_levels.trim();
 
-            const needsConditions = hasItems || hasItem || hasBlock || hasFurniture || hasRecipe || hasEntityType || hasPermission || hasBiome || hasDimension;
+            const needsConditions = hasItems || hasItem || hasBlock || hasFurniture || hasRecipe || hasEntityType ||
+                hasParentType || hasPartnerType || hasPermission || hasBiome || hasTo || hasFrom ||
+                hasRod || hasCaughtEntityType || hasEffect || hasMinLevels || hasMaxLevels;
             if (needsConditions) {
                 lines.push(`${i4}conditions:`);
                 if (t === 'obtain_item') {
@@ -1433,12 +1691,20 @@ function generateAdvancement(
                 if (hasFurniture) lines.push(`${i5}furniture: ${criterion.furniture.trim()}`);
                 if (hasRecipe) lines.push(`${i5}recipe: ${criterion.recipe.trim()}`);
                 if (hasEntityType) lines.push(`${i5}entity_type: ${criterion.entity_type.trim()}`);
+                if (hasParentType) lines.push(`${i5}parent_type: ${criterion.parent_type.trim()}`);
+                if (hasPartnerType) lines.push(`${i5}partner_type: ${criterion.partner_type.trim()}`);
                 if (hasPermission) lines.push(`${i5}permission: "${criterion.permission.trim()}"`);
                 if (hasBiome) {
                     lines.push(`${i5}biome: ${criterion.biome.trim()}`);
                     if (criterion.world.trim()) lines.push(`${i5}world: ${criterion.world.trim()}`);
                 }
-                if (hasDimension) lines.push(`${i5}dimension: ${criterion.dimension.trim()}`);
+                if (hasTo) lines.push(`${i5}to: ${criterion.to.trim()}`);
+                if (hasFrom) lines.push(`${i5}from: ${criterion.from.trim()}`);
+                if (hasRod) lines.push(`${i5}rod: ${criterion.rod.trim()}`);
+                if (hasCaughtEntityType) lines.push(`${i5}caught_entity_type: ${criterion.caught_entity_type.trim()}`);
+                if (hasEffect) lines.push(`${i5}effect: ${criterion.effect.trim()}`);
+                if (hasMinLevels) lines.push(`${i5}min_levels: ${criterion.min_levels.trim()}`);
+                if (hasMaxLevels) lines.push(`${i5}max_levels: ${criterion.max_levels.trim()}`);
             }
         });
     }
@@ -2431,7 +2697,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                                         t: 'text',
                                         r: false,
                                         p: 'minecraft:textures/gui/advancements/backgrounds/adventure.png',
-                                        h: 'root advancements only — creates a new tab'
+                                        h: 'root advancements only - creates a new tab'
                                     }} value={values['adv_background'] ?? ''}
                                            onChange={v => setVal('adv_background', v)}/>
                                 )}
@@ -2458,7 +2724,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                                     t: 'select',
                                     r: false,
                                     opts: ['', 'true', 'false'],
-                                    h: 'default: false — hidden until completed'
+                                    h: 'default: false - hidden until completed'
                                 }} value={values['adv_hidden'] ?? ''} onChange={v => setVal('adv_hidden', v)}/>
                             </div>
                             <Divider/>
