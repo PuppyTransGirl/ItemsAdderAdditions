@@ -34,7 +34,7 @@ public final class MMOItemsHook extends PluginHook {
         try {
             Type mmoType = MMOItems.plugin.getTypes().get(type.toUpperCase());
             if (mmoType == null) return null;
-            return MMOItems.plugin.getItems().getItem(mmoType, id.toUpperCase());
+            return MMOItems.plugin.getItem(mmoType, id.toUpperCase());
         } catch (Exception ignored) {
             return null;
         }
