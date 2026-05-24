@@ -1,0 +1,65 @@
+---
+title: Custom Advancements
+description: Define custom Minecraft advancement trees in your ItemsAdder YAML files, with custom triggers, new tabs, and completion actions.
+version: "1.0.9"
+---
+
+Define custom Minecraft advancement trees directly in your ItemsAdder content YAML files. No datapacks, no restarts. Add an `advancements` section and run `/iareload`.
+
+## Features
+
+- Create **new advancement tabs** with a custom background texture
+- Build **tree structures** by parenting advancements to each other
+- Use **24 built-in trigger types** (obtain item, craft recipe, kill entity, enter biome, breed animals, and more)
+- Run **completion actions** when an advancement finishes (title, sound, commands, action bar)
+- Grant **experience and unlock recipes** as rewards
+- Player progress persists across reloads
+
+## Basic structure
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+
+  root:
+    display:
+      title: "My Server"
+      description: "Achievements for My Server."
+      icon: minecraft:nether_star
+      background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+      show_toast: false
+      announce_to_chat: false
+
+  first_sword:
+    parent: root
+    display:
+      title: "First Ruby Sword"
+      description: "Obtain your first custom sword."
+      icon: my_pack:ruby_sword
+      frame: task
+    criteria:
+      obtain:
+        trigger: obtain_item
+        conditions:
+          items:
+            - my_pack:ruby_sword
+    on_complete:
+      sound:
+        name: minecraft:entity.player.levelup
+      title:
+        title: "<gold>Achievement!"
+        subtitle: "<gray>First Ruby Sword obtained."
+```
+
+## How it works
+
+IAA loads every content file that contains an `advancements` section. Each entry becomes one Minecraft advancement injected at runtime via NMS. Player progress is stored by vanilla in the world save files and persists across reloads.
+
+Root advancements (no `parent`) create a new tab in the advancements screen. Children connect visually to their parent in the tree.
+
+<Callout>
+    All advancements in a file share the same `info.namespace`. Cross-namespace parents are supported using the
+    `namespace:id` format.
+</Callout>

@@ -63,6 +63,16 @@ export interface BuilderTranslations {
     noteConnectable: string;
     noteCraftingGrid: string;
     noteIngredientEmpty: string;
+    // Advancements tab
+    tabAdvancements: string;
+    sectionCriteria: string;
+    sectionRewards: string;
+    sectionOnComplete: string;
+    labelAdvancementId: string;
+    labelCriterionId: string;
+    labelCommandId: string;
+    addCriterion: string;
+    addCommand: string;
 }
 
 const en: BuilderTranslations = {
@@ -126,6 +136,15 @@ const en: BuilderTranslations = {
     noteCraftingGrid:
         'Type a letter in each cell. Cells with the same letter use the same ingredient. Empty cells become X in the pattern. X cannot be used as an ingredient key.',
     noteIngredientEmpty: 'Characters without an item defined are treated as empty slots.',
+    tabAdvancements: 'Advancements',
+    sectionCriteria: 'Criteria',
+    sectionRewards: 'Rewards',
+    sectionOnComplete: 'On Complete',
+    labelAdvancementId: 'advancement id',
+    labelCriterionId: 'criterion id',
+    labelCommandId: 'command id',
+    addCriterion: '+ Add criterion',
+    addCommand: '+ Add command',
 };
 
 const fr: BuilderTranslations = {
@@ -189,6 +208,15 @@ const fr: BuilderTranslations = {
     noteCraftingGrid:
         'Entrez une lettre dans chaque cellule. Les cellules avec la même lettre utilisent le même ingrédient. Les cellules vides deviennent X dans le patron. X ne peut pas être utilisé comme clé d\'ingrédient.',
     noteIngredientEmpty: 'Les caractères sans objet défini sont traités comme des emplacements vides.',
+    tabAdvancements: 'Progrès',
+    sectionCriteria: 'Critères',
+    sectionRewards: 'Récompenses',
+    sectionOnComplete: 'À la complétion',
+    labelAdvancementId: 'identifiant du progrès',
+    labelCriterionId: 'identifiant du critère',
+    labelCommandId: 'identifiant de la commande',
+    addCriterion: '+ Ajouter un critère',
+    addCommand: '+ Ajouter une commande',
 };
 
 const nl: BuilderTranslations = {
@@ -252,6 +280,15 @@ const nl: BuilderTranslations = {
     noteCraftingGrid:
         'Typ een letter in elke cel. Cellen met dezelfde letter gebruiken hetzelfde ingrediënt. Lege cellen worden X in het patroon. X kan niet worden gebruikt als ingredientsleutel.',
     noteIngredientEmpty: 'Tekens zonder gedefinieerd item worden behandeld als lege slots.',
+    tabAdvancements: 'Voortgangen',
+    sectionCriteria: 'Criteria',
+    sectionRewards: 'Beloningen',
+    sectionOnComplete: 'Bij voltooiing',
+    labelAdvancementId: 'voortgang-ID',
+    labelCriterionId: 'criterium-ID',
+    labelCommandId: 'opdracht-ID',
+    addCriterion: '+ Criterium toevoegen',
+    addCommand: '+ Opdracht toevoegen',
 };
 
 export const builderTranslations: Record<string, BuilderTranslations> = {en, fr, nl};

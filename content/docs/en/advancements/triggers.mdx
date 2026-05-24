@@ -1,0 +1,431 @@
+---
+title: Triggers
+description: All 24 built-in trigger types for custom advancements and their conditions.
+version: "1.0.9"
+---
+
+Triggers define what the player must do to complete a criterion. Each criterion has one trigger and an optional `conditions` block.
+
+```yaml
+criteria:
+  <criterion_id>:
+    trigger: <trigger_type>
+    conditions:
+      # trigger-specific options
+```
+
+An advancement can have multiple criteria. All of them must be completed before the advancement is awarded.
+
+---
+
+## obtain_item
+
+Fires when the player picks up an item from the ground.
+
+```yaml
+criteria:
+  get_sword:
+    trigger: obtain_item
+    conditions:
+      items:
+        - my_pack:ruby_sword
+        - my_pack:iron_sword
+      amount: 1
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `items` | list of strings | `[]` | ItemsAdder item IDs. Any match triggers the criterion. |
+| `amount` | integer | `1` | Minimum stack size the player must pick up at once. |
+
+---
+
+## consume_item
+
+Fires when the player finishes eating or drinking an item.
+
+```yaml
+criteria:
+  eat_ruby_apple:
+    trigger: consume_item
+    conditions:
+      item: my_pack:ruby_apple
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `item` | string | yes | ItemsAdder item ID. |
+
+---
+
+## using_item
+
+Fires when the player right-clicks (in air or on a block) while holding a custom item in their main hand.
+
+```yaml
+criteria:
+  use_staff:
+    trigger: using_item
+    conditions:
+      item: my_pack:ruby_staff
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `item` | string | yes | ItemsAdder item ID. |
+
+---
+
+## place_block
+
+Fires when the player places a custom block registered by ItemsAdder.
+
+```yaml
+criteria:
+  place_ruby_ore:
+    trigger: place_block
+    conditions:
+      block: my_pack:ruby_ore
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `block` | string | yes | ItemsAdder block ID (`namespace:id`). |
+
+---
+
+## break_block
+
+Fires when the player breaks a custom block registered by ItemsAdder.
+
+```yaml
+criteria:
+  mine_ruby_ore:
+    trigger: break_block
+    conditions:
+      block: my_pack:ruby_ore
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `block` | string | yes | ItemsAdder block ID (`namespace:id`). |
+
+---
+
+## place_furniture
+
+Fires when the player places a custom furniture item.
+
+```yaml
+criteria:
+  place_lamp:
+    trigger: place_furniture
+    conditions:
+      furniture: my_pack:ruby_lamp
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`). |
+
+---
+
+## break_furniture
+
+Fires when the player breaks a custom furniture item.
+
+```yaml
+criteria:
+  break_lamp:
+    trigger: break_furniture
+    conditions:
+      furniture: my_pack:ruby_lamp
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`). |
+
+---
+
+## interact_furniture
+
+Fires when the player right-clicks a custom furniture item.
+
+```yaml
+criteria:
+  use_workbench:
+    trigger: interact_furniture
+    conditions:
+      furniture: my_pack:ruby_workbench
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`). |
+
+---
+
+## craft_recipe
+
+Fires when the player crafts an item using a specific recipe.
+
+```yaml
+criteria:
+  craft_sword:
+    trigger: craft_recipe
+    conditions:
+      recipe: my_pack:ruby_sword_recipe
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `recipe` | string | yes | Recipe key as `namespace:id` or a bare `id` (uses the file namespace). |
+
+---
+
+## kill_entity_with_item
+
+Fires when the player kills an entity while holding a specific custom item in their main hand.
+
+```yaml
+criteria:
+  slay_zombie:
+    trigger: kill_entity_with_item
+    conditions:
+      item: my_pack:ruby_sword
+      entity_type: minecraft:zombie  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(required)* | ItemsAdder item ID the player must be holding. |
+| `entity_type` | string | *(any)* | Vanilla entity type key (e.g. `minecraft:zombie`). If omitted, any entity matches. |
+
+---
+
+## player_hurt_entity
+
+Fires when the player deals damage to an entity. Unlike `kill_entity_with_item`, this fires on every hit, not just the killing blow.
+
+```yaml
+criteria:
+  hit_zombie:
+    trigger: player_hurt_entity
+    conditions:
+      item: my_pack:ruby_sword  # optional
+      entity_type: minecraft:zombie  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(any)* | ItemsAdder item ID the player must be holding. If omitted, any item (or bare hands) matches. |
+| `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
+
+---
+
+## entity_hurt_player
+
+Fires when an entity deals damage to the player.
+
+```yaml
+criteria:
+  hurt_by_zombie:
+    trigger: entity_hurt_player
+    conditions:
+      entity_type: minecraft:zombie  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any attacker matches. |
+
+---
+
+## tame_animal
+
+Fires when the player tames an animal.
+
+```yaml
+criteria:
+  tame_wolf:
+    trigger: tame_animal
+    conditions:
+      entity_type: minecraft:wolf  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any tameable animal matches. |
+
+---
+
+## bred_animals
+
+Fires when the player breeds two animals.
+
+```yaml
+criteria:
+  breed_cows:
+    trigger: bred_animals
+    conditions:
+      entity_type: minecraft:cow  # optional, type of the offspring
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(any)* | Entity type of the offspring. If omitted, any breed matches. |
+
+---
+
+## villager_trade
+
+Fires when the player completes a trade with a villager. No conditions.
+
+```yaml
+criteria:
+  first_trade:
+    trigger: villager_trade
+```
+
+---
+
+## enchanted_item
+
+Fires when the player enchants an item at an enchanting table.
+
+```yaml
+criteria:
+  enchant_ruby_sword:
+    trigger: enchanted_item
+    conditions:
+      item: my_pack:ruby_sword  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(any)* | ItemsAdder item ID. If omitted, any item being enchanted matches. |
+
+---
+
+## shoot_bow
+
+Fires when the player shoots a projectile from a bow or crossbow.
+
+```yaml
+criteria:
+  shoot_ruby_bow:
+    trigger: shoot_bow
+    conditions:
+      item: my_pack:ruby_bow  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `item` | string | *(any)* | ItemsAdder item ID of the bow. If omitted, any bow matches. |
+
+---
+
+## fishing_rod_hooked
+
+Fires when the player reels in a fish or hooks an entity. No conditions.
+
+```yaml
+criteria:
+  first_catch:
+    trigger: fishing_rod_hooked
+```
+
+---
+
+## filled_bucket
+
+Fires when the player fills a bucket with a liquid. No conditions.
+
+```yaml
+criteria:
+  fill_bucket:
+    trigger: filled_bucket
+```
+
+---
+
+## slept_in_bed
+
+Fires when the player successfully enters a bed. No conditions.
+
+```yaml
+criteria:
+  first_sleep:
+    trigger: slept_in_bed
+```
+
+---
+
+## changed_dimension
+
+Fires when the player moves to a different dimension.
+
+```yaml
+criteria:
+  enter_nether:
+    trigger: changed_dimension
+    conditions:
+      dimension: nether  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `dimension` | string | *(any)* | Dimension name: `normal`, `nether`, or `the_end`. If omitted, any dimension change matches. |
+
+---
+
+## permission
+
+Fires when the player joins while holding the specified permission node.
+
+```yaml
+criteria:
+  has_vip:
+    trigger: permission
+    conditions:
+      permission: "myserver.rank.vip"
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `permission` | string | yes | Permission node. Checked on every join; fires as soon as the player has it. |
+
+---
+
+## in_biome
+
+Fires when the player crosses into a specific biome. Checked at chunk boundaries.
+
+```yaml
+criteria:
+  visit_jungle:
+    trigger: in_biome
+    conditions:
+      biome: minecraft:jungle
+      world: world  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `biome` | string | *(required)* | Biome key as `namespace:id` (e.g. `minecraft:deep_dark`). |
+| `world` | string | *(any)* | World name to restrict the check to a single world. |
+
+---
+
+## impossible
+
+Never fires on its own. The criterion can only be granted via the IAA API or admin commands.
+
+```yaml
+criteria:
+  manual:
+    trigger: impossible
+```
+
+No `conditions` options.

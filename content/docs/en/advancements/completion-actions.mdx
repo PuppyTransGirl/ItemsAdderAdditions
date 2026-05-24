@@ -1,0 +1,128 @@
+---
+title: Completion Actions
+description: Actions that run for the player when a custom advancement is fully completed.
+version: "1.0.9"
+---
+
+The `on_complete` section defines what happens when the player earns an advancement. Four action types are supported: sound, title, action bar, and commands. All four can be combined in a single advancement.
+
+```yaml
+on_complete:
+  sound: ...
+  title: ...
+  actionbar: ...
+  commands: ...
+```
+
+Actions fire immediately after the advancement is awarded. For advancements with multiple criteria, `on_complete` runs once when the last criterion is completed.
+
+---
+
+## sound
+
+Plays a sound at the player's location.
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:entity.player.levelup
+    volume: 1.0
+    pitch: 1.0
+    source: master
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `name` | string | *(required)* | Sound key (e.g. `minecraft:entity.player.levelup`). |
+| `volume` | float | `1.0` | Volume multiplier. |
+| `pitch` | float | `1.0` | Pitch multiplier. |
+| `source` | string | `master` | Audio source category: `master`, `music`, `record`, `weather`, `block`, `hostile`, `neutral`, `player`, `ambient`, `voice`. |
+
+---
+
+## title
+
+Shows a title and optional subtitle on screen.
+
+```yaml
+on_complete:
+  title:
+    title: "<gold><bold>Achievement!"
+    subtitle: "<gray>First Ruby Sword obtained."
+    fade_in: 10
+    stay: 70
+    fade_out: 20
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `title` | string | *(required)* | Large title text. Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) and PlaceholderAPI. |
+| `subtitle` | string | `""` | Smaller text below the title. Supports MiniMessage and PlaceholderAPI. |
+| `fade_in` | integer | `10` | Fade-in duration in ticks (20 ticks = 1 second). |
+| `stay` | integer | `70` | How long the title stays on screen, in ticks. |
+| `fade_out` | integer | `20` | Fade-out duration in ticks. |
+
+---
+
+## actionbar
+
+Sends a message to the player's action bar.
+
+```yaml
+on_complete:
+  actionbar:
+    text: "<green>Ruby sword obtained!"
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `text` | string | yes | Action bar text. Supports MiniMessage and PlaceholderAPI. |
+
+---
+
+## commands
+
+Runs one or more commands. Each entry is a named sub-section; the name is arbitrary and is only used to distinguish entries.
+
+```yaml
+on_complete:
+  commands:
+    give_reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true
+    notify:
+      command: "broadcast {player} earned the Ruby Sword achievement!"
+      as_console: true
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `command` | string | *(required)* | The command to run. `{player}` is replaced with the player's name. |
+| `as_console` | boolean | `false` | Run as the console sender. When `false`, the player runs the command with their own permissions. |
+
+---
+
+## Full example
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:entity.player.levelup
+    volume: 1.0
+    pitch: 1.2
+  title:
+    title: "<gold><bold>Achievement!"
+    subtitle: "<gray>First Ruby Sword obtained."
+    fade_in: 10
+    stay: 70
+    fade_out: 20
+  actionbar:
+    text: "<green>You got the ruby sword!"
+  commands:
+    reward_gold:
+      command: "give {player} gold_ingot 4"
+      as_console: true
+    log:
+      command: "say {player} completed First Ruby Sword"
+      as_console: true
+```

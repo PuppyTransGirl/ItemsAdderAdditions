@@ -8,7 +8,7 @@ const TCtx = createContext<BuilderTranslations>(builderTranslations.en);
 const useT = () => useContext(TCtx);
 
 type FieldType = 'text' | 'number' | 'select' | 'textarea';
-type Mode = 'action' | 'behaviour' | 'recipe' | 'worldgen';
+type Mode = 'action' | 'behaviour' | 'recipe' | 'worldgen' | 'advancement';
 
 interface FieldDef {
     k: string;
@@ -71,6 +71,28 @@ interface ShapelessIngredient {
     ignore_durability: string;
 }
 
+interface AdvancementCriterion {
+    id: string;
+    trigger: string;
+    items: string;
+    amount: string;
+    item: string;
+    block: string;
+    furniture: string;
+    recipe: string;
+    entity_type: string;
+    permission: string;
+    biome: string;
+    world: string;
+    dimension: string;
+}
+
+interface AdvancementCommand {
+    id: string;
+    command: string;
+    as_console: string;
+}
+
 function emptyPotion(): PotionEffect {
     return {type: '', amplifier: '', duration: '', ambient: '', particles: '', icon: ''};
 }
@@ -111,6 +133,28 @@ function emptyCraftingIngredient(): CraftingIngredient {
 
 function emptyShapeless(): ShapelessIngredient {
     return {item: '', amount: '', replacement: '', ignore_durability: ''};
+}
+
+function emptyAdvancementCriterion(): AdvancementCriterion {
+    return {
+        id: '',
+        trigger: 'obtain_item',
+        items: '',
+        amount: '',
+        item: '',
+        block: '',
+        furniture: '',
+        recipe: '',
+        entity_type: '',
+        permission: '',
+        biome: '',
+        world: '',
+        dimension: ''
+    };
+}
+
+function emptyAdvancementCommand(): AdvancementCommand {
+    return {id: '', command: '', as_console: ''};
 }
 
 function yamlQuote(val: string): string {
@@ -224,6 +268,15 @@ const ACTIONS: Record<string, FieldDef[]> = {
 const STAIR_KEYS = ['default', 'straight', 'left', 'right', 'outer', 'inner'];
 const TABLE_KEYS = ['default', 'straight', 'middle', 'border', 'corner', 'end'];
 const SOUND_CATEGORIES = ['MASTER', 'MUSIC', 'RECORD', 'WEATHER', 'BLOCK', 'HOSTILE', 'NEUTRAL', 'PLAYER', 'AMBIENT', 'VOICE'];
+const TRIGGER_TYPES = [
+    'obtain_item', 'consume_item', 'using_item', 'place_block', 'break_block',
+    'place_furniture', 'break_furniture', 'interact_furniture', 'craft_recipe',
+    'kill_entity_with_item', 'player_hurt_entity', 'entity_hurt_player',
+    'tame_animal', 'bred_animals', 'villager_trade', 'enchanted_item',
+    'shoot_bow', 'fishing_rod_hooked', 'filled_bucket', 'slept_in_bed',
+    'changed_dimension', 'permission', 'in_biome', 'impossible',
+];
+const advancementTypes: Record<string, number> = {advancement: 1};
 
 function SectionLabel({children}: { children: React.ReactNode }) {
     return <p className="text-xs font-medium uppercase tracking-wide text-fd-muted-foreground">{children}</p>;
@@ -265,6 +318,9 @@ const LABEL_KEYS: Record<string, keyof BuilderTranslations> = {
     __entryId: 'labelEntryId',
     __worldsOneLine: 'labelWorldsOneLine',
     __biomesOneLine: 'labelBiomesOneLine',
+    __advancementId: 'labelAdvancementId',
+    __criterionId: 'labelCriterionId',
+    __commandId: 'labelCommandId',
 };
 
 function Field({def, value, onChange}: { def: FieldDef; value: string; onChange: (v: string) => void }) {
@@ -626,6 +682,178 @@ function ShapelessIngredientFields({ing, index, onChange, onRemove}: {
                     }} value={ing.ignore_durability} onChange={v => onChange('ignore_durability', v)}/>
                 </SubSection>
             )}
+        </div>
+    );
+}
+
+function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
+    criterion: AdvancementCriterion;
+    index: number;
+    onChange: (k: keyof AdvancementCriterion, v: string) => void;
+    onRemove: () => void;
+}) {
+    const t = useT();
+    const tr = criterion.trigger;
+    return (
+        <div className="flex flex-col gap-3 rounded-lg border border-fd-border p-3">
+            <div className="flex items-center justify-between">
+                <span
+                    className="text-xs font-medium text-fd-muted-foreground">{criterion.id || `criterion_${index + 1}`}</span>
+                <button onClick={onRemove}
+                        className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">{t.remove}</button>
+            </div>
+            <Field def={{k: 'id', l: '__criterionId', t: 'text', r: true, p: 'get_sword'}} value={criterion.id}
+                   onChange={v => onChange('id', v)}/>
+            <Field def={{k: 'trigger', l: 'trigger', t: 'select', r: true, opts: TRIGGER_TYPES}} value={tr}
+                   onChange={v => onChange('trigger', v)}/>
+            {tr === 'obtain_item' && (
+                <>
+                    <Field def={{k: 'items', l: '__itemsOneLine', t: 'textarea', r: true, p: 'myplugin:ruby_sword'}}
+                           value={criterion.items} onChange={v => onChange('items', v)}/>
+                    <Field def={{
+                        k: 'amount',
+                        l: 'amount',
+                        t: 'number',
+                        r: false,
+                        p: '1',
+                        h: 'minimum stack size (default: 1)'
+                    }} value={criterion.amount} onChange={v => onChange('amount', v)}/>
+                </>
+            )}
+            {(tr === 'consume_item' || tr === 'using_item') && (
+                <Field def={{k: 'item', l: 'item', t: 'text', r: true, p: 'myplugin:ruby_apple'}} value={criterion.item}
+                       onChange={v => onChange('item', v)}/>
+            )}
+            {(tr === 'place_block' || tr === 'break_block') && (
+                <Field def={{k: 'block', l: 'block', t: 'text', r: true, p: 'myplugin:ruby_ore'}}
+                       value={criterion.block} onChange={v => onChange('block', v)}/>
+            )}
+            {(tr === 'place_furniture' || tr === 'break_furniture' || tr === 'interact_furniture') && (
+                <Field def={{k: 'furniture', l: 'furniture', t: 'text', r: true, p: 'myplugin:ruby_lamp'}}
+                       value={criterion.furniture} onChange={v => onChange('furniture', v)}/>
+            )}
+            {tr === 'craft_recipe' && (
+                <Field def={{k: 'recipe', l: 'recipe', t: 'text', r: true, p: 'myplugin:ruby_sword_recipe'}}
+                       value={criterion.recipe} onChange={v => onChange('recipe', v)}/>
+            )}
+            {tr === 'kill_entity_with_item' && (
+                <>
+                    <Field def={{k: 'item', l: 'item', t: 'text', r: true, p: 'myplugin:ruby_sword'}}
+                           value={criterion.item} onChange={v => onChange('item', v)}/>
+                    <Field def={{
+                        k: 'entity_type',
+                        l: 'entity_type',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:zombie',
+                        h: 'optional — any entity if omitted'
+                    }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
+                </>
+            )}
+            {tr === 'player_hurt_entity' && (
+                <>
+                    <Field def={{
+                        k: 'item',
+                        l: 'item',
+                        t: 'text',
+                        r: false,
+                        p: 'myplugin:ruby_sword',
+                        h: 'optional — any item if omitted'
+                    }} value={criterion.item} onChange={v => onChange('item', v)}/>
+                    <Field def={{
+                        k: 'entity_type',
+                        l: 'entity_type',
+                        t: 'text',
+                        r: false,
+                        p: 'minecraft:zombie',
+                        h: 'optional — any entity if omitted'
+                    }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
+                </>
+            )}
+            {(tr === 'entity_hurt_player' || tr === 'tame_animal' || tr === 'bred_animals') && (
+                <Field def={{
+                    k: 'entity_type',
+                    l: 'entity_type',
+                    t: 'text',
+                    r: false,
+                    p: 'minecraft:wolf',
+                    h: 'optional — any entity if omitted'
+                }} value={criterion.entity_type} onChange={v => onChange('entity_type', v)}/>
+            )}
+            {(tr === 'enchanted_item' || tr === 'shoot_bow') && (
+                <Field def={{
+                    k: 'item',
+                    l: 'item',
+                    t: 'text',
+                    r: false,
+                    p: 'myplugin:ruby_sword',
+                    h: 'optional — any item if omitted'
+                }} value={criterion.item} onChange={v => onChange('item', v)}/>
+            )}
+            {tr === 'changed_dimension' && (
+                <Field def={{
+                    k: 'dimension',
+                    l: 'dimension',
+                    t: 'select',
+                    r: false,
+                    opts: ['', 'normal', 'nether', 'the_end'],
+                    h: 'optional — any dimension if omitted'
+                }} value={criterion.dimension} onChange={v => onChange('dimension', v)}/>
+            )}
+            {tr === 'permission' && (
+                <Field def={{k: 'permission', l: 'permission', t: 'text', r: true, p: 'myserver.rank.vip'}}
+                       value={criterion.permission} onChange={v => onChange('permission', v)}/>
+            )}
+            {tr === 'in_biome' && (
+                <>
+                    <Field def={{k: 'biome', l: 'biome', t: 'text', r: true, p: 'minecraft:jungle'}}
+                           value={criterion.biome} onChange={v => onChange('biome', v)}/>
+                    <Field def={{
+                        k: 'world',
+                        l: 'world',
+                        t: 'text',
+                        r: false,
+                        p: 'world',
+                        h: 'optional — any world if omitted'
+                    }} value={criterion.world} onChange={v => onChange('world', v)}/>
+                </>
+            )}
+        </div>
+    );
+}
+
+function AdvancementCommandFields({cmd, index, onChange, onRemove}: {
+    cmd: AdvancementCommand;
+    index: number;
+    onChange: (k: keyof AdvancementCommand, v: string) => void;
+    onRemove: () => void;
+}) {
+    const t = useT();
+    return (
+        <div className="flex flex-col gap-3 rounded-lg border border-fd-border p-3">
+            <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-fd-muted-foreground">{cmd.id || `command_${index + 1}`}</span>
+                <button onClick={onRemove}
+                        className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">{t.remove}</button>
+            </div>
+            <Field def={{k: 'id', l: '__commandId', t: 'text', r: true, p: 'give_reward'}} value={cmd.id}
+                   onChange={v => onChange('id', v)}/>
+            <Field def={{
+                k: 'command',
+                l: 'command',
+                t: 'text',
+                r: true,
+                p: 'give {player} gold_ingot 4',
+                h: '{player} = player name'
+            }} value={cmd.command} onChange={v => onChange('command', v)}/>
+            <Field def={{
+                k: 'as_console',
+                l: 'as_console',
+                t: 'select',
+                r: false,
+                opts: ['', 'true', 'false'],
+                h: 'default: false'
+            }} value={cmd.as_console} onChange={v => onChange('as_console', v)}/>
         </div>
     );
 }
@@ -1121,6 +1349,166 @@ function generateWorldgen(type: string, values: Record<string, string>): string 
     return lines.join('\n');
 }
 
+function generateAdvancement(
+    values: Record<string, string>,
+    criteria: AdvancementCriterion[],
+    commands: AdvancementCommand[],
+    extras: Record<string, boolean>,
+): string {
+    const i1 = '  ';
+    const i2 = '    ';
+    const i3 = '      ';
+    const i4 = '        ';
+    const i5 = '          ';
+    const i6 = '            ';
+
+    const namespace = (values['adv_namespace'] ?? 'my_pack').trim() || 'my_pack';
+    const id = (values['adv_id'] ?? 'my_advancement').trim() || 'my_advancement';
+
+    const lines: string[] = [
+        'info:',
+        `${i1}namespace: ${namespace}`,
+        '',
+        'advancements:',
+        `${i1}${id}:`,
+    ];
+
+    const enabled = (values['adv_enabled'] ?? '').trim();
+    if (enabled === 'false') lines.push(`${i2}enabled: false`);
+
+    const parent = (values['adv_parent'] ?? '').trim();
+    if (parent) lines.push(`${i2}parent: ${parent}`);
+
+    const title = (values['adv_title'] ?? '').trim();
+    const description = (values['adv_description'] ?? '').trim();
+    const icon = (values['adv_icon'] ?? '').trim();
+    const frame = (values['adv_frame'] ?? '').trim();
+    const background = (values['adv_background'] ?? '').trim();
+    const showToast = (values['adv_show_toast'] ?? '').trim();
+    const announceToChat = (values['adv_announce_to_chat'] ?? '').trim();
+    const hidden = (values['adv_hidden'] ?? '').trim();
+
+    lines.push(`${i2}display:`);
+    lines.push(`${i3}title: ${yamlQuote(title || 'My Advancement')}`);
+    if (description) lines.push(`${i3}description: ${yamlQuote(description)}`);
+    lines.push(`${i3}icon: ${icon || 'minecraft:nether_star'}`);
+    if (frame && frame !== 'task') lines.push(`${i3}frame: ${frame}`);
+    if (!parent && background) lines.push(`${i3}background: ${yamlQuote(background)}`);
+    if (showToast === 'false') lines.push(`${i3}show_toast: false`);
+    if (announceToChat === 'false') lines.push(`${i3}announce_to_chat: false`);
+    if (hidden === 'true') lines.push(`${i3}hidden: true`);
+
+    const validCriteria = criteria.filter(c => c.trigger.trim());
+    if (validCriteria.length > 0) {
+        lines.push(`${i2}criteria:`);
+        validCriteria.forEach(criterion => {
+            const cid = criterion.id.trim() || 'criterion';
+            lines.push(`${i3}${cid}:`);
+            lines.push(`${i4}trigger: ${criterion.trigger}`);
+
+            const t = criterion.trigger;
+            const hasItems = t === 'obtain_item' && (criterion.items.trim() || criterion.amount.trim());
+            const hasItem = ['consume_item', 'using_item', 'kill_entity_with_item', 'player_hurt_entity', 'enchanted_item', 'shoot_bow'].includes(t) && criterion.item.trim();
+            const hasBlock = ['place_block', 'break_block'].includes(t) && criterion.block.trim();
+            const hasFurniture = ['place_furniture', 'break_furniture', 'interact_furniture'].includes(t) && criterion.furniture.trim();
+            const hasRecipe = t === 'craft_recipe' && criterion.recipe.trim();
+            const hasEntityType = ['kill_entity_with_item', 'player_hurt_entity', 'entity_hurt_player', 'tame_animal', 'bred_animals'].includes(t) && criterion.entity_type.trim();
+            const hasPermission = t === 'permission' && criterion.permission.trim();
+            const hasBiome = t === 'in_biome' && criterion.biome.trim();
+            const hasDimension = t === 'changed_dimension' && criterion.dimension.trim();
+
+            const needsConditions = hasItems || hasItem || hasBlock || hasFurniture || hasRecipe || hasEntityType || hasPermission || hasBiome || hasDimension;
+            if (needsConditions) {
+                lines.push(`${i4}conditions:`);
+                if (t === 'obtain_item') {
+                    const items = criterion.items.split('\n').filter(l => l.trim());
+                    if (items.length) {
+                        lines.push(`${i5}items:`);
+                        items.forEach(item => lines.push(`${i6}- ${item.trim()}`));
+                    }
+                    if (criterion.amount.trim() && criterion.amount.trim() !== '1') lines.push(`${i5}amount: ${criterion.amount.trim()}`);
+                }
+                if (hasItem) lines.push(`${i5}item: ${criterion.item.trim()}`);
+                if (hasBlock) lines.push(`${i5}block: ${criterion.block.trim()}`);
+                if (hasFurniture) lines.push(`${i5}furniture: ${criterion.furniture.trim()}`);
+                if (hasRecipe) lines.push(`${i5}recipe: ${criterion.recipe.trim()}`);
+                if (hasEntityType) lines.push(`${i5}entity_type: ${criterion.entity_type.trim()}`);
+                if (hasPermission) lines.push(`${i5}permission: "${criterion.permission.trim()}"`);
+                if (hasBiome) {
+                    lines.push(`${i5}biome: ${criterion.biome.trim()}`);
+                    if (criterion.world.trim()) lines.push(`${i5}world: ${criterion.world.trim()}`);
+                }
+                if (hasDimension) lines.push(`${i5}dimension: ${criterion.dimension.trim()}`);
+            }
+        });
+    }
+
+    const experience = (values['adv_experience'] ?? '').trim();
+    const recipes = (values['adv_recipes'] ?? '').split('\n').filter(l => l.trim());
+    if (experience || recipes.length > 0) {
+        lines.push(`${i2}rewards:`);
+        if (experience) lines.push(`${i3}experience: ${experience}`);
+        if (recipes.length > 0) {
+            lines.push(`${i3}recipes:`);
+            recipes.forEach(r => lines.push(`${i4}- ${r.trim()}`));
+        }
+    }
+
+    const hasOnComplete = extras['oc_sound'] || extras['oc_title'] || extras['oc_actionbar'] || extras['oc_commands'];
+    if (hasOnComplete) {
+        lines.push(`${i2}on_complete:`);
+        if (extras['oc_sound']) {
+            const sName = (values['oc_sound_name'] ?? '').trim();
+            if (sName) {
+                lines.push(`${i3}sound:`);
+                lines.push(`${i4}name: ${sName}`);
+                const vol = (values['oc_sound_volume'] ?? '').trim();
+                const pitch = (values['oc_sound_pitch'] ?? '').trim();
+                const source = (values['oc_sound_source'] ?? '').trim();
+                if (vol && vol !== '1.0') lines.push(`${i4}volume: ${vol}`);
+                if (pitch && pitch !== '1.0') lines.push(`${i4}pitch: ${pitch}`);
+                if (source && source !== 'master') lines.push(`${i4}source: ${source}`);
+            }
+        }
+        if (extras['oc_title']) {
+            const ocTitle = (values['oc_title_text'] ?? '').trim();
+            if (ocTitle) {
+                lines.push(`${i3}title:`);
+                lines.push(`${i4}title: ${yamlQuote(ocTitle)}`);
+                const subtitle = (values['oc_subtitle'] ?? '').trim();
+                const fadeIn = (values['oc_fade_in'] ?? '').trim();
+                const stay = (values['oc_stay'] ?? '').trim();
+                const fadeOut = (values['oc_fade_out'] ?? '').trim();
+                if (subtitle) lines.push(`${i4}subtitle: ${yamlQuote(subtitle)}`);
+                if (fadeIn && fadeIn !== '10') lines.push(`${i4}fade_in: ${fadeIn}`);
+                if (stay && stay !== '70') lines.push(`${i4}stay: ${stay}`);
+                if (fadeOut && fadeOut !== '20') lines.push(`${i4}fade_out: ${fadeOut}`);
+            }
+        }
+        if (extras['oc_actionbar']) {
+            const text = (values['oc_actionbar_text'] ?? '').trim();
+            if (text) {
+                lines.push(`${i3}actionbar:`);
+                lines.push(`${i4}text: ${yamlQuote(text)}`);
+            }
+        }
+        if (extras['oc_commands']) {
+            const validCommands = commands.filter(c => c.command.trim());
+            if (validCommands.length > 0) {
+                lines.push(`${i3}commands:`);
+                validCommands.forEach(cmd => {
+                    const cmdId = cmd.id.trim() || 'command';
+                    lines.push(`${i4}${cmdId}:`);
+                    lines.push(`${i5}command: ${yamlQuote(cmd.command.trim())}`);
+                    if (cmd.as_console === 'true') lines.push(`${i5}as_console: true`);
+                });
+            }
+        }
+    }
+
+    return lines.join('\n');
+}
+
 function resetAll(
     setValues: (v: Record<string, string>) => void,
     setExtras: (v: Record<string, boolean>) => void,
@@ -1130,6 +1518,8 @@ function resetAll(
     setCraftingGrid: (v: string[]) => void,
     setCraftingIngredients: (v: Record<string, CraftingIngredient>) => void,
     setShapelessIngredients: (v: ShapelessIngredient[]) => void,
+    setAdvancementCriteria: (v: AdvancementCriterion[]) => void,
+    setAdvancementCommands: (v: AdvancementCommand[]) => void,
 ) {
     setValues({});
     setExtras({});
@@ -1139,6 +1529,8 @@ function resetAll(
     setCraftingGrid(Array(9).fill(''));
     setCraftingIngredients({});
     setShapelessIngredients([emptyShapeless()]);
+    setAdvancementCriteria([emptyAdvancementCriterion()]);
+    setAdvancementCommands([emptyAdvancementCommand()]);
 }
 
 export function Builder({locale = 'en'}: { locale?: string }) {
@@ -1148,6 +1540,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
     const [behaviourType, setBehaviourType] = useState('contact_damage');
     const [recipeType, setRecipeType] = useState('campfire_cooking');
     const [worldgenType, setWorldgenType] = useState('blocks_populators');
+    const [advancementType, setAdvancementType] = useState('advancement');
     const [values, setValues] = useState<Record<string, string>>({});
     const [extras, setExtras] = useState<Record<string, boolean>>({});
     const [potions, setPotions] = useState<PotionEffect[]>([emptyPotion()]);
@@ -1156,9 +1549,11 @@ export function Builder({locale = 'en'}: { locale?: string }) {
     const [craftingGrid, setCraftingGrid] = useState<string[]>(Array(9).fill(''));
     const [craftingIngredients, setCraftingIngredients] = useState<Record<string, CraftingIngredient>>({});
     const [shapelessIngredients, setShapelessIngredients] = useState<ShapelessIngredient[]>([emptyShapeless()]);
+    const [advancementCriteria, setAdvancementCriteria] = useState<AdvancementCriterion[]>([emptyAdvancementCriterion()]);
+    const [advancementCommands, setAdvancementCommands] = useState<AdvancementCommand[]>([emptyAdvancementCommand()]);
     const [copied, setCopied] = useState(false);
 
-    const currentType = mode === 'action' ? actionType : mode === 'behaviour' ? behaviourType : mode === 'recipe' ? recipeType : worldgenType;
+    const currentType = mode === 'action' ? actionType : mode === 'behaviour' ? behaviourType : mode === 'recipe' ? recipeType : mode === 'worldgen' ? worldgenType : advancementType;
 
     const yaml = mode === 'action'
         ? generateAction(currentType, values)
@@ -1166,22 +1561,25 @@ export function Builder({locale = 'en'}: { locale?: string }) {
             ? generateRecipe(recipeType, values, craftingGrid, craftingIngredients, shapelessIngredients)
             : mode === 'worldgen'
                 ? generateWorldgen(worldgenType, values)
-                : generateBehaviour(currentType, values, extras, potions, stackSteps, textDisplays);
+                : mode === 'advancement'
+                    ? generateAdvancement(values, advancementCriteria, advancementCommands, extras)
+                    : generateBehaviour(currentType, values, extras, potions, stackSteps, textDisplays);
 
     const setVal = useCallback((k: string, v: string) => setValues(prev => ({...prev, [k]: v})), []);
     const setExtra = useCallback((k: string, v: boolean) => setExtras(prev => ({...prev, [k]: v})), []);
 
     const switchMode = (m: Mode) => {
         setMode(m);
-        resetAll(setValues, setExtras, setPotions, setStackSteps, setTextDisplays, setCraftingGrid, setCraftingIngredients, setShapelessIngredients);
+        resetAll(setValues, setExtras, setPotions, setStackSteps, setTextDisplays, setCraftingGrid, setCraftingIngredients, setShapelessIngredients, setAdvancementCriteria, setAdvancementCommands);
     };
 
     const switchType = (t: string) => {
         if (mode === 'action') setActionType(t);
         else if (mode === 'behaviour') setBehaviourType(t);
         else if (mode === 'recipe') setRecipeType(t);
-        else setWorldgenType(t);
-        resetAll(setValues, setExtras, setPotions, setStackSteps, setTextDisplays, setCraftingGrid, setCraftingIngredients, setShapelessIngredients);
+        else if (mode === 'worldgen') setWorldgenType(t);
+        else setAdvancementType(t);
+        resetAll(setValues, setExtras, setPotions, setStackSteps, setTextDisplays, setCraftingGrid, setCraftingIngredients, setShapelessIngredients, setAdvancementCriteria, setAdvancementCommands);
     };
 
     const updatePotion = (idx: number, k: keyof PotionEffect, v: string) =>
@@ -1199,6 +1597,14 @@ export function Builder({locale = 'en'}: { locale?: string }) {
     const updateShapeless = (idx: number, k: keyof ShapelessIngredient, v: string) =>
         setShapelessIngredients(prev => prev.map((s, i) => (i === idx ? {...s, [k]: v} : s)));
     const removeShapeless = (idx: number) => setShapelessIngredients(prev => prev.filter((_, i) => i !== idx));
+
+    const updateAdvancementCriterion = (idx: number, k: keyof AdvancementCriterion, v: string) =>
+        setAdvancementCriteria(prev => prev.map((c, i) => (i === idx ? {...c, [k]: v} : c)));
+    const removeAdvancementCriterion = (idx: number) => setAdvancementCriteria(prev => prev.filter((_, i) => i !== idx));
+
+    const updateAdvancementCommand = (idx: number, k: keyof AdvancementCommand, v: string) =>
+        setAdvancementCommands(prev => prev.map((c, i) => (i === idx ? {...c, [k]: v} : c)));
+    const removeAdvancementCommand = (idx: number) => setAdvancementCommands(prev => prev.filter((_, i) => i !== idx));
 
     const updateCraftingIngredient = useCallback((char: string, k: keyof CraftingIngredient, v: string) =>
         setCraftingIngredients(prev => ({
@@ -1247,6 +1653,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
         behaviour: t.tabBehaviours,
         recipe: t.tabRecipes,
         worldgen: t.tabWorldGen,
+        advancement: t.tabAdvancements,
     };
     const behaviourTypes: Record<string, number> = {
         bed: 1,
@@ -1263,7 +1670,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
         <TCtx.Provider value={t}>
         <div className="my-6 flex flex-col gap-4 not-prose">
             <div className="flex gap-1 rounded-lg border border-fd-border bg-fd-muted p-1 w-fit">
-                {(['action', 'behaviour', 'recipe', 'worldgen'] as const).map(m => (
+                {(['action', 'behaviour', 'recipe', 'worldgen', 'advancement'] as const).map(m => (
                     <button
                         key={m}
                         onClick={() => switchMode(m)}
@@ -1279,7 +1686,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                     <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium text-fd-muted-foreground">Type</label>
                         <select value={currentType} onChange={e => switchType(e.target.value)} className={inputCls}>
-                            {Object.keys(mode === 'action' ? ACTIONS : mode === 'behaviour' ? behaviourTypes : mode === 'recipe' ? recipeTypes : worldgenTypes).map(k => (
+                            {Object.keys(mode === 'action' ? ACTIONS : mode === 'behaviour' ? behaviourTypes : mode === 'recipe' ? recipeTypes : mode === 'worldgen' ? worldgenTypes : advancementTypes).map(k => (
                                 <option key={k} value={k}>{k}</option>
                             ))}
                         </select>
@@ -1938,6 +2345,279 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                                                onChange={v => setVal('rcp_result_amount', v)}/>
                                     </div>
                                 </>
+                            )}
+                        </>
+                    )}
+
+                    {/* ── Advancements ────────────────────────────────────── */}
+                    {mode === 'advancement' && (
+                        <>
+                            <SectionLabel>{t.sectionEntryInfo}</SectionLabel>
+                            <div className="flex flex-col gap-3">
+                                <Field def={{
+                                    k: 'adv_namespace',
+                                    l: 'namespace',
+                                    t: 'text',
+                                    r: true,
+                                    p: 'my_pack',
+                                    h: 'from info.namespace in your YML file'
+                                }} value={values['adv_namespace'] ?? ''} onChange={v => setVal('adv_namespace', v)}/>
+                                <Field def={{
+                                    k: 'adv_id',
+                                    l: '__advancementId',
+                                    t: 'text',
+                                    r: true,
+                                    p: 'my_advancement',
+                                    h: 'unique identifier for this advancement'
+                                }} value={values['adv_id'] ?? ''} onChange={v => setVal('adv_id', v)}/>
+                                <Field def={{
+                                    k: 'adv_enabled',
+                                    l: 'enabled',
+                                    t: 'select',
+                                    r: false,
+                                    opts: ['', 'true', 'false'],
+                                    h: 'default: true'
+                                }} value={values['adv_enabled'] ?? ''} onChange={v => setVal('adv_enabled', v)}/>
+                                <Field def={{
+                                    k: 'adv_parent',
+                                    l: 'parent',
+                                    t: 'text',
+                                    r: false,
+                                    p: 'root or otherns:root',
+                                    h: 'omit to create a root tab advancement'
+                                }} value={values['adv_parent'] ?? ''} onChange={v => setVal('adv_parent', v)}/>
+                            </div>
+                            <Divider/>
+
+                            <SectionLabel>{t.sectionDisplay}</SectionLabel>
+                            <div className="flex flex-col gap-3">
+                                <Field def={{
+                                    k: 'adv_title',
+                                    l: 'title',
+                                    t: 'text',
+                                    r: true,
+                                    p: '<gold>My Advancement',
+                                    h: 'MiniMessage supported'
+                                }} value={values['adv_title'] ?? ''} onChange={v => setVal('adv_title', v)}/>
+                                <Field def={{
+                                    k: 'adv_description',
+                                    l: 'description',
+                                    t: 'text',
+                                    r: false,
+                                    p: '<gray>Do something cool.',
+                                    h: 'MiniMessage supported'
+                                }} value={values['adv_description'] ?? ''}
+                                       onChange={v => setVal('adv_description', v)}/>
+                                <Field def={{
+                                    k: 'adv_icon',
+                                    l: 'icon',
+                                    t: 'text',
+                                    r: false,
+                                    p: 'minecraft:nether_star or namespace:item',
+                                    h: 'default: minecraft:barrier'
+                                }} value={values['adv_icon'] ?? ''} onChange={v => setVal('adv_icon', v)}/>
+                                <Field def={{
+                                    k: 'adv_frame',
+                                    l: 'frame',
+                                    t: 'select',
+                                    r: false,
+                                    opts: ['', 'task', 'goal', 'challenge'],
+                                    h: 'default: task'
+                                }} value={values['adv_frame'] ?? ''} onChange={v => setVal('adv_frame', v)}/>
+                                {!(values['adv_parent'] ?? '').trim() && (
+                                    <Field def={{
+                                        k: 'adv_background',
+                                        l: 'background',
+                                        t: 'text',
+                                        r: false,
+                                        p: 'minecraft:textures/gui/advancements/backgrounds/adventure.png',
+                                        h: 'root advancements only — creates a new tab'
+                                    }} value={values['adv_background'] ?? ''}
+                                           onChange={v => setVal('adv_background', v)}/>
+                                )}
+                                <Field def={{
+                                    k: 'adv_show_toast',
+                                    l: 'show_toast',
+                                    t: 'select',
+                                    r: false,
+                                    opts: ['', 'true', 'false'],
+                                    h: 'default: true'
+                                }} value={values['adv_show_toast'] ?? ''} onChange={v => setVal('adv_show_toast', v)}/>
+                                <Field def={{
+                                    k: 'adv_announce_to_chat',
+                                    l: 'announce_to_chat',
+                                    t: 'select',
+                                    r: false,
+                                    opts: ['', 'true', 'false'],
+                                    h: 'default: true'
+                                }} value={values['adv_announce_to_chat'] ?? ''}
+                                       onChange={v => setVal('adv_announce_to_chat', v)}/>
+                                <Field def={{
+                                    k: 'adv_hidden',
+                                    l: 'hidden',
+                                    t: 'select',
+                                    r: false,
+                                    opts: ['', 'true', 'false'],
+                                    h: 'default: false — hidden until completed'
+                                }} value={values['adv_hidden'] ?? ''} onChange={v => setVal('adv_hidden', v)}/>
+                            </div>
+                            <Divider/>
+
+                            <SectionLabel>{t.sectionCriteria}</SectionLabel>
+                            <div className="flex flex-col gap-3">
+                                {advancementCriteria.map((criterion, idx) => (
+                                    <AdvancementCriterionFields key={idx} criterion={criterion} index={idx}
+                                                                onChange={(k, v) => updateAdvancementCriterion(idx, k, v)}
+                                                                onRemove={() => removeAdvancementCriterion(idx)}/>
+                                ))}
+                                <button
+                                    onClick={() => setAdvancementCriteria(prev => [...prev, emptyAdvancementCriterion()])}
+                                    className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">
+                                    {t.addCriterion}
+                                </button>
+                            </div>
+                            <Divider/>
+
+                            <SectionLabel>{t.sectionRewards}</SectionLabel>
+                            <div className="flex flex-col gap-3">
+                                <Field def={{
+                                    k: 'adv_experience',
+                                    l: 'experience',
+                                    t: 'number',
+                                    r: false,
+                                    p: '50',
+                                    h: 'experience points awarded'
+                                }} value={values['adv_experience'] ?? ''} onChange={v => setVal('adv_experience', v)}/>
+                                <Field def={{
+                                    k: 'adv_recipes',
+                                    l: 'recipes (one per line)',
+                                    t: 'textarea',
+                                    r: false,
+                                    p: 'myplugin:recipe_id\nminecraft:golden_apple',
+                                    h: 'recipe keys to unlock'
+                                }} value={values['adv_recipes'] ?? ''} onChange={v => setVal('adv_recipes', v)}/>
+                            </div>
+                            <Divider/>
+
+                            <SectionLabel>{t.sectionOnComplete}</SectionLabel>
+                            <CheckToggle label="Add sound" checked={!!extras['oc_sound']}
+                                         onChange={v => setExtra('oc_sound', v)}/>
+                            {extras['oc_sound'] && (
+                                <SubSection>
+                                    <Field def={{
+                                        k: 'oc_sound_name',
+                                        l: 'name',
+                                        t: 'text',
+                                        r: true,
+                                        p: 'minecraft:entity.player.levelup'
+                                    }} value={values['oc_sound_name'] ?? ''}
+                                           onChange={v => setVal('oc_sound_name', v)}/>
+                                    <Field def={{
+                                        k: 'oc_sound_volume',
+                                        l: 'volume',
+                                        t: 'number',
+                                        r: false,
+                                        p: '1.0',
+                                        h: 'default: 1.0'
+                                    }} value={values['oc_sound_volume'] ?? ''}
+                                           onChange={v => setVal('oc_sound_volume', v)}/>
+                                    <Field def={{
+                                        k: 'oc_sound_pitch',
+                                        l: 'pitch',
+                                        t: 'number',
+                                        r: false,
+                                        p: '1.0',
+                                        h: 'default: 1.0'
+                                    }} value={values['oc_sound_pitch'] ?? ''}
+                                           onChange={v => setVal('oc_sound_pitch', v)}/>
+                                    <Field def={{
+                                        k: 'oc_sound_source',
+                                        l: 'source',
+                                        t: 'select',
+                                        r: false,
+                                        opts: ['', 'master', 'music', 'record', 'weather', 'block', 'hostile', 'neutral', 'player', 'ambient', 'voice'],
+                                        h: 'default: master'
+                                    }} value={values['oc_sound_source'] ?? ''}
+                                           onChange={v => setVal('oc_sound_source', v)}/>
+                                </SubSection>
+                            )}
+                            <CheckToggle label="Add title" checked={!!extras['oc_title']}
+                                         onChange={v => setExtra('oc_title', v)}/>
+                            {extras['oc_title'] && (
+                                <SubSection>
+                                    <Field def={{
+                                        k: 'oc_title_text',
+                                        l: 'title',
+                                        t: 'text',
+                                        r: true,
+                                        p: '<gold><bold>Achievement!',
+                                        h: 'MiniMessage & PlaceholderAPI'
+                                    }} value={values['oc_title_text'] ?? ''}
+                                           onChange={v => setVal('oc_title_text', v)}/>
+                                    <Field def={{
+                                        k: 'oc_subtitle',
+                                        l: 'subtitle',
+                                        t: 'text',
+                                        r: false,
+                                        p: '<gray>Well done.',
+                                        h: 'MiniMessage & PlaceholderAPI'
+                                    }} value={values['oc_subtitle'] ?? ''} onChange={v => setVal('oc_subtitle', v)}/>
+                                    <Field def={{
+                                        k: 'oc_fade_in',
+                                        l: 'fade_in',
+                                        t: 'number',
+                                        r: false,
+                                        p: '10',
+                                        h: 'ticks (default: 10)'
+                                    }} value={values['oc_fade_in'] ?? ''} onChange={v => setVal('oc_fade_in', v)}/>
+                                    <Field def={{
+                                        k: 'oc_stay',
+                                        l: 'stay',
+                                        t: 'number',
+                                        r: false,
+                                        p: '70',
+                                        h: 'ticks (default: 70)'
+                                    }} value={values['oc_stay'] ?? ''} onChange={v => setVal('oc_stay', v)}/>
+                                    <Field def={{
+                                        k: 'oc_fade_out',
+                                        l: 'fade_out',
+                                        t: 'number',
+                                        r: false,
+                                        p: '20',
+                                        h: 'ticks (default: 20)'
+                                    }} value={values['oc_fade_out'] ?? ''} onChange={v => setVal('oc_fade_out', v)}/>
+                                </SubSection>
+                            )}
+                            <CheckToggle label="Add action bar" checked={!!extras['oc_actionbar']}
+                                         onChange={v => setExtra('oc_actionbar', v)}/>
+                            {extras['oc_actionbar'] && (
+                                <SubSection>
+                                    <Field def={{
+                                        k: 'oc_actionbar_text',
+                                        l: 'text',
+                                        t: 'text',
+                                        r: true,
+                                        p: '<green>Achievement unlocked!',
+                                        h: 'MiniMessage & PlaceholderAPI'
+                                    }} value={values['oc_actionbar_text'] ?? ''}
+                                           onChange={v => setVal('oc_actionbar_text', v)}/>
+                                </SubSection>
+                            )}
+                            <CheckToggle label="Add commands" checked={!!extras['oc_commands']}
+                                         onChange={v => setExtra('oc_commands', v)}/>
+                            {extras['oc_commands'] && (
+                                <div className="flex flex-col gap-3">
+                                    {advancementCommands.map((cmd, idx) => (
+                                        <AdvancementCommandFields key={idx} cmd={cmd} index={idx}
+                                                                  onChange={(k, v) => updateAdvancementCommand(idx, k, v)}
+                                                                  onRemove={() => removeAdvancementCommand(idx)}/>
+                                    ))}
+                                    <button
+                                        onClick={() => setAdvancementCommands(prev => [...prev, emptyAdvancementCommand()])}
+                                        className="self-start rounded-md border border-fd-border bg-fd-background px-3 py-1.5 text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors">
+                                        {t.addCommand}
+                                    </button>
+                                </div>
                             )}
                         </>
                     )}

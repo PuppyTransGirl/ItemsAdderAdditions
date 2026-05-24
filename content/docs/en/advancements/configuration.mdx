@@ -1,0 +1,155 @@
+---
+title: Configuration Reference
+description: Full YAML reference for custom advancements — display, criteria, rewards, and completion actions.
+version: "1.0.9"
+---
+
+Every advancement entry lives under the top-level `advancements` key in any ItemsAdder content file. IAA picks up files that contain this key automatically.
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+  <advancement_id>:
+    # ... options below
+```
+
+## Top-level options
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `enabled` | boolean | `true` | Set to `false` to skip this advancement without removing it from the file. |
+| `parent` | string | *(none)* | Parent advancement ID. Omit to make this a root (tab) advancement. See [Parent](#parent). |
+| `display` | section | *(required)* | Visual settings. See [Display](#display). |
+| `criteria` | section | *(none)* | Conditions that must be met to complete the advancement. See [Triggers](/docs/en/advancements/triggers). |
+| `rewards` | section | *(none)* | Experience and recipe unlocks. See [Rewards](#rewards). |
+| `on_complete` | section | *(none)* | Actions run when the advancement is fully completed. See [Completion actions](/docs/en/advancements/completion-actions). |
+
+## Parent
+
+```yaml
+parent: root              # same namespace as this file, resolves to my_pack:root
+parent: otherns:someroot  # explicit namespace
+```
+
+If `parent` contains no colon, the file's namespace is prepended. If `parent` is omitted entirely, this advancement becomes a root and creates a new tab in the advancements screen.
+
+## Display
+
+```yaml
+display:
+  title: "<gold>First Ruby Sword"
+  description: "<gray>Obtain your first custom sword."
+  icon: my_pack:ruby_sword
+  frame: task
+  background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+  show_toast: true
+  announce_to_chat: true
+  hidden: false
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `title` | string | *(required)* | Advancement title. Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
+| `description` | string | `""` | Tooltip description. Supports MiniMessage. |
+| `icon` | `namespace:id` | `minecraft:barrier` | Item shown as the icon. Accepts ItemsAdder item IDs or vanilla material IDs. |
+| `frame` | string | `task` | Shape of the icon border: `task`, `goal`, or `challenge`. |
+| `background` | string | *(none)* | **Root advancements only.** Texture path for the tab background (e.g. `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
+| `show_toast` | boolean | `true` | Show a toast notification when completed. |
+| `announce_to_chat` | boolean | `true` | Broadcast completion to all players in chat. |
+| `hidden` | boolean | `false` | Hide this advancement until it is completed. |
+
+<Callout>
+    `background` is what makes an advancement create a new tab. It is only used on root advancements (no `parent`).
+</Callout>
+
+## Rewards
+
+```yaml
+rewards:
+  experience: 50
+  recipes:
+    - my_pack:ruby_sword_recipe
+    - minecraft:golden_apple
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `experience` | integer | `0` | Experience points awarded on completion. |
+| `loot` | list of strings | `[]` | Loot table keys to roll on completion. |
+| `recipes` | list of strings | `[]` | Recipe keys to unlock. Accepts `namespace:id` or a bare `id` (uses the file namespace). |
+
+## Full example
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+
+  root:
+    display:
+      title: "My Server"
+      description: "Custom achievements for My Server."
+      icon: minecraft:nether_star
+      background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+      show_toast: false
+      announce_to_chat: false
+      frame: task
+
+  first_ruby_sword:
+    parent: root
+    display:
+      title: "First Ruby Sword"
+      description: "Obtain your first custom sword."
+      icon: my_pack:ruby_sword
+      frame: task
+      show_toast: true
+      announce_to_chat: true
+    criteria:
+      obtain:
+        trigger: obtain_item
+        conditions:
+          items:
+            - my_pack:ruby_sword
+          amount: 1
+    on_complete:
+      sound:
+        name: minecraft:entity.player.levelup
+      title:
+        title: "<gold>Achievement!"
+        subtitle: "<gray>First Ruby Sword obtained."
+      commands:
+        reward:
+          command: "give {player} gold_ingot 4"
+          as_console: true
+
+  master_crafter:
+    parent: my_pack:root
+    display:
+      title: "Master Crafter"
+      description: "Craft the sword, the shield, and the potion."
+      icon: minecraft:crafting_table
+      frame: goal
+    criteria:
+      craft_sword:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_sword_recipe
+      craft_shield:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_shield_recipe
+      craft_potion:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_potion_recipe
+    rewards:
+      experience: 100
+```
+
+<Callout>
+    Multi-criteria advancements (like `master_crafter` above) require all criteria to be completed. Each criterion is
+    tracked independently; progress is saved by vanilla and survives reloads.
+</Callout>

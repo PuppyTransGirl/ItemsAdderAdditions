@@ -1,0 +1,10 @@
+{
+  "title": "Advancements",
+  "icon": "Trophy",
+  "pages": [
+    "index",
+    "configuration",
+    "triggers",
+    "completion-actions"
+  ]
+}
