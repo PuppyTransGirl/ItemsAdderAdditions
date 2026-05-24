@@ -9,6 +9,8 @@ import toutouchien.itemsadderadditions.feature.advancement.AdvancementConditions
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementCriterionDefinition;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementRegistry;
 
+import java.util.List;
+
 @NullMarked
 public final class ObtainItemTriggerHandler extends AbstractTriggerHandler {
     public ObtainItemTriggerHandler(AdvancementRegistry registry) {
@@ -22,7 +24,7 @@ public final class ObtainItemTriggerHandler extends AbstractTriggerHandler {
         if (itemId == null) return;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.OBTAIN_ITEM)) {
             if (!(c.conditions() instanceof AdvancementConditions.ObtainItem(
-                    java.util.List<String> itemIds, int amount
+                    List<String> itemIds, int amount
             ))) continue;
             if (!itemIds.contains(itemId)) continue;
             if (event.getItem().getItemStack().getAmount() < amount) continue;

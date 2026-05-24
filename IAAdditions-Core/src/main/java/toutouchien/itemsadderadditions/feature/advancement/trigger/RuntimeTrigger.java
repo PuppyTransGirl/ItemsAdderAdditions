@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.feature.advancement.trigger;
 
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.utils.EnumUtils;
 
 @NullMarked
 public enum RuntimeTrigger {
@@ -28,36 +29,27 @@ public enum RuntimeTrigger {
     SHOOT_BOW,
     FISHING_ROD_HOOKED,
     FILLED_BUCKET,
+    PLAYER_KILLED_ENTITY,
+    RECIPE_UNLOCKED,
+    USED_TOTEM,
+    EFFECTS_CHANGED,
+    FALL_FROM_HEIGHT,
+    USED_ENDER_EYE,
+    BEE_NEST_DESTROYED,
+    ENTITY_KILLED_PLAYER,
+    ITEM_DURABILITY_CHANGED,
+    ITEM_USED_ON_BLOCK,
+    KILLED_BY_ARROW,
+    PLAYER_INTERACTED_WITH_ENTITY,
+    PLAYER_SHEARED_EQUIPMENT,
+    RECIPE_CRAFTED,
+    SHOT_CROSSBOW,
+    STARTED_RIDING,
+    HELD_ITEM,
     IMPOSSIBLE;
 
     @Nullable
     public static RuntimeTrigger fromYaml(String name) {
-        return switch (name.toLowerCase(java.util.Locale.ROOT)) {
-            case "obtain_item" -> OBTAIN_ITEM;
-            case "consume_item" -> CONSUME_ITEM;
-            case "place_block" -> PLACE_BLOCK;
-            case "break_block" -> BREAK_BLOCK;
-            case "place_furniture" -> PLACE_FURNITURE;
-            case "break_furniture" -> BREAK_FURNITURE;
-            case "interact_furniture" -> INTERACT_FURNITURE;
-            case "craft_recipe" -> CRAFT_RECIPE;
-            case "kill_entity_with_item" -> KILL_ENTITY_WITH_ITEM;
-            case "permission" -> PERMISSION;
-            case "in_biome" -> IN_BIOME;
-            case "using_item" -> USING_ITEM;
-            case "tame_animal" -> TAME_ANIMAL;
-            case "villager_trade" -> VILLAGER_TRADE;
-            case "enchanted_item" -> ENCHANTED_ITEM;
-            case "slept_in_bed" -> SLEPT_IN_BED;
-            case "bred_animals" -> BRED_ANIMALS;
-            case "changed_dimension" -> CHANGED_DIMENSION;
-            case "player_hurt_entity" -> PLAYER_HURT_ENTITY;
-            case "entity_hurt_player" -> ENTITY_HURT_PLAYER;
-            case "shoot_bow" -> SHOOT_BOW;
-            case "fishing_rod_hooked" -> FISHING_ROD_HOOKED;
-            case "filled_bucket" -> FILLED_BUCKET;
-            case "impossible" -> IMPOSSIBLE;
-            default -> null;
-        };
+        return EnumUtils.match(name, RuntimeTrigger.class, null);
     }
 }

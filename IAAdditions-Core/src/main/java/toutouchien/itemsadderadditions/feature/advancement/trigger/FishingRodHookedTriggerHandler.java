@@ -18,8 +18,14 @@ public final class FishingRodHookedTriggerHandler extends AbstractTriggerHandler
     public void onFish(PlayerFishEvent event) {
         if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH
                 && event.getState() != PlayerFishEvent.State.CAUGHT_ENTITY) return;
+        String rodItemId = getItemId(event.getPlayer().getInventory().getItemInMainHand());
+        String caughtEntityType = event.getCaught() != null
+                ? event.getCaught().getType().getKey().toString() : null;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.FISHING_ROD_HOOKED)) {
-            if (!(c.conditions() instanceof AdvancementConditions.None)) continue;
+            if (!(c.conditions() instanceof AdvancementConditions.FishingRodHooked(String rod, String caughtType)))
+                continue;
+            if (rod != null && !rod.equals(rodItemId)) continue;
+            if (caughtType != null && !caughtType.equals(caughtEntityType)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }

@@ -204,13 +204,18 @@ public final class AdvancementLoader {
                     sec != null ? sec.getString("entity_type") : null
             );
             case ENCHANTED_ITEM -> new AdvancementConditions.EnchantedItem(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null),
+                    sec != null ? sec.getInt("min_levels", 0) : 0,
+                    sec != null ? sec.getInt("max_levels", Integer.MAX_VALUE) : Integer.MAX_VALUE
             );
             case BRED_ANIMALS -> new AdvancementConditions.BredAnimals(
-                    sec != null ? sec.getString("entity_type") : null
+                    sec != null ? sec.getString("entity_type") : null,
+                    sec != null ? sec.getString("parent_type") : null,
+                    sec != null ? sec.getString("partner_type") : null
             );
             case CHANGED_DIMENSION -> new AdvancementConditions.ChangedDimension(
-                    sec != null ? sec.getString("dimension") : null
+                    sec != null ? sec.getString("to") : null,
+                    sec != null ? sec.getString("from") : null
             );
             case PLAYER_HURT_ENTITY -> new AdvancementConditions.PlayerHurtEntity(
                     normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null),
@@ -222,8 +227,62 @@ public final class AdvancementLoader {
             case SHOOT_BOW -> new AdvancementConditions.ShootBow(
                     normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
             );
-            case VILLAGER_TRADE, SLEPT_IN_BED, FISHING_ROD_HOOKED, FILLED_BUCKET,
-                 IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
+            case VILLAGER_TRADE -> new AdvancementConditions.VillagerTrade(
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+            );
+            case FILLED_BUCKET -> new AdvancementConditions.FilledBucket(
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+            );
+            case FISHING_ROD_HOOKED -> new AdvancementConditions.FishingRodHooked(
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("rod") : null),
+                    sec != null ? sec.getString("caught_entity_type") : null
+            );
+            case PLAYER_KILLED_ENTITY -> new AdvancementConditions.PlayerKilledEntity(
+                    sec != null ? sec.getString("entity_type") : null,
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+            );
+            case RECIPE_UNLOCKED -> new AdvancementConditions.RecipeUnlocked(
+                    sec != null ? sec.getString("recipe", "") : ""
+            );
+            case EFFECTS_CHANGED -> new AdvancementConditions.EffectsChanged(
+                    sec != null ? sec.getString("effect") : null
+            );
+            case BEE_NEST_DESTROYED -> new AdvancementConditions.BeeNestDestroyed(
+                    sec != null ? sec.getString("block") : null
+            );
+            case ENTITY_KILLED_PLAYER -> new AdvancementConditions.EntityKilledPlayer(
+                    sec != null ? sec.getString("entity_type") : null
+            );
+            case ITEM_DURABILITY_CHANGED -> new AdvancementConditions.ItemDurabilityChanged(
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+            );
+            case ITEM_USED_ON_BLOCK -> new AdvancementConditions.ItemUsedOnBlock(
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null),
+                    sec != null ? sec.getString("block") : null
+            );
+            case KILLED_BY_ARROW -> new AdvancementConditions.KilledByArrow(
+                    sec != null ? sec.getString("entity_type") : null
+            );
+            case PLAYER_INTERACTED_WITH_ENTITY -> new AdvancementConditions.PlayerInteractedWithEntity(
+                    sec != null ? sec.getString("entity_type") : null,
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+            );
+            case PLAYER_SHEARED_EQUIPMENT -> new AdvancementConditions.PlayerShearedEquipment(
+                    sec != null ? sec.getString("entity_type") : null
+            );
+            case RECIPE_CRAFTED -> new AdvancementConditions.RecipeCrafted(
+                    sec != null ? sec.getString("recipe", "") : ""
+            );
+            case SHOT_CROSSBOW -> new AdvancementConditions.ShotCrossbow(
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+            );
+            case STARTED_RIDING -> new AdvancementConditions.StartedRiding(
+                    sec != null ? sec.getString("entity_type") : null
+            );
+            case HELD_ITEM -> new AdvancementConditions.HeldItem(
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+            );
+            case SLEPT_IN_BED, USED_TOTEM, FALL_FROM_HEIGHT, USED_ENDER_EYE, IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
         };
     }
 

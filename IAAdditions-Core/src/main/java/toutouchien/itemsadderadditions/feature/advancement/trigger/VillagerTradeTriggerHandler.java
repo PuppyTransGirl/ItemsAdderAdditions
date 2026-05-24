@@ -16,8 +16,10 @@ public final class VillagerTradeTriggerHandler extends AbstractTriggerHandler {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTrade(PlayerTradeEvent event) {
+        String resultItemId = getItemId(event.getTrade().getResult());
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.VILLAGER_TRADE)) {
-            if (!(c.conditions() instanceof AdvancementConditions.None)) continue;
+            if (!(c.conditions() instanceof AdvancementConditions.VillagerTrade(String itemId))) continue;
+            if (itemId != null && !itemId.equals(resultItemId)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }

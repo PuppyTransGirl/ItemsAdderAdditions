@@ -25,10 +25,12 @@ public final class ChangedDimensionTriggerHandler extends AbstractTriggerHandler
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onWorldChange(PlayerChangedWorldEvent event) {
-        String dimension = dimensionKey(event.getPlayer().getWorld().getEnvironment());
+        String toDimension = dimensionKey(event.getPlayer().getWorld().getEnvironment());
+        String fromDimension = dimensionKey(event.getFrom().getEnvironment());
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.CHANGED_DIMENSION)) {
-            if (!(c.conditions() instanceof AdvancementConditions.ChangedDimension(String dimension1))) continue;
-            if (dimension1 != null && !dimension1.equals(dimension)) continue;
+            if (!(c.conditions() instanceof AdvancementConditions.ChangedDimension(String to, String from))) continue;
+            if (to != null && !to.equals(toDimension)) continue;
+            if (from != null && !from.equals(fromDimension)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }

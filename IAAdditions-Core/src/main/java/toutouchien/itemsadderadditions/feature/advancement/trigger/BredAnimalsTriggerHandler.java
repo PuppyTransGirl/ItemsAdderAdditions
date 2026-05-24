@@ -19,9 +19,14 @@ public final class BredAnimalsTriggerHandler extends AbstractTriggerHandler {
     public void onBreed(EntityBreedEvent event) {
         if (!(event.getBreeder() instanceof Player player)) return;
         String entityType = event.getEntity().getType().getKey().toString();
+        String motherType = event.getMother().getType().getKey().toString();
+        String fatherType = event.getFather().getType().getKey().toString();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.BRED_ANIMALS)) {
-            if (!(c.conditions() instanceof AdvancementConditions.BredAnimals(String type))) continue;
+            if (!(c.conditions() instanceof AdvancementConditions.BredAnimals(String type, String parentType, String partnerType)))
+                continue;
             if (type != null && !type.equals(entityType)) continue;
+            if (parentType != null && !parentType.equals(motherType) && !parentType.equals(fatherType)) continue;
+            if (partnerType != null && !partnerType.equals(motherType) && !partnerType.equals(fatherType)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }
