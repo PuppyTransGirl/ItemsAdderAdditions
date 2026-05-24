@@ -37,7 +37,7 @@ class LogFormatTest {
 
     @Test
     void noArgsArray() {
-        assertEquals("no args", Log.format("no args", new Object[0]));
+        assertEquals("no args", Log.format("no args"));
     }
 
     @Test

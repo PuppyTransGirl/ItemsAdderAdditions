@@ -32,6 +32,7 @@ public final class NamespaceUtils {
     public static void setMMOItemsProvider(@Nullable ItemProvider provider) {
         mmoitemsProvider = provider;
     }
+
     private static final String[] ROTATION_SUFFIXES = {
             "_north", "_south", "_east", "_west", "_up", "_down"
     };

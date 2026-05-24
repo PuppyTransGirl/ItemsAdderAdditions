@@ -5,7 +5,10 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 /**
@@ -75,11 +78,9 @@ public final class ExecutorRegistry<E extends Keyed> {
     }
 
     public Collection<E> getAll() {
-        return Collections.unmodifiableList(
-                prototypes.values().stream()
-                        .map(Entry::prototype)
-                        .toList()
-        );
+        return prototypes.values().stream()
+                .map(Entry::prototype)
+                .toList();
     }
 
     @Nullable

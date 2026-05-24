@@ -35,7 +35,7 @@ class ActionBindingsTest {
 
         List<ActionExecutor> result = ActionBindings.get("myns:item", TriggerType.ITEM_INTERACT);
         assertEquals(1, result.size());
-        assertSame(executor, result.get(0));
+        assertSame(executor, result.getFirst());
     }
 
     @Test
@@ -45,7 +45,7 @@ class ActionBindingsTest {
 
         List<ActionExecutor> result = ActionBindings.get("myns:item", TriggerType.ITEM_INTERACT, "right");
         assertEquals(1, result.size());
-        assertSame(executor, result.get(0));
+        assertSame(executor, result.getFirst());
     }
 
     @Test
@@ -106,7 +106,7 @@ class ActionBindingsTest {
         // "myns:block_north" has no direct binding but strips to "myns:block"
         List<ActionExecutor> result = ActionBindings.get("myns:block_north", TriggerType.BLOCK_INTERACT);
         assertEquals(1, result.size());
-        assertSame(executor, result.get(0));
+        assertSame(executor, result.getFirst());
     }
 
     @Test
@@ -127,8 +127,8 @@ class ActionBindingsTest {
         ActionBindings.add("myns:item_a", TriggerType.ITEM_INTERACT, e1);
         ActionBindings.add("myns:item_b", TriggerType.ITEM_INTERACT, e2);
 
-        assertSame(e1, ActionBindings.get("myns:item_a", TriggerType.ITEM_INTERACT).get(0));
-        assertSame(e2, ActionBindings.get("myns:item_b", TriggerType.ITEM_INTERACT).get(0));
+        assertSame(e1, ActionBindings.get("myns:item_a", TriggerType.ITEM_INTERACT).getFirst());
+        assertSame(e2, ActionBindings.get("myns:item_b", TriggerType.ITEM_INTERACT).getFirst());
     }
 
     @Action(key = "stub")

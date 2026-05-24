@@ -130,8 +130,7 @@ public final class ParameterInjector {
         if (root == null)
             return null;
 
-        ConfigurationSection sub = root.getConfigurationSection(param.path());
-        return sub; // null when absent - caller decides whether to fail
+        return root.getConfigurationSection(param.path()); // null when absent - caller decides whether to fail
     }
 
     /**

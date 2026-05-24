@@ -104,7 +104,7 @@ public final class BehaviourLoader extends AbstractItemsAdderItemLoader {
             }
 
             ConfigurationSection section = currentConfig.getConfigurationSection("items." + currentId + ".behaviours");
-            if (section != null) chain.add(0, section); // prepend so root ends up first
+            if (section != null) chain.addFirst(section); // prepend so root ends up first
         }
 
         // Append the item's own behaviours last so they override any ancestor.

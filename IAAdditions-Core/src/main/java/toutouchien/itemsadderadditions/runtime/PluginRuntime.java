@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionsListener;
 import toutouchien.itemsadderadditions.feature.action.ActionsManager;
+import toutouchien.itemsadderadditions.feature.advancement.AdvancementManager;
 import toutouchien.itemsadderadditions.feature.behaviour.BehavioursManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeRegistryReloader;
@@ -55,6 +56,7 @@ public final class PluginRuntime {
     private BehavioursManager behavioursManager;
     private CustomPaintingManager customPaintingManager;
     private RecipeManager recipeManager;
+    private AdvancementManager advancementManager;
     private @Nullable CreativeMenuManager creativeMenuManager;
     private ReloadCoordinator reloadCoordinator;
     private CreativeRegistryReloader creativeRegistryReloader;
@@ -82,8 +84,7 @@ public final class PluginRuntime {
     }
 
     private static List<Listener> listeners() {
-        List<Listener> listeners = new ArrayList<>();
-        listeners.addAll(ActionsListener.createAll());
+        List<Listener> listeners = new ArrayList<>(ActionsListener.createAll());
         listeners.add(new FurniturePopulatorWorldListener());
         listeners.add(new ItemsAdderLoadListener());
         return List.copyOf(listeners);
@@ -108,6 +109,7 @@ public final class PluginRuntime {
         this.behavioursManager = new BehavioursManager(settings);
         this.customPaintingManager = new CustomPaintingManager(plugin);
         this.recipeManager = new RecipeManager(plugin);
+        this.advancementManager = new AdvancementManager(plugin);
 
         setupCreativeInventoryIntegration();
         this.creativeRegistryReloader = new CreativeRegistryReloader(plugin);
@@ -116,7 +118,8 @@ public final class PluginRuntime {
                 behavioursManager,
                 customPaintingManager,
                 recipeManager,
-                creativeRegistryReloader
+                creativeRegistryReloader,
+                advancementManager
         );
 
         registerListeners(plugin);
@@ -129,6 +132,7 @@ public final class PluginRuntime {
         actionsManager.shutdown();
         behavioursManager.shutdown();
         recipeManager.shutdown();
+        advancementManager.shutdown();
 
         NamespaceUtils.setMMOItemsProvider(null);
         plugin.getServer().getScheduler().cancelTasks(plugin);

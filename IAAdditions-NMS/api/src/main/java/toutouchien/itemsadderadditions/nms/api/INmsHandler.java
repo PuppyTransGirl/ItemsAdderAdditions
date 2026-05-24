@@ -23,6 +23,8 @@ public interface INmsHandler {
 
     INmsTextDisplayHandler textDisplays();
 
+    INmsAdvancementHandler advancements();
+
     /**
      * Calls {@code RecipeManager#finalizeRecipeLoading()} once.
      * Must be invoked by {@code RecipeManager} after <em>all</em> recipe

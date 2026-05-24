@@ -143,18 +143,17 @@ public final class ReplaceBiomeAction extends ActionExecutor {
         if (biome == null) return;
 
         Location location = context.runOn().getLocation();
-        Location center = location;
         Vector dir = shape.isDirectional()
                 ? location.getDirection().normalize()
                 : null;
 
-        List<Location> targets = shape.collectBiomeQuanta(center, radiusX, radiusY, radiusZ, dir);
+        List<Location> targets = shape.collectBiomeQuanta(location, radiusX, radiusY, radiusZ, dir);
         AntiGriefLib antiGriefLib = ItemsAdderAdditions.instance().antiGriefLib();
         targets.removeIf(target -> !antiGriefLib.test(context.player(), Flag.PLACE, target));
 
         Log.debug("ReplaceBiome", "Replacing {} biome quanta with biome {} (shape={}, rx={}, ry={}, rz={})",
                 targets.size(), biome.getKey(), shape, radiusX, radiusY, radiusZ);
 
-        NmsManager.instance().handler().biome().setBiomes(center.getWorld(), targets, biome);
+        NmsManager.instance().handler().biome().setBiomes(location.getWorld(), targets, biome);
     }
 }

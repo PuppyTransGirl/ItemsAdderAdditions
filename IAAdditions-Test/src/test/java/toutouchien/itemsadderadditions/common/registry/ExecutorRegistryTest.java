@@ -103,16 +103,6 @@ class ExecutorRegistryTest {
     }
 
     // Minimal Keyed implementation for testing
-    private static class StubExecutor implements Keyed {
-        private final String key;
-
-        StubExecutor(String key) {
-            this.key = key;
-        }
-
-        @Override
-        public String key() {
-            return key;
-        }
+    private record StubExecutor(String key) implements Keyed {
     }
 }

@@ -8,6 +8,7 @@ import toutouchien.itemsadderadditions.common.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionsManager;
+import toutouchien.itemsadderadditions.feature.advancement.AdvancementManager;
 import toutouchien.itemsadderadditions.feature.behaviour.BehavioursManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeRegistryReloader;
 import toutouchien.itemsadderadditions.feature.painting.CustomPaintingManager;
@@ -35,7 +36,8 @@ public final class ReloadCoordinator {
             BehavioursManager behaviours,
             CustomPaintingManager paintings,
             RecipeManager recipes,
-            CreativeRegistryReloader creativeRegistry
+            CreativeRegistryReloader creativeRegistry,
+            AdvancementManager advancements
     ) {
         this.reloadPlan = new ReloadPlan(List.of(
                 paintings,
@@ -43,6 +45,7 @@ public final class ReloadCoordinator {
                 behaviours,
                 creativeRegistry,
                 recipes,
+                advancements,
                 new WorldgenReloadSystem()
         ));
     }

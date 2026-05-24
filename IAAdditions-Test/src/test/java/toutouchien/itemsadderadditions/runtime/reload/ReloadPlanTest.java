@@ -39,7 +39,7 @@ class ReloadPlanTest {
         ReloadPlan plan = new ReloadPlan(List.of(stub("A", ReloadPhase.CONTENT_FILES)));
         List<ReloadStepResult> results = plan.run(null);
         assertEquals(1, results.size());
-        assertEquals("A", results.get(0).system());
+        assertEquals("A", results.getFirst().system());
     }
 
     @Test

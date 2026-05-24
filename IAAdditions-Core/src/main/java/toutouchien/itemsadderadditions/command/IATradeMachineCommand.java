@@ -75,7 +75,7 @@ public final class IATradeMachineCommand {
             sender.sendRichMessage(PREFIX + "<#F27474>Player not found or not online.</#F27474>");
             return Command.SINGLE_SUCCESS;
         }
-        return execute(sender, targets.get(0), key, silent);
+        return execute(sender, targets.getFirst(), key, silent);
     }
 
     private static int execute(CommandSender sender, Player target, Key key, boolean silent) {

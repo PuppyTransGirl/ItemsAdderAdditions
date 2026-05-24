@@ -65,8 +65,10 @@ public final class StorageInventoryResolver {
 
         ItemStack[] contents = storedContents(block, entity);
 
-        if (spec instanceof StorageInventorySpec.Menu menu) {
-            InventoryView view = menu.menuType().create(player, title);
+        if (spec instanceof StorageInventorySpec.Menu(
+                org.bukkit.inventory.MenuType.Typed<? extends InventoryView, ?> menuType
+        )) {
+            InventoryView view = menuType.create(player, title);
             Inventory inventory = view.getTopInventory();
             StorageInventoryManager.populateInventory(inventory, contents);
             view.open();
@@ -74,8 +76,10 @@ public final class StorageInventoryResolver {
         }
 
         StorageInventoryHolder holder = new StorageInventoryHolder(location);
-        Inventory inventory = spec instanceof StorageInventorySpec.Typed typed
-                ? Bukkit.createInventory(holder, typed.inventoryType(), title)
+        Inventory inventory = spec instanceof StorageInventorySpec.Typed(
+                org.bukkit.event.inventory.InventoryType inventoryType
+        )
+                ? Bukkit.createInventory(holder, inventoryType, title)
                 : Bukkit.createInventory(holder, rows * 9, title);
         holder.inventory(inventory);
         StorageInventoryManager.populateInventory(inventory, contents);

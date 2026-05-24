@@ -150,57 +150,60 @@ public final class IngredientResolver {
         boolean ignoreDurability = false;
         @Nullable String potionType = null;
 
-        if (raw instanceof ConfigurationSection sub) {
-            itemRef = sub.getString("item");
-            if (itemRef == null) {
+        switch (raw) {
+            case ConfigurationSection sub -> {
+                itemRef = sub.getString("item");
+                if (itemRef == null) {
+                    Log.warn(LOG_TAG,
+                            "Ingredient '{}' in recipe '{}' is missing 'item'.",
+                            keyLabel, recipeId);
+                    return null;
+                }
+                requiredAmount = sub.getInt("amount", 1);
+                damageAmount = sub.getInt("damage", 0);
+                ignoreDurability = sub.getBoolean("ignore_durability", false);
+                potionType = sub.getString("potion_type", null);
+
+                String replacementRef = sub.getString("replacement");
+                if (replacementRef != null) {
+                    replacement = resolveItem(namespace, replacementRef, recipeId,
+                            "replacement for '" + keyLabel + "'");
+                    if (replacement == null) return null;
+                    damageAmount = 0;
+                }
+            }
+
+            case Map<?, ?> map -> {
+                Object itemVal = map.get("item");
+                if (!(itemVal instanceof String ref)) {
+                    Log.warn(LOG_TAG,
+                            "Ingredient '{}' in recipe '{}' is missing 'item'.",
+                            keyLabel, recipeId);
+                    return null;
+                }
+                itemRef = ref;
+
+                if (map.get("amount") instanceof Number n) requiredAmount = n.intValue();
+                if (map.get("damage") instanceof Number n) damageAmount = n.intValue();
+                if (map.get("ignore_durability") instanceof Boolean b) ignoreDurability = b;
+                if (map.get("potion_type") instanceof String pt) potionType = pt;
+
+                if (map.get("replacement") instanceof String replacementRef) {
+                    replacement = resolveItem(namespace, replacementRef, recipeId,
+                            "replacement for '" + keyLabel + "'");
+                    if (replacement == null) return null;
+                    damageAmount = 0;
+                }
+            }
+
+            case String ref -> itemRef = ref;
+
+            case null, default -> {
                 Log.warn(LOG_TAG,
-                        "Ingredient '{}' in recipe '{}' is missing 'item'.",
+                        "Ingredient '{}' in recipe '{}' has an unsupported format.",
                         keyLabel, recipeId);
                 return null;
             }
-            requiredAmount = sub.getInt("amount", 1);
-            damageAmount = sub.getInt("damage", 0);
-            ignoreDurability = sub.getBoolean("ignore_durability", false);
-            potionType = sub.getString("potion_type", null);
-
-            String replacementRef = sub.getString("replacement");
-            if (replacementRef != null) {
-                replacement = resolveItem(namespace, replacementRef, recipeId,
-                        "replacement for '" + keyLabel + "'");
-                if (replacement == null) return null;
-                damageAmount = 0;
-            }
-
-        } else if (raw instanceof Map<?, ?> map) {
-            Object itemVal = map.get("item");
-            if (!(itemVal instanceof String ref)) {
-                Log.warn(LOG_TAG,
-                        "Ingredient '{}' in recipe '{}' is missing 'item'.",
-                        keyLabel, recipeId);
-                return null;
-            }
-            itemRef = ref;
-
-            if (map.get("amount") instanceof Number n) requiredAmount = n.intValue();
-            if (map.get("damage") instanceof Number n) damageAmount = n.intValue();
-            if (map.get("ignore_durability") instanceof Boolean b) ignoreDurability = b;
-            if (map.get("potion_type") instanceof String pt) potionType = pt;
-
-            if (map.get("replacement") instanceof String replacementRef) {
-                replacement = resolveItem(namespace, replacementRef, recipeId,
-                        "replacement for '" + keyLabel + "'");
-                if (replacement == null) return null;
-                damageAmount = 0;
-            }
-
-        } else if (raw instanceof String ref) {
-            itemRef = ref;
-
-        } else {
-            Log.warn(LOG_TAG,
-                    "Ingredient '{}' in recipe '{}' has an unsupported format.",
-                    keyLabel, recipeId);
-            return null;
         }
 
         return buildIngredient(

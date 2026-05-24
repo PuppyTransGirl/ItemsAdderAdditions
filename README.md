@@ -30,7 +30,8 @@ files.
 
 ## Features
 
-Please see the [documentation](https://itemsadderadditions.com/en/docs) for the full feature list, configuration details,
+Please see the [documentation](https://itemsadderadditions.com/en/docs) for the full feature list, configuration
+details,
 and examples.
 
 ### Extra Behaviours

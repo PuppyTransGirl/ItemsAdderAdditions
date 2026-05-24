@@ -53,7 +53,7 @@ class FileUtilsTest {
         new File(dir, "data.yaml").createNewFile(); // .yaml not .yml - should not match
         List<File> files = FileUtils.collectYamlFiles(dir);
         assertEquals(1, files.size());
-        assertTrue(files.get(0).getName().endsWith(".yml"));
+        assertTrue(files.getFirst().getName().endsWith(".yml"));
     }
 
     @Test

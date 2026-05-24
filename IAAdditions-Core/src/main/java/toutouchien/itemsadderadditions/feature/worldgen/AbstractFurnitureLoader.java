@@ -18,7 +18,7 @@ import java.util.Locale;
 /**
  * Base class for furniture world-generation loaders.
  *
- * <p>Both {@link FurniturePopulatorLoader} and {@link FurnitureSurfaceDecoratorLoader}
+ * <p>Both {@link toutouchien.itemsadderadditions.feature.worldgen.populator.FurniturePopulatorLoader} and {@link toutouchien.itemsadderadditions.feature.worldgen.surface.FurnitureSurfaceDecoratorLoader}
  * share the same high-level pipeline:
  * <ol>
  *   <li>Scan all YAML files under the ItemsAdder contents directory.</li>

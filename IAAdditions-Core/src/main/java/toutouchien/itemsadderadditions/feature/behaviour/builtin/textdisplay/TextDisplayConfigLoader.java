@@ -157,26 +157,33 @@ public final class TextDisplayConfigLoader {
     }
 
     private static float[] parseScale(@Nullable Object raw, LoadContext ctx) {
-        if (raw == null) return new float[]{1.0F, 1.0F, 1.0F};
+        switch (raw) {
+            case null -> {
+                return new float[]{1.0F, 1.0F, 1.0F};
+            }
 
-        if (raw instanceof Number number) {
-            float v = number.floatValue();
-            if (v > 0.0F) return new float[]{v, v, v};
-            Log.warn(LOG_TAG, "text_display '{}' display '{}': scale must be > 0; using 1.", ctx.namespacedId(), ctx.displayId());
-            return new float[]{1.0F, 1.0F, 1.0F};
-        }
+            case Number number -> {
+                float v = number.floatValue();
+                if (v > 0.0F) return new float[]{v, v, v};
+                Log.warn(LOG_TAG, "text_display '{}' display '{}': scale must be > 0; using 1.", ctx.namespacedId(), ctx.displayId());
+                return new float[]{1.0F, 1.0F, 1.0F};
+            }
 
-        if (raw instanceof String value) {
-            String[] split = value.split(",");
-            if (split.length == 3) {
-                try {
-                    float x = Float.parseFloat(split[0].trim());
-                    float y = Float.parseFloat(split[1].trim());
-                    float z = Float.parseFloat(split[2].trim());
-                    if (x > 0.0F && y > 0.0F && z > 0.0F) return new float[]{x, y, z};
-                } catch (NumberFormatException ignored) {
-                    // fall through to warning
+            case String value -> {
+                String[] split = value.split(",");
+                if (split.length == 3) {
+                    try {
+                        float x = Float.parseFloat(split[0].trim());
+                        float y = Float.parseFloat(split[1].trim());
+                        float z = Float.parseFloat(split[2].trim());
+                        if (x > 0.0F && y > 0.0F && z > 0.0F) return new float[]{x, y, z};
+                    } catch (NumberFormatException ignored) {
+                        // fall through to warning
+                    }
                 }
+            }
+
+            default -> {
             }
         }
 
@@ -192,7 +199,7 @@ public final class TextDisplayConfigLoader {
                 }
             } else if (list.size() == 1) {
                 try {
-                    float v = (float) toDouble(list.get(0));
+                    float v = (float) toDouble(list.getFirst());
                     if (v > 0.0F) return new float[]{v, v, v};
                 } catch (IllegalArgumentException ignored) {
                     // fall through
@@ -206,26 +213,33 @@ public final class TextDisplayConfigLoader {
 
     @Nullable
     private static int[] parseBrightness(@Nullable Object raw, LoadContext ctx) {
-        if (raw == null) return null;
+        switch (raw) {
+            case null -> {
+                return null;
+            }
 
-        if (raw instanceof Boolean bool) {
-            if (!bool) return null;
-            Log.warn(LOG_TAG, "text_display '{}' display '{}': brightness=true is not supported; use a 0-15 integer or [block, sky] list.", ctx.namespacedId(), ctx.displayId());
-            return null;
-        }
+            case Boolean bool -> {
+                if (!bool) return null;
+                Log.warn(LOG_TAG, "text_display '{}' display '{}': brightness=true is not supported; use a 0-15 integer or [block, sky] list.", ctx.namespacedId(), ctx.displayId());
+                return null;
+            }
 
-        if (raw instanceof Number number) {
-            int v = Math.max(0, Math.min(15, number.intValue()));
-            return new int[]{v, v};
-        }
+            case Number number -> {
+                int v = Math.max(0, Math.min(15, number.intValue()));
+                return new int[]{v, v};
+            }
 
-        if (raw instanceof List<?> list && list.size() == 2) {
-            try {
-                int block = Math.max(0, Math.min(15, (int) toDouble(list.get(0))));
-                int sky = Math.max(0, Math.min(15, (int) toDouble(list.get(1))));
-                return new int[]{block, sky};
-            } catch (IllegalArgumentException ignored) {
-                // fall through to warning
+            case List<?> list when list.size() == 2 -> {
+                try {
+                    int block = Math.max(0, Math.min(15, (int) toDouble(list.get(0))));
+                    int sky = Math.max(0, Math.min(15, (int) toDouble(list.get(1))));
+                    return new int[]{block, sky};
+                } catch (IllegalArgumentException ignored) {
+                    // fall through to warning
+                }
+            }
+
+            default -> {
             }
         }
 

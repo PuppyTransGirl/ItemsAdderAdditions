@@ -72,7 +72,8 @@ public enum ConfigFileCategory {
      */
     PAINTINGS(yaml -> yaml.contains("paintings")),
 
-    // Add future categories here
+    ADVANCEMENTS(yaml -> yaml.contains("advancements")),
+
     ;
 
     private final Predicate<YamlConfiguration> detector;

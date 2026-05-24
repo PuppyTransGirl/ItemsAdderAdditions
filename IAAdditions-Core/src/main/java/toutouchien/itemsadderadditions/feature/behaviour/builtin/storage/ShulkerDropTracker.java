@@ -37,8 +37,7 @@ public final class ShulkerDropTracker implements Listener {
 
     /**
      * Contents captured from the hand item before ItemsAdder consumes it on placement.
-     * Keyed by player UUID; consumed unconditionally in
-     * {@link StorageBehaviour#onFurniturePlaced}.
+     * Keyed by player UUID
      */
     private final Map<UUID, ItemStack[]> pendingPlaceContents = new HashMap<>();
 
