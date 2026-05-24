@@ -18,13 +18,13 @@ public final class ObtainItemTriggerHandler extends AbstractTriggerHandler {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPickup(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        String iaId = getIaId(event.getItem().getItemStack());
-        if (iaId == null) return;
+        String itemId = getItemId(event.getItem().getItemStack());
+        if (itemId == null) return;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.OBTAIN_ITEM)) {
             if (!(c.conditions() instanceof AdvancementConditions.ObtainItem(
                     java.util.List<String> itemIds, int amount
             ))) continue;
-            if (!itemIds.contains(iaId)) continue;
+            if (!itemIds.contains(itemId)) continue;
             if (event.getItem().getItemStack().getAmount() < amount) continue;
             award(player, advancementKeyFor(c), c.name());
         }

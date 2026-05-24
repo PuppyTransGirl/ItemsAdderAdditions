@@ -16,10 +16,10 @@ public final class EnchantedItemTriggerHandler extends AbstractTriggerHandler {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEnchant(EnchantItemEvent event) {
-        String iaId = getIaId(event.getItem());
+        String enchantedItemId = getItemId(event.getItem());
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.ENCHANTED_ITEM)) {
             if (!(c.conditions() instanceof AdvancementConditions.EnchantedItem(String itemId))) continue;
-            if (itemId != null && !itemId.equals(iaId)) continue;
+            if (itemId != null && !itemId.equals(enchantedItemId)) continue;
             award(event.getEnchanter(), advancementKeyFor(c), c.name());
         }
     }

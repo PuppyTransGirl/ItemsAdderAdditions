@@ -63,4 +63,22 @@ public final class MMOItemsHook extends PluginHook {
             return false;
         }
     }
+
+    /**
+     * Returns the canonical {@code mmoitems:TYPE:ID} identifier for {@code stack},
+     * or {@code null} if the item is not an MMOItems item or MMOItems is not loaded.
+     */
+    @Nullable
+    public String getMmoId(ItemStack stack) {
+        if (!isAvailable()) return null;
+        try {
+            NBTItem nbt = NBTItem.get(stack);
+            String type = nbt.getString("MMOITEMS_ITEM_TYPE");
+            String id = nbt.getString("MMOITEMS_ITEM_ID");
+            if (type == null || type.isEmpty() || id == null || id.isEmpty()) return null;
+            return "mmoitems:" + type.toLowerCase(java.util.Locale.ROOT) + ":" + id.toLowerCase(java.util.Locale.ROOT);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 }

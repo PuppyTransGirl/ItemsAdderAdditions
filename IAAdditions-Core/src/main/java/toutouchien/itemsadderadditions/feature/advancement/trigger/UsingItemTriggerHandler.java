@@ -20,11 +20,11 @@ public final class UsingItemTriggerHandler extends AbstractTriggerHandler {
     public void onInteract(PlayerInteractEvent event) {
         if (event.getHand() != EquipmentSlot.HAND) return;
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        String iaId = getIaId(event.getItem());
-        if (iaId == null) return;
+        String heldItemId = getItemId(event.getItem());
+        if (heldItemId == null) return;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.USING_ITEM)) {
             if (!(c.conditions() instanceof AdvancementConditions.UsingItem(String itemId))) continue;
-            if (!itemId.equals(iaId)) continue;
+            if (!itemId.equals(heldItemId)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }

@@ -18,10 +18,10 @@ public final class ShootBowTriggerHandler extends AbstractTriggerHandler {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onShoot(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        String iaId = getIaId(event.getBow());
+        String bowItemId = getItemId(event.getBow());
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.SHOOT_BOW)) {
             if (!(c.conditions() instanceof AdvancementConditions.ShootBow(String itemId))) continue;
-            if (itemId != null && !itemId.equals(iaId)) continue;
+            if (itemId != null && !itemId.equals(bowItemId)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

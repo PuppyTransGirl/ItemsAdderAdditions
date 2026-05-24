@@ -19,11 +19,11 @@ public final class PlayerHurtEntityTriggerHandler extends AbstractTriggerHandler
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)) return;
         String entityType = event.getEntity().getType().getKey().toString();
-        String iaId = getIaId(player.getInventory().getItemInMainHand());
+        String heldItemId = getItemId(player.getInventory().getItemInMainHand());
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.PLAYER_HURT_ENTITY)) {
             if (!(c.conditions() instanceof AdvancementConditions.PlayerHurtEntity(String itemId, String type)))
                 continue;
-            if (itemId != null && !itemId.equals(iaId)) continue;
+            if (itemId != null && !itemId.equals(heldItemId)) continue;
             if (type != null && !type.equals(entityType)) continue;
             award(player, advancementKeyFor(c), c.name());
         }

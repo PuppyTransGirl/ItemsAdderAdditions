@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.feature.advancement;
 
+import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -145,7 +146,7 @@ public final class AdvancementLoader {
                 continue;
             }
             AdvancementConditions conditions = parseConditions(
-                    trigger, entry.getConfigurationSection("conditions")
+                    namespace, trigger, entry.getConfigurationSection("conditions")
             );
             result.add(new AdvancementCriterionDefinition(name, trigger, conditions));
         }
@@ -153,16 +154,19 @@ public final class AdvancementLoader {
     }
 
     private static AdvancementConditions parseConditions(
-            RuntimeTrigger trigger, @Nullable ConfigurationSection sec
+            String namespace, RuntimeTrigger trigger, @Nullable ConfigurationSection sec
     ) {
         return switch (trigger) {
             case OBTAIN_ITEM -> {
-                List<String> items = sec != null ? sec.getStringList("items") : List.of();
+                List<String> rawItems = sec != null ? sec.getStringList("items") : List.of();
+                List<String> items = rawItems.stream()
+                        .map(id -> normalizeItemId(namespace, id))
+                        .toList();
                 int amount = sec != null ? sec.getInt("amount", 1) : 1;
                 yield new AdvancementConditions.ObtainItem(items, amount);
             }
             case CONSUME_ITEM -> new AdvancementConditions.ConsumeItem(
-                    sec != null ? sec.getString("item", "") : ""
+                    normalizeItemId(namespace, sec != null ? sec.getString("item", "") : "")
             );
             case PLACE_BLOCK -> new AdvancementConditions.PlaceBlock(
                     sec != null ? sec.getString("block", "") : ""
@@ -183,7 +187,7 @@ public final class AdvancementLoader {
                     sec != null ? sec.getString("recipe", "") : ""
             );
             case KILL_ENTITY_WITH_ITEM -> new AdvancementConditions.KillEntityWithItem(
-                    sec != null ? sec.getString("item", "") : "",
+                    normalizeItemId(namespace, sec != null ? sec.getString("item", "") : ""),
                     sec != null ? sec.getString("entity_type") : null
             );
             case PERMISSION -> new AdvancementConditions.Permission(
@@ -194,13 +198,13 @@ public final class AdvancementLoader {
                     sec != null ? sec.getString("world") : null
             );
             case USING_ITEM -> new AdvancementConditions.UsingItem(
-                    sec != null ? sec.getString("item", "") : ""
+                    normalizeItemId(namespace, sec != null ? sec.getString("item", "") : "")
             );
             case TAME_ANIMAL -> new AdvancementConditions.TameAnimal(
                     sec != null ? sec.getString("entity_type") : null
             );
             case ENCHANTED_ITEM -> new AdvancementConditions.EnchantedItem(
-                    sec != null ? sec.getString("item") : null
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case BRED_ANIMALS -> new AdvancementConditions.BredAnimals(
                     sec != null ? sec.getString("entity_type") : null
@@ -209,18 +213,32 @@ public final class AdvancementLoader {
                     sec != null ? sec.getString("dimension") : null
             );
             case PLAYER_HURT_ENTITY -> new AdvancementConditions.PlayerHurtEntity(
-                    sec != null ? sec.getString("item") : null,
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null),
                     sec != null ? sec.getString("entity_type") : null
             );
             case ENTITY_HURT_PLAYER -> new AdvancementConditions.EntityHurtPlayer(
                     sec != null ? sec.getString("entity_type") : null
             );
             case SHOOT_BOW -> new AdvancementConditions.ShootBow(
-                    sec != null ? sec.getString("item") : null
+                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case VILLAGER_TRADE, SLEPT_IN_BED, FISHING_ROD_HOOKED, FILLED_BUCKET,
                  IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
         };
+    }
+
+    private static String normalizeItemId(String namespace, String raw) {
+        String lower = raw.toLowerCase(Locale.ROOT);
+        if (lower.contains(":")) return lower;
+        CustomStack cs = NamespaceUtils.customItemByID(namespace, lower);
+        if (cs != null) return cs.getNamespacedID();
+        return NamespaceUtils.normalizeID("minecraft", lower);
+    }
+
+    @Nullable
+    private static String normalizeItemIdNullable(String namespace, @Nullable String raw) {
+        if (raw == null) return null;
+        return normalizeItemId(namespace, raw);
     }
 
     private static AdvancementRewardDefinition parseRewards(

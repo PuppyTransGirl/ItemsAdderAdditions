@@ -16,11 +16,11 @@ public final class ConsumeItemTriggerHandler extends AbstractTriggerHandler {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onConsume(PlayerItemConsumeEvent event) {
-        String iaId = getIaId(event.getItem());
-        if (iaId == null) return;
+        String heldItemId = getItemId(event.getItem());
+        if (heldItemId == null) return;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.CONSUME_ITEM)) {
             if (!(c.conditions() instanceof AdvancementConditions.ConsumeItem(String itemId))) continue;
-            if (!itemId.equals(iaId)) continue;
+            if (!itemId.equals(heldItemId)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }
