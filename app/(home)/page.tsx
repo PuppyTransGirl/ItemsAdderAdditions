@@ -7,15 +7,18 @@ export const metadata: Metadata = {
     alternates: {
         canonical: 'https://itemsadderadditions.com',
         languages: {
+            'x-default': 'https://itemsadderadditions.com',
             'en': 'https://itemsadderadditions.com/en/docs',
             'fr': 'https://itemsadderadditions.com/fr/docs',
             'nl': 'https://itemsadderadditions.com/nl/docs',
         },
     },
     openGraph: {
+        type: 'website',
         title: 'ItemsAdderAdditions - Free ItemsAdder Addons for Minecraft Servers',
         description: 'Free ItemsAdder addons for Minecraft servers. Add contact damage, storage, connectable furniture, veinminer, MythicMobs skills, and more, in your existing YML files.',
         url: 'https://itemsadderadditions.com',
+        images: 'https://itemsadderadditions.com/og/home',
     },
 };
 
@@ -90,6 +93,11 @@ const jsonLd = {
             },
             softwareRequirements: 'ItemsAdder, Paper 1.20.6+',
             downloadUrl: 'https://www.spigotmc.org/resources/itemsadderadditions.133918/',
+            sameAs: [
+                'https://modrinth.com/plugin/itemsadderadditions',
+                'https://www.spigotmc.org/resources/itemsadderadditions.133918/',
+                'https://github.com/PuppyTransGirl/ItemsAdderAdditions',
+            ],
             isPartOf: {
                 '@type': 'SoftwareApplication',
                 name: 'ItemsAdder',

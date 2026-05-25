@@ -1,0 +1,755 @@
+---
+title: Triggers
+description: Referentie voor alle ingebouwde triggertypen die beschikbaar zijn voor aangepaste ItemsAdder-voortgangen, inclusief voorwaarden en YAML-voorbeelden voor elk.
+version: "1.0.9"
+---
+
+Triggers bepalen wat de speler moet doen om een criterium te voltooien. Elk criterium heeft één trigger en een optioneel `conditions`-blok.
+
+```yaml
+criteria:
+  <criterion_id>:
+    trigger: <trigger_type>
+    conditions:
+      # triggerspecifieke opties
+```
+
+Een voortgang kan meerdere criteria hebben. Alle moeten worden voltooid voordat de voortgang wordt toegekend.
+
+---
+
+## obtain_item
+
+Wordt geactiveerd wanneer de speler een object van de grond oppakt.
+
+```yaml
+criteria:
+  get_sword:
+    trigger: obtain_item
+    conditions:
+      items:
+        - my_pack:ruby_sword
+        - my_pack:iron_sword
+      amount: 1
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `items` | lijst van strings | `[]` | Object-ID's (IA, MMOItems of vanilla). Elke overeenkomst activeert het criterium. |
+| `amount` | integer | `1` | Minimale stapelgrootte die de speler tegelijk moet oppakken. |
+
+---
+
+## consume_item
+
+Wordt geactiveerd wanneer de speler klaar is met eten of drinken van een object.
+
+```yaml
+criteria:
+  eat_ruby_apple:
+    trigger: consume_item
+    conditions:
+      item: my_pack:ruby_apple
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `item` | string | ja | Object-ID (IA, MMOItems of vanilla). |
+
+---
+
+## using_item
+
+Wordt geactiveerd wanneer de speler rechts klikt (in lucht of op blok) terwijl een aangepast object in de hoofdhand wordt vastgehouden.
+
+```yaml
+criteria:
+  use_staff:
+    trigger: using_item
+    conditions:
+      item: my_pack:ruby_staff
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `item` | string | ja | Object-ID (IA, MMOItems of vanilla). |
+
+---
+
+## place_block
+
+Wordt geactiveerd wanneer de speler een aangepast blok plaatst dat is geregistreerd door ItemsAdder.
+
+```yaml
+criteria:
+  place_ruby_ore:
+    trigger: place_block
+    conditions:
+      block: my_pack:ruby_ore
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `block` | string | ja | ItemsAdder-blok-ID (`namespace:id`). |
+
+---
+
+## break_block
+
+Wordt geactiveerd wanneer de speler een aangepast blok breekt dat is geregistreerd door ItemsAdder.
+
+```yaml
+criteria:
+  mine_ruby_ore:
+    trigger: break_block
+    conditions:
+      block: my_pack:ruby_ore
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `block` | string | ja | ItemsAdder-blok-ID (`namespace:id`). |
+
+---
+
+## place_furniture
+
+Wordt geactiveerd wanneer de speler een aangepast meubel object plaatst.
+
+```yaml
+criteria:
+  place_lamp:
+    trigger: place_furniture
+    conditions:
+      furniture: my_pack:ruby_lamp
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `furniture` | string | ja | ItemsAdder-meubel-ID (`namespace:id`). |
+
+---
+
+## break_furniture
+
+Wordt geactiveerd wanneer de speler een aangepast meubelobject breekt.
+
+```yaml
+criteria:
+  break_lamp:
+    trigger: break_furniture
+    conditions:
+      furniture: my_pack:ruby_lamp
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `furniture` | string | ja | ItemsAdder-meubel-ID (`namespace:id`). |
+
+---
+
+## interact_furniture
+
+Wordt geactiveerd wanneer de speler rechts klikt op een aangepast meubelobject.
+
+```yaml
+criteria:
+  use_workbench:
+    trigger: interact_furniture
+    conditions:
+      furniture: my_pack:ruby_workbench
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `furniture` | string | ja | ItemsAdder-meubel-ID (`namespace:id`). |
+
+---
+
+## craft_recipe
+
+Wordt geactiveerd wanneer de speler een object maakt met behulp van een specifiek IAA-recept.
+
+```yaml
+criteria:
+  craft_sword:
+    trigger: craft_recipe
+    conditions:
+      recipe: my_pack:ruby_sword_recipe
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `recipe` | string | ja | Receptsleutel als `namespace:id` of een naakte `id` (gebruikt de bestandsnaamruimte). |
+
+---
+
+## kill_entity_with_item
+
+Wordt geactiveerd wanneer de speler een entiteit doodt terwijl hij een specifiek object in zijn hoofdhand vasthoudt.
+
+```yaml
+criteria:
+  slay_zombie:
+    trigger: kill_entity_with_item
+    conditions:
+      item: my_pack:ruby_sword
+      entity_type: minecraft:zombie  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(vereist)* | Object-ID (IA, MMOItems of vanilla) die de speler moet vasthouden. |
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel (bijv. `minecraft:zombie`). Indien weggelaten, komt elke entiteit overeen. |
+
+---
+
+## player_hurt_entity
+
+Wordt geactiveerd wanneer de speler schade toebrengt aan een entiteit. In tegenstelling tot `kill_entity_with_item` wordt dit geactiveerd bij elke klap, niet alleen de doodslag.
+
+```yaml
+criteria:
+  hit_zombie:
+    trigger: player_hurt_entity
+    conditions:
+      item: my_pack:ruby_sword  # optioneel
+      entity_type: minecraft:zombie  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID die de speler moet vasthouden. Indien weggelaten, komt elk object (of blote handen) overeen. |
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke entiteit overeen. |
+
+---
+
+## entity_hurt_player
+
+Wordt geactiveerd wanneer een entiteit schade aan de speler toebrengt.
+
+```yaml
+criteria:
+  hurt_by_zombie:
+    trigger: entity_hurt_player
+    conditions:
+      entity_type: minecraft:zombie  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke aanvaller overeen. |
+
+---
+
+## player_killed_entity
+
+Wordt geactiveerd wanneer de speler een entiteit doodt (ongeacht het gebruikte wapen).
+
+```yaml
+criteria:
+  kill_creeper:
+    trigger: player_killed_entity
+    conditions:
+      entity_type: minecraft:creeper  # optioneel
+      item: my_pack:ruby_sword  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke entiteit overeen. |
+| `item` | string | *(elke)* | Object-ID die de speler moet vasthouden. Indien weggelaten, komt elk object overeen. |
+
+---
+
+## entity_killed_player
+
+Wordt geactiveerd wanneer de speler wordt gedood door een niet-speler-entiteit (projectielsterfgevallen worden opgelost tot de schutter).
+
+```yaml
+criteria:
+  killed_by_skeleton:
+    trigger: entity_killed_player
+    conditions:
+      entity_type: minecraft:skeleton  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel van de moordenaar. Indien weggelaten, komt elke entiteit overeen. |
+
+---
+
+## killed_by_arrow
+
+Wordt geactiveerd wanneer de speler wordt gedood door een pijl. Het entiteitstype komt overeen met de schutter van de pijl, of de pijl zelf als deze geen schutter had.
+
+```yaml
+criteria:
+  shot_by_skeleton:
+    trigger: killed_by_arrow
+    conditions:
+      entity_type: minecraft:skeleton  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel van de schutter. Indien weggelaten, komt elke pijlbron overeen. |
+
+---
+
+## tame_animal
+
+Wordt geactiveerd wanneer de speler een dier temt.
+
+```yaml
+criteria:
+  tame_wolf:
+    trigger: tame_animal
+    conditions:
+      entity_type: minecraft:wolf  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elk tembaar dier overeen. |
+
+---
+
+## bred_animals
+
+Wordt geactiveerd wanneer de speler twee dieren fokt.
+
+```yaml
+criteria:
+  breed_cows:
+    trigger: bred_animals
+    conditions:
+      entity_type: minecraft:cow   # optioneel, type van de nakomelingen
+      parent_type: minecraft:cow   # optioneel
+      partner_type: minecraft:cow  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Entiteitstype van de nakomelingen. |
+| `parent_type` | string | *(elke)* | Entiteitstype van de moeder. |
+| `partner_type` | string | *(elke)* | Entiteitstype van de vader. |
+
+---
+
+## villager_trade
+
+Wordt geactiveerd wanneer de speler een handel met een dorpeling voltooit.
+
+```yaml
+criteria:
+  buy_diamond:
+    trigger: villager_trade
+    conditions:
+      item: minecraft:diamond  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID van het handelsresultaat. Indien weggelaten, komt elke handel overeen. |
+
+---
+
+## enchanted_item
+
+Wordt geactiveerd wanneer de speler een object betovert bij een betovertafel.
+
+```yaml
+criteria:
+  enchant_ruby_sword:
+    trigger: enchanted_item
+    conditions:
+      item: my_pack:ruby_sword  # optioneel
+      min_levels: 10            # optioneel
+      max_levels: 30            # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID. Indien weggelaten, komt elk object dat wordt betoverd overeen. |
+| `min_levels` | integer | `0` | Minimale XP-niveaukosten van de betovering. |
+| `max_levels` | integer | *(onbeperkt)* | Maximale XP-niveaukosten van de betovering. |
+
+---
+
+## shoot_bow
+
+Wordt geactiveerd wanneer de speler een projectiel van een boog schiet.
+
+```yaml
+criteria:
+  shoot_ruby_bow:
+    trigger: shoot_bow
+    conditions:
+      item: my_pack:ruby_bow  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID van de boog. Indien weggelaten, komt elke boog overeen. |
+
+---
+
+## shot_crossbow
+
+Wordt geactiveerd wanneer de speler een projectiel van een kruisboog schiet.
+
+```yaml
+criteria:
+  shoot_crossbow:
+    trigger: shot_crossbow
+    conditions:
+      item: my_pack:ruby_crossbow  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID van de kruisboog. Indien weggelaten, komt elke kruisboog overeen. |
+
+---
+
+## fishing_rod_hooked
+
+Wordt geactiveerd wanneer de speler een vis of entiteit inrolt.
+
+```yaml
+criteria:
+  hook_fish:
+    trigger: fishing_rod_hooked
+    conditions:
+      rod: my_pack:ruby_rod          # optioneel
+      caught_entity_type: minecraft:cod  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `rod` | string | *(elke)* | Object-ID van de hengel. Indien weggelaten, komt elke hengel overeen. |
+| `caught_entity_type` | string | *(elke)* | Entiteitstype van wat werd gehaakt. Indien weggelaten, komt elke vangst overeen. |
+
+---
+
+## filled_bucket
+
+Wordt geactiveerd wanneer de speler een emmer met vloeistof vult.
+
+```yaml
+criteria:
+  fill_lava:
+    trigger: filled_bucket
+    conditions:
+      item: minecraft:lava_bucket  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID van de resulterende emmer. Indien weggelaten, komt elke gevulde emmer overeen. |
+
+---
+
+## item_durability_changed
+
+Wordt geactiveerd wanneer een object in de hand van de speler duurzaamheidsschade neemt.
+
+```yaml
+criteria:
+  damage_ruby_sword:
+    trigger: item_durability_changed
+    conditions:
+      item: my_pack:ruby_sword  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID van het beschadigde object. Indien weggelaten, komt elk object overeen. |
+
+---
+
+## item_used_on_block
+
+Wordt geactiveerd wanneer de speler met de rechtermuisknop op een blok klikt met een object in zijn hoofdhand.
+
+```yaml
+criteria:
+  use_on_crafting_table:
+    trigger: item_used_on_block
+    conditions:
+      item: my_pack:ruby_wand          # optioneel
+      block: minecraft:crafting_table  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID die de speler moet vasthouden. |
+| `block` | string | *(elke)* | Vanilla-bloktypesleutel. |
+
+---
+
+## recipe_crafted
+
+Wordt geactiveerd wanneer de speler een object maakt met behulp van het vanilla ambachtssysteem.
+
+```yaml
+criteria:
+  craft_diamond_sword:
+    trigger: recipe_crafted
+    conditions:
+      recipe: minecraft:diamond_sword  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `recipe` | string | *(elke)* | Receptsleutel als `namespace:id`. Indien weggelaten, komt elke ambachtactie overeen. |
+
+---
+
+## recipe_unlocked
+
+Wordt geactiveerd wanneer de speler een nieuw recept ontdekt.
+
+```yaml
+criteria:
+  unlock_diamond_sword:
+    trigger: recipe_unlocked
+    conditions:
+      recipe: minecraft:diamond_sword
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `recipe` | string | ja | Receptsleutel als `namespace:id`. |
+
+---
+
+## player_interacted_with_entity
+
+Wordt geactiveerd wanneer de speler met de rechtermuisknop op een entiteit klikt met hun hoofdhand.
+
+```yaml
+criteria:
+  name_a_villager:
+    trigger: player_interacted_with_entity
+    conditions:
+      entity_type: minecraft:villager  # optioneel
+      item: minecraft:name_tag         # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke entiteit overeen. |
+| `item` | string | *(elke)* | Object-ID die de speler moet vasthouden. Indien weggelaten, komt elk object (of lege hand) overeen. |
+
+---
+
+## player_sheared_equipment
+
+Wordt geactiveerd wanneer de speler een entiteit scheert.
+
+```yaml
+criteria:
+  shear_sheep:
+    trigger: player_sheared_equipment
+    conditions:
+      entity_type: minecraft:sheep  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke scheerbare entiteit overeen. |
+
+---
+
+## bee_nest_destroyed
+
+Wordt geactiveerd wanneer de speler een bijenkast of bijennest breekt.
+
+```yaml
+criteria:
+  break_beehive:
+    trigger: bee_nest_destroyed
+    conditions:
+      block: minecraft:beehive  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `block` | string | *(elke)* | Bloktype sleutel (`minecraft:beehive` of `minecraft:bee_nest`). Indien weggelaten, komt één van beide overeen. |
+
+---
+
+## started_riding
+
+Wordt geactiveerd wanneer de speler een entiteit berijdt.
+
+```yaml
+criteria:
+  ride_horse:
+    trigger: started_riding
+    conditions:
+      entity_type: minecraft:horse  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elk rijdier overeen. |
+
+---
+
+## effects_changed
+
+Wordt geactiveerd wanneer de speler een drankeffect krijgt of gewijzigd.
+
+```yaml
+criteria:
+  get_speed:
+    trigger: effects_changed
+    conditions:
+      effect: minecraft:speed  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `effect` | string | *(elke)* | Drankeffectsleutel (bijv. `minecraft:speed`). Indien weggelaten, komt elke effecttoevoeging of wijziging overeen. |
+
+---
+
+## changed_dimension
+
+Wordt geactiveerd wanneer de speler naar een andere dimensie gaat.
+
+```yaml
+criteria:
+  enter_nether:
+    trigger: changed_dimension
+    conditions:
+      to: minecraft:the_nether    # optioneel
+      from: minecraft:overworld   # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `to` | string | *(elke)* | Dimensiesleutel waar de speler naar toe reisde (bijv. `minecraft:the_nether`). |
+| `from` | string | *(elke)* | Dimensiesleutel waar de speler van afkomstig is. |
+
+---
+
+## slept_in_bed
+
+Wordt geactiveerd wanneer de speler met succes een bed betreedt. Geen voorwaarden.
+
+```yaml
+criteria:
+  first_sleep:
+    trigger: slept_in_bed
+```
+
+---
+
+## used_totem
+
+Wordt geactiveerd wanneer de speler van de dood wordt gered door een totem van onsterfelijkheid. Geen voorwaarden.
+
+```yaml
+criteria:
+  totem_pop:
+    trigger: used_totem
+```
+
+---
+
+## fall_from_height
+
+Wordt geactiveerd wanneer de speler valschade neemt. Geen voorwaarden.
+
+```yaml
+criteria:
+  survived_fall:
+    trigger: fall_from_height
+```
+
+---
+
+## used_ender_eye
+
+Wordt geactiveerd wanneer de speler een oog van ender werpt. Geen voorwaarden.
+
+```yaml
+criteria:
+  use_ender_eye:
+    trigger: used_ender_eye
+```
+
+---
+
+## held_item
+
+IAA aangepaste trigger. Wordt geactiveerd wanneer de speler naar een hotbarslot scrolt dat een specifiek object bevat.
+
+```yaml
+criteria:
+  equip_ruby_sword:
+    trigger: held_item
+    conditions:
+      item: my_pack:ruby_sword  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `item` | string | *(elke)* | Object-ID. Indien weggelaten, komt elk object waarop wordt gescrolld overeen. |
+
+---
+
+## permission
+
+Wordt geactiveerd wanneer de speler deelneemt terwijl hij het opgegeven toestemmingsknooppunt vasthoudt.
+
+```yaml
+criteria:
+  has_vip:
+    trigger: permission
+    conditions:
+      permission: "myserver.rank.vip"
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `permission` | string | ja | Toestemmingsknooppunt. Gecontroleerd bij elke deelname; wordt geactiveerd zodra de speler dit heeft. |
+
+---
+
+## in_biome
+
+Wordt geactiveerd wanneer de speler in een specifiek bioom stapt. Gecontroleerd bij chunkgrenzen.
+
+```yaml
+criteria:
+  visit_jungle:
+    trigger: in_biome
+    conditions:
+      biome: minecraft:jungle
+      world: world  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `biome` | string | *(vereist)* | Bioomsleutel als `namespace:id` (bijv. `minecraft:deep_dark`). |
+| `world` | string | *(elke)* | Wereldnaam om de controle tot één wereld te beperken. |
+
+---
+
+## impossible
+
+Wordt nooit op zichzelf geactiveerd. Het criterium kan alleen worden verleend via de IAA API of beheerderscommando's.
+
+```yaml
+criteria:
+  manual:
+    trigger: impossible
+```
+
+Geen `conditions` opties.

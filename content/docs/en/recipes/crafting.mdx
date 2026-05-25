@@ -1,14 +1,13 @@
 ---
 title: Crafting Table
-description: Add advanced crafting recipes with tags, ingredient amounts, durability handling, and shapeless support.
+description: Add advanced ItemsAdder crafting table recipes with ingredient tags, exact amounts, durability requirements, and shapeless support via iaa_crafting_table.
 version: "1.0.7"
 ---
 
 ItemsAdderAdditions adds an extra crafting-table recipe type called `iaa_crafting_table`.
 
-It does not replace or override the normal ItemsAdder `crafting_table` recipe type. Instead, it provides another recipe system for cases where you need extra ingredient validation features.
+Use it when you need extra ingredient validation features not available in the standard `crafting_table` type:
 
-This recipe type supports normal crafting recipe options already familiar from ItemsAdder, while also adding extra features such as:
 
 - tags
 - ingredient amounts
@@ -256,7 +255,7 @@ ingredients:
   P: "#minecraft:planks"
 ```
 
-This allows any item in that tag to match.
+Any item in that tag will match.
 
 ### `amount`
 

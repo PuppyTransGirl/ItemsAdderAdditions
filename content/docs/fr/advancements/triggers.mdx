@@ -1,0 +1,755 @@
+---
+title: Déclencheurs
+description: Référence pour tous les types de déclencheurs intégrés disponibles pour les succès ItemsAdder personnalisés, incluant les conditions et les exemples YAML pour chacun.
+version: "1.0.9"
+---
+
+Les déclencheurs définissent ce que le joueur doit faire pour compléter un critère. Chaque critère a un déclencheur et un bloc `conditions` optionnel.
+
+```yaml
+criteria:
+  <criterion_id>:
+    trigger: <trigger_type>
+    conditions:
+      # options spécifiques au déclencheur
+```
+
+Un succès peut avoir plusieurs critères. Tous doivent être complétés avant que le succès soit accordé.
+
+---
+
+## obtain_item
+
+Se déclenche lorsque le joueur ramasse un objet du sol.
+
+```yaml
+criteria:
+  get_sword:
+    trigger: obtain_item
+    conditions:
+      items:
+        - my_pack:ruby_sword
+        - my_pack:iron_sword
+      amount: 1
+```
+
+| Clé | Type | Par défaut | Description |
+|-----|------|---------|-------------|
+| `items` | liste de chaînes | `[]` | IDs d'objets (IA, MMOItems ou vanille). Toute correspondance déclenche le critère. |
+| `amount` | entier | `1` | Taille minimale de pile que le joueur doit ramasser à la fois. |
+
+---
+
+## consume_item
+
+Se déclenche lorsque le joueur termine de manger ou de boire un objet.
+
+```yaml
+criteria:
+  eat_ruby_apple:
+    trigger: consume_item
+    conditions:
+      item: my_pack:ruby_apple
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `item` | chaîne | Oui | ID d'objet (IA, MMOItems ou vanille). |
+
+---
+
+## using_item
+
+Se déclenche lorsque le joueur clique à droite (dans l'air ou sur un bloc) en tenant un objet personnalisé dans sa main principale.
+
+```yaml
+criteria:
+  use_staff:
+    trigger: using_item
+    conditions:
+      item: my_pack:ruby_staff
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `item` | chaîne | Oui | ID d'objet (IA, MMOItems ou vanille). |
+
+---
+
+## place_block
+
+Se déclenche lorsque le joueur place un bloc personnalisé enregistré par ItemsAdder.
+
+```yaml
+criteria:
+  place_ruby_ore:
+    trigger: place_block
+    conditions:
+      block: my_pack:ruby_ore
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `block` | chaîne | oui | ID de bloc ItemsAdder (`namespace:id`). |
+
+---
+
+## break_block
+
+Se déclenche lorsque le joueur casse un bloc personnalisé enregistré par ItemsAdder.
+
+```yaml
+criteria:
+  mine_ruby_ore:
+    trigger: break_block
+    conditions:
+      block: my_pack:ruby_ore
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `block` | chaîne | oui | ID de bloc ItemsAdder (`namespace:id`). |
+
+---
+
+## place_furniture
+
+Se déclenche lorsque le joueur place un objet de meuble personnalisé.
+
+```yaml
+criteria:
+  place_lamp:
+    trigger: place_furniture
+    conditions:
+      furniture: my_pack:ruby_lamp
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `furniture` | chaîne | oui | ID de meuble ItemsAdder (`namespace:id`). |
+
+---
+
+## break_furniture
+
+Se déclenche lorsque le joueur casse un objet de meuble personnalisé.
+
+```yaml
+criteria:
+  break_lamp:
+    trigger: break_furniture
+    conditions:
+      furniture: my_pack:ruby_lamp
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `furniture` | chaîne | oui | ID de meuble ItemsAdder (`namespace:id`). |
+
+---
+
+## interact_furniture
+
+Se déclenche lorsque le joueur clique à droite sur un objet de meuble personnalisé.
+
+```yaml
+criteria:
+  use_workbench:
+    trigger: interact_furniture
+    conditions:
+      furniture: my_pack:ruby_workbench
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `furniture` | chaîne | oui | ID de meuble ItemsAdder (`namespace:id`). |
+
+---
+
+## craft_recipe
+
+Se déclenche lorsque le joueur fabrique un objet à l'aide d'une recette IAA spécifique.
+
+```yaml
+criteria:
+  craft_sword:
+    trigger: craft_recipe
+    conditions:
+      recipe: my_pack:ruby_sword_recipe
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `recipe` | chaîne | oui | Clé de recette comme `namespace:id` ou un `id` simple (utilise l'espace de noms du fichier). |
+
+---
+
+## kill_entity_with_item
+
+Se déclenche lorsque le joueur tue une entité tout en tenant un objet spécifique dans sa main principale.
+
+```yaml
+criteria:
+  slay_zombie:
+    trigger: kill_entity_with_item
+    conditions:
+      item: my_pack:ruby_sword
+      entity_type: minecraft:zombie  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(requis)* | ID d'objet (IA, MMOItems ou vanille) que le joueur doit tenir. |
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille (par ex. `minecraft:zombie`). Si omis, toute entité correspondra. |
+
+---
+
+## player_hurt_entity
+
+Se déclenche lorsque le joueur inflige des dégâts à une entité. Contrairement à `kill_entity_with_item`, cela se déclenche à chaque coup, pas seulement le coup fatal.
+
+```yaml
+criteria:
+  hit_zombie:
+    trigger: player_hurt_entity
+    conditions:
+      item: my_pack:ruby_sword  # optionnel
+      entity_type: minecraft:zombie  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet que le joueur doit tenir. Si omis, tout objet (ou mains nues) correspondra. |
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
+
+---
+
+## entity_hurt_player
+
+Se déclenche lorsqu'une entité inflige des dégâts au joueur.
+
+```yaml
+criteria:
+  hurt_by_zombie:
+    trigger: entity_hurt_player
+    conditions:
+      entity_type: minecraft:zombie  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, tout attaquant correspondra. |
+
+---
+
+## player_killed_entity
+
+Se déclenche lorsque le joueur tue une entité (indépendamment de l'arme utilisée).
+
+```yaml
+criteria:
+  kill_creeper:
+    trigger: player_killed_entity
+    conditions:
+      entity_type: minecraft:creeper  # optionnel
+      item: my_pack:ruby_sword  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
+| `item` | chaîne | *(n'importe quel)* | ID d'objet que le joueur doit tenir. Si omis, tout objet correspondra. |
+
+---
+
+## entity_killed_player
+
+Se déclenche lorsque le joueur est tué par une entité non-joueur (les morts par projectile se résolvent au tireur).
+
+```yaml
+criteria:
+  killed_by_skeleton:
+    trigger: entity_killed_player
+    conditions:
+      entity_type: minecraft:skeleton  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille du tueur. Si omis, toute entité correspondra. |
+
+---
+
+## killed_by_arrow
+
+Se déclenche lorsque le joueur est tué par une flèche. Le type d'entité correspond au tireur de la flèche, ou à la flèche elle-même si elle n'avait pas de tireur.
+
+```yaml
+criteria:
+  shot_by_skeleton:
+    trigger: killed_by_arrow
+    conditions:
+      entity_type: minecraft:skeleton  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille du tireur. Si omis, n'importe quelle source de flèche correspondra. |
+
+---
+
+## tame_animal
+
+Se déclenche lorsque le joueur apprivoise un animal.
+
+```yaml
+criteria:
+  tame_wolf:
+    trigger: tame_animal
+    conditions:
+      entity_type: minecraft:wolf  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, tout animal apprivoisable correspondra. |
+
+---
+
+## bred_animals
+
+Se déclenche lorsque le joueur élève deux animaux.
+
+```yaml
+criteria:
+  breed_cows:
+    trigger: bred_animals
+    conditions:
+      entity_type: minecraft:cow   # optionnel, type de la progéniture
+      parent_type: minecraft:cow   # optionnel
+      partner_type: minecraft:cow  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Type d'entité de la progéniture. |
+| `parent_type` | chaîne | *(n'importe quel)* | Type d'entité de la mère. |
+| `partner_type` | chaîne | *(n'importe quel)* | Type d'entité du père. |
+
+---
+
+## villager_trade
+
+Se déclenche lorsque le joueur complète un commerce avec un villageois.
+
+```yaml
+criteria:
+  buy_diamond:
+    trigger: villager_trade
+    conditions:
+      item: minecraft:diamond  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet du résultat du commerce. Si omis, tout commerce correspondra. |
+
+---
+
+## enchanted_item
+
+Se déclenche lorsque le joueur enchante un objet à une table d'enchantement.
+
+```yaml
+criteria:
+  enchant_ruby_sword:
+    trigger: enchanted_item
+    conditions:
+      item: my_pack:ruby_sword  # optionnel
+      min_levels: 10            # optionnel
+      max_levels: 30            # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet. Si omis, tout objet étant enchanté correspondra. |
+| `min_levels` | entier | `0` | Coût minimum du niveau XP de l'enchantement. |
+| `max_levels` | entier | *(illimité)* | Coût maximum du niveau XP de l'enchantement. |
+
+---
+
+## shoot_bow
+
+Se déclenche lorsque le joueur tire un projectile d'un arc.
+
+```yaml
+criteria:
+  shoot_ruby_bow:
+    trigger: shoot_bow
+    conditions:
+      item: my_pack:ruby_bow  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet de l'arc. Si omis, n'importe quel arc correspondra. |
+
+---
+
+## shot_crossbow
+
+Se déclenche lorsque le joueur tire un projectile d'une arbalète.
+
+```yaml
+criteria:
+  shoot_crossbow:
+    trigger: shot_crossbow
+    conditions:
+      item: my_pack:ruby_crossbow  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet de l'arbalète. Si omis, n'importe quelle arbalète correspondra. |
+
+---
+
+## fishing_rod_hooked
+
+Se déclenche lorsque le joueur remonte un poisson ou accroche une entité.
+
+```yaml
+criteria:
+  hook_fish:
+    trigger: fishing_rod_hooked
+    conditions:
+      rod: my_pack:ruby_rod          # optionnel
+      caught_entity_type: minecraft:cod  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `rod` | chaîne | *(n'importe quel)* | ID d'objet de la canne à pêche. Si omis, n'importe quelle canne correspondra. |
+| `caught_entity_type` | chaîne | *(n'importe quel)* | Type d'entité de ce qui a été accroché. Si omis, n'importe quel poisson correspondra. |
+
+---
+
+## filled_bucket
+
+Se déclenche lorsque le joueur remplit un seau avec un liquide.
+
+```yaml
+criteria:
+  fill_lava:
+    trigger: filled_bucket
+    conditions:
+      item: minecraft:lava_bucket  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet du seau résultant. Si omis, n'importe quel seau rempli correspondra. |
+
+---
+
+## item_durability_changed
+
+Se déclenche lorsqu'un objet dans la main du joueur subit des dégâts de durabilité.
+
+```yaml
+criteria:
+  damage_ruby_sword:
+    trigger: item_durability_changed
+    conditions:
+      item: my_pack:ruby_sword  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet de l'objet endommagé. Si omis, n'importe quel objet correspondra. |
+
+---
+
+## item_used_on_block
+
+Se déclenche lorsque le joueur clique à droite sur un bloc avec un objet dans sa main principale.
+
+```yaml
+criteria:
+  use_on_crafting_table:
+    trigger: item_used_on_block
+    conditions:
+      item: my_pack:ruby_wand          # optionnel
+      block: minecraft:crafting_table  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet que le joueur doit tenir. |
+| `block` | chaîne | *(n'importe quel)* | Clé de type de bloc vanille. |
+
+---
+
+## recipe_crafted
+
+Se déclenche lorsque le joueur fabrique un objet à l'aide du système de fabrication vanille.
+
+```yaml
+criteria:
+  craft_diamond_sword:
+    trigger: recipe_crafted
+    conditions:
+      recipe: minecraft:diamond_sword  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `recipe` | chaîne | *(n'importe quel)* | Clé de recette comme `namespace:id`. Si omis, n'importe quelle action de fabrication correspondra. |
+
+---
+
+## recipe_unlocked
+
+Se déclenche lorsque le joueur découvre une nouvelle recette.
+
+```yaml
+criteria:
+  unlock_diamond_sword:
+    trigger: recipe_unlocked
+    conditions:
+      recipe: minecraft:diamond_sword
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `recipe` | chaîne | oui | Clé de recette comme `namespace:id`. |
+
+---
+
+## player_interacted_with_entity
+
+Se déclenche lorsque le joueur clique à droite sur une entité avec sa main principale.
+
+```yaml
+criteria:
+  name_a_villager:
+    trigger: player_interacted_with_entity
+    conditions:
+      entity_type: minecraft:villager  # optionnel
+      item: minecraft:name_tag         # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
+| `item` | chaîne | *(n'importe quel)* | ID d'objet que le joueur doit tenir. Si omis, tout objet (ou main vide) correspondra. |
+
+---
+
+## player_sheared_equipment
+
+Se déclenche lorsque le joueur cisaille une entité.
+
+```yaml
+criteria:
+  shear_sheep:
+    trigger: player_sheared_equipment
+    conditions:
+      entity_type: minecraft:sheep  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, toute entité cisaillable correspondra. |
+
+---
+
+## bee_nest_destroyed
+
+Se déclenche lorsque le joueur casse une ruche ou un nid d'abeilles.
+
+```yaml
+criteria:
+  break_beehive:
+    trigger: bee_nest_destroyed
+    conditions:
+      block: minecraft:beehive  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `block` | chaîne | *(n'importe quel)* | Clé de type de bloc (`minecraft:beehive` ou `minecraft:bee_nest`). Si omis, l'une ou l'autre correspondra. |
+
+---
+
+## started_riding
+
+Se déclenche lorsque le joueur monte une entité.
+
+```yaml
+criteria:
+  ride_horse:
+    trigger: started_riding
+    conditions:
+      entity_type: minecraft:horse  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, n'importe quelle monture correspondra. |
+
+---
+
+## effects_changed
+
+Se déclenche lorsque le joueur gagne ou a un effet de potion modifié.
+
+```yaml
+criteria:
+  get_speed:
+    trigger: effects_changed
+    conditions:
+      effect: minecraft:speed  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `effect` | chaîne | *(n'importe quel)* | Clé d'effet de potion (par ex. `minecraft:speed`). Si omis, toute addition ou modification d'effet correspondra. |
+
+---
+
+## changed_dimension
+
+Se déclenche lorsque le joueur se déplace vers une dimension différente.
+
+```yaml
+criteria:
+  enter_nether:
+    trigger: changed_dimension
+    conditions:
+      to: minecraft:the_nether    # optionnel
+      from: minecraft:overworld   # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `to` | chaîne | *(n'importe quel)* | Clé de dimension vers laquelle le joueur a voyagé (par ex. `minecraft:the_nether`). |
+| `from` | chaîne | *(n'importe quel)* | Clé de dimension d'où le joueur a voyagé. |
+
+---
+
+## slept_in_bed
+
+Se déclenche lorsque le joueur entre avec succès dans un lit. Pas de conditions.
+
+```yaml
+criteria:
+  first_sleep:
+    trigger: slept_in_bed
+```
+
+---
+
+## used_totem
+
+Se déclenche lorsque le joueur est sauvé de la mort par un totem d'immortalité. Pas de conditions.
+
+```yaml
+criteria:
+  totem_pop:
+    trigger: used_totem
+```
+
+---
+
+## fall_from_height
+
+Se déclenche lorsque le joueur subit des dégâts de chute. Pas de conditions.
+
+```yaml
+criteria:
+  survived_fall:
+    trigger: fall_from_height
+```
+
+---
+
+## used_ender_eye
+
+Se déclenche lorsque le joueur lance un œil d'ender. Pas de conditions.
+
+```yaml
+criteria:
+  use_ender_eye:
+    trigger: used_ender_eye
+```
+
+---
+
+## held_item
+
+Déclencheur personnalisé IAA. Se déclenche lorsque le joueur fait défiler jusqu'à un emplacement de barre d'accès rapide qui contient un objet spécifique.
+
+```yaml
+criteria:
+  equip_ruby_sword:
+    trigger: held_item
+    conditions:
+      item: my_pack:ruby_sword  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `item` | chaîne | *(n'importe quel)* | ID d'objet. Si omis, n'importe quel objet vers lequel on défile correspondra. |
+
+---
+
+## permission
+
+Se déclenche lorsque le joueur se connecte tout en ayant le nœud de permission spécifié.
+
+```yaml
+criteria:
+  has_vip:
+    trigger: permission
+    conditions:
+      permission: "myserver.rank.vip"
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|----------|-------------|
+| `permission` | chaîne | oui | Nœud de permission. Vérifié à chaque connexion ; se déclenche dès que le joueur l'a. |
+
+---
+
+## in_biome
+
+Se déclenche lorsque le joueur entre dans un biome spécifique. Vérifié aux limites des chunks.
+
+```yaml
+criteria:
+  visit_jungle:
+    trigger: in_biome
+    conditions:
+      biome: minecraft:jungle
+      world: world  # optionnel
+```
+
+| Clé | Type | Par Défaut | Description |
+|-----|------|---------|-------------|
+| `biome` | chaîne | *(requis)* | Clé de biome comme `namespace:id` (par ex. `minecraft:deep_dark`). |
+| `world` | chaîne | *(n'importe quel)* | Nom du monde pour limiter la vérification à un seul monde. |
+
+---
+
+## impossible
+
+Ne se déclenche jamais d'elle-même. Le critère ne peut être accordé que via l'API IAA ou les commandes d'administrateur.
+
+```yaml
+criteria:
+  manual:
+    trigger: impossible
+```
+
+Pas d'options `conditions`.

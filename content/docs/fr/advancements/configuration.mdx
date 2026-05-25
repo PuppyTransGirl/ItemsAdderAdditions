@@ -1,0 +1,157 @@
+---
+title: Référence de Configuration
+description: Référence YAML complète pour les succès ItemsAdder personnalisés : propriétés d'affichage, critères, récompenses et actions d'achèvement, tout dans un seul fichier de configuration.
+version: "1.0.9"
+---
+
+Chaque entrée de succès se trouve sous la clé de niveau supérieur `advancements` dans n'importe quel fichier de contenu ItemsAdder. IAA récupère automatiquement les fichiers qui contiennent cette clé.
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+  <advancement_id>:
+    # ... options ci-dessous
+```
+
+## Options de niveau supérieur
+
+| Clé | Type | Par défaut | Description |
+|-----|------|---------|-------------|
+| `enabled` | booléen | `true` | Définissez à `false` pour ignorer ce succès sans le supprimer du fichier. |
+| `parent` | chaîne | *(aucun)* | ID du succès parent. Omettez pour créer un succès racine (onglet). Voir [Parent](#parent). |
+| `display` | section | *(requis)* | Paramètres visuels. Voir [Affichage](#display). |
+| `criteria` | section | *(aucun)* | Conditions qui doivent être remplies pour compléter le succès. Voir [Déclencheurs](/docs/fr/advancements/triggers). |
+| `rewards` | section | *(aucun)* | Expérience et déverrouillage de recettes. Voir [Récompenses](#rewards). |
+| `on_complete` | section | *(aucun)* | Actions exécutées lorsque le succès est entièrement complété. Voir [Actions d'achèvement](/docs/fr/advancements/completion-actions). |
+
+## Parent
+
+```yaml
+parent: root              # même espace de noms que ce fichier, se résout en my_pack:root
+parent: otherns:someroot  # espace de noms explicite
+```
+
+Si `parent` ne contient pas de deux-points, l'espace de noms du fichier est ajouté. Si `parent` est omis entièrement, ce succès devient une racine et crée un nouvel onglet dans l'écran des succès.
+
+## Affichage
+
+```yaml
+display:
+  title: "<gold>Première Épée Rubis"
+  description: "<gray>Obtenez votre première épée personnalisée."
+  icon: my_pack:ruby_sword
+  frame: task
+  background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+  show_toast: true
+  announce_to_chat: true
+  hidden: false
+```
+
+| Clé | Type | Par défaut | Description |
+|-----|------|---------|-------------|
+| `title` | chaîne | *(requis)* | Titre du succès. Prend en charge [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
+| `description` | chaîne | `""` | Description du conseil. Prend en charge MiniMessage. |
+| `icon` | `namespace:id` | `minecraft:barrier` | Objet affiché en tant qu'icône. Accepte les ID d'objets ItemsAdder ou les ID de matériaux vanille. |
+| `frame` | chaîne | `task` | Forme de la bordure de l'icône : `task`, `goal` ou `challenge`. |
+| `background` | chaîne | *(aucun)* | **Succès racines uniquement.** Chemin de texture pour l'arrière-plan de l'onglet (par exemple `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
+| `show_toast` | booléen | `true` | Afficher une notification toast lorsque complété. |
+| `announce_to_chat` | booléen | `true` | Diffuser l'achèvement à tous les joueurs dans le chat. |
+| `hidden` | booléen | `false` | Masquer ce succès jusqu'à ce qu'il soit complété. |
+
+<Callout>
+    `background` est ce qui crée un nouvel onglet pour un succès. Il n'est utilisé que sur les succès racines (pas de
+    `parent`).
+</Callout>
+
+## Récompenses
+
+```yaml
+rewards:
+  experience: 50
+  recipes:
+    - my_pack:ruby_sword_recipe
+    - minecraft:golden_apple
+```
+
+| Clé | Type | Par défaut | Description |
+|-----|------|---------|-------------|
+| `experience` | entier | `0` | Points d'expérience accordés à l'achèvement. |
+| `loot` | liste de chaînes | `[]` | Clés de table de butin à utiliser à l'achèvement. |
+| `recipes` | liste de chaînes | `[]` | Clés de recette à déverrouiller. Accepte `namespace:id` ou un `id` simple (utilise l'espace de noms du fichier). |
+
+## Exemple complet
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+
+  root:
+    display:
+      title: "Mon Serveur"
+      description: "Succès personnalisés pour Mon Serveur."
+      icon: minecraft:nether_star
+      background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+      show_toast: false
+      announce_to_chat: false
+      frame: task
+
+  first_ruby_sword:
+    parent: root
+    display:
+      title: "Première Épée Rubis"
+      description: "Obtiens ta première épée personnalisée."
+      icon: my_pack:ruby_sword
+      frame: task
+      show_toast: true
+      announce_to_chat: true
+    criteria:
+      obtain:
+        trigger: obtain_item
+        conditions:
+          items:
+            - my_pack:ruby_sword
+          amount: 1
+    on_complete:
+      sound:
+        name: minecraft:entity.player.levelup
+      title:
+        title: "<gold>Succès !"
+        subtitle: "<gray>Première épée rubis obtenue."
+      commands:
+        reward:
+          command: "give {player} gold_ingot 4"
+          as_console: true
+
+  master_crafter:
+    parent: my_pack:root
+    display:
+      title: "Maître Artisan"
+      description: "Fabrique l'épée, le bouclier et la potion."
+      icon: minecraft:crafting_table
+      frame: goal
+    criteria:
+      craft_sword:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_sword_recipe
+      craft_shield:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_shield_recipe
+      craft_potion:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_potion_recipe
+    rewards:
+      experience: 100
+```
+
+<Callout>
+    Les succès à critères multiples (comme `master_crafter` ci-dessus) nécessitent que tous les critères soient
+    complétés. Chaque critère est suivi indépendamment ; la progression est sauvegardée en natif et survit aux
+    rechargements.
+</Callout>

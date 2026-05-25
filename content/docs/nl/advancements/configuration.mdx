@@ -1,0 +1,156 @@
+---
+title: Configuratiereferentie
+description: Volledige YAML-referentie voor aangepaste ItemsAdder-voortgangen: weergaveeigenschappen, criteria, beloningen en voltooiingsacties, alles in één configuratiebestand.
+version: "1.0.9"
+---
+
+Elke voortgangsvermelding bevindt zich onder de `advancements`-sleutel op het hoogste niveau in elk ItemsAdder-inhoudsbestand. IAA haalt automatisch bestanden op die deze sleutel bevatten.
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+  <advancement_id>:
+    # ... opties hieronder
+```
+
+## Opties op het hoogste niveau
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `enabled` | boolean | `true` | Stel in op `false` om deze voortgang over te slaan zonder deze uit het bestand te verwijderen. |
+| `parent` | string | *(geen)* | Ouder-voortgangs-ID. Laat weg om dit een hoofdvoortgang (tabblad) te maken. Zie [Ouder](#parent). |
+| `display` | section | *(vereist)* | Visuele instellingen. Zie [Weergave](#display). |
+| `criteria` | section | *(geen)* | Voorwaarden die moeten worden vervuld om de voortgang te voltooien. Zie [Triggers](/docs/nl/advancements/triggers). |
+| `rewards` | section | *(geen)* | Ervaring en receptontgrendeling. Zie [Beloningen](#rewards). |
+| `on_complete` | section | *(geen)* | Acties die worden uitgevoerd wanneer de voortgang volledig is voltooid. Zie [Voltooiingsacties](/docs/nl/advancements/completion-actions). |
+
+## Ouder
+
+```yaml
+parent: root              # dezelfde naamruimte als dit bestand, wordt opgelost als my_pack:root
+parent: otherns:someroot  # expliciete naamruimte
+```
+
+Als `parent` geen dubbele punt bevat, wordt de naamruimte van het bestand eraan vooraf toegevoegd. Als `parent` helemaal wordt weggelaten, wordt deze voortgang een root en maakt deze een nieuw tabblad in het voortgingsscherm.
+
+## Weergave
+
+```yaml
+display:
+  title: "<gold>Eerste Robijnzwaard"
+  description: "<gray>Verkrijg je eerste aangepaste zwaard."
+  icon: my_pack:ruby_sword
+  frame: task
+  background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+  show_toast: true
+  announce_to_chat: true
+  hidden: false
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `title` | string | *(vereist)* | Voortgangstitel. Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
+| `description` | string | `""` | Tooltip-beschrijving. Ondersteunt MiniMessage. |
+| `icon` | `namespace:id` | `minecraft:barrier` | Object dat als pictogram wordt weergegeven. Accepteert ItemsAdder-object-ID's of vanilla-materiaal-ID's. |
+| `frame` | string | `task` | Vorm van de pictogramrand: `task`, `goal` of `challenge`. |
+| `background` | string | *(geen)* | **Alleen wortelvoortgangen.** Tekstuurpad voor de tabblad-achtergrond (bijv. `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
+| `show_toast` | boolean | `true` | Toon een toast-melding wanneer voltooid. |
+| `announce_to_chat` | boolean | `true` | Broadcast voltooiing naar alle spelers in chat. |
+| `hidden` | boolean | `false` | Verberg deze voortgang totdat deze is voltooid. |
+
+<Callout>
+    `background` is wat maakt dat een voortgang een nieuw tabblad creëert. Het wordt alleen gebruikt op
+    wortelvoortgangen (geen `parent`).
+</Callout>
+
+## Beloningen
+
+```yaml
+rewards:
+  experience: 50
+  recipes:
+    - my_pack:ruby_sword_recipe
+    - minecraft:golden_apple
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `experience` | integer | `0` | Ervaringspunten toegekend bij voltooiing. |
+| `loot` | lijst van strings | `[]` | Loottabel-sleutels om uit te rollen bij voltooiing. |
+| `recipes` | lijst van strings | `[]` | Receptsleutels om te ontgrendelen. Accepteert `namespace:id` of een naakte `id` (gebruikt de bestandsnaamruimte). |
+
+## Volledig voorbeeld
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+
+  root:
+    display:
+      title: "Mijn Server"
+      description: "Aangepaste prestaties voor Mijn Server."
+      icon: minecraft:nether_star
+      background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+      show_toast: false
+      announce_to_chat: false
+      frame: task
+
+  first_ruby_sword:
+    parent: root
+    display:
+      title: "Eerste Robijnzwaard"
+      description: "Verkrijg je eerste aangepaste zwaard."
+      icon: my_pack:ruby_sword
+      frame: task
+      show_toast: true
+      announce_to_chat: true
+    criteria:
+      obtain:
+        trigger: obtain_item
+        conditions:
+          items:
+            - my_pack:ruby_sword
+          amount: 1
+    on_complete:
+      sound:
+        name: minecraft:entity.player.levelup
+      title:
+        title: "<gold>Voortgang!"
+        subtitle: "<gray>Eerste robijnzwaard verkregen."
+      commands:
+        reward:
+          command: "give {player} gold_ingot 4"
+          as_console: true
+
+  master_crafter:
+    parent: my_pack:root
+    display:
+      title: "Meestervakman"
+      description: "Maak het zwaard, schild en drankje."
+      icon: minecraft:crafting_table
+      frame: goal
+    criteria:
+      craft_sword:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_sword_recipe
+      craft_shield:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_shield_recipe
+      craft_potion:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_potion_recipe
+    rewards:
+      experience: 100
+```
+
+<Callout>
+    Multi-criteria-voortgangen (zoals `master_crafter` hierboven) vereisen dat alle criteria worden voltooid. Elk
+    criterium wordt onafhankelijk bijgehouden; voortgang wordt opgeslagen door vanilla en overleeft herladen.
+</Callout>

@@ -38,6 +38,7 @@ export default async function Page(props: PageProps<'/[lang]/docs/[[...slug]]'>)
             '@type': 'TechArticle',
             headline: page.data.title,
             description: page.data.description,
+            image: `https://itemsadderadditions.com${getPageImage(page).url}`,
             url: pageUrl,
             inLanguage: params.lang,
             isPartOf: {
@@ -104,15 +105,17 @@ export async function generateMetadata(props: PageProps<'/[lang]/docs/[[...slug]
     if (!page) notFound();
 
     const slug = params.slug ?? [];
-    const langAlternates = Object.fromEntries(
-        languages.map((lang) => {
+    const langAlternates = Object.fromEntries([
+        ['x-default', 'https://itemsadderadditions.com'],
+        ...languages.map((lang) => {
             const altPage = source.getPage(slug, lang);
             const altUrl = altPage
                 ? `https://itemsadderadditions.com${altPage.url}`
                 : `https://itemsadderadditions.com/${lang}/docs`;
             return [lang, altUrl];
-        })
-    );
+        }),
+    ]);
+    const ogLocale = params.lang === 'fr' ? 'fr_FR' : params.lang === 'nl' ? 'nl_NL' : 'en_US';
     return {
         title: page.data.title,
         description: page.data.description,
@@ -125,6 +128,7 @@ export async function generateMetadata(props: PageProps<'/[lang]/docs/[[...slug]
             description: page.data.description,
             url: `https://itemsadderadditions.com${page.url}`,
             images: getPageImage(page).url,
+            locale: ogLocale,
         },
         twitter: {
             card: 'summary_large_image',

@@ -1,0 +1,128 @@
+---
+title: Voltooiingsacties
+description: Configureer geluid-, titel-, actionbar- en opdrachtacties die worden geactiveerd wanneer een speler een aangepaste ItemsAdder-voortgang voltooit. Alle typen kunnen worden gecombineerd.
+version: "1.0.9"
+---
+
+De `on_complete`-sectie bepaalt wat er gebeurt wanneer de speler een voortgang verdient. Vier actietypen worden ondersteund: geluid, titel, actionbar en commando's. Alle vier kunnen in één voortgang worden gecombineerd.
+
+```yaml
+on_complete:
+  sound: ...
+  title: ...
+  actionbar: ...
+  commands: ...
+```
+
+Acties worden onmiddellijk geactiveerd nadat de voortgang is toegekend. Voor voortgangen met meerdere criteria wordt `on_complete` eenmaal uitgevoerd wanneer het laatste criterium is voltooid.
+
+---
+
+## sound
+
+Speelt een geluid af op de locatie van de speler.
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:entity.player.levelup
+    volume: 1.0
+    pitch: 1.0
+    source: master
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `name` | string | *(vereist)* | Geluidssleutel (bijv. `minecraft:entity.player.levelup`). |
+| `volume` | float | `1.0` | Volumevermenigvuldiger. |
+| `pitch` | float | `1.0` | Toonhoogtevermenigvuldiger. |
+| `source` | string | `master` | Audiobroncategorie: `master`, `music`, `record`, `weather`, `block`, `hostile`, `neutral`, `player`, `ambient`, `voice`. |
+
+---
+
+## title
+
+Geeft een titel en optionele ondertitel op het scherm weer.
+
+```yaml
+on_complete:
+  title:
+    title: "<gold><bold>Voortgang!"
+    subtitle: "<gray>Eerste robijnzwaard verkregen."
+    fade_in: 10
+    stay: 70
+    fade_out: 20
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `title` | string | *(vereist)* | Grote titeltekst. Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) en PlaceholderAPI. |
+| `subtitle` | string | `""` | Kleinere tekst onder de titel. Ondersteunt MiniMessage en PlaceholderAPI. |
+| `fade_in` | integer | `10` | Vervagingsduur in ticks (20 ticks = 1 seconde). |
+| `stay` | integer | `70` | Hoe lang de titel op het scherm blijft, in ticks. |
+| `fade_out` | integer | `20` | Vervagingsduur in ticks. |
+
+---
+
+## actionbar
+
+Stuurt een bericht naar de actionbar van de speler.
+
+```yaml
+on_complete:
+  actionbar:
+    text: "<green>Robijnzwaard verkregen!"
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|-----|------|----------|-------------|
+| `text` | string | ja | Actionbar-tekst. Ondersteunt MiniMessage en PlaceholderAPI. |
+
+---
+
+## commands
+
+Voert een of meer commando's uit. Elke invoer is een benoemde subsectie; de naam is willekeurig en wordt alleen gebruikt om invoeren te onderscheiden.
+
+```yaml
+on_complete:
+  commands:
+    give_reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true
+    notify:
+      command: "broadcast {player} earned the Ruby Sword achievement!"
+      as_console: true
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `command` | string | *(vereist)* | Het uit te voeren commando. `{player}` wordt vervangen door de naam van de speler. |
+| `as_console` | boolean | `false` | Voer uit als console. Wanneer `false`, voert de speler het commando uit met zijn eigen rechten. |
+
+---
+
+## Volledig voorbeeld
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:entity.player.levelup
+    volume: 1.0
+    pitch: 1.2
+  title:
+    title: "<gold><bold>Voortgang!"
+    subtitle: "<gray>Eerste robijnzwaard verkregen."
+    fade_in: 10
+    stay: 70
+    fade_out: 20
+  actionbar:
+    text: "<green>Je hebt het robijnzwaard gekregen!"
+  commands:
+    reward_gold:
+      command: "give {player} gold_ingot 4"
+      as_console: true
+    log:
+      command: "say {player} completed First Ruby Sword"
+      as_console: true
+```
