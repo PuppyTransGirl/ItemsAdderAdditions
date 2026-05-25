@@ -1,10 +1,10 @@
 ---
-title: Référence de Configuration
-description: Référence YAML complète pour les succès ItemsAdder personnalisés : propriétés d'affichage, critères, récompenses et actions d'achèvement, tout dans un seul fichier de configuration.
+title: Référence de configuration
+description: Référence YAML complète pour les progrès ItemsAdder personnalisés avec propriétés d’affichage, critères, récompenses et actions d’achèvement dans un seul fichier de configuration.
 version: "1.0.9"
 ---
 
-Chaque entrée de succès se trouve sous la clé de niveau supérieur `advancements` dans n'importe quel fichier de contenu ItemsAdder. IAA récupère automatiquement les fichiers qui contiennent cette clé.
+Chaque entrée de progrès se trouve sous la clé de niveau supérieur `advancements` dans n’importe quel fichier de contenu ItemsAdder. IAA récupère automatiquement les fichiers qui contiennent cette clé.
 
 ```yaml
 info:
@@ -19,12 +19,12 @@ advancements:
 
 | Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `enabled` | booléen | `true` | Définissez à `false` pour ignorer ce succès sans le supprimer du fichier. |
-| `parent` | chaîne | *(aucun)* | ID du succès parent. Omettez pour créer un succès racine (onglet). Voir [Parent](#parent). |
-| `display` | section | *(requis)* | Paramètres visuels. Voir [Affichage](#display). |
-| `criteria` | section | *(aucun)* | Conditions qui doivent être remplies pour compléter le succès. Voir [Déclencheurs](/docs/fr/advancements/triggers). |
-| `rewards` | section | *(aucun)* | Expérience et déverrouillage de recettes. Voir [Récompenses](#rewards). |
-| `on_complete` | section | *(aucun)* | Actions exécutées lorsque le succès est entièrement complété. Voir [Actions d'achèvement](/docs/fr/advancements/completion-actions). |
+| `enabled` | booléen | `true` | Définissez cette option sur `false` pour ignorer ce progrès sans le supprimer du fichier. |
+| `parent` | chaîne | *(aucun)* | ID du progrès parent. Omettez pour créer un progrès racine (onglet). Voir [Parent](#parent). |
+| `display` | section | *(requis)* | Paramètres visuels. Voir [Affichage](#affichage). |
+| `criteria` | section | *(aucun)* | Conditions qui doivent être remplies pour terminer le progrès. Voir [Déclencheurs](/docs/fr/advancements/triggers). |
+| `rewards` | section | *(aucun)* | Expérience et déverrouillage de recettes. Voir [Récompenses](#récompenses). |
+| `on_complete` | section | *(aucun)* | Actions exécutées lorsque le progrès est entièrement terminé. Voir [Actions d’achèvement](/docs/fr/advancements/completion-actions). |
 
 ## Parent
 
@@ -33,7 +33,7 @@ parent: root              # même espace de noms que ce fichier, se résout en m
 parent: otherns:someroot  # espace de noms explicite
 ```
 
-Si `parent` ne contient pas de deux-points, l'espace de noms du fichier est ajouté. Si `parent` est omis entièrement, ce succès devient une racine et crée un nouvel onglet dans l'écran des succès.
+Si `parent` ne contient pas de deux-points, l’espace de noms du fichier est ajouté. Si `parent` est omis entièrement, ce progrès devient une racine et crée un nouvel onglet dans l’écran des progrès.
 
 ## Affichage
 
@@ -51,18 +51,17 @@ display:
 
 | Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `title` | chaîne | *(requis)* | Titre du succès. Prend en charge [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
-| `description` | chaîne | `""` | Description du conseil. Prend en charge MiniMessage. |
-| `icon` | `namespace:id` | `minecraft:barrier` | Objet affiché en tant qu'icône. Accepte les ID d'objets ItemsAdder ou les ID de matériaux vanille. |
+| `title` | chaîne | *(requis)* | Titre du progrès. Prend en charge [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
+| `description` | chaîne | `""` | Description de l’infobulle. Prend en charge MiniMessage. |
+| `icon` | `namespace:id` | `minecraft:barrier` | Objet affiché en tant qu’icône. Accepte les ID d’objets ItemsAdder ou les ID de matériaux vanille. |
 | `frame` | chaîne | `task` | Forme de la bordure de l'icône : `task`, `goal` ou `challenge`. |
-| `background` | chaîne | *(aucun)* | **Succès racines uniquement.** Chemin de texture pour l'arrière-plan de l'onglet (par exemple `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
-| `show_toast` | booléen | `true` | Afficher une notification toast lorsque complété. |
+| `background` | chaîne | *(aucun)* | **Progrès racines uniquement.** Chemin de texture pour l’arrière-plan de l’onglet (par exemple `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
+| `show_toast` | booléen | `true` | Affiche une notification toast une fois le progrès terminé. |
 | `announce_to_chat` | booléen | `true` | Diffuser l'achèvement à tous les joueurs dans le chat. |
-| `hidden` | booléen | `false` | Masquer ce succès jusqu'à ce qu'il soit complété. |
+| `hidden` | booléen | `false` | Masque ce progrès jusqu’à ce qu’il soit terminé. |
 
 <Callout>
-    `background` est ce qui crée un nouvel onglet pour un succès. Il n'est utilisé que sur les succès racines (pas de
-    `parent`).
+    `background` est ce qui crée un nouvel onglet pour un progrès. Il n'est utilisé que sur les progrès racines (pas de `parent`).
 </Callout>
 
 ## Récompenses
@@ -77,9 +76,9 @@ rewards:
 
 | Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `experience` | entier | `0` | Points d'expérience accordés à l'achèvement. |
+| `experience` | entier | `0` | Points d’expérience accordés à l'achèvement. |
 | `loot` | liste de chaînes | `[]` | Clés de table de butin à utiliser à l'achèvement. |
-| `recipes` | liste de chaînes | `[]` | Clés de recette à déverrouiller. Accepte `namespace:id` ou un `id` simple (utilise l'espace de noms du fichier). |
+| `recipes` | liste de chaînes | `[]` | Clés de recette à déverrouiller. Accepte `namespace:id` ou un `id` simple (utilise l’espace de noms du fichier). |
 
 ## Exemple complet
 
@@ -92,7 +91,7 @@ advancements:
   root:
     display:
       title: "Mon Serveur"
-      description: "Succès personnalisés pour Mon Serveur."
+      description: "Progrès personnalisés pour Mon Serveur."
       icon: minecraft:nether_star
       background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
       show_toast: false
@@ -119,7 +118,7 @@ advancements:
       sound:
         name: minecraft:entity.player.levelup
       title:
-        title: "<gold>Succès !"
+        title: "<gold>Progrès !"
         subtitle: "<gray>Première épée rubis obtenue."
       commands:
         reward:
@@ -151,7 +150,5 @@ advancements:
 ```
 
 <Callout>
-    Les succès à critères multiples (comme `master_crafter` ci-dessus) nécessitent que tous les critères soient
-    complétés. Chaque critère est suivi indépendamment ; la progression est sauvegardée en natif et survit aux
-    rechargements.
+    Les progrès à plusieurs critères (comme `master_crafter` ci-dessus) nécessitent que tous les critères soient terminés. Chaque critère est suivi indépendamment ; la progression est sauvegardée nativement par Minecraft et survit aux rechargements.
 </Callout>

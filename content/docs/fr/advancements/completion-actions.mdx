@@ -1,10 +1,10 @@
 ---
-title: Actions d'Achèvement
-description: Configurez les actions de son, titre, barre d'action et commande qui se déclenchent lorsqu'un joueur complète un succès ItemsAdder personnalisé. Tous les types peuvent être combinés.
+title: Actions d’achèvement
+description: Configurez les actions de son, de titre, de barre d’action et de commande déclenchées lorsqu’un joueur termine un progrès ItemsAdder personnalisé. Tous les types peuvent être combinés.
 version: "1.0.9"
 ---
 
-La section `on_complete` définit ce qui se passe lorsque le joueur gagne un succès. Quatre types d'actions sont pris en charge : son, titre, barre d'action et commandes. Les quatre peuvent être combinés dans un seul succès.
+La section `on_complete` définit ce qui se passe lorsque le joueur obtient un progrès. Quatre types d’actions sont pris en charge : son, titre, barre d’action et commandes. Les quatre peuvent être combinés dans un seul progrès.
 
 ```yaml
 on_complete:
@@ -14,13 +14,13 @@ on_complete:
   commands: ...
 ```
 
-Les actions se déclenchent immédiatement après que le succès soit accordé. Pour les succès avec plusieurs critères, `on_complete` s'exécute une fois lorsque le dernier critère est complété.
+Les actions se déclenchent immédiatement après que le progrès soit accordé. Pour les progrès avec plusieurs critères, `on_complete` s'exécute une fois lorsque le dernier critère est terminé.
 
 ---
 
 ## sound
 
-Joue un son à la localisation du joueur.
+Joue un son à la position du joueur.
 
 ```yaml
 on_complete:
@@ -31,7 +31,7 @@ on_complete:
     source: master
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
 | `name` | chaîne | *(requis)* | Clé sonore (par exemple `minecraft:entity.player.levelup`). |
 | `volume` | flottant | `1.0` | Multiplicateur de volume. |
@@ -42,31 +42,31 @@ on_complete:
 
 ## title
 
-Affiche un titre et un sous-titre optionnel à l'écran.
+Affiche un titre et un sous-titre optionnel à l’écran.
 
 ```yaml
 on_complete:
   title:
-    title: "<gold><bold>Succès !"
+    title: "<gold><bold>Progrès !"
     subtitle: "<gray>Première épée rubis obtenue."
     fade_in: 10
     stay: 70
     fade_out: 20
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `title` | chaîne | *(requis)* | Texte du titre volumineux. Prend en charge [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) et PlaceholderAPI. |
+| `title` | chaîne | *(requis)* | Grand texte du titre. Prend en charge [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) et PlaceholderAPI. |
 | `subtitle` | chaîne | `""` | Texte plus petit sous le titre. Prend en charge MiniMessage et PlaceholderAPI. |
 | `fade_in` | entier | `10` | Durée du fondu entrant en ticks (20 ticks = 1 seconde). |
-| `stay` | entier | `70` | Durée du titre à l'écran, en ticks. |
+| `stay` | entier | `70` | Durée du titre à l’écran, en ticks. |
 | `fade_out` | entier | `20` | Durée du fondu sortant en ticks. |
 
 ---
 
 ## actionbar
 
-Envoie un message à la barre d'action du joueur.
+Envoie un message à la barre d’action du joueur.
 
 ```yaml
 on_complete:
@@ -76,13 +76,13 @@ on_complete:
 
 | Clé | Type | Requis | Description |
 |-----|------|----------|-------------|
-| `text` | chaîne | oui | Texte de la barre d'action. Prend en charge MiniMessage et PlaceholderAPI. |
+| `text` | chaîne | oui | Texte de la barre d’action. Prend en charge MiniMessage et PlaceholderAPI. |
 
 ---
 
 ## commands
 
-Exécute une ou plusieurs commandes. Chaque entrée est une sous-section nommée ; le nom est arbitraire et ne sert qu'à distinguer les entrées.
+Exécute une ou plusieurs commandes. Chaque entrée est une sous-section nommée ; le nom est arbitraire et ne sert qu’à distinguer les entrées.
 
 ```yaml
 on_complete:
@@ -95,7 +95,7 @@ on_complete:
       as_console: true
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
 | `command` | chaîne | *(requis)* | La commande à exécuter. `{player}` est remplacé par le nom du joueur. |
 | `as_console` | booléen | `false` | Exécuter en tant que console. Lorsque `false`, le joueur exécute la commande avec ses propres permissions. |
@@ -111,7 +111,7 @@ on_complete:
     volume: 1.0
     pitch: 1.2
   title:
-    title: "<gold><bold>Succès !"
+    title: "<gold><bold>Progrès !"
     subtitle: "<gray>Première épée rubis obtenue."
     fade_in: 10
     stay: 70

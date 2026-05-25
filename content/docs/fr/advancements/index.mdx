@@ -1,18 +1,18 @@
 ---
-title: Succès Personnalisés
-description: Définissez des arbres de succès Minecraft personnalisés dans vos fichiers YAML ItemsAdder, avec des déclencheurs personnalisés, des onglets nouveaux et des actions d'achèvement.
+title: Progrès personnalisés
+description: Définissez des arbres de progrès Minecraft personnalisés dans vos fichiers YAML ItemsAdder, avec des déclencheurs personnalisés, de nouveaux onglets et des actions d’achèvement.
 version: "1.0.9"
 ---
 
-Définissez des arbres de succès Minecraft personnalisés directement dans vos fichiers YAML de contenu ItemsAdder. Sans paquets de données, sans redémarrages. Ajoutez une section `advancements` et exécutez `/iareload`.
+Définissez des arbres de progrès Minecraft personnalisés directement dans vos fichiers YAML de contenu ItemsAdder. Sans paquets de données, sans redémarrages. Ajoutez une section `advancements` et exécutez `/iareload`.
 
 ## Fonctionnalités
 
-- Créez des **onglets de succès personnalisés** avec une texture d'arrière-plan personnalisée
-- Construisez des **structures arborescentes** en associant les succès les uns aux autres
+- Créez des **onglets de progrès personnalisés** avec une texture d'arrière-plan personnalisée
+- Construisez des **structures arborescentes** en associant les progrès les uns aux autres
 - Utilisez **24 types de déclencheurs intégrés** (obtenir un objet, fabriquer une recette, tuer une entité, entrer dans un biome, élever des animaux, et plus)
-- Exécutez des **actions d'achèvement** lorsqu'un succès est terminé (titre, son, commandes, barre d'action)
-- Accordez de **l'expérience et déverrouillez des recettes** en tant que récompenses
+- Exécutez des **actions d’achèvement** lorsqu’un progrès est terminé (titre, son, commandes, barre d’action)
+- Accordez de **l’expérience et déverrouillez des recettes** en tant que récompenses
 - La progression des joueurs persiste après les rechargements
 
 ## Structure de base
@@ -26,7 +26,7 @@ advancements:
   root:
     display:
       title: "Mon Serveur"
-      description: "Succès pour Mon Serveur."
+      description: "Progrès pour Mon Serveur."
       icon: minecraft:nether_star
       background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
       show_toast: false
@@ -49,17 +49,16 @@ advancements:
       sound:
         name: minecraft:entity.player.levelup
       title:
-        title: "<gold>Succès !"
+        title: "<gold>Progrès !"
         subtitle: "<gray>Première épée rubis obtenue."
 ```
 
 ## Fonctionnement
 
-IAA charge tous les fichiers de contenu qui contiennent une section `advancements`. Chaque entrée devient un succès Minecraft injecté à l'exécution via NMS. La progression des joueurs est stockée en natif dans les fichiers de sauvegarde du monde et persiste après les rechargements.
+IAA charge tous les fichiers de contenu qui contiennent une section `advancements`. Chaque entrée devient un progrès Minecraft injecté à l'exécution via NMS. La progression des joueurs est sauvegardée nativement par Minecraft dans les fichiers de sauvegarde du monde et persiste après les rechargements.
 
-Les succès racines (sans `parent`) créent un nouvel onglet dans l'écran des succès. Les enfants se connectent visuellement à leur parent dans l'arbre.
+Les progrès racines (sans `parent`) créent un nouvel onglet dans l’écran des progrès. Les enfants se connectent visuellement à leur parent dans l'arbre.
 
 <Callout>
-    Tous les succès d'un fichier partagent le même `info.namespace`. Les parents entre espaces de noms sont pris en
-    charge en utilisant le format `namespace:id`.
+    Tous les progrès d’un fichier partagent le même `info.namespace`. Les parents entre espaces de noms sont pris en charge en utilisant le format `namespace:id`.
 </Callout>

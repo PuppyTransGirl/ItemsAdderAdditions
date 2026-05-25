@@ -1,6 +1,6 @@
 ---
-title: Aangepaste Voortgangen
-description: Definieer aangepaste Minecraft-voortgangsbomen in uw ItemsAdder YAML-bestanden, met aangepaste triggers, nieuwe tabbladen en voltooiingsacties.
+title: Aangepaste voortgangen
+description: Definieer aangepaste Minecraft-voortgangsbomen in je ItemsAdder-YAML-bestanden, met aangepaste triggers, nieuwe tabbladen en voltooiingsacties.
 version: "1.0.9"
 ---
 
@@ -10,7 +10,7 @@ Definieer aangepaste Minecraft-voortgangsbomen direct in uw ItemsAdder-inhouds-Y
 
 - Maak **aangepaste voortgangstabbladen** met een aangepaste achtergrondtextuur
 - Bouw **boomstructuren** door voortgangen aan elkaar te koppelen
-- Gebruik **24 ingebouwde triggertypen** (object verkrijgen, recept maken, entiteit doden, bioom betreden, dieren fokken, en meer)
+- Gebruik **24 ingebouwde triggertypen** (item verkrijgen, recept maken, entiteit doden, bioom betreden, dieren fokken, en meer)
 - Voer **voltooiingsacties** uit wanneer een voortgang is voltooid (titel, geluid, commando's, actionbar)
 - Verstrek **ervaring en ontgrendel recepten** als beloningen
 - Spelersvoortgang blijft behouden na herladen
@@ -60,6 +60,5 @@ IAA laadt elk inhoudsbestand dat een `advancements`-sectie bevat. Elke invoer wo
 Wortelvoortgangen (geen `parent`) maken een nieuw tabblad in het voortgangsscherm. Kinderen verbinden zich visueel met hun ouder in de boom.
 
 <Callout>
-    Alle voortgangen in een bestand delen dezelfde `info.namespace`. Ouders van verschillende naamruimten worden
-    ondersteund met het formaat `namespace:id`.
+    Alle voortgangen in een bestand delen dezelfde `info.namespace`. Ouders van verschillende namespacen worden ondersteund met het formaat `namespace:id`.
 </Callout>

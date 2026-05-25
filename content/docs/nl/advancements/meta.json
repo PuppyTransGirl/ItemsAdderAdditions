@@ -1,0 +1,10 @@
+{
+  "title": "Voortgang",
+  "icon": "Trophy",
+  "pages": [
+    "index",
+    "configuration",
+    "triggers",
+    "completion-actions"
+  ]
+}

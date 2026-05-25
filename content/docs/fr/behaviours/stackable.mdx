@@ -1,6 +1,6 @@
 ---
 title: Empilable
-description: Permettre aux blocs personnalisés ItemsAdder de s'empiler les uns sur les autres dans une séquence définie. Supporte les configurations simple, complexe et multi-couche.
+description: Permettre aux blocs personnalisés ItemsAdder de s’empiler les uns sur les autres dans une séquence définie. Prend en charge les piles simples, complexes et multicouches.
 version: "1.0.0"
 ---
 
@@ -22,7 +22,7 @@ version: "1.0.0"
               - my_block_2
               - my_block_3
               - my_block_4
-            items: # optionnel, par défaut l'objet sur lequel ce comportement est défini
+            items: # optionnel, par défaut l’objet sur lequel ce comportement est défini
               - my_item
               - BONE_MEAL
             sound: # optionnel
@@ -33,7 +33,7 @@ version: "1.0.0"
             decrement_amount: 2 # optionnel, défaut : 1
         ```
 
-        Pour `name`, utilisez une valeur depuis [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values)
+        Pour `name`, utilisez une valeur dans [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values)
         ou un son personnalisé avec `namespace:value`.
     </Tab>
     <Tab value="Complet">
@@ -42,7 +42,7 @@ version: "1.0.0"
           stackable:
             first_step:
               block: my_block_2
-              items: # optionnel, par défaut l'objet sur lequel ce comportement est défini
+              items: # optionnel, par défaut l’objet sur lequel ce comportement est défini
                 - my_item
                 - BONE_MEAL
               sound: # optionnel
@@ -55,11 +55,11 @@ version: "1.0.0"
               ...
         ```
 
-        Pour `name`, utilisez une valeur depuis [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values)
+        Pour `name`, utilisez une valeur dans [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values)
         ou un son personnalisé avec `namespace:value`.
     </Tab>
 </Tabs>
 
-Les IDs doivent être des blocs personnalisés. Types supportés : `REAL`, `REAL_NOTE`, `REAL_TRANSPARENT` et `REAL_WIRE`. Vous pouvez ajouter autant d'étapes que nécessaire.
+Les ID doivent être des blocs personnalisés. Types pris en charge : `REAL`, `REAL_NOTE`, `REAL_TRANSPARENT` et `REAL_WIRE`. Vous pouvez ajouter autant d'étapes que nécessaire.
 
 <VideoGif src="/assets/behaviours_stackable_example"/>

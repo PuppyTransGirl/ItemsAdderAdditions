@@ -1,6 +1,6 @@
 ---
 title: /iatrademachine
-description: Ouvrir une interface de machine à échange ItemsAdder pour un joueur sans avoir besoin du bloc dans le monde.
+description: Ouvrir n’importe quelle interface ItemsAdder trade_machine ou block_trade_machine pour un joueur sans devoir placer le bloc physique dans le monde.
 version: "1.0.7"
 ---
 
@@ -8,7 +8,7 @@ version: "1.0.7"
 
 Ouvrir une interface `trade_machine` ou `block_trade_machine` ItemsAdder pour un joueur sans que le bloc ou meuble physique soit placé dans le monde.
 
-Utile si vous souhaitez ouvrir différentes interfaces de machines à échange via d'autres plugins tels que des systèmes de menus, des NPCs ou des flux de commandes personnalisés.
+Utile si vous souhaitez ouvrir différentes interfaces de machines à échange via d’autres plugins tels que des systèmes de menus, des PNJ ou des flux de commandes personnalisés.
 
 ## Syntaxe
 
@@ -57,9 +57,9 @@ ia.admin.iatrademachine
 ## Notes
 
 - Fonctionne depuis les joueurs et la console.
-- Nécessite que l'ID cible ait un comportement `trade_machine` ou `block_trade_machine`.
+- Nécessite que l’ID cible ait un comportement `trade_machine` ou `block_trade_machine`.
 - L'ID complet avec namespace doit être utilisé.
-- Si l'ID n'a pas de comportement de machine à échange supporté, la commande échoue.
+- Si l’ID n'a pas de comportement de machine à échange pris en charge, la commande échoue.
 
 ## Exemple d'utilisation
 

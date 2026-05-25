@@ -1,15 +1,15 @@
 ---
 title: Stockage
-description: Transformer n'importe quel bloc ou meuble personnalisé ItemsAdder en conteneur de stockage. Supporte le stockage partagé, le stockage portable style shulker, et la corbeille.
+description: Transformer n’importe quel bloc ou meuble personnalisé ItemsAdder en conteneur de stockage. Prend en charge le stockage partagé, le stockage portable façon shulker et les interfaces configurables.
 version: "1.0.0"
 ---
 
-Transforme n'importe quel bloc ou meuble personnalisé en conteneur de stockage. Trois modes sont disponibles.
+Transforme n’importe quel bloc ou meuble personnalisé en conteneur de stockage. Trois modes sont disponibles.
 
 | Type       | Comportement                                                                     |
 |------------|----------------------------------------------------------------------------------|
 | `STORAGE`  | Conteneur partagé - tous les joueurs voient le même inventaire                   |
-| `SHULKER`  | Le contenu voyage dans l'objet quand il est cassé et est restauré lors de la repose |
+| `SHULKER`  | Le contenu voyage dans l’objet quand il est cassé et est restauré lors de la repose |
 | `DISPOSAL` | Poubelle - le contenu est supprimé silencieusement à la fermeture de l'interface |
 
 ## Configuration
@@ -79,11 +79,11 @@ Transforme n'importe quel bloc ou meuble personnalisé en conteneur de stockage.
     </Tab>
 </Tabs>
 
-Pour `name`, utilisez une valeur depuis [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) ou un son personnalisé avec `namespace:value`.
+Pour `name`, utilisez une valeur dans [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) ou un son personnalisé avec `namespace:value`.
 
-Supporte le formatage [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), les placeholders [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police [ItemsAdder](https://itemsadder.com/).
+Prend en charge le formatage [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), les placeholders [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police [ItemsAdder](https://itemsadder.com/).
 
-## Type d'inventaire
+## Type d’inventaire
 
 Par défaut, le stockage ouvre un inventaire de type coffre dont la hauteur est contrôlée par `rows` (1-6, défaut : 3).
 Définissez `inventory_type` pour ouvrir un inventaire typé à la place - `rows` est ignoré quand cette option est définie.
@@ -93,7 +93,7 @@ Définissez `inventory_type` pour ouvrir un inventaire typé à la place - `rows
 | `furnace`       | Fourneau (entrée + combustible + sortie)   |
 | `blast_furnace` | Haut-fourneau                              |
 | `smoker`        | Fumoir                                     |
-| `brewing_stand` | Support à potions (3 bouteilles + 2 cases) |
+| `brewing_stand` | Alambic (3 bouteilles + 2 cases) |
 | `dispenser`     | Distributeur (3×3)                         |
 | `dropper`       | Déposeur (3×3)                             |
 | `hopper`        | Entonnoir (1×5)                            |
@@ -108,7 +108,7 @@ behaviours:
 
 ## Variante ouverte
 
-Vous pouvez optionnellement définir `open_variant` pour faire changer le bloc, meuble ou meuble complexe en une autre variante tant qu'au moins un joueur a le stockage ouvert.
+Vous pouvez optionnellement définir `open_variant` pour faire changer le bloc, meuble ou meuble complexe en une autre variante tant qu’au moins un joueur a le stockage ouvert.
 
 Utile pour des éléments comme :
 
@@ -123,10 +123,10 @@ behaviours:
     open_variant: my_open_storage
 ```
 
-`open_variant` doit être l'ID d'un autre bloc, meuble ou meuble complexe personnalisé, en utilisant soit :
+`open_variant` doit être l’ID d’un autre bloc, meuble ou meuble complexe personnalisé, en utilisant soit :
 - `id`
 - `namespace:id`
 
-Quand l'inventaire est fermé par tous les joueurs, le stockage retourne à sa variante normale.
+Quand l’inventaire est fermé par tous les joueurs, le stockage retourne à sa variante normale.
 
 <VideoGif src="/assets/behaviours_storage_example"/>

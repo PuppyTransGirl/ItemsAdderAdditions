@@ -1,6 +1,6 @@
 ---
 title: Remplacer le biome
-description: Changer le biome dans une zone en tant qu'action ItemsAdder.
+description: Changer le biome Minecraft dans une zone sphérique ou cubique autour d’un joueur avec une action ItemsAdder. Prend en charge les biomes vanilla et datapack.
 version: "1.0.7"
 ---
 
@@ -12,7 +12,7 @@ replace_biome:
     blocks_from_center: 5
 ```
 
-Changer le biome dans une zone sélectionnée lorsqu'un événement ItemsAdder est déclenché.
+Changer le biome dans une zone sélectionnée lorsqu’un événement ItemsAdder est déclenché.
 
 ## Paramètres
 
@@ -20,7 +20,7 @@ Changer le biome dans une zone sélectionnée lorsqu'un événement ItemsAdder e
 
 Le biome à appliquer.
 
-Utilisez un identifiant de biome namespaced valide tel que `minecraft:plains`, `minecraft:desert` ou `minecraft:cherry_grove`.
+Utilisez un identifiant de biome avec espace de noms valide tel que `minecraft:plains`, `minecraft:desert` ou `minecraft:cherry_grove`.
 Vous pouvez également utiliser des biomes de plugins ou datapacks personnalisés.
 
 ```yaml
@@ -32,7 +32,7 @@ replace_biome:
 
 La forme utilisée pour la zone de remplacement de biome.
 
-Formes supportées :
+Formes prises en charge :
 
 - `CUBOID`
 - `RHOMBUS`
@@ -54,7 +54,7 @@ replace_biome:
 
 Définit la taille de la forme.
 
-Deux formats de rayon sont supportés selon la forme et la configuration souhaitée.
+Deux formats de rayon sont pris en charge selon la forme et la configuration souhaitée.
 
 #### Rayon uniforme
 
@@ -90,13 +90,13 @@ Certaines formes sont basées sur la rotation :
 - `BEAM`
 - `CONE`
 
-Ces formes sont affectées par la rotation du joueur lorsque l'action s'exécute.
+Ces formes sont affectées par la rotation du joueur lorsque l’action s'exécute.
 
 Pour ces formes, `x`, `y` et `z` contrôlent toujours les dimensions finales de la forme, même si elle est orientée selon la direction du joueur.
 
 ## Compatibilité avec les plugins de protection
 
-Les emplacements où le joueur n'a pas la permission de construire (vérifiée via [AntiGriefLib](https://github.com/MomirealmsLib/AntiGriefLib)) sont ignorés silencieusement. Les plugins supportés incluent WorldGuard, GriefPrevention, Towny, GriefDefender, RedProtect et d'autres supportés par AntiGriefLib.
+Les emplacements où le joueur n'a pas la permission de construire (vérifiée via [AntiGriefLib](https://github.com/MomirealmsLib/AntiGriefLib)) sont ignorés silencieusement. Les plugins pris en charge incluent WorldGuard, GriefPrevention, Towny, GriefDefender, RedProtect et d’autres pris en charge par AntiGriefLib.
 
 ## Limitation importante
 

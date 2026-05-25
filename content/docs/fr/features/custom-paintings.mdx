@@ -37,10 +37,10 @@ paintings:
 | `width` | entier | *(obligatoire)* | Largeur du tableau en blocs. |
 | `height` | entier | *(obligatoire)* | Hauteur du tableau en blocs. |
 | `asset` | `namespace:key` | *(obligatoire)* | Clé de la ressource de texture. Voir [Chemin de texture](#chemin-de-texture) ci-dessous. |
-| `title` | chaîne | *(aucun)* | Titre d'affichage optionnel affiché dans les infobulles. Supporte MiniMessage. |
+| `title` | chaîne | *(aucun)* | Titre d’affichage optionnel affiché dans les infobulles. Prend en charge MiniMessage. |
 | `author` | chaîne | *(aucun)* | Nom d'auteur optionnel affiché dans les infobulles. |
-| `item` | `namespace:item_id` | *(aucun)* | Objet ItemsAdder lié optionnel. Quand on clique droit sur une face de mur valide, cet objet place le tableau personnalisé. |
-| `include_in_random` | booléen | `false` | Quand `true`, les objets tableau vanilla peuvent sélectionner aléatoirement ce tableau personnalisé si l'espace sur le mur convient. |
+| `item` | `namespace:item_id` | *(aucun)* | Objet ItemsAdder lié optionnel. Quand on clique droit sur une face de mur valide, cet objet permet de placer le tableau personnalisé. |
+| `include_in_random` | booléen | `false` | Quand `true`, les objets de tableau vanilla peuvent sélectionner aléatoirement ce tableau personnalisé si l’espace sur le mur convient. |
 
 ## Chemin de texture
 
@@ -60,7 +60,7 @@ Si vous définissez un `item`, cet objet ItemsAdder se comporte comme un objet t
 - Les vérifications des plugins de protection sont respectées.
 - Le problème de placement en double avec la main secondaire est géré automatiquement.
 
-Si `include_in_random` est `false` (par défaut), le tableau ne peut être placé que via son objet lié. Définissez-le à `true` pour permettre également aux objets tableau vanilla de le choisir aléatoirement.
+Si `include_in_random` est `false` (par défaut), le tableau ne peut être placé que via son objet lié. Définissez-le à `true` pour permettre également aux objets de tableau vanilla de le choisir aléatoirement.
 
 ## Activation / Désactivation
 

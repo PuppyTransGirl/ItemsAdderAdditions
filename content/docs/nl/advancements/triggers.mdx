@@ -1,6 +1,6 @@
 ---
 title: Triggers
-description: Referentie voor alle ingebouwde triggertypen die beschikbaar zijn voor aangepaste ItemsAdder-voortgangen, inclusief voorwaarden en YAML-voorbeelden voor elk.
+description: Referentie voor alle ingebouwde triggertypen voor aangepaste ItemsAdder-voortgangen, inclusief voorwaarden en YAML-voorbeelden voor elk type.
 version: "1.0.9"
 ---
 
@@ -20,7 +20,7 @@ Een voortgang kan meerdere criteria hebben. Alle moeten worden voltooid voordat 
 
 ## obtain_item
 
-Wordt geactiveerd wanneer de speler een object van de grond oppakt.
+Wordt geactiveerd wanneer de speler een item van de grond oppakt.
 
 ```yaml
 criteria:
@@ -35,14 +35,14 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `items` | lijst van strings | `[]` | Object-ID's (IA, MMOItems of vanilla). Elke overeenkomst activeert het criterium. |
+| `items` | lijst van strings | `[]` | Item-ID's (IA, MMOItems of vanilla). Elke overeenkomst activeert het criterium. |
 | `amount` | integer | `1` | Minimale stapelgrootte die de speler tegelijk moet oppakken. |
 
 ---
 
 ## consume_item
 
-Wordt geactiveerd wanneer de speler klaar is met eten of drinken van een object.
+Wordt geactiveerd wanneer de speler klaar is met eten of drinken van een item.
 
 ```yaml
 criteria:
@@ -54,13 +54,13 @@ criteria:
 
 | Sleutel | Type | Vereist | Beschrijving |
 |-----|------|----------|-------------|
-| `item` | string | ja | Object-ID (IA, MMOItems of vanilla). |
+| `item` | string | ja | Item-ID (IA, MMOItems of vanilla). |
 
 ---
 
 ## using_item
 
-Wordt geactiveerd wanneer de speler rechts klikt (in lucht of op blok) terwijl een aangepast object in de hoofdhand wordt vastgehouden.
+Wordt geactiveerd wanneer de speler rechtsklikt (in de lucht of op een blok) terwijl hij een aangepast item in de hoofdhand vasthoudt.
 
 ```yaml
 criteria:
@@ -72,7 +72,7 @@ criteria:
 
 | Sleutel | Type | Vereist | Beschrijving |
 |-----|------|----------|-------------|
-| `item` | string | ja | Object-ID (IA, MMOItems of vanilla). |
+| `item` | string | ja | Item-ID (IA, MMOItems of vanilla). |
 
 ---
 
@@ -114,7 +114,7 @@ criteria:
 
 ## place_furniture
 
-Wordt geactiveerd wanneer de speler een aangepast meubel object plaatst.
+Wordt geactiveerd wanneer de speler een aangepast meubel plaatst.
 
 ```yaml
 criteria:
@@ -132,7 +132,7 @@ criteria:
 
 ## break_furniture
 
-Wordt geactiveerd wanneer de speler een aangepast meubelobject breekt.
+Wordt geactiveerd wanneer de speler een aangepast meubel breekt.
 
 ```yaml
 criteria:
@@ -150,7 +150,7 @@ criteria:
 
 ## interact_furniture
 
-Wordt geactiveerd wanneer de speler rechts klikt op een aangepast meubelobject.
+Wordt geactiveerd wanneer de speler rechtsklikt op een aangepast meubel.
 
 ```yaml
 criteria:
@@ -168,7 +168,7 @@ criteria:
 
 ## craft_recipe
 
-Wordt geactiveerd wanneer de speler een object maakt met behulp van een specifiek IAA-recept.
+Wordt geactiveerd wanneer de speler een item craft met een specifiek IAA-recept.
 
 ```yaml
 criteria:
@@ -180,13 +180,13 @@ criteria:
 
 | Sleutel | Type | Vereist | Beschrijving |
 |-----|------|----------|-------------|
-| `recipe` | string | ja | Receptsleutel als `namespace:id` of een naakte `id` (gebruikt de bestandsnaamruimte). |
+| `recipe` | string | ja | Receptsleutel als `namespace:id` of een `id` zonder namespace (gebruikt de bestandsnamespace). |
 
 ---
 
 ## kill_entity_with_item
 
-Wordt geactiveerd wanneer de speler een entiteit doodt terwijl hij een specifiek object in zijn hoofdhand vasthoudt.
+Wordt geactiveerd wanneer de speler een entiteit doodt terwijl hij een specifiek item in zijn hoofdhand vasthoudt.
 
 ```yaml
 criteria:
@@ -199,7 +199,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(vereist)* | Object-ID (IA, MMOItems of vanilla) die de speler moet vasthouden. |
+| `item` | string | *(vereist)* | Item-ID (IA, MMOItems of vanilla) die de speler moet vasthouden. |
 | `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel (bijv. `minecraft:zombie`). Indien weggelaten, komt elke entiteit overeen. |
 
 ---
@@ -219,7 +219,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID die de speler moet vasthouden. Indien weggelaten, komt elk object (of blote handen) overeen. |
+| `item` | string | *(elke)* | Item-ID die de speler moet vasthouden. Indien weggelaten, komt elk item (of blote handen) overeen. |
 | `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke entiteit overeen. |
 
 ---
@@ -258,7 +258,7 @@ criteria:
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
 | `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke entiteit overeen. |
-| `item` | string | *(elke)* | Object-ID die de speler moet vasthouden. Indien weggelaten, komt elk object overeen. |
+| `item` | string | *(elke)* | Item-ID die de speler moet vasthouden. Indien weggelaten, komt elk item overeen. |
 
 ---
 
@@ -352,13 +352,13 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID van het handelsresultaat. Indien weggelaten, komt elke handel overeen. |
+| `item` | string | *(elke)* | Item-ID van het handelsresultaat. Indien weggelaten, komt elke handel overeen. |
 
 ---
 
 ## enchanted_item
 
-Wordt geactiveerd wanneer de speler een object betovert bij een betovertafel.
+Wordt geactiveerd wanneer de speler een item betovert bij een betovertafel.
 
 ```yaml
 criteria:
@@ -372,7 +372,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID. Indien weggelaten, komt elk object dat wordt betoverd overeen. |
+| `item` | string | *(elke)* | Item-ID. Indien weggelaten, komt elk item dat wordt betoverd overeen. |
 | `min_levels` | integer | `0` | Minimale XP-niveaukosten van de betovering. |
 | `max_levels` | integer | *(onbeperkt)* | Maximale XP-niveaukosten van de betovering. |
 
@@ -392,7 +392,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID van de boog. Indien weggelaten, komt elke boog overeen. |
+| `item` | string | *(elke)* | Item-ID van de boog. Indien weggelaten, komt elke boog overeen. |
 
 ---
 
@@ -410,7 +410,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID van de kruisboog. Indien weggelaten, komt elke kruisboog overeen. |
+| `item` | string | *(elke)* | Item-ID van de kruisboog. Indien weggelaten, komt elke kruisboog overeen. |
 
 ---
 
@@ -429,7 +429,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `rod` | string | *(elke)* | Object-ID van de hengel. Indien weggelaten, komt elke hengel overeen. |
+| `rod` | string | *(elke)* | Item-ID van de hengel. Indien weggelaten, komt elke hengel overeen. |
 | `caught_entity_type` | string | *(elke)* | Entiteitstype van wat werd gehaakt. Indien weggelaten, komt elke vangst overeen. |
 
 ---
@@ -448,13 +448,13 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID van de resulterende emmer. Indien weggelaten, komt elke gevulde emmer overeen. |
+| `item` | string | *(elke)* | Item-ID van de resulterende emmer. Indien weggelaten, komt elke gevulde emmer overeen. |
 
 ---
 
 ## item_durability_changed
 
-Wordt geactiveerd wanneer een object in de hand van de speler duurzaamheidsschade neemt.
+Wordt geactiveerd wanneer een item in de hand van de speler duurzaamheidsschade oploopt.
 
 ```yaml
 criteria:
@@ -466,13 +466,13 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID van het beschadigde object. Indien weggelaten, komt elk object overeen. |
+| `item` | string | *(elke)* | Item-ID van het beschadigde item. Indien weggelaten, komt elk item overeen. |
 
 ---
 
 ## item_used_on_block
 
-Wordt geactiveerd wanneer de speler met de rechtermuisknop op een blok klikt met een object in zijn hoofdhand.
+Wordt geactiveerd wanneer de speler met de rechtermuisknop op een blok klikt met een item in zijn hoofdhand.
 
 ```yaml
 criteria:
@@ -485,14 +485,14 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID die de speler moet vasthouden. |
+| `item` | string | *(elke)* | Item-ID die de speler moet vasthouden. |
 | `block` | string | *(elke)* | Vanilla-bloktypesleutel. |
 
 ---
 
 ## recipe_crafted
 
-Wordt geactiveerd wanneer de speler een object maakt met behulp van het vanilla ambachtssysteem.
+Wordt geactiveerd wanneer de speler een item craft met het vanilla craftingsysteem.
 
 ```yaml
 criteria:
@@ -504,7 +504,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `recipe` | string | *(elke)* | Receptsleutel als `namespace:id`. Indien weggelaten, komt elke ambachtactie overeen. |
+| `recipe` | string | *(elke)* | Receptsleutel als `namespace:id`. Indien weggelaten, komt elke craftactie overeen. |
 
 ---
 
@@ -528,7 +528,7 @@ criteria:
 
 ## player_interacted_with_entity
 
-Wordt geactiveerd wanneer de speler met de rechtermuisknop op een entiteit klikt met hun hoofdhand.
+Wordt geactiveerd wanneer de speler met de rechtermuisknop op een entiteit klikt met zijn hoofdhand.
 
 ```yaml
 criteria:
@@ -542,7 +542,7 @@ criteria:
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
 | `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke entiteit overeen. |
-| `item` | string | *(elke)* | Object-ID die de speler moet vasthouden. Indien weggelaten, komt elk object (of lege hand) overeen. |
+| `item` | string | *(elke)* | Item-ID die de speler moet vasthouden. Indien weggelaten, komt elk item (of lege hand) overeen. |
 
 ---
 
@@ -602,7 +602,7 @@ criteria:
 
 ## effects_changed
 
-Wordt geactiveerd wanneer de speler een drankeffect krijgt of gewijzigd.
+Wordt geactiveerd wanneer de speler een drankeffect krijgt of wanneer een drankeffect wordt gewijzigd.
 
 ```yaml
 criteria:
@@ -664,7 +664,7 @@ criteria:
 
 ## fall_from_height
 
-Wordt geactiveerd wanneer de speler valschade neemt. Geen voorwaarden.
+Wordt geactiveerd wanneer de speler valschade oploopt. Geen voorwaarden.
 
 ```yaml
 criteria:
@@ -688,7 +688,7 @@ criteria:
 
 ## held_item
 
-IAA aangepaste trigger. Wordt geactiveerd wanneer de speler naar een hotbarslot scrolt dat een specifiek object bevat.
+IAA aangepaste trigger. Wordt geactiveerd wanneer de speler naar een hotbarslot scrolt dat een specifiek item bevat.
 
 ```yaml
 criteria:
@@ -700,13 +700,13 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Object-ID. Indien weggelaten, komt elk object waarop wordt gescrolld overeen. |
+| `item` | string | *(elke)* | Item-ID. Indien weggelaten, komt elk item waarop wordt gescrolld overeen. |
 
 ---
 
 ## permission
 
-Wordt geactiveerd wanneer de speler deelneemt terwijl hij het opgegeven toestemmingsknooppunt vasthoudt.
+Wordt geactiveerd wanneer de speler inlogt terwijl hij de opgegeven permissie heeft.
 
 ```yaml
 criteria:
@@ -718,7 +718,7 @@ criteria:
 
 | Sleutel | Type | Vereist | Beschrijving |
 |-----|------|----------|-------------|
-| `permission` | string | ja | Toestemmingsknooppunt. Gecontroleerd bij elke deelname; wordt geactiveerd zodra de speler dit heeft. |
+| `permission` | string | ja | Permissienode. Wordt bij elke login gecontroleerd en geactiveerd zodra de speler deze permissie heeft. |
 
 ---
 

@@ -1,14 +1,14 @@
 ---
 title: Table de craft
-description: Ajouter des recettes de craft avancées avec des tags, des quantités d'ingrédients, la gestion de la durabilité et le support sans forme.
+description: Ajouter des recettes avancées de table de craft ItemsAdder avec tags d’ingrédients, quantités exactes, conditions de durabilité et prise en charge des recettes shapeless.
 version: "1.0.7"
 ---
 
 ItemsAdderAdditions ajoute un type de recette de table de craft supplémentaire appelé `iaa_crafting_table`.
 
-Il ne remplace pas le type de recette `crafting_table` normal d'ItemsAdder. Il fournit un autre système de recettes pour les cas où vous avez besoin de fonctionnalités de validation d'ingrédients supplémentaires.
+Il ne remplace pas le type de recette `crafting_table` normal d’ItemsAdder. Il fournit un autre système de recettes pour les cas où vous avez besoin de fonctionnalités de validation d'ingrédients supplémentaires.
 
-Ce type de recette supporte les options de recette de craft habituelles déjà connues d'ItemsAdder, tout en ajoutant des fonctionnalités supplémentaires telles que :
+Ce type de recette prend en charge les options de recette de craft habituelles déjà connues d’ItemsAdder, tout en ajoutant des fonctionnalités supplémentaires telles que :
 
 - les tags
 - les quantités d'ingrédients
@@ -27,7 +27,7 @@ recipes:
   iaa_crafting_table:
 ```
 
-Si vous n'avez besoin que des fonctionnalités de craft normales d'ItemsAdder, vous pouvez continuer à utiliser le type de recette `crafting_table` classique.
+Si vous n'avez besoin que des fonctionnalités de craft normales d’ItemsAdder, vous pouvez continuer à utiliser le type de recette `crafting_table` classique.
 
 ## Recette avec forme de base
 
@@ -93,9 +93,9 @@ recipes:
         amount: 1
 ```
 
-## Fonctionnalités de recette standard supportées
+## Fonctionnalités de recette standard prises en charge
 
-`iaa_crafting_table` supporte également les fonctionnalités de craft courantes que vous connaissez peut-être déjà d'ItemsAdder, comme :
+`iaa_crafting_table` prend en charge également les fonctionnalités de craft courantes que vous connaissez peut-être déjà d’ItemsAdder, comme :
 
 - `enabled`
 - `permission`
@@ -104,9 +104,9 @@ recipes:
 - plusieurs variantes `pattern...`
 - le filtrage par `potion_type`
 
-## Fonctionnalités supplémentaires d'ItemsAdderAdditions
+## Fonctionnalités supplémentaires d’ItemsAdderAdditions
 
-La principale raison d'utiliser `iaa_crafting_table` est son support de prédicats d'ingrédients supplémentaires :
+La principale raison d'utiliser `iaa_crafting_table` est sa prise en charge des prédicats d'ingrédients supplémentaires :
 
 - les tags avec `#namespace:tag`
 - `amount` par ingrédient
@@ -147,7 +147,7 @@ Obligatoire.
 
 L'objet en sortie.
 
-Supporte les matériaux vanilla et les objets ItemsAdder.
+Prend en charge les matériaux vanilla et les objets ItemsAdder.
 
 ```yaml
 result:
@@ -186,7 +186,7 @@ my_recipe:
 - Les clés d'ingrédients doivent être un seul caractère.
 - `X` marque les emplacements vides. Ne définissez pas `X` comme ingrédient.
 - Tout autre caractère non défini dans `ingredients` est également traité comme vide.
-- Plusieurs patterns sont supportés en utilisant des clés comme `pattern_1`, `pattern_2`, etc.
+- Plusieurs patterns sont pris en charge en utilisant des clés comme `pattern_1`, `pattern_2`, etc.
 
 ## Recettes sans forme
 
@@ -212,7 +212,7 @@ my_recipe:
 
 ## Formats d'ingrédients
 
-Les ingrédients supportent plusieurs formats.
+Les ingrédients prennent en charge plusieurs formats.
 
 ### Chaîne simple
 
@@ -249,18 +249,18 @@ ingredients:
 
 ### Tags
 
-Utilisez des tags d'objets ou de blocs Minecraft en préfixant la valeur avec `#`.
+Utilisez des tags d’objets ou de blocs Minecraft en préfixant la valeur avec `#`.
 
 ```yaml
 ingredients:
   P: "#minecraft:planks"
 ```
 
-Cela permet à n'importe quel objet de ce tag de correspondre.
+Cela permet à n’importe quel objet de ce tag de correspondre.
 
 ### `amount`
 
-Exiger plus d'un exemplaire du même ingrédient.
+Exiger plus d’un exemplaire du même ingrédient.
 
 ```yaml
 ingredients:
@@ -297,7 +297,7 @@ ingredients:
 
 ### `ignore_durability`
 
-Ignorer la valeur de durabilité actuelle lors de la correspondance d'un objet.
+Ignorer la valeur de durabilité actuelle lors de la correspondance d’un objet.
 
 ```yaml
 ingredients:
@@ -365,16 +365,16 @@ recipes:
         item: "my_pack:purified_bottle"
 ```
 
-## Références d'objets supportées
+## Références d’objets prises en charge
 
 Les objets des ingrédients et résultats peuvent utiliser :
 
 - les noms de matériaux vanilla comme `STICK` ou `DIAMOND`
-- les IDs ItemsAdder comme `namespace:item`
+- les ID ItemsAdder comme `namespace:item`
 - les tags comme `#minecraft:planks`
 
 ## Notes
 
 - `replacement` et `damage` sont appliqués lors du craft.
 - Les recettes sans forme avec des prédicats avancés doivent utiliser le format liste.
-- `iaa_crafting_table` est un type de recette avancé supplémentaire, pas un remplacement du `crafting_table` d'ItemsAdder.
+- `iaa_crafting_table` est un type de recette avancé supplémentaire, pas un remplacement du `crafting_table` d’ItemsAdder.

@@ -1,6 +1,6 @@
 ---
 title: Génération du monde
-description: Faire apparaître des meubles ItemsAdder personnalisés lors de la génération des chunks.
+description: Faire apparaître des meubles ItemsAdder personnalisés lors de la génération des chunks Minecraft. Prend en charge les modes populateur de monde et décorateur de surface, configurés dans vos fichiers YML.
 version: "1.0.8"
 ---
 
@@ -17,7 +17,7 @@ Utilisez le **Populateur de monde** pour les apparitions groupées (champignons,
 
 ## Populateur de monde
 
-Fait apparaître des meubles en grappes de type veine lors de la génération des chunks. Utilise la clé `blocks_populators` (la clé legacy `worlds_populators` est également acceptée).
+Fait apparaître des meubles en grappes de type veine lors de la génération des chunks. Utilise la clé `blocks_populators` (la ancienne clé `worlds_populators` est également acceptée).
 
 ```yaml
 info:
@@ -45,8 +45,8 @@ blocks_populators:
 |-----|------|--------|-------------|
 | `enabled` | booléen | `true` | Définir à `false` pour ignorer sans supprimer. |
 | `furniture` | `namespace:id` | *(obligatoire)* | Le meuble ItemsAdder à faire apparaître. |
-| `worlds` | liste | *(tous)* | Noms de monde à restreindre. Supporte le joker `*`. |
-| `biomes` | liste | *(tous)* | IDs de biome (ex. `minecraft:forest`). Tous doivent être valides sinon l'entrée est ignorée. |
+| `worlds` | liste | *(tous)* | Noms de monde à restreindre. Prend en charge le joker `*`. |
+| `biomes` | liste | *(tous)* | ID de biome (ex. `minecraft:forest`). Tous doivent être valides sinon l'entrée est ignorée. |
 | `replaceable_blocks` | liste | *(tous)* | Matériaux autorisés pour le bloc directement sous le point d'apparition. |
 | `vein_blocks` | entier | `1` | Pièces de meuble par tentative de veine. |
 | `chunk_veins` | entier | `4` | Tentatives de veine par chunk. |
@@ -84,8 +84,8 @@ surface_decorators:
 |-----|------|--------|-------------|
 | `enabled` | booléen | `true` | Définir à `false` pour ignorer sans supprimer. |
 | `furniture` | `namespace:id` | *(obligatoire)* | Le meuble ItemsAdder à faire apparaître. |
-| `worlds` | liste | *(tous)* | Noms de monde à restreindre. Supporte le joker `*`. |
-| `biomes` | liste | *(tous)* | IDs de biome (ex. `minecraft:plains`). Tous doivent être valides sinon l'entrée est ignorée. |
+| `worlds` | liste | *(tous)* | Noms de monde à restreindre. Prend en charge le joker `*`. |
+| `biomes` | liste | *(tous)* | ID de biome (ex. `minecraft:plains`). Tous doivent être valides sinon l'entrée est ignorée. |
 | `bottom_blocks` | liste | *(tous)* | Matériaux autorisés pour le bloc directement sous le point d'apparition. |
 | `amount` | entier | `4` | Tentatives de placement par chunk. |
 | `chunk_chance` | double | `-1` | Chance 0-100 par chunk. `-1` = toujours. |
@@ -98,4 +98,4 @@ surface_decorators:
 
 - Seuls les chunks nouvellement générés déclenchent l'apparition. Les chunks existants ne sont pas affectés.
 - Le meuble doit être enregistré par ItemsAdder avant que l'entrée soit chargée.
-- Les IDs de biome invalides provoquent l'ignorance de toute l'entrée.
+- Les ID de biome invalides provoquent l'ignorance de toute l'entrée.

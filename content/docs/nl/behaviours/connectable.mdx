@@ -1,6 +1,6 @@
 ---
 title: Verbindbaar
-description: Laat aangepaste ItemsAdder-meubels automatisch verbinden met aangrenzende overeenkomende stukken. Ondersteunt trappen, tafels, hekken en multi-variant meubels.
+description: Laat aangepaste ItemsAdder-meubels automatisch verbinden met aangrenzende overeenkomende stukken. Ondersteunt trappen, tafels, hekken en meubels met meerdere varianten.
 version: "1.0.0"
 ---
 
@@ -53,14 +53,14 @@ De ID's moeten aangepaste meubels zijn.
 
 ## Standaard ID-resolutie
 
-Alle meubel-type ID's zijn optioneel. Als ze niet zijn opgegeven, zoekt de plugin automatisch naar overeenkomende meubel-ID's:
+Alle meubeltype-ID's zijn optioneel. Als ze niet zijn opgegeven, zoekt de plugin automatisch naar overeenkomende meubel-ID's:
 
 - `default` erft de meubel-ID waarop het gedrag is geconfigureerd.
 - Elk ander type gebruikt `<meubelnaam>_<type>`.
 
 Als het gedrag bijvoorbeeld is geconfigureerd op een meubel met de naam `connectable_furniture`:
 
-### Automatische lookup trap-type
+### Automatisch opzoeken trap-type
 
 - `default` → `connectable_furniture`
 - `straight` → `connectable_furniture_straight`
@@ -69,7 +69,7 @@ Als het gedrag bijvoorbeeld is geconfigureerd op een meubel met de naam `connect
 - `outer` → `connectable_furniture_outer`
 - `inner` → `connectable_furniture_inner`
 
-### Automatische lookup tafel-type
+### Automatisch opzoeken tafel-type
 
 - `default` → `connectable_furniture`
 - `straight` → `connectable_furniture_straight`

@@ -1,6 +1,6 @@
 ---
 title: Configuratiereferentie
-description: Volledige YAML-referentie voor aangepaste ItemsAdder-voortgangen: weergaveeigenschappen, criteria, beloningen en voltooiingsacties, alles in één configuratiebestand.
+description: Volledige YAML-referentie voor aangepaste ItemsAdder-voortgangen met weergave-eigenschappen, criteria, beloningen en voltooiingsacties in één configuratiebestand.
 version: "1.0.9"
 ---
 
@@ -19,21 +19,21 @@ advancements:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `enabled` | boolean | `true` | Stel in op `false` om deze voortgang over te slaan zonder deze uit het bestand te verwijderen. |
-| `parent` | string | *(geen)* | Ouder-voortgangs-ID. Laat weg om dit een hoofdvoortgang (tabblad) te maken. Zie [Ouder](#parent). |
-| `display` | section | *(vereist)* | Visuele instellingen. Zie [Weergave](#display). |
+| `enabled` | bool | `true` | Stel dit in op `false` om deze voortgang over te slaan zonder deze uit het bestand te verwijderen. |
+| `parent` | string | *(geen)* | ID van de bovenliggende voortgang. Laat weg om dit een hoofdvoortgang (tabblad) te maken. Zie [Ouder](#ouder). |
+| `display` | section | *(vereist)* | Visuele instellingen. Zie [Weergave](#weergave). |
 | `criteria` | section | *(geen)* | Voorwaarden die moeten worden vervuld om de voortgang te voltooien. Zie [Triggers](/docs/nl/advancements/triggers). |
-| `rewards` | section | *(geen)* | Ervaring en receptontgrendeling. Zie [Beloningen](#rewards). |
+| `rewards` | section | *(geen)* | Ervaring en receptontgrendeling. Zie [Beloningen](#beloningen). |
 | `on_complete` | section | *(geen)* | Acties die worden uitgevoerd wanneer de voortgang volledig is voltooid. Zie [Voltooiingsacties](/docs/nl/advancements/completion-actions). |
 
 ## Ouder
 
 ```yaml
-parent: root              # dezelfde naamruimte als dit bestand, wordt opgelost als my_pack:root
-parent: otherns:someroot  # expliciete naamruimte
+parent: root              # dezelfde namespace als dit bestand, wordt opgelost als my_pack:root
+parent: otherns:someroot  # expliciete namespace
 ```
 
-Als `parent` geen dubbele punt bevat, wordt de naamruimte van het bestand eraan vooraf toegevoegd. Als `parent` helemaal wordt weggelaten, wordt deze voortgang een root en maakt deze een nieuw tabblad in het voortgingsscherm.
+Als `parent` geen dubbele punt bevat, wordt de namespace van het bestand eraan vooraf toegevoegd. Als `parent` helemaal wordt weggelaten, wordt deze voortgang een hoofdvoortgang en maakt een nieuw tabblad in het voortgangsscherm.
 
 ## Weergave
 
@@ -53,16 +53,15 @@ display:
 |-----|------|---------|-------------|
 | `title` | string | *(vereist)* | Voortgangstitel. Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
 | `description` | string | `""` | Tooltip-beschrijving. Ondersteunt MiniMessage. |
-| `icon` | `namespace:id` | `minecraft:barrier` | Object dat als pictogram wordt weergegeven. Accepteert ItemsAdder-object-ID's of vanilla-materiaal-ID's. |
+| `icon` | `namespace:id` | `minecraft:barrier` | Item dat als pictogram wordt weergegeven. Accepteert ItemsAdder-item-ID's of vanilla-materiaal-ID's. |
 | `frame` | string | `task` | Vorm van de pictogramrand: `task`, `goal` of `challenge`. |
-| `background` | string | *(geen)* | **Alleen wortelvoortgangen.** Tekstuurpad voor de tabblad-achtergrond (bijv. `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
-| `show_toast` | boolean | `true` | Toon een toast-melding wanneer voltooid. |
-| `announce_to_chat` | boolean | `true` | Broadcast voltooiing naar alle spelers in chat. |
-| `hidden` | boolean | `false` | Verberg deze voortgang totdat deze is voltooid. |
+| `background` | string | *(geen)* | **Alleen hoofdvoortgangen.** Tekstuurpad voor de tabblad-achtergrond (bijv. `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
+| `show_toast` | bool | `true` | Toon een toast-melding wanneer voltooid. |
+| `announce_to_chat` | bool | `true` | Stuur de voltooiing naar alle spelers in de chat. |
+| `hidden` | bool | `false` | Verberg deze voortgang totdat deze is voltooid. |
 
 <Callout>
-    `background` is wat maakt dat een voortgang een nieuw tabblad creëert. Het wordt alleen gebruikt op
-    wortelvoortgangen (geen `parent`).
+    `background` is wat maakt dat een voortgang een nieuw tabblad creëert. Het wordt alleen gebruikt op hoofdvoortgangen (geen `parent`).
 </Callout>
 
 ## Beloningen
@@ -78,8 +77,8 @@ rewards:
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
 | `experience` | integer | `0` | Ervaringspunten toegekend bij voltooiing. |
-| `loot` | lijst van strings | `[]` | Loottabel-sleutels om uit te rollen bij voltooiing. |
-| `recipes` | lijst van strings | `[]` | Receptsleutels om te ontgrendelen. Accepteert `namespace:id` of een naakte `id` (gebruikt de bestandsnaamruimte). |
+| `loot` | lijst van strings | `[]` | Loottabelsleutels die bij voltooiing worden gebruikt. |
+| `recipes` | lijst van strings | `[]` | Receptsleutels om te ontgrendelen. Accepteert `namespace:id` of een `id` zonder namespace (gebruikt de bestandsnamespace). |
 
 ## Volledig voorbeeld
 
@@ -92,7 +91,7 @@ advancements:
   root:
     display:
       title: "Mijn Server"
-      description: "Aangepaste prestaties voor Mijn Server."
+      description: "Aangepaste voortgangen voor Mijn Server."
       icon: minecraft:nether_star
       background: "minecraft:textures/gui/advancements/backgrounds/adventure.png"
       show_toast: false
@@ -151,6 +150,5 @@ advancements:
 ```
 
 <Callout>
-    Multi-criteria-voortgangen (zoals `master_crafter` hierboven) vereisen dat alle criteria worden voltooid. Elk
-    criterium wordt onafhankelijk bijgehouden; voortgang wordt opgeslagen door vanilla en overleeft herladen.
+    Multi-criteria-voortgangen (zoals `master_crafter` hierboven) vereisen dat alle criteria worden voltooid. Elk criterium wordt onafhankelijk bijgehouden; voortgang wordt opgeslagen door vanilla en overleeft herladen.
 </Callout>

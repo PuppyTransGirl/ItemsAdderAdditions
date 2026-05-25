@@ -1,10 +1,10 @@
 ---
 title: Déclencheurs
-description: Référence pour tous les types de déclencheurs intégrés disponibles pour les succès ItemsAdder personnalisés, incluant les conditions et les exemples YAML pour chacun.
+description: Référence de tous les types de déclencheurs intégrés disponibles pour les progrès ItemsAdder personnalisés, avec les conditions et les exemples YAML de chacun.
 version: "1.0.9"
 ---
 
-Les déclencheurs définissent ce que le joueur doit faire pour compléter un critère. Chaque critère a un déclencheur et un bloc `conditions` optionnel.
+Les déclencheurs définissent ce que le joueur doit faire pour terminer un critère. Chaque critère a un déclencheur et un bloc `conditions` optionnel.
 
 ```yaml
 criteria:
@@ -14,7 +14,7 @@ criteria:
       # options spécifiques au déclencheur
 ```
 
-Un succès peut avoir plusieurs critères. Tous doivent être complétés avant que le succès soit accordé.
+Un progrès peut avoir plusieurs critères. Tous doivent être terminés avant que le progrès soit accordé.
 
 ---
 
@@ -35,7 +35,7 @@ criteria:
 
 | Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `items` | liste de chaînes | `[]` | IDs d'objets (IA, MMOItems ou vanille). Toute correspondance déclenche le critère. |
+| `items` | liste de chaînes | `[]` | ID d’objets (IA, MMOItems ou vanille). Toute correspondance déclenche le critère. |
 | `amount` | entier | `1` | Taille minimale de pile que le joueur doit ramasser à la fois. |
 
 ---
@@ -54,13 +54,13 @@ criteria:
 
 | Clé | Type | Requis | Description |
 |-----|------|----------|-------------|
-| `item` | chaîne | Oui | ID d'objet (IA, MMOItems ou vanille). |
+| `item` | chaîne | Oui | ID d’objet (IA, MMOItems ou vanille). |
 
 ---
 
 ## using_item
 
-Se déclenche lorsque le joueur clique à droite (dans l'air ou sur un bloc) en tenant un objet personnalisé dans sa main principale.
+Se déclenche lorsque le joueur fait un clic droit (dans l'air ou sur un bloc) en tenant un objet personnalisé dans sa main principale.
 
 ```yaml
 criteria:
@@ -72,7 +72,7 @@ criteria:
 
 | Clé | Type | Requis | Description |
 |-----|------|----------|-------------|
-| `item` | chaîne | Oui | ID d'objet (IA, MMOItems ou vanille). |
+| `item` | chaîne | Oui | ID d’objet (IA, MMOItems ou vanille). |
 
 ---
 
@@ -150,7 +150,7 @@ criteria:
 
 ## interact_furniture
 
-Se déclenche lorsque le joueur clique à droite sur un objet de meuble personnalisé.
+Se déclenche lorsque le joueur fait un clic droit sur un objet de meuble personnalisé.
 
 ```yaml
 criteria:
@@ -168,7 +168,7 @@ criteria:
 
 ## craft_recipe
 
-Se déclenche lorsque le joueur fabrique un objet à l'aide d'une recette IAA spécifique.
+Se déclenche lorsque le joueur fabrique un objet à l'aide d’une recette IAA spécifique.
 
 ```yaml
 criteria:
@@ -180,7 +180,7 @@ criteria:
 
 | Clé | Type | Requis | Description |
 |-----|------|----------|-------------|
-| `recipe` | chaîne | oui | Clé de recette comme `namespace:id` ou un `id` simple (utilise l'espace de noms du fichier). |
+| `recipe` | chaîne | oui | Clé de recette comme `namespace:id` ou un `id` simple (utilise l’espace de noms du fichier). |
 
 ---
 
@@ -197,10 +197,10 @@ criteria:
       entity_type: minecraft:zombie  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(requis)* | ID d'objet (IA, MMOItems ou vanille) que le joueur doit tenir. |
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille (par ex. `minecraft:zombie`). Si omis, toute entité correspondra. |
+| `item` | chaîne | *(requis)* | ID d’objet (IA, MMOItems ou vanille) que le joueur doit tenir. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille (par ex. `minecraft:zombie`). Si omis, toute entité correspondra. |
 
 ---
 
@@ -217,16 +217,16 @@ criteria:
       entity_type: minecraft:zombie  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet que le joueur doit tenir. Si omis, tout objet (ou mains nues) correspondra. |
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet que le joueur doit tenir. Si omis, tout objet (ou mains nues) correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
 
 ---
 
 ## entity_hurt_player
 
-Se déclenche lorsqu'une entité inflige des dégâts au joueur.
+Se déclenche lorsqu’une entité inflige des dégâts au joueur.
 
 ```yaml
 criteria:
@@ -236,9 +236,9 @@ criteria:
       entity_type: minecraft:zombie  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, tout attaquant correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille. Si omis, tout attaquant correspondra. |
 
 ---
 
@@ -255,10 +255,10 @@ criteria:
       item: my_pack:ruby_sword  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
-| `item` | chaîne | *(n'importe quel)* | ID d'objet que le joueur doit tenir. Si omis, tout objet correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet que le joueur doit tenir. Si omis, tout objet correspondra. |
 
 ---
 
@@ -274,9 +274,9 @@ criteria:
       entity_type: minecraft:skeleton  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille du tueur. Si omis, toute entité correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille du tueur. Si omis, toute entité correspondra. |
 
 ---
 
@@ -292,9 +292,9 @@ criteria:
       entity_type: minecraft:skeleton  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille du tireur. Si omis, n'importe quelle source de flèche correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille du tireur. Si omis, n’importe quelle source de flèche correspondra. |
 
 ---
 
@@ -310,9 +310,9 @@ criteria:
       entity_type: minecraft:wolf  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, tout animal apprivoisable correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille. Si omis, tout animal apprivoisable correspondra. |
 
 ---
 
@@ -330,11 +330,11 @@ criteria:
       partner_type: minecraft:cow  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Type d'entité de la progéniture. |
-| `parent_type` | chaîne | *(n'importe quel)* | Type d'entité de la mère. |
-| `partner_type` | chaîne | *(n'importe quel)* | Type d'entité du père. |
+| `entity_type` | chaîne | *(n’importe quel)* | Type d'entité de la progéniture. |
+| `parent_type` | chaîne | *(n’importe quel)* | Type d'entité de la mère. |
+| `partner_type` | chaîne | *(n’importe quel)* | Type d'entité du père. |
 
 ---
 
@@ -350,9 +350,9 @@ criteria:
       item: minecraft:diamond  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet du résultat du commerce. Si omis, tout commerce correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet du résultat du commerce. Si omis, tout commerce correspondra. |
 
 ---
 
@@ -370,9 +370,9 @@ criteria:
       max_levels: 30            # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet. Si omis, tout objet étant enchanté correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet. Si omis, tout objet étant enchanté correspondra. |
 | `min_levels` | entier | `0` | Coût minimum du niveau XP de l'enchantement. |
 | `max_levels` | entier | *(illimité)* | Coût maximum du niveau XP de l'enchantement. |
 
@@ -380,7 +380,7 @@ criteria:
 
 ## shoot_bow
 
-Se déclenche lorsque le joueur tire un projectile d'un arc.
+Se déclenche lorsque le joueur tire un projectile d’un arc.
 
 ```yaml
 criteria:
@@ -390,15 +390,15 @@ criteria:
       item: my_pack:ruby_bow  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet de l'arc. Si omis, n'importe quel arc correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet de l'arc. Si omis, n’importe quel arc correspondra. |
 
 ---
 
 ## shot_crossbow
 
-Se déclenche lorsque le joueur tire un projectile d'une arbalète.
+Se déclenche lorsque le joueur tire un projectile d’une arbalète.
 
 ```yaml
 criteria:
@@ -408,9 +408,9 @@ criteria:
       item: my_pack:ruby_crossbow  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet de l'arbalète. Si omis, n'importe quelle arbalète correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet de l'arbalète. Si omis, n’importe quelle arbalète correspondra. |
 
 ---
 
@@ -427,10 +427,10 @@ criteria:
       caught_entity_type: minecraft:cod  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `rod` | chaîne | *(n'importe quel)* | ID d'objet de la canne à pêche. Si omis, n'importe quelle canne correspondra. |
-| `caught_entity_type` | chaîne | *(n'importe quel)* | Type d'entité de ce qui a été accroché. Si omis, n'importe quel poisson correspondra. |
+| `rod` | chaîne | *(n’importe quel)* | ID d’objet de la canne à pêche. Si omis, n’importe quelle canne correspondra. |
+| `caught_entity_type` | chaîne | *(n’importe quel)* | Type d'entité de ce qui a été accroché. Si omis, n’importe quel poisson correspondra. |
 
 ---
 
@@ -446,15 +446,15 @@ criteria:
       item: minecraft:lava_bucket  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet du seau résultant. Si omis, n'importe quel seau rempli correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet du seau résultant. Si omis, n’importe quel seau rempli correspondra. |
 
 ---
 
 ## item_durability_changed
 
-Se déclenche lorsqu'un objet dans la main du joueur subit des dégâts de durabilité.
+Se déclenche lorsqu’un objet dans la main du joueur subit des dégâts de durabilité.
 
 ```yaml
 criteria:
@@ -464,15 +464,15 @@ criteria:
       item: my_pack:ruby_sword  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet de l'objet endommagé. Si omis, n'importe quel objet correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet de l’objet endommagé. Si omis, n’importe quel objet correspondra. |
 
 ---
 
 ## item_used_on_block
 
-Se déclenche lorsque le joueur clique à droite sur un bloc avec un objet dans sa main principale.
+Se déclenche lorsque le joueur fait un clic droit sur un bloc avec un objet dans sa main principale.
 
 ```yaml
 criteria:
@@ -483,10 +483,10 @@ criteria:
       block: minecraft:crafting_table  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet que le joueur doit tenir. |
-| `block` | chaîne | *(n'importe quel)* | Clé de type de bloc vanille. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet que le joueur doit tenir. |
+| `block` | chaîne | *(n’importe quel)* | Clé de type de bloc vanille. |
 
 ---
 
@@ -502,9 +502,9 @@ criteria:
       recipe: minecraft:diamond_sword  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `recipe` | chaîne | *(n'importe quel)* | Clé de recette comme `namespace:id`. Si omis, n'importe quelle action de fabrication correspondra. |
+| `recipe` | chaîne | *(n’importe quel)* | Clé de recette comme `namespace:id`. Si omis, n’importe quelle action de fabrication correspondra. |
 
 ---
 
@@ -528,7 +528,7 @@ criteria:
 
 ## player_interacted_with_entity
 
-Se déclenche lorsque le joueur clique à droite sur une entité avec sa main principale.
+Se déclenche lorsque le joueur fait un clic droit sur une entité avec sa main principale.
 
 ```yaml
 criteria:
@@ -539,10 +539,10 @@ criteria:
       item: minecraft:name_tag         # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
-| `item` | chaîne | *(n'importe quel)* | ID d'objet que le joueur doit tenir. Si omis, tout objet (ou main vide) correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille. Si omis, toute entité correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet que le joueur doit tenir. Si omis, tout objet (ou main vide) correspondra. |
 
 ---
 
@@ -558,9 +558,9 @@ criteria:
       entity_type: minecraft:sheep  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, toute entité cisaillable correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille. Si omis, toute entité cisaillable correspondra. |
 
 ---
 
@@ -576,9 +576,9 @@ criteria:
       block: minecraft:beehive  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `block` | chaîne | *(n'importe quel)* | Clé de type de bloc (`minecraft:beehive` ou `minecraft:bee_nest`). Si omis, l'une ou l'autre correspondra. |
+| `block` | chaîne | *(n’importe quel)* | Clé de type de bloc (`minecraft:beehive` ou `minecraft:bee_nest`). Si omis, l'une ou l'autre correspondra. |
 
 ---
 
@@ -594,9 +594,9 @@ criteria:
       entity_type: minecraft:horse  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `entity_type` | chaîne | *(n'importe quel)* | Clé de type d'entité vanille. Si omis, n'importe quelle monture correspondra. |
+| `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille. Si omis, n’importe quelle monture correspondra. |
 
 ---
 
@@ -612,9 +612,9 @@ criteria:
       effect: minecraft:speed  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `effect` | chaîne | *(n'importe quel)* | Clé d'effet de potion (par ex. `minecraft:speed`). Si omis, toute addition ou modification d'effet correspondra. |
+| `effect` | chaîne | *(n’importe quel)* | Clé d'effet de potion (par ex. `minecraft:speed`). Si omis, toute addition ou modification d'effet correspondra. |
 
 ---
 
@@ -631,16 +631,16 @@ criteria:
       from: minecraft:overworld   # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `to` | chaîne | *(n'importe quel)* | Clé de dimension vers laquelle le joueur a voyagé (par ex. `minecraft:the_nether`). |
-| `from` | chaîne | *(n'importe quel)* | Clé de dimension d'où le joueur a voyagé. |
+| `to` | chaîne | *(n’importe quel)* | Clé de dimension vers laquelle le joueur a voyagé (par ex. `minecraft:the_nether`). |
+| `from` | chaîne | *(n’importe quel)* | Clé de dimension d'où le joueur a voyagé. |
 
 ---
 
 ## slept_in_bed
 
-Se déclenche lorsque le joueur entre avec succès dans un lit. Pas de conditions.
+Se déclenche lorsque le joueur entre avec progrès dans un lit. Pas de conditions.
 
 ```yaml
 criteria:
@@ -688,7 +688,7 @@ criteria:
 
 ## held_item
 
-Déclencheur personnalisé IAA. Se déclenche lorsque le joueur fait défiler jusqu'à un emplacement de barre d'accès rapide qui contient un objet spécifique.
+Déclencheur personnalisé IAA. Se déclenche lorsque le joueur fait défiler jusqu’à un emplacement de barre d'accès rapide qui contient un objet spécifique.
 
 ```yaml
 criteria:
@@ -698,9 +698,9 @@ criteria:
       item: my_pack:ruby_sword  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(n'importe quel)* | ID d'objet. Si omis, n'importe quel objet vers lequel on défile correspondra. |
+| `item` | chaîne | *(n’importe quel)* | ID d’objet. Si omis, n’importe quel objet vers lequel on défile correspondra. |
 
 ---
 
@@ -735,10 +735,10 @@ criteria:
       world: world  # optionnel
 ```
 
-| Clé | Type | Par Défaut | Description |
+| Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
 | `biome` | chaîne | *(requis)* | Clé de biome comme `namespace:id` (par ex. `minecraft:deep_dark`). |
-| `world` | chaîne | *(n'importe quel)* | Nom du monde pour limiter la vérification à un seul monde. |
+| `world` | chaîne | *(n’importe quel)* | Nom du monde pour limiter la vérification à un seul monde. |
 
 ---
 

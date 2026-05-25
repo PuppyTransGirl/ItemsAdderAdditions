@@ -1,10 +1,10 @@
 ---
 title: Affichage de texte
-description: Afficher du texte flottant au-dessus d'un bloc ou meuble personnalisé. Supporte MiniMessage et PlaceholderAPI.
+description: Afficher du texte flottant au-dessus de n’importe quel bloc ou meuble personnalisé ItemsAdder. Prend en charge MiniMessage, les placeholders PlaceholderAPI et les images de police ItemsAdder.
 version: "1.0.8"
 ---
 
-Attache un ou plusieurs affichages de texte flottants à un bloc ou meuble personnalisé. Supporte le formatage MiniMessage, les placeholders PlaceholderAPI et les images de police ItemsAdder.
+Attache un ou plusieurs affichages de texte flottants à un bloc ou meuble personnalisé. Prend en charge le formatage MiniMessage, les placeholders PlaceholderAPI et les images de police ItemsAdder.
 
 Fonctionne sur les **blocs**, **meubles** et **meubles complexes**.
 
@@ -28,7 +28,7 @@ behaviours:
 
 ## Affichages multiples
 
-Utilisez la section `displays` pour attacher plus d'un affichage de texte au même objet. Chaque entrée est positionnée et stylisée indépendamment.
+Utilisez la section `displays` pour attacher plus d’un affichage de texte au même objet. Chaque entrée est positionnée et stylisée indépendamment.
 
 ```yaml
 behaviours:
@@ -46,7 +46,7 @@ behaviours:
 
 | Clé | Type | Défaut | Description |
 |-----|------|--------|-------------|
-| `text` | chaîne ou liste | *(obligatoire)* | Le texte à afficher. Supporte MiniMessage, PlaceholderAPI et les images de police `:icon:`. |
+| `text` | chaîne ou liste | *(obligatoire)* | Le texte à afficher. Prend en charge MiniMessage, PlaceholderAPI et les images de police `:icon:`. |
 | `offset` | `"x, y, z"` ou liste | `"0, 0.25, 0"` | Décalage de position relatif au centre du bloc ou meuble. |
 | `billboard` | `FIXED` \| `VERTICAL` \| `HORIZONTAL` \| `CENTER` | `VERTICAL` | Comment l'affichage pivote pour faire face aux joueurs. |
 | `alignment` | `LEFT` \| `CENTER` \| `RIGHT` | `CENTER` | Alignement du texte dans l'affichage. |
@@ -86,7 +86,7 @@ behaviours:
 
 ## Notes
 
-- Le texte supporte les balises de formatage [MiniMessage](https://docs.advntr.dev/minimessage/format.html).
+- Le texte prend en charge les balises de formatage [MiniMessage](https://docs.advntr.dev/minimessage/format.html).
 - Les placeholders PlaceholderAPI sont résolus par joueur si PlaceholderAPI est installé.
-- Les images de police ItemsAdder (`:my_icon:`) sont supportées.
+- Les images de police ItemsAdder (`:my_icon:`) sont prises en charge.
 - Lors de l'utilisation de placeholders qui se mettent à jour dans le temps, définissez `refresh_interval` à une valeur positive (ex. `20` pour une fois par seconde).

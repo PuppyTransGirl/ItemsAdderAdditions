@@ -1,16 +1,16 @@
 ---
-title: Barre d'action
-description: Envoyer un message personnalisé dans la barre d'action lors de n'importe quel événement ItemsAdder.
+title: Barre d’action
+description: Envoyer un message de barre d’action formaté avec MiniMessage aux joueurs lorsqu’un événement d’objet ItemsAdder se déclenche. Prend en charge les placeholders PlaceholderAPI.
 version: "1.0.0"
 ---
 
 ```yaml
 actionbar:
-  text: "<red>Ma barre d'action personnalisée envoyée à %player_name%"
+  text: "<red>Ma barre d’action personnalisée envoyée à %player_name%"
 ```
 
 ## Paramètres
 
 ### `text`
 
-Obligatoire. Le message à afficher. Supporte [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police.
+Obligatoire. Le message à afficher. Prend en charge [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) et les images de police.

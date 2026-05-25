@@ -1,6 +1,6 @@
 ---
 title: Werkbank
-description: Voeg geavanceerde knutselrecepten toe met tags, ingrediënthoeveelheden, duurzaamheidsafhandeling en shapeless-ondersteuning.
+description: Voeg geavanceerde ItemsAdder-werkbankrecepten toe met ingrediënttags, exacte aantallen, duurzaamheidsvereisten en ondersteuning voor shapeless recepten.
 version: "1.0.7"
 ---
 
@@ -127,7 +127,7 @@ Als ingesteld op `false`, wordt het recept niet geregistreerd.
 
 Optioneel.
 
-Als ingesteld, moeten spelers deze toestemming hebben om het receptresultaat te zien en te knutselen.
+Als ingesteld, moeten spelers deze permissie hebben om het receptresultaat te zien en te craften.
 
 ```yaml
 permission: "my_pack.recipe.use"
@@ -223,7 +223,7 @@ ingredients:
   C: "my_pack:custom_part"
 ```
 
-### Gedetailleerd object
+### Gedetailleerd item
 
 ```yaml
 ingredients:
@@ -273,7 +273,7 @@ ingredients:
 
 In plaats van het ingrediënt te verbruiken, wordt het beschadigd met het geconfigureerde bedrag.
 
-Handig voor gereedschappen gebruikt bij knutselen.
+Handig voor gereedschappen gebruikt bij craften.
 
 ```yaml
 ingredients:
@@ -284,9 +284,9 @@ ingredients:
 
 ### `replacement`
 
-Vervang het ingrediënt door een ander item na het knutselen.
+Vervang het ingrediënt door een ander item na het craften.
 
-Handig voor emmers, flessen, vormen en soortgelijke containers.
+Handig voor emmers, flessen, mallen en soortgelijke containers.
 
 ```yaml
 ingredients:
@@ -308,7 +308,7 @@ ingredients:
 
 ### `potion_type`
 
-Beperk een potioningrediënt tot een specifiek basispotiotype.
+Beperk een potioningrediënt tot een specifiek basis-potiontype.
 
 ```yaml
 ingredients:
@@ -375,6 +375,6 @@ Ingrediënt- en resultaatitems kunnen gebruiken:
 
 ## Opmerkingen
 
-- `replacement` en `damage` worden toegepast tijdens het knutselen.
+- `replacement` en `damage` worden toegepast tijdens het craften.
 - Shapeless recepten met geavanceerde predicaten moeten het lijstformaat gebruiken.
 - `iaa_crafting_table` is een aanvullend geavanceerd recepttype, geen vervanging voor ItemsAdder `crafting_table`.

@@ -1,10 +1,10 @@
 ---
 title: Lit
-description: Transformer n'importe quel meuble ItemsAdder en lit fonctionnel à plusieurs emplacements.
+description: Transformer n’importe quel meuble ItemsAdder personnalisé en lit fonctionnel à plusieurs emplacements. Prend en charge deux joueurs dormant simultanément sur un lit double.
 version: "1.0.7"
 ---
 
-Transforme n'importe quel meuble personnalisé en lit fonctionnel. Supporte plusieurs emplacements de couchage sur une même pièce, permettant à un lit double d'accueillir deux joueurs simultanément.
+Transforme n’importe quel meuble personnalisé en lit fonctionnel. Prend en charge plusieurs emplacements de couchage sur une même pièce, permettant à un lit double d'accueillir deux joueurs simultanément.
 
 Fonctionne avec les **meubles personnalisés** et les **meubles complexes**.
 
@@ -67,7 +67,7 @@ behaviours:
 ## Comportement
 
 - Un clic droit sur le meuble (ou ses blocs barrière) tente de faire dormir le joueur dans le prochain emplacement disponible.
-- Si tous les emplacements sont occupés, le joueur voit le message **"Ce lit est occupé"** dans la barre d'action.
+- Si tous les emplacements sont occupés, le joueur voit le message **"Ce lit est occupé"** dans la barre d’action.
 - Un bloc de lit vanilla temporaire est placé à l'emplacement pour que le mécanisme de sommeil Minecraft fonctionne. Il est retiré lorsque le joueur se réveille, se déconnecte ou que le meuble est cassé.
 - Casser le meuble réveille les joueurs endormis.
 - S'accroupir en cliquant droit est ignoré pour que les joueurs puissent interagir normalement en se baissant.

@@ -9,6 +9,7 @@
     "recipes",
     "---",
     "features",
+    "advancements",
     "behaviours",
     "actions",
     "worldgen"

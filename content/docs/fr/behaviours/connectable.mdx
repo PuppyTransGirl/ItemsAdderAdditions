@@ -1,6 +1,6 @@
 ---
 title: Connectable
-description: Faire en sorte que les meubles personnalisés ItemsAdder se connectent automatiquement aux pièces adjacentes identiques. Supporte les escaliers, tables, barrières et tout meuble multi-variante.
+description: Faire en sorte que les meubles personnalisés ItemsAdder se connectent automatiquement aux pièces adjacentes correspondantes. Prend en charge escaliers, tables, barrières et meubles à variantes multiples.
 version: "1.0.0"
 ---
 
@@ -49,13 +49,13 @@ version: "1.0.0"
     </Tab>
 </Tabs>
 
-Les IDs doivent être des meubles personnalisés.
+Les ID doivent être des meubles personnalisés.
 
-## Résolution automatique des IDs
+## Résolution automatique des ID
 
-Tous les IDs de type de meuble sont optionnels. Si non spécifiés, le plugin recherche automatiquement les IDs de meubles correspondants :
+Tous les ID de type de meuble sont optionnels. Si non spécifiés, le plugin recherche automatiquement les ID de meubles correspondants :
 
-- `default` hérite de l'ID du meuble sur lequel le comportement est configuré.
+- `default` hérite de l’ID du meuble sur lequel le comportement est configuré.
 - Chaque autre type utilise `<nom_meuble>_<type>`.
 
 Par exemple, si le comportement est configuré sur un meuble nommé `connectable_furniture` :
@@ -86,4 +86,4 @@ behaviours:
     type: stair # ou table
 ```
 
-Dans la plupart des cas, il suffit de définir le type ; la résolution automatique des IDs s'occupe du reste.
+Dans la plupart des cas, il suffit de définir le type ; la résolution automatique des ID s’occupe du reste.

@@ -1,6 +1,6 @@
 ---
 title: Wereldgeneratie
-description: Spawn aangepaste ItemsAdder-meubels tijdens chunkgeneratie.
+description: Spawn aangepaste ItemsAdder-meubels tijdens Minecraft-chunkgeneratie. Ondersteunt world-populator- en surface-decorator-modi, geconfigureerd in je YML-bestanden.
 version: "1.0.8"
 ---
 
@@ -43,17 +43,17 @@ blocks_populators:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |---------|------|-----------|--------------|
-| `enabled` | boolean | `true` | Stel in op `false` om over te slaan zonder te verwijderen. |
+| `enabled` | bool | `true` | Stel dit in op `false` om over te slaan zonder te verwijderen. |
 | `furniture` | `namespace:id` | *(verplicht)* | Het te spawnen ItemsAdder-meubel. |
 | `worlds` | lijst | *(alle)* | Wereldnamen om tot te beperken. Ondersteunt `*` jokerteken. |
 | `biomes` | lijst | *(alle)* | Bioom-ID's (bijv. `minecraft:forest`). Alle moeten geldig zijn, anders wordt de invoer overgeslagen. |
 | `replaceable_blocks` | lijst | *(elk)* | Toegestane materialen voor het blok direct onder het spawnpunt. |
-| `vein_blocks` | integer | `1` | Meubelstuks per aderpoging. |
+| `vein_blocks` | integer | `1` | Aantal meubelstukken per aderpoging. |
 | `chunk_veins` | integer | `4` | Aderpogingen per chunk. |
 | `chunk_chance` | double | `-1` | 0-100 kans per chunk. `-1` = altijd. |
-| `min_height` | integer | `60` | Minimum Y-niveau. Moet minder zijn dan `max_height`. |
+| `min_height` | integer | `60` | Minimum Y-niveau. Moet lager zijn dan `max_height`. |
 | `max_height` | integer | `80` | Maximum Y-niveau. |
-| `allow_liquid_placement` | boolean | `false` | Sta spawnen in water of lava toe. |
+| `allow_liquid_placement` | bool | `false` | Sta spawnen in water of lava toe. |
 
 ## Oppervlakte-decorateur
 
@@ -82,17 +82,17 @@ surface_decorators:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |---------|------|-----------|--------------|
-| `enabled` | boolean | `true` | Stel in op `false` om over te slaan zonder te verwijderen. |
+| `enabled` | bool | `true` | Stel dit in op `false` om over te slaan zonder te verwijderen. |
 | `furniture` | `namespace:id` | *(verplicht)* | Het te spawnen ItemsAdder-meubel. |
 | `worlds` | lijst | *(alle)* | Wereldnamen om tot te beperken. Ondersteunt `*` jokerteken. |
 | `biomes` | lijst | *(alle)* | Bioom-ID's (bijv. `minecraft:plains`). Alle moeten geldig zijn, anders wordt de invoer overgeslagen. |
 | `bottom_blocks` | lijst | *(elk)* | Toegestane materialen voor het blok direct onder het spawnpunt. |
 | `amount` | integer | `4` | Plaatsingspogingen per chunk. |
 | `chunk_chance` | double | `-1` | 0-100 kans per chunk. `-1` = altijd. |
-| `min_height` | integer | `60` | Minimum Y-niveau. Moet minder zijn dan `max_height`. |
+| `min_height` | integer | `60` | Minimum Y-niveau. Moet lager zijn dan `max_height`. |
 | `max_height` | integer | `80` | Maximum Y-niveau. |
-| `allow_liquid_surface` | boolean | `false` | Sta een vloeistofblok onder het spawnpunt toe als geldig oppervlak. |
-| `allow_liquid_placement` | boolean | `false` | Sta spawnen in water of lava toe. |
+| `allow_liquid_surface` | bool | `false` | Sta een vloeistofblok onder het spawnpunt toe als geldig oppervlak. |
+| `allow_liquid_placement` | bool | `false` | Sta spawnen in water of lava toe. |
 
 ## Opmerkingen
 
