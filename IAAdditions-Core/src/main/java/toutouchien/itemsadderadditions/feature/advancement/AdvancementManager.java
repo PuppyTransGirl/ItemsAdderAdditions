@@ -68,9 +68,9 @@ public final class AdvancementManager implements ReloadableContentSystem {
         List<AdvancementDefinition> defs = loadAll(context.registry());
         List<AdvancementSpec> specs = AdvancementSpecBuilder.buildAll(defs);
 
-        NmsManager.instance().handler().advancements().registerAll(specs);
         registry.setAll(defs);
         runtimeService.register(plugin);
+        NmsManager.instance().handler().advancements().registerAll(specs);
 
         Log.info(LOG_TAG, "Loaded {} advancement(s) in {}ms.",
                 defs.size(), System.currentTimeMillis() - start);

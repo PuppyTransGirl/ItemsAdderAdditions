@@ -56,6 +56,14 @@ jobs:
       - name: Run tests
         run: ./gradlew test --no-daemon --stacktrace
 
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: ${{ always() }}
+        with:
+          name: Tests
+          path: IAAdditions-Test/build/test-results/test/TEST-*.xml
+          reporter: java-junit
+
       - name: Build with snapshot version
         env:
           SNAPSHOT: true

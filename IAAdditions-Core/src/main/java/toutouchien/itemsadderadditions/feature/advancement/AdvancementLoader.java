@@ -62,7 +62,7 @@ public final class AdvancementLoader {
                 namespace, id, criteriaSec
         );
 
-        if (criteria.isEmpty() && criteriaSec != null && parent != null) {
+        if (criteria.isEmpty() && parent != null) {
             Log.warn(LOG_TAG, "Advancement {}:{} has no valid criteria, skipping.", namespace, id);
             return null;
         }
@@ -99,6 +99,10 @@ public final class AdvancementLoader {
         }
         String description = sec.getString("description", "");
         String frame = sec.getString("frame", "task").toLowerCase(Locale.ROOT);
+        if (!frame.equals("task") && !frame.equals("goal") && !frame.equals("challenge")) {
+            Log.warn(LOG_TAG, "Unknown frame type '{}' for {}:{}, defaulting to 'task'", frame, namespace, id);
+            frame = "task";
+        }
         String iconId = sec.getString("icon", "minecraft:barrier");
         String background = sec.getString("background");
 

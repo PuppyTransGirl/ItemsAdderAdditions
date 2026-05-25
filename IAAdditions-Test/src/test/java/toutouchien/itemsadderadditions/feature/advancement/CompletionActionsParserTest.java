@@ -90,4 +90,36 @@ class CompletionActionsParserTest {
                 """);
         assertFalse(CompletionActionsParser.parse(cfg).isEmpty());
     }
+
+    @Test
+    void parse_commandAsConsole_returnsNonEmpty() {
+        var cfg = yamlOf("commands:\n  r:\n    command: 'say hi'\n    as_console: true\n");
+        assertFalse(CompletionActionsParser.parse(cfg).isEmpty());
+    }
+
+    @Test
+    void parse_commandMissingCommandKey_entrySkipped() {
+        // entry without "command" key - should produce empty result
+        var cfg = yamlOf("commands:\n  r:\n    as_console: true\n");
+        assertSame(CompletionActions.EMPTY, CompletionActionsParser.parse(cfg));
+    }
+
+    @Test
+    void parse_titleWithAllTimingFields_returnsNonEmpty() {
+        var cfg = yamlOf("""
+                title:
+                  title: '<gold>Done!'
+                  subtitle: '<gray>Sub'
+                  fade_in: 5
+                  stay: 40
+                  fade_out: 15
+                """);
+        assertFalse(CompletionActionsParser.parse(cfg).isEmpty());
+    }
+
+    @Test
+    void parse_actionBarBlankText_returnsEmpty() {
+        var cfg = yamlOf("actionbar:\n  text: '   '\n");
+        assertSame(CompletionActions.EMPTY, CompletionActionsParser.parse(cfg));
+    }
 }

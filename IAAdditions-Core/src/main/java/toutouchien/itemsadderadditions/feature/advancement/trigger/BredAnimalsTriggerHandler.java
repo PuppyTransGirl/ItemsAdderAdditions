@@ -25,8 +25,14 @@ public final class BredAnimalsTriggerHandler extends AbstractTriggerHandler {
             if (!(c.conditions() instanceof AdvancementConditions.BredAnimals(String type, String parentType, String partnerType)))
                 continue;
             if (type != null && !type.equals(entityType)) continue;
-            if (parentType != null && !parentType.equals(motherType) && !parentType.equals(fatherType)) continue;
-            if (partnerType != null && !partnerType.equals(motherType) && !partnerType.equals(fatherType)) continue;
+            if (parentType != null && partnerType != null) {
+                boolean option1 = parentType.equals(motherType) && partnerType.equals(fatherType);
+                boolean option2 = parentType.equals(fatherType) && partnerType.equals(motherType);
+                if (!option1 && !option2) continue;
+            } else {
+                if (parentType != null && !parentType.equals(motherType) && !parentType.equals(fatherType)) continue;
+                if (partnerType != null && !partnerType.equals(motherType) && !partnerType.equals(fatherType)) continue;
+            }
             award(player, advancementKeyFor(c), c.name());
         }
     }

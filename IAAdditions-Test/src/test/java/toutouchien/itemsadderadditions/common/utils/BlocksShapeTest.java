@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions.common.utils;
 
 import org.bukkit.Location;
+import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -144,5 +145,84 @@ class BlocksShapeTest {
         int beamCount = BlocksShape.BEAM.collect(center(), 1, 1, 3).size();
         int cylinderCount = BlocksShape.CYLINDER.collect(center(), 1, 1, 3).size();
         assertEquals(cylinderCount, beamCount);
+    }
+
+    @Test
+    void shellRadius1ContainsBlocks() {
+        assertFalse(BlocksShape.SHELL.collect(center(), 1, 1, 1).isEmpty());
+    }
+
+    @Test
+    void shellRadius2SmallerthanSphere() {
+        int sphere = BlocksShape.SPHERE.collect(center(), 2, 2, 2).size();
+        int shell = BlocksShape.SHELL.collect(center(), 2, 2, 2).size();
+        assertTrue(shell < sphere, "shell should have fewer blocks than solid sphere");
+    }
+
+    @Test
+    void shellRadius5HasFarFewerBlocksThanSphere() {
+        int sphere = BlocksShape.SPHERE.collect(center(), 5, 5, 5).size();
+        int shell = BlocksShape.SHELL.collect(center(), 5, 5, 5).size();
+        assertTrue(shell < sphere);
+    }
+
+    @Test
+    void torusRadius2ContainsBlocks() {
+        // torus with major radius ~2 and tube radius 1
+        assertFalse(BlocksShape.TORUS.collect(center(), 2, 1, 2).isEmpty());
+    }
+
+    @Test
+    void torusDonutShapeHasFewerBlocksThanCuboid() {
+        int cuboid = BlocksShape.CUBOID.collect(center(), 4, 4, 4).size();
+        int torus = BlocksShape.TORUS.collect(center(), 4, 2, 4).size();
+        assertTrue(torus < cuboid);
+    }
+
+    @Test
+    void collectBiomeQuanta_cuboid_returnsNonEmpty() {
+        List<Location> quanta = BlocksShape.CUBOID.collectBiomeQuanta(center(), 4, 4, 4);
+        assertFalse(quanta.isEmpty());
+    }
+
+    @Test
+    void collectBiomeQuanta_sphere_fewerThanCuboid() {
+        int cuboidQ = BlocksShape.CUBOID.collectBiomeQuanta(center(), 8, 8, 8).size();
+        int sphereQ = BlocksShape.SPHERE.collectBiomeQuanta(center(), 8, 8, 8).size();
+        assertTrue(sphereQ < cuboidQ);
+    }
+
+    @Test
+    void collectBiomeQuanta_cone_withDirection_returnsNonEmpty() {
+        // Large radii needed so quanta fall inside the narrow cone cross-section
+        Vector dir = new Vector(0, 0, 1);
+        List<Location> quanta = BlocksShape.CONE.collectBiomeQuanta(center(), 8, 8, 32, dir);
+        assertFalse(quanta.isEmpty());
+    }
+
+    @Test
+    void collectBiomeQuanta_beam_withDirection_returnsNonEmpty() {
+        // Large cross-sectional radii to capture quantum-grid-aligned quanta
+        Vector dir = new Vector(1, 0, 0);
+        assertFalse(BlocksShape.BEAM.collectBiomeQuanta(center(), 4, 4, 16, dir).isEmpty());
+    }
+
+    @Test
+    void collectBiomeQuanta_pyramid_withDirection_returnsNonEmpty() {
+        Vector dir = new Vector(0, 0, 1);
+        assertFalse(BlocksShape.PYRAMID.collectBiomeQuanta(center(), 8, 8, 16, dir).isEmpty());
+    }
+
+    @Test
+    void collectBiomeQuanta_cone_nullDirection_returnsEmpty() {
+        // CONE.isInsideDouble returns false for null dir → no quanta match
+        assertTrue(BlocksShape.CONE.collectBiomeQuanta(center(), 4, 4, 4).isEmpty());
+    }
+
+    @Test
+    void collectBiomeQuanta_shell_returnsFewerThanSphere() {
+        int sphereQ = BlocksShape.SPHERE.collectBiomeQuanta(center(), 8, 8, 8).size();
+        int shellQ = BlocksShape.SHELL.collectBiomeQuanta(center(), 8, 8, 8).size();
+        assertTrue(shellQ < sphereQ);
     }
 }

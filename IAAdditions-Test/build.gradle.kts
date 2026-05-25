@@ -24,4 +24,5 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.paper.api.test)
     testImplementation(libs.mockbukkit)
+    testImplementation(libs.itemsadder)
 }

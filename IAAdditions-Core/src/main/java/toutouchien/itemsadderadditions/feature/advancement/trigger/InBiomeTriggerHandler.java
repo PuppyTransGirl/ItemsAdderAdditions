@@ -17,8 +17,7 @@ public final class InBiomeTriggerHandler extends AbstractTriggerHandler {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onMove(PlayerMoveEvent event) {
-        if (event.getFrom().getBlockX() >> 4 == event.getTo().getBlockX() >> 4
-                && event.getFrom().getBlockZ() >> 4 == event.getTo().getBlockZ() >> 4) return;
+        if (event.getFrom().getBlock().getBiome().equals(event.getTo().getBlock().getBiome())) return;
 
         String worldName = event.getPlayer().getWorld().getName();
         NamespacedKey biomeKey = event.getPlayer().getLocation().getBlock().getBiome().getKey();
