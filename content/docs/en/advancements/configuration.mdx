@@ -43,7 +43,7 @@ display:
   description: "<gray>Obtain your first custom sword."
   icon: my_pack:ruby_sword
   frame: task
-  background: "minecraft:/gui/advancements/backgrounds/adventure.png"
+  background: "minecraft:gui/advancements/backgrounds/adventure.png"
   show_toast: true
   announce_to_chat: true
   hidden: false
@@ -55,7 +55,7 @@ display:
 | `description` | string | `""` | Tooltip description. Supports MiniMessage. |
 | `icon` | `namespace:id` | `minecraft:barrier` | Item shown as the icon. Accepts ItemsAdder item IDs, MMOItems IDs, or vanilla material IDs. Tags are not supported because the icon must resolve to one concrete item. |
 | `frame` | string | `task` | Shape of the icon border: `task`, `goal`, or `challenge`. |
-| `background` | string | *(none)* | **Root advancements only.** Texture path for the tab background (e.g. `minecraft:/gui/advancements/backgrounds/adventure.png`). |
+| `background` | string | *(none)* | **Root advancements only.** Texture path for the tab background (e.g. `minecraft:gui/advancements/backgrounds/adventure.png`). |
 | `show_toast` | boolean | `true` | Show a toast notification when completed. |
 | `announce_to_chat` | boolean | `true` | Broadcast completion to all players in chat. |
 | `hidden` | boolean | `false` | Hide this advancement until it is completed. |
@@ -128,7 +128,7 @@ advancements:
       title: "My Server"
       description: "Custom achievements for My Server."
       icon: minecraft:nether_star
-      background: "minecraft:/gui/advancements/backgrounds/adventure.png"
+      background: "minecraft:gui/advancements/backgrounds/adventure.png"
       show_toast: false
       announce_to_chat: false
       frame: task
