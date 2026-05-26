@@ -2732,7 +2732,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                                         l: 'background',
                                         t: 'text',
                                         r: false,
-                                        p: 'minecraft:textures/gui/advancements/backgrounds/adventure.png',
+                                        p: 'minecraft:/gui/advancements/backgrounds/adventure.png',
                                         h: 'root advancements only - creates a new tab'
                                     }} value={values['adv_background'] ?? ''}
                                            onChange={v => setVal('adv_background', v)}/>
