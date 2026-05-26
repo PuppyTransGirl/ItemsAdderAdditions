@@ -1,0 +1,78 @@
+---
+title: Replace Item
+description: Replace the item in a player's hand with a vanilla Minecraft, ItemsAdder, or MMOItems item. Optionally copy durability, enchantments, and persistent data from the original item.
+version: "1.0.9"
+---
+
+```yaml
+replace_item:
+  item: my_pack:upgraded_sword
+  copy_durability: true # optional, default: false
+  copy_enchantments: true # optional, default: false
+  copy_pdc: true # optional, default: false
+```
+
+Replaces the item held by the target player.
+
+Normal item triggers replace the main-hand item. Off-hand trigger variants, such as `ITEM_INTERACT_OFFHAND`, replace the off-hand item instead.
+
+## Parameters
+
+### `item`
+
+Required. The replacement item to give to the player. Use a vanilla material from [this list](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), a custom ItemsAdder item with `namespace:id` or just `id`, or an MMOItems item with `mmoitems:type:id`.
+
+Tags such as `#minecraft:planks` are not supported because the action must create one concrete item stack.
+
+```yaml
+replace_item:
+  item: minecraft:diamond_sword
+```
+
+```yaml
+replace_item:
+  item: my_pack:ruby_sword
+```
+
+```yaml
+replace_item:
+  item: mmoitems:sword:flame_blade
+```
+
+### `copy_durability`
+
+Optional. Defaults to `false`.
+
+If `true`, copies the current durability damage from the original item to the replacement item. This only applies when both items support durability.
+
+### `copy_enchantments`
+
+Optional. Defaults to `false`.
+
+If `true`, copies all enchantments from the original item to the replacement item.
+
+### `copy_pdc`
+
+Optional. Defaults to `false`.
+
+If `true`, copies the original item's Persistent Data Container into the replacement item. Existing keys on the replacement item are overwritten when they use the same key.
+
+## Full example
+
+```yaml
+my_pack:ruby_sword:
+  events:
+    interact:
+      right:
+        replace_item:
+          item: my_pack:charged_ruby_sword
+          copy_durability: true
+          copy_enchantments: true
+          copy_pdc: true
+```
+
+## Notes
+
+- If the configured `item` cannot be resolved, the action does nothing.
+- If the action target is not a player, the action does nothing.
+- Universal action parameters such as `permission`, `delay`, and `target` are supported. See [Action Parameters](/docs/actions/parameters).

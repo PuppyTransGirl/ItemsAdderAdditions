@@ -1,0 +1,78 @@
+---
+title: Remplacer l'objet
+description: Remplacer l'objet tenu par un joueur par un objet vanilla Minecraft, ItemsAdder ou MMOItems. Peut copier la durabilité, les enchantements et les données persistantes de l'objet original.
+version: "1.0.9"
+---
+
+```yaml
+replace_item:
+  item: my_pack:upgraded_sword
+  copy_durability: true # optionnel, par défaut : false
+  copy_enchantments: true # optionnel, par défaut : false
+  copy_pdc: true # optionnel, par défaut : false
+```
+
+Remplace l'objet tenu par le joueur ciblé.
+
+Les déclencheurs d'objet normaux remplacent l'objet dans la main principale. Les variantes de déclencheurs main secondaire, comme `ITEM_INTERACT_OFFHAND`, remplacent l'objet de la main secondaire.
+
+## Paramètres
+
+### `item`
+
+Obligatoire. L'objet de remplacement à donner au joueur. Utilisez un matériau vanilla depuis [cette liste](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), un objet ItemsAdder avec `namespace:id` ou seulement `id`, ou un objet MMOItems avec `mmoitems:type:id`.
+
+Les tags comme `#minecraft:planks` ne sont pas pris en charge, car l'action doit créer un seul objet concret.
+
+```yaml
+replace_item:
+  item: minecraft:diamond_sword
+```
+
+```yaml
+replace_item:
+  item: my_pack:ruby_sword
+```
+
+```yaml
+replace_item:
+  item: mmoitems:sword:flame_blade
+```
+
+### `copy_durability`
+
+Optionnel. Par défaut : `false`.
+
+Si `true`, copie les dégâts de durabilité actuels depuis l'objet original vers l'objet de remplacement. Cela s'applique uniquement si les deux objets prennent en charge la durabilité.
+
+### `copy_enchantments`
+
+Optionnel. Par défaut : `false`.
+
+Si `true`, copie tous les enchantements de l'objet original vers l'objet de remplacement.
+
+### `copy_pdc`
+
+Optionnel. Par défaut : `false`.
+
+Si `true`, copie le Persistent Data Container de l'objet original dans l'objet de remplacement. Les clés existantes sur l'objet de remplacement sont écrasées lorsqu'elles utilisent la même clé.
+
+## Exemple complet
+
+```yaml
+my_pack:ruby_sword:
+  events:
+    interact:
+      right:
+        replace_item:
+          item: my_pack:charged_ruby_sword
+          copy_durability: true
+          copy_enchantments: true
+          copy_pdc: true
+```
+
+## Notes
+
+- Si l'`item` configuré ne peut pas être résolu, l'action ne fait rien.
+- Si la cible de l'action n'est pas un joueur, l'action ne fait rien.
+- Les paramètres universels d'action comme `permission`, `delay` et `target` sont pris en charge. Voir [Paramètres d'action](/docs/actions/parameters).

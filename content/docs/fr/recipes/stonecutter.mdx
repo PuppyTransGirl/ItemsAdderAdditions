@@ -1,6 +1,6 @@
 ---
 title: Tailleur de pierre
-description: Ajouter des recettes de tailleur de pierre pour des objets ItemsAdder, MMOItems ou vanilla. Définies directement dans vos fichiers YML de contenu.
+description: Ajouter des recettes de tailleur de pierre pour des objets ItemsAdder, MMOItems ou vanilla, avec sons et commandes optionnels à la fabrication.
 version: "1.0.3"
 ---
 
@@ -44,6 +44,25 @@ result:
 
 Optionnel. Par défaut : `1`. Le nombre d’objets produits.
 
+## Actions d'achèvement
+
+Utilisez `on_complete` pour jouer un son et/ou exécuter des commandes lorsque la recette est fabriquée.
+
+```yaml
+on_complete:
+  sound:
+    name: "minecraft:entity.player.levelup"
+    source: master # optionnel, par défaut : master
+    volume: 1.0 # optionnel, par défaut : 1.0
+    pitch: 1.0 # optionnel, par défaut : 1.0
+  commands:
+    reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true # optionnel, par défaut : false
+```
+
+`{player}` est remplacé par le nom du joueur qui fabrique la recette. Les commandes sont exécutées par le joueur par défaut ; définissez `as_console: true` pour les exécuter depuis la console.
+
 ## Exemple complet
 
 ```yaml
@@ -58,6 +77,13 @@ recipes:
       result:
         item: my_pack:marble_tiles
         amount: 2
+      on_complete:
+        sound:
+          name: "minecraft:block.stonecutter.use"
+        commands:
+          reward:
+            command: "give {player} diamond 1"
+            as_console: true
 ```
 
 ## Notes

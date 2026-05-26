@@ -1,6 +1,6 @@
 ---
 title: Crafting Table
-description: Add advanced crafting table recipes with ItemsAdder items, MMOItems items, vanilla items, vanilla tags, exact amounts, durability requirements, and shapeless support via iaa_crafting_table.
+description: Add advanced crafting table recipes with ItemsAdder items, MMOItems items, vanilla items, vanilla tags, exact amounts, durability requirements, shapeless support, and completion sounds/commands via iaa_crafting_table.
 version: "1.0.7"
 ---
 
@@ -139,6 +139,25 @@ permission: "my_pack.recipe.use"
 Optional. Defaults to `false`.
 
 If `true`, the recipe is treated as shapeless.
+
+## Completion actions
+
+Use `on_complete` to play a sound and/or run commands when the recipe is crafted.
+
+```yaml
+on_complete:
+  sound:
+    name: "minecraft:entity.player.levelup"
+    source: master # optional, default: master
+    volume: 1.0 # optional, default: 1.0
+    pitch: 1.0 # optional, default: 1.0
+  commands:
+    reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true # optional, default: false
+```
+
+`{player}` is replaced with the crafting player's name. Commands run as the player by default; set `as_console: true` to run them from console.
 
 ## Result
 

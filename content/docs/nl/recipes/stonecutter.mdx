@@ -1,6 +1,6 @@
 ---
 title: Steensnijder
-description: Voeg steensnijderrecepten toe voor ItemsAdder-, MMOItems- of vanilla Minecraft-items. Rechtstreeks gedefinieerd in je content-YML-bestanden.
+description: Voeg steensnijderrecepten toe voor ItemsAdder-, MMOItems- of vanilla Minecraft-items, met optionele voltooiingsgeluiden en commando's.
 version: "1.0.3"
 ---
 
@@ -44,6 +44,25 @@ result:
 
 Optioneel. Standaard: `1`. Het aantal geproduceerde items.
 
+## Voltooiingsacties
+
+Gebruik `on_complete` om een geluid af te spelen en/of commando's uit te voeren wanneer het recept wordt gemaakt.
+
+```yaml
+on_complete:
+  sound:
+    name: "minecraft:entity.player.levelup"
+    source: master # optioneel, standaard: master
+    volume: 1.0 # optioneel, standaard: 1.0
+    pitch: 1.0 # optioneel, standaard: 1.0
+  commands:
+    reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true # optioneel, standaard: false
+```
+
+`{player}` wordt vervangen door de naam van de speler die het recept maakt. Commando's worden standaard als speler uitgevoerd; stel `as_console: true` in om ze vanuit de console uit te voeren.
+
 ## Volledig voorbeeld
 
 ```yaml
@@ -58,6 +77,13 @@ recipes:
       result:
         item: my_pack:marble_tiles
         amount: 2
+      on_complete:
+        sound:
+          name: "minecraft:block.stonecutter.use"
+        commands:
+          reward:
+            command: "give {player} diamond 1"
+            as_console: true
 ```
 
 ## Opmerkingen

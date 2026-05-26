@@ -1,6 +1,6 @@
 ---
 title: Table de craft
-description: Ajouter des recettes avancées avec objets ItemsAdder, objets MMOItems, objets vanilla, tags vanilla, quantités exactes, conditions de durabilité et recettes shapeless.
+description: Ajouter des recettes avancées avec objets ItemsAdder, objets MMOItems, objets vanilla, tags vanilla, quantités exactes, conditions de durabilité, recettes shapeless, sons et commandes à la fabrication.
 version: "1.0.7"
 ---
 
@@ -140,6 +140,25 @@ permission: "my_pack.recipe.use"
 Optionnel. Par défaut : `false`.
 
 Si `true`, la recette est traitée comme une recette sans forme.
+
+## Actions d'achèvement
+
+Utilisez `on_complete` pour jouer un son et/ou exécuter des commandes lorsque la recette est fabriquée.
+
+```yaml
+on_complete:
+  sound:
+    name: "minecraft:entity.player.levelup"
+    source: master # optionnel, par défaut : master
+    volume: 1.0 # optionnel, par défaut : 1.0
+    pitch: 1.0 # optionnel, par défaut : 1.0
+  commands:
+    reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true # optionnel, par défaut : false
+```
+
+`{player}` est remplacé par le nom du joueur qui fabrique la recette. Les commandes sont exécutées par le joueur par défaut ; définissez `as_console: true` pour les exécuter depuis la console.
 
 ## Résultat
 

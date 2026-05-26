@@ -1,6 +1,6 @@
 ---
 title: Stonecutter
-description: Add stonecutter recipes for ItemsAdder, MMOItems, or vanilla Minecraft items. Defined directly in your content YML files, no extra recipe files needed.
+description: Add stonecutter recipes for ItemsAdder, MMOItems, or vanilla Minecraft items. Defined directly in your content YML files, with optional completion sounds and commands.
 version: "1.0.3"
 ---
 
@@ -44,6 +44,25 @@ result:
 
 Optional. Defaults to `1`. The number of items produced.
 
+## Completion actions
+
+Use `on_complete` to play a sound and/or run commands when the recipe is crafted.
+
+```yaml
+on_complete:
+  sound:
+    name: "minecraft:entity.player.levelup"
+    source: master # optional, default: master
+    volume: 1.0 # optional, default: 1.0
+    pitch: 1.0 # optional, default: 1.0
+  commands:
+    reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true # optional, default: false
+```
+
+`{player}` is replaced with the crafting player's name. Commands run as the player by default; set `as_console: true` to run them from console.
+
 ## Full example
 
 ```yaml
@@ -58,6 +77,13 @@ recipes:
       result:
         item: my_pack:marble_tiles
         amount: 2
+      on_complete:
+        sound:
+          name: "minecraft:block.stonecutter.use"
+        commands:
+          reward:
+            command: "give {player} diamond 1"
+            as_console: true
 ```
 
 ## Notes

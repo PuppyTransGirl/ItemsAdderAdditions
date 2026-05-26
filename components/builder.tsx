@@ -53,6 +53,8 @@ interface TextDisplayEntry {
     scale: string;
     view_range: string;
     refresh_interval: string;
+    yaw: string;
+    pitch: string;
 }
 
 interface CraftingIngredient {
@@ -131,7 +133,9 @@ function emptyTextDisplay(id: string): TextDisplayEntry {
         opacity: '',
         scale: '',
         view_range: '',
-        refresh_interval: ''
+        refresh_interval: '',
+        yaw: '',
+        pitch: ''
     };
 }
 
@@ -227,6 +231,26 @@ const ACTIONS: Record<string, FieldDef[]> = {
     ],
     play_emote: [
         {k: 'name', l: '__emoteName', t: 'text', r: true, p: 'wave'},
+    ],
+    replace_item: [
+        {k: 'item', l: 'item', t: 'text', r: true, p: 'minecraft:diamond or namespace:item or mmoitems:type:id'},
+        {
+            k: 'copy_durability',
+            l: 'copy_durability',
+            t: 'select',
+            r: false,
+            opts: ['', 'true', 'false'],
+            h: 'default: false'
+        },
+        {
+            k: 'copy_enchantments',
+            l: 'copy_enchantments',
+            t: 'select',
+            r: false,
+            opts: ['', 'true', 'false'],
+            h: 'default: false'
+        },
+        {k: 'copy_pdc', l: 'copy_pdc', t: 'select', r: false, opts: ['', 'true', 'false'], h: 'default: false'},
     ],
     replace_biome: [
         {k: 'biome', l: 'biome', t: 'text', r: true, p: 'minecraft:cherry_grove'},
@@ -573,6 +597,24 @@ function TextDisplayEntryFields({entry, index, onChange, onRemove}: {
                 p: '0',
                 h: 'ticks · 0 = disabled'
             }} value={entry.refresh_interval} onChange={v => onChange('refresh_interval', v)}/>
+            <Field def={{
+                k: 'yaw',
+                l: 'yaw',
+                t: 'number',
+                r: false,
+                p: '0.0',
+                h: 'degrees · only useful with FIXED billboard'
+            }}
+                   value={entry.yaw} onChange={v => onChange('yaw', v)}/>
+            <Field def={{
+                k: 'pitch',
+                l: 'pitch',
+                t: 'number',
+                r: false,
+                p: '0.0',
+                h: 'degrees · only useful with FIXED billboard'
+            }}
+                   value={entry.pitch} onChange={v => onChange('pitch', v)}/>
             <CheckToggle label={t.toggleAdvancedOptions} checked={showAdvanced} onChange={setShowAdvanced}/>
             {showAdvanced && (
                 <SubSection>
@@ -1161,7 +1203,9 @@ function textDisplaySpecLines(td: {
     opacity: string;
     scale: string;
     view_range: string;
-    refresh_interval: string
+    refresh_interval: string;
+    yaw: string;
+    pitch: string
 }, indent: string): string[] {
     const lines: string[] = [];
     const i = indent;
@@ -1182,6 +1226,8 @@ function textDisplaySpecLines(td: {
     if (td.scale.trim()) lines.push(`${i}scale: ${td.scale.trim()}`);
     if (td.view_range.trim()) lines.push(`${i}view_range: ${td.view_range.trim()}`);
     if (td.refresh_interval.trim() && td.refresh_interval.trim() !== '0') lines.push(`${i}refresh_interval: ${td.refresh_interval.trim()}`);
+    if (td.yaw.trim()) lines.push(`${i}yaw: ${td.yaw.trim()}`);
+    if (td.pitch.trim()) lines.push(`${i}pitch: ${td.pitch.trim()}`);
     if (td.line_width.trim()) lines.push(`${i}line_width: ${td.line_width.trim()}`);
     if (td.background.trim()) lines.push(`${i}background: "${td.background.trim()}"`);
     if (td.opacity.trim() && td.opacity.trim() !== '-1') lines.push(`${i}opacity: ${td.opacity.trim()}`);
@@ -1414,6 +1460,8 @@ function generateBehaviour(
                 scale: values['td_scale'] ?? '',
                 view_range: values['td_view_range'] ?? '',
                 refresh_interval: values['td_refresh_interval'] ?? '',
+                yaw: values['td_yaw'] ?? '',
+                pitch: values['td_pitch'] ?? '',
             }, i2).forEach(l => lines.push(l));
         } else {
             const validDisplays = textDisplays.filter(td => td.text.trim());
@@ -2412,6 +2460,24 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                                             h: 'ticks · 0 = disabled · use > 0 with PlaceholderAPI'
                                         }} value={values['td_refresh_interval'] ?? ''}
                                                onChange={v => setVal('td_refresh_interval', v)}/>
+                                        <Field def={{
+                                            k: 'td_yaw',
+                                            l: 'yaw',
+                                            t: 'number',
+                                            r: false,
+                                            p: '0.0',
+                                            h: 'degrees · only useful with FIXED billboard'
+                                        }} value={values['td_yaw'] ?? ''}
+                                               onChange={v => setVal('td_yaw', v)}/>
+                                        <Field def={{
+                                            k: 'td_pitch',
+                                            l: 'pitch',
+                                            t: 'number',
+                                            r: false,
+                                            p: '0.0',
+                                            h: 'degrees · only useful with FIXED billboard'
+                                        }} value={values['td_pitch'] ?? ''}
+                                               onChange={v => setVal('td_pitch', v)}/>
                                     </div>
                                     <Divider/>
                                     <CheckToggle label={t.toggleAdvancedOptions} checked={!!extras['td_advanced']}

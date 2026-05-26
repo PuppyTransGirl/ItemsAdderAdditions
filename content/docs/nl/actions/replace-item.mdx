@@ -1,0 +1,78 @@
+---
+title: Item vervangen
+description: Vervang het item in de hand van een speler door een vanilla Minecraft-, ItemsAdder- of MMOItems-item. Kan duurzaamheid, enchantments en persistent data van het originele item kopiëren.
+version: "1.0.9"
+---
+
+```yaml
+replace_item:
+  item: my_pack:upgraded_sword
+  copy_durability: true # optioneel, standaard: false
+  copy_enchantments: true # optioneel, standaard: false
+  copy_pdc: true # optioneel, standaard: false
+```
+
+Vervangt het item dat de doelspeler vasthoudt.
+
+Normale itemtriggers vervangen het item in de hoofdhand. Offhand-triggervarianten, zoals `ITEM_INTERACT_OFFHAND`, vervangen in plaats daarvan het item in de offhand.
+
+## Parameters
+
+### `item`
+
+Verplicht. Het vervangende item dat aan de speler wordt gegeven. Gebruik een vanilla materiaal uit [deze lijst](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), een aangepast ItemsAdder-item met `namespace:id` of alleen `id`, of een MMOItems-item met `mmoitems:type:id`.
+
+Tags zoals `#minecraft:planks` worden niet ondersteund, omdat de actie één concreet itemstack moet aanmaken.
+
+```yaml
+replace_item:
+  item: minecraft:diamond_sword
+```
+
+```yaml
+replace_item:
+  item: my_pack:ruby_sword
+```
+
+```yaml
+replace_item:
+  item: mmoitems:sword:flame_blade
+```
+
+### `copy_durability`
+
+Optioneel. Standaard: `false`.
+
+Als dit `true` is, worden de huidige duurzaamheidschade van het originele item naar het vervangende item gekopieerd. Dit geldt alleen wanneer beide items duurzaamheid ondersteunen.
+
+### `copy_enchantments`
+
+Optioneel. Standaard: `false`.
+
+Als dit `true` is, worden alle enchantments van het originele item naar het vervangende item gekopieerd.
+
+### `copy_pdc`
+
+Optioneel. Standaard: `false`.
+
+Als dit `true` is, wordt de Persistent Data Container van het originele item naar het vervangende item gekopieerd. Bestaande sleutels op het vervangende item worden overschreven wanneer ze dezelfde sleutel gebruiken.
+
+## Volledig voorbeeld
+
+```yaml
+my_pack:ruby_sword:
+  events:
+    interact:
+      right:
+        replace_item:
+          item: my_pack:charged_ruby_sword
+          copy_durability: true
+          copy_enchantments: true
+          copy_pdc: true
+```
+
+## Opmerkingen
+
+- Als het geconfigureerde `item` niet kan worden opgelost, doet de actie niets.
+- Als het actiedoel geen speler is, doet de actie niets.
+- Universele actieparameters zoals `permission`, `delay` en `target` worden ondersteund. Zie [Actieparameters](/docs/actions/parameters).
