@@ -153,7 +153,7 @@ public final class AdvancementLoader {
             AdvancementPlayerPredicate playerPredicate = trigger == RuntimeTrigger.IMPOSSIBLE
                     ? AdvancementPlayerPredicate.ANY
                     : AdvancementPlayerPredicate.parse(namespace,
-                    conditionsSec != null ? conditionsSec.getConfigurationSection("player") : null);
+                    conditionsSec != null ? conditionsSec.get("player") : null);
             result.add(new AdvancementCriterionDefinition(name, trigger, conditions, playerPredicate));
         }
         return result;
