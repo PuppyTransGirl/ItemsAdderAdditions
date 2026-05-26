@@ -1,7 +1,7 @@
 ---
 title: Crafting Table
-description: Add advanced ItemsAdder crafting table recipes with ingredient tags, exact amounts, durability requirements, and shapeless support via iaa_crafting_table.
-version: "1.0.7"
+description: Add advanced crafting table recipes with ItemsAdder items, MMOItems items, vanilla items, vanilla tags, exact amounts, durability requirements, and shapeless support via iaa_crafting_table.
+version: "1.0.10"
 ---
 
 ItemsAdderAdditions adds an extra crafting-table recipe type called `iaa_crafting_table`.
@@ -9,7 +9,8 @@ ItemsAdderAdditions adds an extra crafting-table recipe type called `iaa_craftin
 Use it when you need extra ingredient validation features not available in the standard `crafting_table` type:
 
 
-- tags
+- vanilla item/block tags
+- ItemsAdder, MMOItems, and vanilla item ingredients
 - ingredient amounts
 - durability damage on ingredients
 - replacement items
@@ -107,7 +108,8 @@ recipes:
 
 The main reason to use `iaa_crafting_table` is its additional ingredient predicate support:
 
-- tags with `#namespace:tag`
+- vanilla tags with `#minecraft:tag`
+- MMOItems ingredients with `mmoitems:type:id`
 - per-ingredient `amount`
 - per-ingredient `damage`
 - per-ingredient `replacement`
@@ -146,7 +148,7 @@ Required.
 
 The output item.
 
-Supports vanilla materials and ItemsAdder items.
+Supports vanilla materials, ItemsAdder items, and MMOItems items. Tags are only valid for ingredients, not for results.
 
 ```yaml
 result:
@@ -220,6 +222,7 @@ ingredients:
   S: STICK
   P: "#minecraft:planks"
   C: "my_pack:custom_part"
+  M: "mmoitems:material:ruby_shard"
 ```
 
 ### Detailed object
@@ -248,7 +251,7 @@ ingredients:
 
 ### Tags
 
-Use Minecraft item or block tags by prefixing the value with `#`.
+Use vanilla Minecraft item or block tags by prefixing the value with `#`. Tags match vanilla registry entries only; they do not match ItemsAdder or MMOItems content.
 
 ```yaml
 ingredients:
@@ -369,8 +372,11 @@ recipes:
 Ingredient and result items can use:
 
 - vanilla material names like `STICK` or `DIAMOND`
+- vanilla namespaced IDs like `minecraft:stick`
 - ItemsAdder IDs like `namespace:item`
-- tags like `#minecraft:planks`
+- MMOItems IDs like `mmoitems:type:id`
+
+Ingredients can additionally use vanilla tags like `#minecraft:planks`. Tags are not valid as results or replacement items.
 
 ## Notes
 

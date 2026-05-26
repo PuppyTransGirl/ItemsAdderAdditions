@@ -1,7 +1,7 @@
 ---
 title: Configuratiereferentie
 description: Volledige YAML-referentie voor aangepaste ItemsAdder-voortgangen met weergave-eigenschappen, criteria, beloningen en voltooiingsacties in één configuratiebestand.
-version: "1.0.9"
+version: "1.0.10"
 ---
 
 Elke voortgangsvermelding bevindt zich onder de `advancements`-sleutel op het hoogste niveau in elk ItemsAdder-inhoudsbestand. IAA haalt automatisch bestanden op die deze sleutel bevatten.
@@ -53,7 +53,7 @@ display:
 |-----|------|---------|-------------|
 | `title` | string | *(vereist)* | Voortgangstitel. Ondersteunt [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
 | `description` | string | `""` | Tooltip-beschrijving. Ondersteunt MiniMessage. |
-| `icon` | `namespace:id` | `minecraft:barrier` | Item dat als pictogram wordt weergegeven. Accepteert ItemsAdder-item-ID's of vanilla-materiaal-ID's. |
+| `icon` | `namespace:id` | `minecraft:barrier` | Item dat als pictogram wordt weergegeven. Accepteert ItemsAdder-item-ID's, MMOItems-ID's of vanilla-materiaal-ID's. Tags worden niet ondersteund, omdat het pictogram naar één concreet item moet verwijzen. |
 | `frame` | string | `task` | Vorm van de pictogramrand: `task`, `goal` of `challenge`. |
 | `background` | string | *(geen)* | **Alleen hoofdvoortgangen.** Tekstuurpad voor de tabblad-achtergrond (bijv. `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
 | `show_toast` | bool | `true` | Toon een toast-melding wanneer voltooid. |

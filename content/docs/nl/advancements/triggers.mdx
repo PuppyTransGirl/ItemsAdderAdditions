@@ -1,7 +1,7 @@
 ---
 title: Triggers
 description: Referentie voor alle ingebouwde triggertypen voor aangepaste ItemsAdder-voortgangen, inclusief voorwaarden en YAML-voorbeelden voor elk type.
-version: "1.0.9"
+version: "1.0.10"
 ---
 
 Triggers bepalen wat de speler moet doen om een criterium te voltooien. Elk criterium heeft één trigger en een optioneel `conditions`-blok.
@@ -14,7 +14,7 @@ criteria:
       # triggerspecifieke opties
 ```
 
-Een voortgang kan meerdere criteria hebben. Alle moeten worden voltooid voordat de voortgang wordt toegekend.
+Een voortgang kan meerdere criteria hebben. Alle moeten worden voltooid voordat de voortgang wordt toegekend. Itemvoorwaarden accepteren ItemsAdder-ID's, MMOItems-ID's, vanilla ID's en vanilla itemtags. Blokvoorwaarden accepteren ItemsAdder-blok-ID's, vanilla blok-ID's en vanilla bloktags.
 
 ---
 
@@ -35,7 +35,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `items` | lijst van strings | `[]` | Item-ID's (IA, MMOItems of vanilla). Elke overeenkomst activeert het criterium. |
+| `items` | lijst van strings | `[]` | Item-ID's of vanilla itemtags (IA, MMOItems, vanilla of `#minecraft:tag`). Elke overeenkomst activeert het criterium. |
 | `amount` | integer | `1` | Minimale stapelgrootte die de speler tegelijk moet oppakken. |
 
 ---
@@ -54,7 +54,7 @@ criteria:
 
 | Sleutel | Type | Vereist | Beschrijving |
 |-----|------|----------|-------------|
-| `item` | string | ja | Item-ID (IA, MMOItems of vanilla). |
+| `item` | string | ja | Item-ID of vanilla itemtag (IA, MMOItems, vanilla of `#minecraft:tag`). |
 
 ---
 
@@ -72,13 +72,13 @@ criteria:
 
 | Sleutel | Type | Vereist | Beschrijving |
 |-----|------|----------|-------------|
-| `item` | string | ja | Item-ID (IA, MMOItems of vanilla). |
+| `item` | string | ja | Item-ID of vanilla itemtag (IA, MMOItems, vanilla of `#minecraft:tag`). |
 
 ---
 
 ## place_block
 
-Wordt geactiveerd wanneer de speler een aangepast blok plaatst dat is geregistreerd door ItemsAdder.
+Wordt geactiveerd wanneer de speler een aangepast ItemsAdder-blok of een vanilla blok plaatst.
 
 ```yaml
 criteria:
@@ -90,13 +90,13 @@ criteria:
 
 | Sleutel | Type | Vereist | Beschrijving |
 |-----|------|----------|-------------|
-| `block` | string | ja | ItemsAdder-blok-ID (`namespace:id`). |
+| `block` | string | ja | ItemsAdder-blok-ID, vanilla blok-ID of vanilla bloktag zoals `#minecraft:logs`. |
 
 ---
 
 ## break_block
 
-Wordt geactiveerd wanneer de speler een aangepast blok breekt dat is geregistreerd door ItemsAdder.
+Wordt geactiveerd wanneer de speler een aangepast ItemsAdder-blok of een vanilla blok breekt.
 
 ```yaml
 criteria:
@@ -108,7 +108,7 @@ criteria:
 
 | Sleutel | Type | Vereist | Beschrijving |
 |-----|------|----------|-------------|
-| `block` | string | ja | ItemsAdder-blok-ID (`namespace:id`). |
+| `block` | string | ja | ItemsAdder-blok-ID, vanilla blok-ID of vanilla bloktag zoals `#minecraft:logs`. |
 
 ---
 
@@ -199,7 +199,7 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(vereist)* | Item-ID (IA, MMOItems of vanilla) die de speler moet vasthouden. |
+| `item` | string | *(vereist)* | Item-ID of vanilla itemtag die de speler moet vasthouden. |
 | `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel (bijv. `minecraft:zombie`). Indien weggelaten, komt elke entiteit overeen. |
 
 ---
@@ -485,8 +485,8 @@ criteria:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
-| `item` | string | *(elke)* | Item-ID die de speler moet vasthouden. |
-| `block` | string | *(elke)* | Vanilla-bloktypesleutel. |
+| `item` | string | *(elke)* | Item-ID of vanilla itemtag die de speler moet vasthouden. |
+| `block` | string | *(elke)* | ItemsAdder-blok-ID, vanilla blok-ID of vanilla bloktag. |
 
 ---
 
@@ -542,7 +542,7 @@ criteria:
 | Sleutel | Type | Standaard | Beschrijving |
 |-----|------|---------|-------------|
 | `entity_type` | string | *(elke)* | Vanilla-entiteitstypesleutel. Indien weggelaten, komt elke entiteit overeen. |
-| `item` | string | *(elke)* | Item-ID die de speler moet vasthouden. Indien weggelaten, komt elk item (of lege hand) overeen. |
+| `item` | string | *(elke)* | Item-ID of vanilla itemtag die de speler moet vasthouden. Indien weggelaten, komt elk item (of lege hand) overeen. |
 
 ---
 

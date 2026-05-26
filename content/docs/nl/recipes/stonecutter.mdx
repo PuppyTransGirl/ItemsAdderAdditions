@@ -1,7 +1,7 @@
 ---
 title: Steensnijder
-description: Voeg steensnijderrecepten toe voor aangepaste of vanilla Minecraft-items met ItemsAdder. Rechtstreeks gedefinieerd in je content-YML-bestanden.
-version: "1.0.7"
+description: Voeg steensnijderrecepten toe voor ItemsAdder-, MMOItems- of vanilla Minecraft-items. Rechtstreeks gedefinieerd in je content-YML-bestanden.
+version: "1.0.10"
 ---
 
 Voeg steensnijderrecepten toe zonder extra receptbestanden aan te maken.
@@ -14,7 +14,7 @@ Optioneel. Standaard: `true`. Stel dit in op `false` om het registreren van het 
 
 ### `ingredient.item`
 
-Verplicht. Het invoeritem dat in de steensnijder wordt getoond. Gebruik een vanilla materiaal of een aangepast ItemsAdder-item.
+Verplicht. Het invoeritem dat in de steensnijder wordt getoond. Gebruik een vanilla materiaal, een ItemsAdder-item of een MMOItems-item.
 
 ```yaml
 ingredient:
@@ -24,6 +24,11 @@ ingredient:
 ```yaml
 ingredient:
   item: my_pack:rough_marble
+```
+
+```yaml
+ingredient:
+  item: mmoitems:material:rough_marble
 ```
 
 ### `result.item`
@@ -57,6 +62,7 @@ recipes:
 
 ## Opmerkingen
 
-- Ondersteunt vanilla en aangepaste ItemsAdder-items.
+- Ondersteunt vanilla, ItemsAdder- en MMOItems-items.
+- Tags zoals `#minecraft:stone_tool_materials` worden hier niet ondersteund, omdat de steensnijder één concrete invoerstack nodig heeft.
 - Recept-ID's zoals `marble_tiles` zijn interne identificatoren.
 - De namespace komt van `info.namespace`.

@@ -1,7 +1,7 @@
 ---
 title: Kampvuurkoken
-description: Voeg kampvuurkookrecepten toe voor aangepaste of vanilla Minecraft-items met ItemsAdder. Rechtstreeks gedefinieerd in je content-YML-bestanden.
-version: "1.0.7"
+description: Voeg kampvuurkookrecepten toe voor ItemsAdder-, MMOItems- of vanilla Minecraft-items. Rechtstreeks gedefinieerd in je content-YML-bestanden.
+version: "1.0.10"
 ---
 
 Voeg kampvuurbereidingsrecepten toe zonder extra receptbestanden aan te maken.
@@ -14,7 +14,7 @@ Optioneel. Standaard: `true`. Stel dit in op `false` om het registreren van het 
 
 ### `ingredient.item`
 
-Verplicht. Het invoeritem voor het recept. Gebruik een vanilla materiaal of een aangepast ItemsAdder-item.
+Verplicht. Het invoeritem voor het recept. Gebruik een vanilla materiaal, een ItemsAdder-item of een MMOItems-item.
 
 ```yaml
 ingredient:
@@ -24,6 +24,11 @@ ingredient:
 ```yaml
 ingredient:
   item: my_pack:raw_fish_fillet
+```
+
+```yaml
+ingredient:
+  item: mmoitems:consumable:raw_fish
 ```
 
 ### `result.item`
@@ -67,6 +72,7 @@ recipes:
 
 ## Opmerkingen
 
-- Ondersteunt vanilla en aangepaste ItemsAdder-items.
+- Ondersteunt vanilla, ItemsAdder- en MMOItems-items.
+- Tags zoals `#minecraft:fishes` worden hier niet ondersteund, omdat kampvuurrecepten één concrete invoerstack nodig hebben.
 - Recept-ID's zoals `roasted_berry_skewer` zijn interne identificatoren.
 - De namespace komt van `info.namespace`.

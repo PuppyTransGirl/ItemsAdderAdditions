@@ -1,7 +1,7 @@
 ---
 title: Werkbank
-description: Voeg geavanceerde ItemsAdder-werkbankrecepten toe met ingrediënttags, exacte aantallen, duurzaamheidsvereisten en ondersteuning voor shapeless recepten.
-version: "1.0.7"
+description: Voeg geavanceerde werkbankrecepten toe met ItemsAdder-items, MMOItems-items, vanilla items, vanilla tags, exacte aantallen, duurzaamheidsvereisten en shapeless recepten.
+version: "1.0.10"
 ---
 
 ItemsAdderAdditions voegt een extra knutselwerkbankrecept-type toe genaamd `iaa_crafting_table`.
@@ -10,7 +10,8 @@ Het vervangt of overschrijft het normale ItemsAdder `crafting_table`-recepttype 
 
 Dit recepttype ondersteunt normale knutselreceptopties die al bekend zijn van ItemsAdder, en voegt ook extra functies toe zoals:
 
-- tags
+- vanilla item-/bloktags
+- ItemsAdder-, MMOItems- en vanilla ingrediënten
 - ingrediënthoeveelheden
 - duurzaamheidsschade op ingrediënten
 - vervangingsitems
@@ -108,7 +109,8 @@ recipes:
 
 De belangrijkste reden om `iaa_crafting_table` te gebruiken is de aanvullende ondersteuning voor ingrediëntpredicaten:
 
-- tags met `#namespace:tag`
+- vanilla tags met `#minecraft:tag`
+- MMOItems-ingrediënten met `mmoitems:type:id`
 - per-ingrediënt `amount`
 - per-ingrediënt `damage`
 - per-ingrediënt `replacement`
@@ -147,7 +149,7 @@ Verplicht.
 
 Het uitvoeritem.
 
-Ondersteunt vanilla materialen en ItemsAdder-items.
+Ondersteunt vanilla materialen, ItemsAdder-items en MMOItems-items. Tags zijn alleen geldig voor ingrediënten, niet voor resultaten.
 
 ```yaml
 result:
@@ -221,6 +223,7 @@ ingredients:
   S: STICK
   P: "#minecraft:planks"
   C: "my_pack:custom_part"
+  M: "mmoitems:material:ruby_shard"
 ```
 
 ### Gedetailleerd item
@@ -249,7 +252,7 @@ ingredients:
 
 ### Tags
 
-Gebruik Minecraft item- of bloktags door de waarde te prefixen met `#`.
+Gebruik vanilla Minecraft item- of bloktags door de waarde met `#` te prefixen. Tags matchen alleen vanilla registry-items/blokken; ze matchen geen ItemsAdder- of MMOItems-content.
 
 ```yaml
 ingredients:
@@ -370,8 +373,11 @@ recipes:
 Ingrediënt- en resultaatitems kunnen gebruiken:
 
 - vanilla materiaalnamen zoals `STICK` of `DIAMOND`
+- vanilla namespaced ID's zoals `minecraft:stick`
 - ItemsAdder-ID's zoals `namespace:item`
-- tags zoals `#minecraft:planks`
+- MMOItems-ID's zoals `mmoitems:type:id`
+
+Ingrediënten kunnen daarnaast vanilla tags gebruiken zoals `#minecraft:planks`. Tags zijn niet geldig als resultaat of vervangingsitem.
 
 ## Opmerkingen
 

@@ -1,7 +1,7 @@
 ---
 title: Cuisson au feu de camp
-description: Ajouter des recettes de cuisson au feu de camp pour des objets Minecraft personnalisés ou vanilla avec ItemsAdder. Définies directement dans vos fichiers YML de contenu.
-version: "1.0.7"
+description: Ajouter des recettes de cuisson au feu de camp pour des objets ItemsAdder, MMOItems ou vanilla. Définies directement dans vos fichiers YML de contenu.
+version: "1.0.10"
 ---
 
 Ajoutez des recettes de cuisson au feu de camp sans créer de fichiers de recettes supplémentaires.
@@ -14,7 +14,7 @@ Optionnel. Par défaut : `true`. Définissez à `false` pour ignorer l'enregistr
 
 ### `ingredient.item`
 
-Obligatoire. L'objet d'entrée pour la recette. Utilisez un matériau vanilla ou un objet ItemsAdder personnalisé.
+Obligatoire. L'objet d'entrée pour la recette. Utilisez un matériau vanilla, un objet ItemsAdder ou un objet MMOItems.
 
 ```yaml
 ingredient:
@@ -24,6 +24,11 @@ ingredient:
 ```yaml
 ingredient:
   item: my_pack:raw_fish_fillet
+```
+
+```yaml
+ingredient:
+  item: mmoitems:consumable:raw_fish
 ```
 
 ### `result.item`
@@ -67,6 +72,7 @@ recipes:
 
 ## Notes
 
-- Prend en charge les objets vanilla et ItemsAdder personnalisés.
+- Prend en charge les objets vanilla, ItemsAdder et MMOItems.
+- Les tags comme `#minecraft:fishes` ne sont pas pris en charge ici, car les recettes de feu de camp nécessitent une pile d’entrée concrète.
 - Les ID de recette comme `roasted_berry_skewer` sont des identifiants internes.
 - Le namespace provient de `info.namespace`.

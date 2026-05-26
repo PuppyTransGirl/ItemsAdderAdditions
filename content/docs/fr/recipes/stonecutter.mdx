@@ -1,7 +1,7 @@
 ---
 title: Tailleur de pierre
-description: Ajouter des recettes de tailleur de pierre pour des objets Minecraft personnalisés ou vanilla avec ItemsAdder. Définies directement dans vos fichiers YML de contenu.
-version: "1.0.7"
+description: Ajouter des recettes de tailleur de pierre pour des objets ItemsAdder, MMOItems ou vanilla. Définies directement dans vos fichiers YML de contenu.
+version: "1.0.10"
 ---
 
 Ajoutez des recettes de tailleur de pierre sans créer de fichiers de recettes supplémentaires.
@@ -14,7 +14,7 @@ Optionnel. Par défaut : `true`. Définissez à `false` pour ignorer l'enregistr
 
 ### `ingredient.item`
 
-Obligatoire. L'objet d'entrée affiché dans le tailleur de pierre. Utilisez un matériau vanilla ou un objet ItemsAdder personnalisé.
+Obligatoire. L'objet d'entrée affiché dans le tailleur de pierre. Utilisez un matériau vanilla, un objet ItemsAdder ou un objet MMOItems.
 
 ```yaml
 ingredient:
@@ -24,6 +24,11 @@ ingredient:
 ```yaml
 ingredient:
   item: my_pack:rough_marble
+```
+
+```yaml
+ingredient:
+  item: mmoitems:material:rough_marble
 ```
 
 ### `result.item`
@@ -57,6 +62,7 @@ recipes:
 
 ## Notes
 
-- Prend en charge les objets vanilla et ItemsAdder personnalisés.
+- Prend en charge les objets vanilla, ItemsAdder et MMOItems.
+- Les tags comme `#minecraft:stone_tool_materials` ne sont pas pris en charge ici, car le tailleur de pierre nécessite une pile d’entrée concrète.
 - Les ID de recette comme `marble_tiles` sont des identifiants internes.
 - Le namespace provient de `info.namespace`.

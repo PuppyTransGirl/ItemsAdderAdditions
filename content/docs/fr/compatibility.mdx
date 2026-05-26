@@ -1,0 +1,110 @@
+---
+title: Compatibilité et IDs
+icon: Puzzle
+description: Formats d'identifiants acceptés par ItemsAdderAdditions pour ItemsAdder, MMOItems, les objets/blocs vanilla et les tags Minecraft.
+version: "1.0.10"
+---
+
+ItemsAdderAdditions résout les références d’objets et de blocs avec une couche de compatibilité commune. Les mêmes formats d’IDs sont utilisés par les recettes avancées, les déclencheurs de progrès, les prédicats joueur et les actions qui créent ou vérifient des objets.
+
+## Formats d’IDs pris en charge
+
+| Contenu | Format | Exemple |
+|---------|--------|---------|
+| Objet ItemsAdder | `namespace:id` ou `id` seul dans le `info.namespace` actuel | `my_pack:ruby_sword` |
+| Bloc ItemsAdder | `namespace:id` ou `id` seul dans le `info.namespace` actuel | `my_pack:ruby_ore` |
+| Meuble ItemsAdder | `namespace:id` | `my_pack:ruby_lamp` |
+| Objet MMOItems | `mmoitems:type:id` | `mmoitems:sword:flame_blade` |
+| Objet vanilla | `minecraft:id`, nom de matériau Bukkit ou clé Minecraft seule | `minecraft:diamond`, `DIAMOND`, `diamond` |
+| Bloc vanilla | `minecraft:id`, nom de matériau Bukkit ou clé Minecraft seule | `minecraft:oak_log`, `OAK_LOG`, `oak_log` |
+| Tag vanilla d’objets/blocs | `#minecraft:tag` | `#minecraft:planks`, `#minecraft:logs` |
+
+Les IDs sont normalisés en minuscules en interne. Pour une configuration plus lisible, privilégiez les IDs complets comme `minecraft:diamond` et `my_pack:ruby_sword`.
+
+## MMOItems
+
+Le support de MMOItems est optionnel. Si MMOItems est installé et activé, utilisez :
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+Le plugin détecte les objets MMOItems grâce à leur type et leur ID MMOItems. Si MMOItems n’est pas chargé, les références `mmoitems:type:id` ne peuvent pas être résolues et ne correspondent à rien.
+
+## Tags vanilla
+
+Les tags sont uniquement les tags du registre vanilla. Ils peuvent correspondre à des objets ou blocs vanilla, mais pas au contenu ItemsAdder ni au contenu MMOItems.
+
+```yaml
+# N’importe quelle planche vanilla
+item: "#minecraft:planks"
+
+# N’importe quel tronc vanilla
+block: "#minecraft:logs"
+```
+
+Les tags sont pris en charge dans :
+
+- les ingrédients de `iaa_crafting_table`
+- les conditions d’objets et prédicats d’objets des progrès
+- les conditions de blocs et prédicats de blocs des progrès
+- les prédicats joueur de slots, équipement et bloc de localisation
+
+Les tags ne sont pas valides comme résultat de recette, comme entrée de recette feu de camp/tailleur de pierre, comme ID de meuble, ni dans les actions qui doivent créer un objet concret comme `toast.icon`, `clear_item.item` et `replace_item.item`.
+
+## Blocs et meubles ItemsAdder tournés
+
+Lors des vérifications runtime, les suffixes directionnels des blocs et meubles ItemsAdder sont traités comme le même contenu de base :
+
+```text
+my_pack:chair_north -> my_pack:chair
+my_pack:chair_south -> my_pack:chair
+my_pack:chair_east  -> my_pack:chair
+my_pack:chair_west  -> my_pack:chair
+my_pack:chair_up    -> my_pack:chair
+my_pack:chair_down  -> my_pack:chair
+```
+
+Cela permet aux déclencheurs de progrès et aux vérifications runtime de fonctionner avec les variantes tournées sans devoir lister chaque direction.
+
+## Exemples de recettes
+
+```yaml
+ingredients:
+  P: "#minecraft:planks"
+  M: "mmoitems:material:ruby_shard"
+  I: "my_pack:reinforced_ingot"
+result:
+  item: "my_pack:ruby_handle"
+```
+
+```yaml
+recipes:
+  campfire_cooking:
+    cooked_mmo_fish:
+      ingredient:
+        item: mmoitems:consumable:raw_fish
+      result:
+        item: mmoitems:consumable:cooked_fish
+```
+
+## Exemples de progrès
+
+```yaml
+criteria:
+  chop_any_log:
+    trigger: break_block
+    conditions:
+      block: "#minecraft:logs"
+```
+
+```yaml
+criteria:
+  obtain_custom_weapon:
+    trigger: obtain_item
+    conditions:
+      items:
+        - my_pack:ruby_sword
+        - mmoitems:sword:flame_blade
+        - minecraft:diamond_sword
+```

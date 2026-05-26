@@ -1,7 +1,7 @@
 ---
 title: Référence de configuration
 description: Référence YAML complète pour les progrès ItemsAdder personnalisés avec propriétés d’affichage, critères, récompenses et actions d’achèvement dans un seul fichier de configuration.
-version: "1.0.9"
+version: "1.0.10"
 ---
 
 Chaque entrée de progrès se trouve sous la clé de niveau supérieur `advancements` dans n’importe quel fichier de contenu ItemsAdder. IAA récupère automatiquement les fichiers qui contiennent cette clé.
@@ -53,7 +53,7 @@ display:
 |-----|------|---------|-------------|
 | `title` | chaîne | *(requis)* | Titre du progrès. Prend en charge [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
 | `description` | chaîne | `""` | Description de l’infobulle. Prend en charge MiniMessage. |
-| `icon` | `namespace:id` | `minecraft:barrier` | Objet affiché en tant qu’icône. Accepte les ID d’objets ItemsAdder ou les ID de matériaux vanille. |
+| `icon` | `namespace:id` | `minecraft:barrier` | Objet affiché en tant qu’icône. Accepte les IDs d’objets ItemsAdder, les IDs MMOItems ou les IDs de matériaux vanilla. Les tags ne sont pas pris en charge, car l’icône doit résoudre un objet concret. |
 | `frame` | chaîne | `task` | Forme de la bordure de l'icône : `task`, `goal` ou `challenge`. |
 | `background` | chaîne | *(aucun)* | **Progrès racines uniquement.** Chemin de texture pour l’arrière-plan de l’onglet (par exemple `minecraft:textures/gui/advancements/backgrounds/adventure.png`). |
 | `show_toast` | booléen | `true` | Affiche une notification toast une fois le progrès terminé. |

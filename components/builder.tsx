@@ -192,7 +192,7 @@ const ACTIONS: Record<string, FieldDef[]> = {
         },
     ],
     clear_item: [
-        {k: 'item', l: 'item', t: 'text', r: true, p: 'namespace:item'},
+        {k: 'item', l: 'item', t: 'text', r: true, p: 'namespace:item or mmoitems:type:id'},
         {k: 'amount', l: 'amount', t: 'number', r: false, p: '1', h: 'default: 1'},
     ],
     ignite: [
@@ -274,7 +274,7 @@ const ACTIONS: Record<string, FieldDef[]> = {
         {k: 'fade_out', l: 'fade_out', t: 'number', r: false, p: '20', h: 'ticks (default: 20)'},
     ],
     toast: [
-        {k: 'icon', l: 'icon', t: 'text', r: true, p: 'minecraft:diamond or namespace:item'},
+        {k: 'icon', l: 'icon', t: 'text', r: true, p: 'minecraft:diamond or namespace:item or mmoitems:type:id'},
         {k: 'text', l: '__textOneLine', t: 'textarea', r: true, p: '<white>Line one\n<bold>Line two'},
         {k: 'frame', l: 'frame', t: 'select', r: false, opts: ['', 'task', 'goal', 'challenge'], h: 'default: goal'},
     ],
@@ -616,7 +616,13 @@ function CraftingIngredientRow({char, ing, onChange}: {
     return (
         <div className="flex flex-col gap-3 rounded-lg border border-fd-border p-3">
             <span className="font-mono text-xs font-semibold text-fd-muted-foreground">{char}</span>
-            <Field def={{k: `ing_${char}_item`, l: 'item', t: 'text', r: false, p: 'STICK or namespace:item or #tag'}}
+            <Field def={{
+                k: `ing_${char}_item`,
+                l: 'item',
+                t: 'text',
+                r: false,
+                p: 'STICK or namespace:item or mmoitems:type:id or #minecraft:tag'
+            }}
                    value={ing.item} onChange={v => onChange('item', v)}/>
             <CheckToggle label={t.toggleAdvancedOptions} checked={showAdv} onChange={setShowAdv}/>
             {showAdv && (
@@ -677,7 +683,13 @@ function ShapelessIngredientFields({ing, index, onChange, onRemove}: {
                         className="text-xs text-fd-muted-foreground hover:text-red-500 transition-colors">{t.remove}
                 </button>
             </div>
-            <Field def={{k: 'item', l: 'item', t: 'text', r: true, p: 'STICK or namespace:item or #tag'}}
+            <Field def={{
+                k: 'item',
+                l: 'item',
+                t: 'text',
+                r: true,
+                p: 'STICK or namespace:item or mmoitems:type:id or #minecraft:tag'
+            }}
                    value={ing.item} onChange={v => onChange('item', v)}/>
             <Field def={{k: 'amount', l: 'amount', t: 'number', r: false, p: '1', h: 'default: 1'}} value={ing.amount}
                    onChange={v => onChange('amount', v)}/>
@@ -728,7 +740,13 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                    onChange={v => onChange('trigger', v)}/>
             {tr === 'obtain_item' && (
                 <>
-                    <Field def={{k: 'items', l: '__itemsOneLine', t: 'textarea', r: true, p: 'myplugin:ruby_sword'}}
+                    <Field def={{
+                        k: 'items',
+                        l: '__itemsOneLine',
+                        t: 'textarea',
+                        r: true,
+                        p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords'
+                    }}
                            value={criterion.items} onChange={v => onChange('items', v)}/>
                     <Field def={{
                         k: 'amount',
@@ -741,11 +759,23 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                 </>
             )}
             {(tr === 'consume_item' || tr === 'using_item') && (
-                <Field def={{k: 'item', l: 'item', t: 'text', r: true, p: 'myplugin:ruby_apple'}} value={criterion.item}
+                <Field def={{
+                    k: 'item',
+                    l: 'item',
+                    t: 'text',
+                    r: true,
+                    p: 'my_pack:ruby_apple or mmoitems:consumable:ruby_apple'
+                }} value={criterion.item}
                        onChange={v => onChange('item', v)}/>
             )}
             {(tr === 'place_block' || tr === 'break_block') && (
-                <Field def={{k: 'block', l: 'block', t: 'text', r: true, p: 'myplugin:ruby_ore'}}
+                <Field def={{
+                    k: 'block',
+                    l: 'block',
+                    t: 'text',
+                    r: true,
+                    p: 'my_pack:ruby_ore or minecraft:diamond_ore or #minecraft:logs'
+                }}
                        value={criterion.block} onChange={v => onChange('block', v)}/>
             )}
             {(tr === 'place_furniture' || tr === 'break_furniture' || tr === 'interact_furniture') && (
@@ -758,7 +788,13 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
             )}
             {tr === 'kill_entity_with_item' && (
                 <>
-                    <Field def={{k: 'item', l: 'item', t: 'text', r: true, p: 'myplugin:ruby_sword'}}
+                    <Field def={{
+                        k: 'item',
+                        l: 'item',
+                        t: 'text',
+                        r: true,
+                        p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords'
+                    }}
                            value={criterion.item} onChange={v => onChange('item', v)}/>
                     <Field def={{
                         k: 'entity_type',
@@ -777,8 +813,8 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         l: 'item',
                         t: 'text',
                         r: false,
-                        p: 'myplugin:ruby_sword',
-                        h: 'optional - any item if omitted'
+                        p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords',
+                        h: 'optional - any item if omitted; vanilla tags are supported'
                     }} value={criterion.item} onChange={v => onChange('item', v)}/>
                     <Field def={{
                         k: 'entity_type',
@@ -797,8 +833,8 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         l: 'item',
                         t: 'text',
                         r: false,
-                        p: 'myplugin:ruby_sword',
-                        h: 'optional - any item if omitted'
+                        p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords',
+                        h: 'optional - any item if omitted; vanilla tags are supported'
                     }} value={criterion.item} onChange={v => onChange('item', v)}/>
                     <Field def={{
                         k: 'entity_type',
@@ -855,7 +891,7 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                     t: 'text',
                     r: false,
                     p: 'myplugin:ruby_bucket',
-                    h: 'optional - any item if omitted'
+                    h: 'optional - any item if omitted; vanilla tags are supported'
                 }} value={criterion.item} onChange={v => onChange('item', v)}/>
             )}
             {tr === 'enchanted_item' && (
@@ -865,8 +901,8 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         l: 'item',
                         t: 'text',
                         r: false,
-                        p: 'myplugin:ruby_sword',
-                        h: 'optional - any item if omitted'
+                        p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords',
+                        h: 'optional - any item if omitted; vanilla tags are supported'
                     }} value={criterion.item} onChange={v => onChange('item', v)}/>
                     <Field def={{
                         k: 'min_levels',
@@ -932,8 +968,8 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                     l: 'item',
                     t: 'text',
                     r: false,
-                    p: 'myplugin:ruby_sword',
-                    h: 'optional - any item if omitted'
+                    p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords',
+                    h: 'optional - any item if omitted; vanilla tags are supported'
                 }} value={criterion.item} onChange={v => onChange('item', v)}/>
             )}
             {tr === 'item_used_on_block' && (
@@ -943,8 +979,8 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         l: 'item',
                         t: 'text',
                         r: false,
-                        p: 'myplugin:ruby_sword',
-                        h: 'optional - any item if omitted'
+                        p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords',
+                        h: 'optional - any item if omitted; vanilla tags are supported'
                     }} value={criterion.item} onChange={v => onChange('item', v)}/>
                     <Field def={{
                         k: 'block',
@@ -975,8 +1011,8 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                         l: 'item',
                         t: 'text',
                         r: false,
-                        p: 'myplugin:ruby_sword',
-                        h: 'optional - any item if omitted'
+                        p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords',
+                        h: 'optional - any item if omitted; vanilla tags are supported'
                     }} value={criterion.item} onChange={v => onChange('item', v)}/>
                 </>
             )}
@@ -1016,8 +1052,8 @@ function AdvancementCriterionFields({criterion, index, onChange, onRemove}: {
                     l: 'item',
                     t: 'text',
                     r: false,
-                    p: 'myplugin:ruby_sword',
-                    h: 'optional - any item if omitted'
+                    p: 'my_pack:ruby_sword or mmoitems:sword:flame_blade or #minecraft:swords',
+                    h: 'optional - any item if omitted; vanilla tags are supported'
                 }} value={criterion.item} onChange={v => onChange('item', v)}/>
             )}
             {tr === 'changed_dimension' && (
@@ -2479,7 +2515,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                                             l: '__ingredientItem',
                                             t: 'text',
                                             r: true,
-                                            p: 'BEEF or namespace:raw_item'
+                                            p: 'BEEF or namespace:raw_item or mmoitems:type:id'
                                         }} value={values['rcp_ingredient'] ?? ''}
                                                onChange={v => setVal('rcp_ingredient', v)}/>
                                         <Field def={{
@@ -2487,7 +2523,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                                             l: '__resultItem',
                                             t: 'text',
                                             r: true,
-                                            p: 'COOKED_BEEF or namespace:cooked_item'
+                                            p: 'COOKED_BEEF or namespace:cooked_item or mmoitems:type:id'
                                         }} value={values['rcp_result'] ?? ''} onChange={v => setVal('rcp_result', v)}/>
                                         <Field def={{
                                             k: 'rcp_result_amount',
@@ -2598,7 +2634,7 @@ export function Builder({locale = 'en'}: { locale?: string }) {
                                             l: '__resultItem',
                                             t: 'text',
                                             r: true,
-                                            p: 'DIAMOND or namespace:item'
+                                            p: 'DIAMOND or namespace:item or mmoitems:type:id'
                                         }} value={values['rcp_result'] ?? ''} onChange={v => setVal('rcp_result', v)}/>
                                         <Field def={{
                                             k: 'rcp_result_amount',

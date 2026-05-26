@@ -1,7 +1,7 @@
 ---
 title: Triggers
 description: Reference for all built-in trigger types available for custom ItemsAdder advancements, including conditions and example YAML for each.
-version: "1.0.9"
+version: "1.0.10"
 ---
 
 Triggers define what the player must do to complete a criterion. Each criterion has one trigger and an optional `conditions` block.
@@ -14,7 +14,7 @@ criteria:
       # trigger-specific options
 ```
 
-An advancement can have multiple criteria. All of them must be completed before the advancement is awarded. Every runtime trigger also supports an optional `conditions.player` predicate for extra player-state requirements; see [Player predicates](/docs/en/advancements/player-predicates).
+An advancement can have multiple criteria. All of them must be completed before the advancement is awarded. Every runtime trigger also supports an optional `conditions.player` predicate for extra player-state requirements; see [Player predicates](/docs/en/advancements/player-predicates). Item conditions support ItemsAdder IDs, MMOItems IDs, vanilla item IDs, and vanilla item tags. Block conditions support ItemsAdder block IDs, vanilla block IDs, and vanilla block tags.
 
 ---
 
@@ -35,7 +35,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `items` | list of strings | `[]` | Item IDs (IA, MMOItems, or vanilla). Any match triggers the criterion. |
+| `items` | list of strings | `[]` | Item IDs or vanilla item tags (IA, MMOItems, vanilla, or `#minecraft:tag`). Any match triggers the criterion. |
 | `amount` | integer | `1` | Minimum stack size the player must pick up at once. |
 
 ---
@@ -54,7 +54,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `item` | string | yes | Item ID (IA, MMOItems, or vanilla). |
+| `item` | string | yes | Item ID or vanilla item tag (IA, MMOItems, vanilla, or `#minecraft:tag`). |
 
 ---
 
@@ -72,13 +72,13 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `item` | string | yes | Item ID (IA, MMOItems, or vanilla). |
+| `item` | string | yes | Item ID or vanilla item tag (IA, MMOItems, vanilla, or `#minecraft:tag`). |
 
 ---
 
 ## place_block
 
-Fires when the player places a custom block registered by ItemsAdder.
+Fires when the player places an ItemsAdder custom block or a vanilla block.
 
 ```yaml
 criteria:
@@ -90,13 +90,13 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `block` | string | yes | ItemsAdder block ID (`namespace:id`). |
+| `block` | string | yes | ItemsAdder block ID, vanilla block ID, or vanilla block tag such as `#minecraft:logs`. |
 
 ---
 
 ## break_block
 
-Fires when the player breaks a custom block registered by ItemsAdder.
+Fires when the player breaks an ItemsAdder custom block or a vanilla block.
 
 ```yaml
 criteria:
@@ -108,7 +108,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `block` | string | yes | ItemsAdder block ID (`namespace:id`). |
+| `block` | string | yes | ItemsAdder block ID, vanilla block ID, or vanilla block tag such as `#minecraft:logs`. |
 
 ---
 
@@ -199,7 +199,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(required)* | Item ID (IA, MMOItems, or vanilla) the player must be holding. |
+| `item` | string | *(required)* | Item ID or vanilla item tag the player must be holding. |
 | `entity_type` | string | *(any)* | Vanilla entity type key (e.g. `minecraft:zombie`). If omitted, any entity matches. |
 
 ---
@@ -219,7 +219,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID the player must be holding. If omitted, any item (or bare hands) matches. |
+| `item` | string | *(any)* | Item ID or vanilla item tag the player must be holding. If omitted, any item (or bare hands) matches. |
 | `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
 
 ---
@@ -448,7 +448,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID of the resulting bucket. If omitted, any filled bucket matches. |
+| `item` | string | *(any)* | Item ID or vanilla item tag of the resulting bucket. If omitted, any filled bucket matches. |
 
 ---
 
@@ -466,7 +466,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID of the damaged item. If omitted, any item matches. |
+| `item` | string | *(any)* | Item ID or vanilla item tag of the damaged item. If omitted, any item matches. |
 
 ---
 
@@ -485,8 +485,8 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID the player must be holding. |
-| `block` | string | *(any)* | Vanilla block type key. |
+| `item` | string | *(any)* | Item ID or vanilla item tag the player must be holding. |
+| `block` | string | *(any)* | ItemsAdder block ID, vanilla block ID, or vanilla block tag. |
 
 ---
 
@@ -542,7 +542,7 @@ criteria:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
-| `item` | string | *(any)* | Item ID the player must be holding. If omitted, any item (or empty hand) matches. |
+| `item` | string | *(any)* | Item ID or vanilla item tag the player must be holding. If omitted, any item (or empty hand) matches. |
 
 ---
 
@@ -578,7 +578,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `block` | string | *(any)* | Block type key (`minecraft:beehive` or `minecraft:bee_nest`). If omitted, either matches. |
+| `block` | string | *(any)* | Block ID or vanilla block tag (`minecraft:beehive`, `minecraft:bee_nest`, or a tag). If omitted, either hive block matches. |
 
 ---
 

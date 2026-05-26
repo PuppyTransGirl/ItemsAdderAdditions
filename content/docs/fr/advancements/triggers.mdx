@@ -1,7 +1,7 @@
 ---
 title: Déclencheurs
 description: Référence de tous les types de déclencheurs intégrés disponibles pour les progrès ItemsAdder personnalisés, avec les conditions et les exemples YAML de chacun.
-version: "1.0.9"
+version: "1.0.10"
 ---
 
 Les déclencheurs définissent ce que le joueur doit faire pour terminer un critère. Chaque critère a un déclencheur et un bloc `conditions` optionnel.
@@ -14,7 +14,7 @@ criteria:
       # options spécifiques au déclencheur
 ```
 
-Un progrès peut avoir plusieurs critères. Tous doivent être terminés avant que le progrès soit accordé.
+Un progrès peut avoir plusieurs critères. Tous doivent être terminés avant que le progrès soit accordé. Les conditions d’objets acceptent les IDs ItemsAdder, MMOItems, vanilla et les tags d’objets vanilla. Les conditions de blocs acceptent les IDs de blocs ItemsAdder, les IDs de blocs vanilla et les tags de blocs vanilla.
 
 ---
 
@@ -35,7 +35,7 @@ criteria:
 
 | Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `items` | liste de chaînes | `[]` | ID d’objets (IA, MMOItems ou vanille). Toute correspondance déclenche le critère. |
+| `items` | liste de chaînes | `[]` | IDs d’objets ou tags d’objets vanilla (IA, MMOItems, vanilla ou `#minecraft:tag`). Toute correspondance déclenche le critère. |
 | `amount` | entier | `1` | Taille minimale de pile que le joueur doit ramasser à la fois. |
 
 ---
@@ -54,7 +54,7 @@ criteria:
 
 | Clé | Type | Requis | Description |
 |-----|------|----------|-------------|
-| `item` | chaîne | Oui | ID d’objet (IA, MMOItems ou vanille). |
+| `item` | chaîne | Oui | ID d’objet ou tag d’objet vanilla (IA, MMOItems, vanilla ou `#minecraft:tag`). |
 
 ---
 
@@ -72,13 +72,13 @@ criteria:
 
 | Clé | Type | Requis | Description |
 |-----|------|----------|-------------|
-| `item` | chaîne | Oui | ID d’objet (IA, MMOItems ou vanille). |
+| `item` | chaîne | Oui | ID d’objet ou tag d’objet vanilla (IA, MMOItems, vanilla ou `#minecraft:tag`). |
 
 ---
 
 ## place_block
 
-Se déclenche lorsque le joueur place un bloc personnalisé enregistré par ItemsAdder.
+Se déclenche lorsque le joueur place un bloc ItemsAdder personnalisé ou un bloc vanilla.
 
 ```yaml
 criteria:
@@ -90,13 +90,13 @@ criteria:
 
 | Clé | Type | Requis | Description |
 |-----|------|----------|-------------|
-| `block` | chaîne | oui | ID de bloc ItemsAdder (`namespace:id`). |
+| `block` | chaîne | oui | ID de bloc ItemsAdder, ID de bloc vanilla ou tag de bloc vanilla comme `#minecraft:logs`. |
 
 ---
 
 ## break_block
 
-Se déclenche lorsque le joueur casse un bloc personnalisé enregistré par ItemsAdder.
+Se déclenche lorsque le joueur casse un bloc ItemsAdder personnalisé ou un bloc vanilla.
 
 ```yaml
 criteria:
@@ -108,7 +108,7 @@ criteria:
 
 | Clé | Type | Requis | Description |
 |-----|------|----------|-------------|
-| `block` | chaîne | oui | ID de bloc ItemsAdder (`namespace:id`). |
+| `block` | chaîne | oui | ID de bloc ItemsAdder, ID de bloc vanilla ou tag de bloc vanilla comme `#minecraft:logs`. |
 
 ---
 
@@ -199,7 +199,7 @@ criteria:
 
 | Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `item` | chaîne | *(requis)* | ID d’objet (IA, MMOItems ou vanille) que le joueur doit tenir. |
+| `item` | chaîne | *(requis)* | ID d’objet ou tag d’objet vanilla que le joueur doit tenir. |
 | `entity_type` | chaîne | *(n’importe quel)* | Clé de type d'entité vanille (par ex. `minecraft:zombie`). Si omis, toute entité correspondra. |
 
 ---

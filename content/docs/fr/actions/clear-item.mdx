@@ -1,6 +1,6 @@
 ---
 title: Supprimer un objet
-description: Retirer des objets ItemsAdder personnalisés ou des objets Minecraft vanilla de l’inventaire d’un joueur. Prend en charge les quantités configurables et la correspondance exacte.
+description: Retirer des objets ItemsAdder, MMOItems ou Minecraft vanilla de l’inventaire d’un joueur. Prend en charge les quantités configurables et la correspondance exacte.
 version: "1.0.0"
 ---
 
@@ -14,7 +14,7 @@ clear_item:
 
 ### `item`
 
-Obligatoire. L'objet à retirer. Utilisez un matériau vanilla répertorié dans [cette liste](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), ou un objet ItemsAdder personnalisé avec `namespace:id` ou simplement `id`.
+Obligatoire. L'objet à retirer. Utilisez un matériau vanilla répertorié dans [cette liste](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), un objet ItemsAdder personnalisé avec `namespace:id` ou simplement `id`, ou un objet MMOItems avec `mmoitems:type:id`. Les tags ne sont pas pris en charge pour ce paramètre.
 
 ### `amount`
 

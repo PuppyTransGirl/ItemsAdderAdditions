@@ -1,7 +1,7 @@
 ---
 title: Stonecutter
-description: Add stonecutter recipes for custom or vanilla Minecraft items using ItemsAdder. Defined directly in your content YML files, no extra recipe files needed.
-version: "1.0.7"
+description: Add stonecutter recipes for ItemsAdder, MMOItems, or vanilla Minecraft items. Defined directly in your content YML files, no extra recipe files needed.
+version: "1.0.10"
 ---
 
 Add stonecutter recipes without creating extra recipe files.
@@ -14,7 +14,7 @@ Optional. Defaults to `true`. Set to `false` to skip registering the recipe.
 
 ### `ingredient.item`
 
-Required. The input item shown in the stonecutter. Use a vanilla material or a custom ItemsAdder item.
+Required. The input item shown in the stonecutter. Use a vanilla material, an ItemsAdder item, or an MMOItems item.
 
 ```yaml
 ingredient:
@@ -24,6 +24,11 @@ ingredient:
 ```yaml
 ingredient:
   item: my_pack:rough_marble
+```
+
+```yaml
+ingredient:
+  item: mmoitems:material:rough_marble
 ```
 
 ### `result.item`
@@ -57,6 +62,7 @@ recipes:
 
 ## Notes
 
-- Supports vanilla and custom ItemsAdder items.
+- Supports vanilla, ItemsAdder, and MMOItems items.
+- Tags such as `#minecraft:stone_tool_materials` are not supported here because the stonecutter requires one concrete input stack.
 - Recipe IDs such as `marble_tiles` are internal identifiers.
 - The namespace comes from `info.namespace`.

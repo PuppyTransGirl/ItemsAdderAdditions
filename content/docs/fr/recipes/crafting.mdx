@@ -1,7 +1,7 @@
 ---
 title: Table de craft
-description: Ajouter des recettes avancées de table de craft ItemsAdder avec tags d’ingrédients, quantités exactes, conditions de durabilité et prise en charge des recettes shapeless.
-version: "1.0.7"
+description: Ajouter des recettes avancées avec objets ItemsAdder, objets MMOItems, objets vanilla, tags vanilla, quantités exactes, conditions de durabilité et recettes shapeless.
+version: "1.0.10"
 ---
 
 ItemsAdderAdditions ajoute un type de recette de table de craft supplémentaire appelé `iaa_crafting_table`.
@@ -10,7 +10,8 @@ Il ne remplace pas le type de recette `crafting_table` normal d’ItemsAdder. Il
 
 Ce type de recette prend en charge les options de recette de craft habituelles déjà connues d’ItemsAdder, tout en ajoutant des fonctionnalités supplémentaires telles que :
 
-- les tags
+- les tags vanilla d’objets/blocs
+- les ingrédients ItemsAdder, MMOItems et vanilla
 - les quantités d'ingrédients
 - les dégâts de durabilité sur les ingrédients
 - les objets de remplacement
@@ -108,7 +109,8 @@ recipes:
 
 La principale raison d'utiliser `iaa_crafting_table` est sa prise en charge des prédicats d'ingrédients supplémentaires :
 
-- les tags avec `#namespace:tag`
+- les tags vanilla avec `#minecraft:tag`
+- les ingrédients MMOItems avec `mmoitems:type:id`
 - `amount` par ingrédient
 - `damage` par ingrédient
 - `replacement` par ingrédient
@@ -147,7 +149,7 @@ Obligatoire.
 
 L'objet en sortie.
 
-Prend en charge les matériaux vanilla et les objets ItemsAdder.
+Prend en charge les matériaux vanilla, les objets ItemsAdder et les objets MMOItems. Les tags sont valides uniquement pour les ingrédients, pas pour les résultats.
 
 ```yaml
 result:
@@ -221,6 +223,7 @@ ingredients:
   S: STICK
   P: "#minecraft:planks"
   C: "my_pack:custom_part"
+  M: "mmoitems:material:ruby_shard"
 ```
 
 ### Objet détaillé
@@ -249,7 +252,7 @@ ingredients:
 
 ### Tags
 
-Utilisez des tags d’objets ou de blocs Minecraft en préfixant la valeur avec `#`.
+Utilisez des tags vanilla d’objets ou de blocs Minecraft en préfixant la valeur avec `#`. Les tags correspondent uniquement aux entrées du registre vanilla ; ils ne correspondent pas au contenu ItemsAdder ou MMOItems.
 
 ```yaml
 ingredients:

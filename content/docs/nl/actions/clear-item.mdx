@@ -1,6 +1,6 @@
 ---
 title: Item verwijderen
-description: Verwijder aangepaste ItemsAdder-items of vanilla Minecraft-items uit de inventaris van een speler. Ondersteunt configureerbare aantallen en exacte itemmatching.
+description: Verwijder ItemsAdder-, MMOItems- of vanilla Minecraft-items uit de inventaris van een speler. Ondersteunt configureerbare aantallen en exacte itemmatching.
 version: "1.0.0"
 ---
 
@@ -14,7 +14,7 @@ clear_item:
 
 ### `item`
 
-Verplicht. Het te verwijderen item. Gebruik een vanilla-materiaal uit [deze lijst](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), of een aangepast ItemsAdder-item met `namespace:id` of alleen `id`.
+Verplicht. Het te verwijderen item. Gebruik een vanilla-materiaal uit [deze lijst](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), een aangepast ItemsAdder-item met `namespace:id` of alleen `id`, of een MMOItems-item met `mmoitems:type:id`. Tags worden voor deze parameter niet ondersteund.
 
 ### `amount`
 
