@@ -22,9 +22,9 @@ advancements:
 | `enabled` | booléen | `true` | Définissez cette option sur `false` pour ignorer ce progrès sans le supprimer du fichier. |
 | `parent` | chaîne | *(aucun)* | ID du progrès parent. Omettez pour créer un progrès racine (onglet). Voir [Parent](#parent). |
 | `display` | section | *(requis)* | Paramètres visuels. Voir [Affichage](#affichage). |
-| `criteria` | section | *(aucun)* | Conditions qui doivent être remplies pour terminer le progrès. Chaque critère possède un déclencheur, des conditions propres au déclencheur et un prédicat `conditions.player` optionnel. Voir [Déclencheurs](/docs/advancements/triggers) et [Prédicats de joueur](/docs/advancements/player-predicates). |
+| `criteria` | section | *(aucun)* | Conditions qui doivent être remplies pour terminer le progrès. Chaque critère possède un déclencheur, des conditions propres au déclencheur et un prédicat `conditions.player` optionnel. Voir [Déclencheurs](/fr/docs/advancements/triggers) et [Prédicats de joueur](/fr/docs/advancements/player-predicates). |
 | `rewards` | section | *(aucun)* | Expérience et déverrouillage de recettes. Voir [Récompenses](#récompenses). |
-| `on_complete` | section | *(aucun)* | Actions exécutées lorsque le progrès est entièrement terminé. Voir [Actions d’achèvement](/docs/advancements/completion-actions). |
+| `on_complete` | section | *(aucun)* | Actions exécutées lorsque le progrès est entièrement terminé. Voir [Actions d’achèvement](/fr/docs/advancements/completion-actions). |
 
 ## Parent
 
@@ -87,9 +87,9 @@ criteria:
 
 | Clé | Type | Par défaut | Description |
 |-----|------|---------|-------------|
-| `trigger` | chaîne | `impossible` | Type de déclencheur pour ce critère. Voir la [référence complète des déclencheurs](/docs/advancements/triggers). |
+| `trigger` | chaîne | `impossible` | Type de déclencheur pour ce critère. Voir la [référence complète des déclencheurs](/fr/docs/advancements/triggers). |
 | `conditions` | section | *(aucun)* | Options propres au déclencheur, plus les prédicats `player` optionnels. |
-| `conditions.player` | section ou liste | *(n’importe quel joueur)* | Prédicat de joueur supplémentaire vérifié au moment où le critère est sur le point d’être attribué. Ignoré par le déclencheur `impossible`. Voir [Prédicats de joueur](/docs/advancements/player-predicates). |
+| `conditions.player` | section ou liste | *(n’importe quel joueur)* | Prédicat de joueur supplémentaire vérifié au moment où le critère est sur le point d’être attribué. Ignoré par le déclencheur `impossible`. Voir [Prédicats de joueur](/fr/docs/advancements/player-predicates). |
 
 <Callout>
     Les progrès enfants ont besoin d’au moins un critère valide. Les progrès racines peuvent omettre `criteria` ; IAA

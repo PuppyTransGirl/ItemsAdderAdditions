@@ -43,8 +43,8 @@ Open `lib/layout.shared.tsx` and add an entry to `langTabs`:
 // lib/layout.shared.tsx
 {
     title: 'Deutsch',
-    url: localizedDocsRoute('de'),
-    icon: <span className="text-base leading-none">🇩🇪</span>,
+        url: localizedDocsRoute('de'),
+    icon: <span className="text-base leading-none">🇩🇪</span>
 },
 ```
 
@@ -70,15 +70,31 @@ That's all the code changes needed. The routing, sitemap, and search index are a
 | Frontmatter keys     | `title:`, `icon:`, `description:`                | Parsed by the framework                     |
 | Icon names           | `icon: House`                                    | Lucide icon identifiers                     |
 | Plugin/command names | `ItemsAdder`, `/iareload`, `itemsadderadditions` | Proper nouns                                |
-| Internal links       | `href="/docs/actions/parameters"`                | URL paths - never add a locale prefix       |
+
+### What to update carefully
+
+| Element        | Example                              | Rule                                             |
+|----------------|--------------------------------------|--------------------------------------------------|
+| Internal links | `href="/de/docs/actions/parameters"` | Keep the page path, but use the current language |
 
 ### Link format
 
-Links must **not** include the locale prefix. The router injects it automatically:
+Internal links must include the locale prefix because each translated wiki route lives under `/{language}/docs/...`.
+
+Use the language code of the page you are editing:
 
 ```mdx
-✅  [action parameters](/docs/actions/parameters)
-❌  [action parameters](/de/docs/actions/parameters)
+✅  English: [action parameters](/en/docs/actions/parameters)
+✅  French:  [paramètres d'action](/fr/docs/actions/parameters)
+✅  Dutch:   [actieparameters](/nl/docs/actions/parameters)
+✅  German:  [Aktionsparameter](/de/docs/actions/parameters)
+❌  Broken:  [action parameters](/docs/actions/parameters)
+```
+
+When you copy the English folder for a new language, replace English link prefixes with the new language prefix:
+
+```bash
+find content/docs/de -type f -name '*.mdx' -exec sed -i 's#(/en/docs/#(/de/docs/#g' {} +
 ```
 
 ### Frontmatter example
