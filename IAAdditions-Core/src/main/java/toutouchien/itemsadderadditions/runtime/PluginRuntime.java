@@ -75,6 +75,7 @@ public final class PluginRuntime {
         ConverterV102V106.run();
         ConverterV106V107.run();
         ConverterV107V108.run();
+        ConverterV108V109.run();
     }
 
     private static void registerListeners(JavaPlugin plugin) {

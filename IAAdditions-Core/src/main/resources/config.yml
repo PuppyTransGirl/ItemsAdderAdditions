@@ -20,6 +20,7 @@ actions:
   play_animation: true
   play_emote: true
   replace_biome: true
+  replace_item: true
   shoot_fireball: true
   swing_hand: true
   teleport: true
