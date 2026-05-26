@@ -1,7 +1,6 @@
 package toutouchien.itemsadderadditions.feature.advancement;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
@@ -24,7 +23,7 @@ record LocationPredicate(
         boolean unsupportedStructures
 ) {
     @Nullable
-    public static LocationPredicate parse(@Nullable Object raw) {
+    public static LocationPredicate parse(String namespace, @Nullable Object raw) {
         if (raw == null) return null;
         Object position = section(raw, "position");
         return new LocationPredicate(
@@ -34,7 +33,7 @@ record LocationPredicate(
                 DoubleRange.parse(position != null ? position : raw, "x"),
                 DoubleRange.parse(position != null ? position : raw, "y"),
                 DoubleRange.parse(position != null ? position : raw, "z"),
-                BlockPredicate.parse(sectionOrValue(raw, "block")),
+                BlockPredicate.parse(namespace, sectionOrValue(raw, "block")),
                 IntRange.parse(raw, "light"),
                 bool(raw, "can_see_sky"),
                 value(raw, "structure") != null || value(raw, "structures") != null
@@ -68,27 +67,24 @@ record LocationPredicate(
 
 record BlockPredicate(List<String> blocks, Map<String, StringRange> states) {
     @Nullable
-    public static BlockPredicate parse(@Nullable Object raw) {
+    public static BlockPredicate parse(String namespace, @Nullable Object raw) {
         if (raw == null) return null;
         if (!isSection(raw)) {
             String blockId = string(raw);
-            return blockId == null ? null : new BlockPredicate(List.of(normalizeMinecraftIdOrTag(blockId)), Map.of());
+            return blockId == null ? null : new BlockPredicate(List.of(normalizeBlockIdOrTag(namespace, blockId)), Map.of());
         }
         List<String> blocks = readStringList(raw, "blocks");
         if (blocks.isEmpty()) blocks = readStringList(raw, "block");
         if (blocks.isEmpty()) blocks = readStringList(raw, "id");
         Map<String, StringRange> states = parseStates(section(raw, "state"));
-        return new BlockPredicate(blocks.stream().map(AdvancementPredicateSupport::normalizeMinecraftIdOrTag).toList(), states);
+        return new BlockPredicate(blocks.stream().map(block -> normalizeBlockIdOrTag(namespace, block)).toList(), states);
     }
 
     public boolean matches(Location loc) {
-        Material type = loc.getBlock().getType();
-        String actual = type.getKey().toString();
         if (!blocks.isEmpty()) {
             boolean matched = false;
-            for (String block : blocks) {
-                if (block.startsWith("#")) continue; // Block tags are not resolved here.
-                if (block.equals(actual)) {
+            for (String blockId : blocks) {
+                if (NamespaceUtils.matchesBlockIDOrTag(loc.getBlock(), blockId)) {
                     matched = true;
                     break;
                 }

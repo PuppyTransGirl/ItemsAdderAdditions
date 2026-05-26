@@ -21,10 +21,9 @@ public final class BeeNestDestroyedTriggerHandler extends AbstractTriggerHandler
         Material mat = event.getBlock().getType();
         if (mat != Material.BEEHIVE && mat != Material.BEE_NEST) return;
         Player player = event.getPlayer();
-        String blockId = mat.getKey().toString();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.BEE_NEST_DESTROYED)) {
             if (!(c.conditions() instanceof AdvancementConditions.BeeNestDestroyed(String condBlockId))) continue;
-            if (condBlockId != null && !condBlockId.equals(blockId)) continue;
+            if (!matchesBlock(event.getBlock(), condBlockId)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

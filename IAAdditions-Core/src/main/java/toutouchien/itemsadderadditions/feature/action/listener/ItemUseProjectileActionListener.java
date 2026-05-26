@@ -1,6 +1,5 @@
 package toutouchien.itemsadderadditions.feature.action.listener;
 
-import dev.lone.itemsadder.api.CustomStack;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import org.bukkit.entity.Entity;
@@ -13,6 +12,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionDispatcher;
 import toutouchien.itemsadderadditions.feature.action.TriggerType;
@@ -33,15 +33,15 @@ public final class ItemUseProjectileActionListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onItemConsume(PlayerItemConsumeEvent event) {
         ItemStack item = event.getItem();
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) return;
+        String itemId = NamespaceUtils.itemID(item);
+        if (itemId == null) return;
 
         TriggerType type = item.getData(DataComponentTypes.CONSUMABLE).animation() == ItemUseAnimation.DRINK
                 ? TriggerType.ITEM_DRINK
                 : TriggerType.ITEM_EAT;
 
         dispatcher.dispatch(
-                customStack.getNamespacedID(),
+                itemId,
                 type,
                 ActionContext.create(event.getPlayer(), type)
                         .heldItem(item)
@@ -56,11 +56,11 @@ public final class ItemUseProjectileActionListener implements Listener {
         ItemStack bow = event.getBow();
         if (bow == null) return;
 
-        CustomStack customStack = CustomStack.byItemStack(bow);
-        if (customStack == null) return;
+        String bowId = NamespaceUtils.itemID(bow);
+        if (bowId == null) return;
 
         dispatcher.dispatch(
-                customStack.getNamespacedID(),
+                bowId,
                 TriggerType.ITEM_BOW_SHOT,
                 ActionContext.create(player, TriggerType.ITEM_BOW_SHOT)
                         .heldItem(bow)
@@ -73,13 +73,13 @@ public final class ItemUseProjectileActionListener implements Listener {
         if (!(event.getEntity().getShooter() instanceof Player player)) return;
 
         ItemStack item = player.getInventory().getItemInMainHand();
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) return;
+        String itemId = NamespaceUtils.itemID(item);
+        if (itemId == null) return;
 
-        projectileItems.put(event.getEntity().getUniqueId(), customStack.getNamespacedID());
+        projectileItems.put(event.getEntity().getUniqueId(), itemId);
 
         dispatcher.dispatch(
-                customStack.getNamespacedID(),
+                itemId,
                 TriggerType.ITEM_THROW,
                 ActionContext.create(player, TriggerType.ITEM_THROW)
                         .heldItem(item)

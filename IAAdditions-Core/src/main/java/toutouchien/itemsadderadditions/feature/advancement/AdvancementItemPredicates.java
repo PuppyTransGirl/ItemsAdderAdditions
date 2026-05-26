@@ -56,11 +56,9 @@ record ItemPredicate(
         if (stack == null || stack.getType().isAir()) return itemIds.isEmpty() && count.matches(0);
 
         if (!itemIds.isEmpty()) {
-            String actual = itemId(stack);
             boolean matched = false;
             for (String itemId : itemIds) {
-                if (itemId.startsWith("#")) continue; // Item tags are not resolved in this lightweight layer.
-                if (itemId.equals(actual)) {
+                if (NamespaceUtils.matchesItemIDOrTag(stack, itemId)) {
                     matched = true;
                     break;
                 }

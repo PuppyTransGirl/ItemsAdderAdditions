@@ -28,13 +28,10 @@ public final class ItemUsedOnBlockTriggerHandler extends AbstractTriggerHandler 
         ItemStack item = event.getItem();
         if (item == null || item.getType().isAir()) return;
         Player player = event.getPlayer();
-        String itemId = getItemId(item);
-        if (itemId == null) return;
-        String blockId = block.getType().getKey().toString();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.ITEM_USED_ON_BLOCK)) {
             if (!(c.conditions() instanceof AdvancementConditions.ItemUsedOnBlock(String condItemId, String condBlockId))) continue;
-            if (condItemId != null && !condItemId.equals(itemId)) continue;
-            if (condBlockId != null && !condBlockId.equals(blockId)) continue;
+            if (!matchesItem(item, condItemId)) continue;
+            if (!matchesBlock(block, condBlockId)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

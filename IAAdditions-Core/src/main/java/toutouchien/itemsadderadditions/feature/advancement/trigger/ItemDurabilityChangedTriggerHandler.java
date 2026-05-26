@@ -18,11 +18,9 @@ public final class ItemDurabilityChangedTriggerHandler extends AbstractTriggerHa
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onItemDamage(PlayerItemDamageEvent event) {
         Player player = event.getPlayer();
-        String itemId = getItemId(event.getItem());
-        if (itemId == null) return;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.ITEM_DURABILITY_CHANGED)) {
             if (!(c.conditions() instanceof AdvancementConditions.ItemDurabilityChanged(String condItemId))) continue;
-            if (condItemId != null && !condItemId.equals(itemId)) continue;
+            if (!matchesItem(event.getItem(), condItemId)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

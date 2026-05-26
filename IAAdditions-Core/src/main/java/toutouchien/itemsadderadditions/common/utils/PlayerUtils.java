@@ -1,10 +1,10 @@
 package toutouchien.itemsadderadditions.common.utils;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 /**
  * Stateless utility methods for common player-level queries.
@@ -22,9 +22,10 @@ public final class PlayerUtils {
      * Returns {@code true} when this off-hand event should be ignored because the
      * same interaction is already being handled by the main-hand path.
      *
-     * <p>We only suppress the off-hand event when the main hand already holds a
-     * custom item. This preserves off-hand-only custom item interactions while
-     * preventing duplicate execution for items held in the main hand.
+     * <p>We suppress the off-hand event when the main hand already holds an item
+     * supported by the action system (ItemsAdder, MMOItems, or vanilla). This
+     * prevents duplicate execution while keeping empty-main-hand off-hand actions
+     * available.
      *
      * @param player the interacting player
      * @param hand   the hand that triggered the event
@@ -34,6 +35,6 @@ public final class PlayerUtils {
         if (hand != EquipmentSlot.OFF_HAND) return false;
 
         ItemStack mainHand = player.getInventory().getItemInMainHand();
-        return !mainHand.isEmpty() && CustomStack.byItemStack(mainHand) != null;
+        return !mainHand.isEmpty() && NamespaceUtils.itemID(mainHand) != null;
     }
 }

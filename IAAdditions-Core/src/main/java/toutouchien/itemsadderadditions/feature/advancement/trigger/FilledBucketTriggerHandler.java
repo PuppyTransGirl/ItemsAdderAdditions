@@ -16,10 +16,9 @@ public final class FilledBucketTriggerHandler extends AbstractTriggerHandler {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFill(PlayerBucketFillEvent event) {
-        String bucketItemId = getItemId(event.getItemStack());
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.FILLED_BUCKET)) {
             if (!(c.conditions() instanceof AdvancementConditions.FilledBucket(String itemId))) continue;
-            if (itemId != null && !itemId.equals(bucketItemId)) continue;
+            if (!matchesItem(event.getItemStack(), itemId)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }

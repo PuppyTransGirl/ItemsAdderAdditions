@@ -1,7 +1,6 @@
 package toutouchien.itemsadderadditions.feature.action.listener;
 
-import dev.lone.itemsadder.api.CustomBlock;
-import dev.lone.itemsadder.api.CustomStack;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,6 +9,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionDispatcher;
 import toutouchien.itemsadderadditions.feature.action.TriggerType;
@@ -27,32 +28,25 @@ public final class BlockActionListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (ActionEventFilters.ignoreOffHandDuplicate(event)) return;
 
+        Block clicked = event.getClickedBlock();
+        if (clicked == null) return;
+
         ItemStack item = event.getItem();
-        CustomStack customStack = item == null ? null : CustomStack.byItemStack(item);
-        CustomBlock customBlock = CustomBlock.byAlreadyPlaced(event.getClickedBlock());
         ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
 
-        if (customStack != null) {
-            dispatcher.dispatch(
-                    customStack.getNamespacedID(),
-                    TriggerType.BLOCK_INTERACT,
-                    ActionContext.create(event.getPlayer(), TriggerType.BLOCK_INTERACT)
-                            .block(event.getClickedBlock())
-                            .heldItem(held)
-                            .build()
-            );
-        }
+        dispatchItemId(
+                NamespaceUtils.itemID(item),
+                event.getPlayer(),
+                clicked,
+                held
+        );
 
-        if (customBlock != null) {
-            dispatcher.dispatch(
-                    customBlock.getNamespacedID(),
-                    TriggerType.BLOCK_INTERACT,
-                    ActionContext.create(event.getPlayer(), TriggerType.BLOCK_INTERACT)
-                            .block(event.getClickedBlock())
-                            .heldItem(held)
-                            .build()
-            );
-        }
+        dispatchBlockId(
+                NamespaceUtils.blockID(clicked),
+                event.getPlayer(),
+                clicked,
+                held
+        );
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -60,27 +54,47 @@ public final class BlockActionListener implements Listener {
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
 
-        CustomBlock customBlock = CustomBlock.byAlreadyPlaced(event.getBlock());
-        if (customBlock != null) {
-            dispatcher.dispatch(
-                    customBlock.getNamespacedID(),
-                    TriggerType.PLACED_BLOCK_BREAK,
-                    ActionContext.create(player, TriggerType.PLACED_BLOCK_BREAK)
-                            .block(event.getBlock())
-                            .heldItem(tool)
-                            .build()
-            );
-        }
+        dispatcher.dispatch(
+                NamespaceUtils.blockID(event.getBlock()),
+                TriggerType.PLACED_BLOCK_BREAK,
+                ActionContext.create(player, TriggerType.PLACED_BLOCK_BREAK)
+                        .block(event.getBlock())
+                        .heldItem(tool)
+                        .build()
+        );
 
-        CustomStack customTool = CustomStack.byItemStack(tool);
-        if (customTool == null) return;
+        String toolId = NamespaceUtils.itemID(tool);
+        if (toolId == null) return;
 
         dispatcher.dispatch(
-                customTool.getNamespacedID(),
+                toolId,
                 TriggerType.ITEM_BREAK_BLOCK,
                 ActionContext.create(player, TriggerType.ITEM_BREAK_BLOCK)
                         .block(event.getBlock())
                         .heldItem(tool)
+                        .build()
+        );
+    }
+
+    private void dispatchItemId(@Nullable String itemId, Player player, Block clicked, ItemStack held) {
+        if (itemId == null) return;
+        dispatcher.dispatch(
+                itemId,
+                TriggerType.BLOCK_INTERACT,
+                ActionContext.create(player, TriggerType.BLOCK_INTERACT)
+                        .block(clicked)
+                        .heldItem(held)
+                        .build()
+        );
+    }
+
+    private void dispatchBlockId(String blockId, Player player, Block clicked, ItemStack held) {
+        dispatcher.dispatch(
+                blockId,
+                TriggerType.BLOCK_INTERACT,
+                ActionContext.create(player, TriggerType.BLOCK_INTERACT)
+                        .block(clicked)
+                        .heldItem(held)
                         .build()
         );
     }

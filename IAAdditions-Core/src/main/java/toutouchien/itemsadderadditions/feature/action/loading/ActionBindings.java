@@ -68,32 +68,51 @@ public final class ActionBindings {
      *                 ({@code null} for non-argumentized triggers)
      */
     public static List<ActionExecutor> get(String id, TriggerType type, @Nullable String argument) {
-        Map<TriggerKey, List<ActionExecutor>> keyMap = bindings.get(id);
+        List<ActionExecutor> result = new ArrayList<>();
 
-        // Fall back to the base (rotation-stripped) ID if no binding exists for the exact ID
-        if (keyMap == null) {
-            String baseId = NamespaceUtils.stripRotationSuffix(id);
-            if (!baseId.equals(id)) {
-                keyMap = bindings.get(baseId);
-            }
-            if (keyMap == null) return List.of();
+        collectForKey(id, type, argument, result);
+
+        // Fall back to the base (rotation-stripped) ID for IA block/furniture variants.
+        String baseId = NamespaceUtils.stripRotationSuffix(id);
+        if (!baseId.equals(id)) {
+            collectForKey(baseId, type, argument, result);
         }
 
-        List<ActionExecutor> exact = keyMap.getOrDefault(TriggerKey.of(type, argument), List.of());
+        // Vanilla tag bindings, e.g. #minecraft:logs or #minecraft:planks.
+        for (Map.Entry<String, Map<TriggerKey, List<ActionExecutor>>> entry : bindings.entrySet()) {
+            String bindingId = entry.getKey();
+            if (!bindingId.startsWith("#")) continue;
+            if (!NamespaceUtils.matchesMinecraftIDOrTag(id, bindingId)) continue;
+            collectFromMap(entry.getValue(), type, argument, result);
+        }
+
+        return result.isEmpty() ? List.of() : List.copyOf(result);
+    }
+
+    private static void collectForKey(
+            String id,
+            TriggerType type,
+            @Nullable String argument,
+            List<ActionExecutor> result
+    ) {
+        Map<TriggerKey, List<ActionExecutor>> keyMap = bindings.get(id);
+        if (keyMap == null) return;
+        collectFromMap(keyMap, type, argument, result);
+    }
+
+    private static void collectFromMap(
+            Map<TriggerKey, List<ActionExecutor>> keyMap,
+            TriggerType type,
+            @Nullable String argument,
+            List<ActionExecutor> result
+    ) {
+        result.addAll(keyMap.getOrDefault(TriggerKey.of(type, argument), List.of()));
 
         // When a specific argument is present, also include executors registered without
         // any argument (the wildcard case: "fire on any interaction").
         if (argument != null) {
-            List<ActionExecutor> wildcard = keyMap.getOrDefault(TriggerKey.of(type, null), List.of());
-            if (!wildcard.isEmpty()) {
-                List<ActionExecutor> combined = new ArrayList<>(exact.size() + wildcard.size());
-                combined.addAll(exact);
-                combined.addAll(wildcard);
-                return List.copyOf(combined);
-            }
+            result.addAll(keyMap.getOrDefault(TriggerKey.of(type, null), List.of()));
         }
-
-        return List.copyOf(exact);
     }
 
     /**

@@ -1,6 +1,5 @@
 package toutouchien.itemsadderadditions.feature.action.listener;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -12,6 +11,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionDispatcher;
 import toutouchien.itemsadderadditions.feature.action.TriggerType;
@@ -34,11 +34,11 @@ public final class ItemInteractionActionListener implements Listener {
         ItemStack item = event.getItem();
         if (item == null) return;
 
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) return;
+        String itemId = NamespaceUtils.itemID(item);
+        if (itemId == null) return;
 
         dispatchGenericAndHandSpecific(
-                customStack.getNamespacedID(),
+                itemId,
                 event.getPlayer(),
                 event.getHand(),
                 argument,
@@ -58,11 +58,11 @@ public final class ItemInteractionActionListener implements Listener {
                 ? player.getInventory().getItemInMainHand()
                 : player.getInventory().getItemInOffHand();
 
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) return;
+        String itemId = NamespaceUtils.itemID(item);
+        if (itemId == null) return;
 
         dispatchGenericAndHandSpecific(
-                customStack.getNamespacedID(),
+                itemId,
                 player,
                 hand,
                 "entity",

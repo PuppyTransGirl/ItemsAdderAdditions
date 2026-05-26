@@ -1,9 +1,11 @@
 package toutouchien.itemsadderadditions.common.namespace;
 
+import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;
 import net.kyori.adventure.key.Key;
-import org.bukkit.Registry;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.NullMarked;
@@ -328,6 +330,63 @@ public final class NamespaceUtils {
     }
 
     /**
+     * Normalizes an item ID or vanilla item tag. Tags are always resolved in the
+     * Minecraft registry because Bukkit recipe/advancement tags only apply to
+     * vanilla registry entries.
+     */
+    public static String normalizeItemIDOrTag(@Nullable String currentNamespace, String id) {
+        String trimmed = id.trim().toLowerCase(Locale.ROOT);
+        if (trimmed.startsWith("#")) {
+            return "#" + normalizeMinecraftID(trimmed.substring(1));
+        }
+        return normalizeItemID(currentNamespace, trimmed);
+    }
+
+    @Nullable
+    public static String normalizeItemIDOrTagNullable(@Nullable String currentNamespace, @Nullable String id) {
+        return id == null ? null : normalizeItemIDOrTag(currentNamespace, id);
+    }
+
+    /**
+     * Normalizes a block reference for predicates/triggers. Bare vanilla block
+     * material names resolve to {@code minecraft:*}; other bare IDs resolve under
+     * the current ItemsAdder namespace. Prefix vanilla tags with {@code #}.
+     */
+    public static String normalizeBlockIDOrTag(@Nullable String currentNamespace, String id) {
+        String trimmed = id.trim().toLowerCase(Locale.ROOT);
+        if (trimmed.startsWith("#")) {
+            return "#" + normalizeMinecraftID(trimmed.substring(1));
+        }
+        return normalizeBlockID(currentNamespace, trimmed);
+    }
+
+    @Nullable
+    public static String normalizeBlockIDOrTagNullable(@Nullable String currentNamespace, @Nullable String id) {
+        return id == null ? null : normalizeBlockIDOrTag(currentNamespace, id);
+    }
+
+    /**
+     * Normalizes a block reference without tag support.
+     */
+    public static String normalizeBlockID(@Nullable String currentNamespace, String id) {
+        String lowerId = id.trim().toLowerCase(Locale.ROOT);
+        if (lowerId.isBlank()) return lowerId;
+        if (lowerId.contains(":")) return lowerId;
+
+        Material material = vanillaMaterial(lowerId);
+        if (material != null && material.isBlock()) {
+            return material.getKey().toString();
+        }
+
+        return normalizeID(currentNamespace, lowerId);
+    }
+
+    @Nullable
+    public static String normalizeBlockIDNullable(@Nullable String currentNamespace, @Nullable String id) {
+        return id == null ? null : normalizeBlockID(currentNamespace, id);
+    }
+
+    /**
      * Normalizes vanilla registry IDs such as block, biome, entity, effect, or
      * recipe keys. Bare IDs are resolved under {@code minecraft}.
      */
@@ -354,8 +413,12 @@ public final class NamespaceUtils {
     public static String itemID(@Nullable ItemStack item) {
         if (item == null || item.getType().isAir()) return null;
 
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack != null) return customStack.getNamespacedID();
+        try {
+            CustomStack customStack = CustomStack.byItemStack(item);
+            if (customStack != null) return customStack.getNamespacedID();
+        } catch (RuntimeException ignored) {
+            // ItemsAdder may throw while its runtime is not bootstrapped (unit tests / early startup).
+        }
 
         ItemProvider provider = mmoitemsProvider;
         if (provider != null && provider.isAvailable()) {
@@ -389,6 +452,115 @@ public final class NamespaceUtils {
 
         String itemId = itemID(item);
         return lowerId.equals(itemId);
+    }
+
+    /**
+     * Matches an ItemStack against an exact item ID or a vanilla item tag
+     * reference such as {@code #minecraft:planks}.
+     */
+    public static boolean matchesItemIDOrTag(@Nullable ItemStack item, String normalizedIdOrTag) {
+        if (item == null || item.getType().isAir()) return false;
+
+        String expected = normalizedIdOrTag.trim().toLowerCase(Locale.ROOT);
+        if (expected.startsWith("#")) {
+            return matchesMaterialTag(item.getType(), expected.substring(1), Tag.REGISTRY_ITEMS);
+        }
+
+        return matchesItemID(item, expected);
+    }
+
+    /**
+     * Returns the canonical ID of a placed block. ItemsAdder custom blocks keep
+     * their IA namespaced ID; vanilla blocks return their Minecraft key.
+     */
+    public static String blockID(Block block) {
+        try {
+            CustomBlock customBlock = CustomBlock.byAlreadyPlaced(block);
+            if (customBlock != null) return customBlock.getNamespacedID();
+        } catch (RuntimeException ignored) {
+            // ItemsAdder can throw while not fully loaded; fall back to vanilla.
+        }
+
+        return block.getType().getKey().toString();
+    }
+
+    /**
+     * Matches a placed block against an ItemsAdder block ID, a vanilla block ID,
+     * or a vanilla block tag reference such as {@code #minecraft:logs}.
+     */
+    public static boolean matchesBlockIDOrTag(Block block, String normalizedIdOrTag) {
+        String expected = normalizedIdOrTag.trim().toLowerCase(Locale.ROOT);
+        if (expected.startsWith("#")) {
+            return matchesMaterialTag(block.getType(), expected.substring(1), Tag.REGISTRY_BLOCKS);
+        }
+
+        return matchesContentID(blockID(block), expected);
+    }
+
+    /**
+     * Matches two already-normalized content IDs. Rotation suffixes are accepted
+     * for ItemsAdder block/furniture IDs but never for Minecraft registry IDs.
+     */
+    public static boolean matchesContentID(String actual, String expected) {
+        String lowerActual = actual.trim().toLowerCase(Locale.ROOT);
+        String lowerExpected = expected.trim().toLowerCase(Locale.ROOT);
+        if (lowerActual.startsWith("minecraft:") || lowerExpected.startsWith("minecraft:")) {
+            return lowerActual.equals(lowerExpected);
+        }
+        return matchesWithRotation(lowerActual, lowerExpected);
+    }
+
+
+    /**
+     * Matches an already-normalized Minecraft item/block ID against either an
+     * exact ID or a vanilla registry tag. This is useful for systems that only
+     * carry the observed ID at dispatch time.
+     */
+    public static boolean matchesMinecraftIDOrTag(String actualId, String expectedIdOrTag) {
+        String actual = actualId.trim().toLowerCase(Locale.ROOT);
+        String expected = expectedIdOrTag.trim().toLowerCase(Locale.ROOT);
+        if (!expected.startsWith("#")) return matchesContentID(actual, expected);
+        if (!actual.startsWith("minecraft:")) return false;
+
+        Material material = vanillaMaterial(actual);
+        if (material == null) return false;
+
+        String tag = expected.substring(1);
+        return (material.isItem() && matchesMaterialTag(material, tag, Tag.REGISTRY_ITEMS))
+                || (material.isBlock() && matchesMaterialTag(material, tag, Tag.REGISTRY_BLOCKS));
+    }
+
+    /**
+     * Resolves a vanilla material from either {@code stone} or
+     * {@code minecraft:stone}. Non-Minecraft namespaces return {@code null}.
+     */
+    @Nullable
+    public static Material vanillaMaterial(String raw) {
+        String lower = raw.trim().toLowerCase(Locale.ROOT);
+        if (lower.isBlank()) return null;
+        if (lower.contains(":")) {
+            int colon = lower.indexOf(':');
+            if (!lower.substring(0, colon).equals("minecraft")) return null;
+            lower = lower.substring(colon + 1);
+        }
+        return Material.matchMaterial(lower.toUpperCase(Locale.ROOT));
+    }
+
+    private static boolean matchesMaterialTag(Material material, String rawTag, String registry) {
+        NamespacedKey key = minecraftKey(rawTag);
+        if (key == null) return false;
+
+        Tag<Material> tag = Bukkit.getTag(registry, key, Material.class);
+        return tag != null && tag.isTagged(material);
+    }
+
+    @Nullable
+    private static NamespacedKey minecraftKey(String raw) {
+        String lower = raw.trim().toLowerCase(Locale.ROOT);
+        if (lower.isBlank()) return null;
+        return lower.contains(":")
+                ? NamespacedKey.fromString(lower)
+                : new NamespacedKey("minecraft", lower);
     }
 
     public static String namespace(String namespacedID) {
@@ -432,7 +604,14 @@ public final class NamespaceUtils {
         // Use the pre-resolved Key from the vanilla cache if available; fall back
         // to Key.key() only for truly unknown namespaced IDs.
         Key resolved = vanillaKeyCache.get(normalizedId);
-        String path = (resolved != null) ? resolved.value() : Key.key(normalizedId).value();
+        String path;
+        if (resolved != null) {
+            path = resolved.value();
+        } else {
+            int colon = normalizedId.indexOf(':');
+            if (colon < 0 || colon == normalizedId.length() - 1) return null;
+            path = normalizedId.substring(colon + 1);
+        }
         return cacheByPath.get(path);
     }
 

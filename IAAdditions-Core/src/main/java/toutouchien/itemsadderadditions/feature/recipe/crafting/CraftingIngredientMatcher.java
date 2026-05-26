@@ -9,8 +9,8 @@ import org.bukkit.potion.PotionType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.ParsedIngredient;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.ParsedIngredient;
 
 @NullMarked
 final class CraftingIngredientMatcher {
@@ -69,12 +69,16 @@ final class CraftingIngredientMatcher {
             return ingredient.potionType() == null || matchesPotionType(ingredient, slot);
         }
 
-        CustomStack slotCustom = CustomStack.byItemStack(slot);
-        if (slotCustom == null) return false;
+        try {
+            CustomStack slotCustom = CustomStack.byItemStack(slot);
+            if (slotCustom == null) return false;
 
-        String slotId = slotCustom.getNamespacedID();
-        if (slotId.hashCode() != ingredient.customNamespacedIdHash()) return false;
-        if (!slotId.equals(customId)) return false;
+            String slotId = slotCustom.getNamespacedID();
+            if (slotId.hashCode() != ingredient.customNamespacedIdHash()) return false;
+            if (!slotId.equals(customId)) return false;
+        } catch (RuntimeException ignored) {
+            if (!NamespaceUtils.matchesItemID(slot, customId)) return false;
+        }
 
         return ingredient.potionType() == null || matchesPotionType(ingredient, slot);
     }

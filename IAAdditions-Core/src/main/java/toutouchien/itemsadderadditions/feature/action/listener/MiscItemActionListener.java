@@ -1,6 +1,5 @@
 package toutouchien.itemsadderadditions.feature.action.listener;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,6 +8,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionDispatcher;
 import toutouchien.itemsadderadditions.feature.action.TriggerType;
@@ -49,8 +49,8 @@ public final class MiscItemActionListener implements Listener {
                 ? event.getPlayer().getInventory().getItemInMainHand()
                 : event.getPlayer().getInventory().getItemInOffHand();
 
-        CustomStack customRod = CustomStack.byItemStack(rod);
-        if (customRod == null) return;
+        String rodId = NamespaceUtils.itemID(rod);
+        if (rodId == null) return;
 
         TriggerType type = switch (event.getState()) {
             case FISHING -> TriggerType.ITEM_FISHING_START;
@@ -64,7 +64,7 @@ public final class MiscItemActionListener implements Listener {
         if (type == null) return;
 
         dispatcher.dispatch(
-                customRod.getNamespacedID(),
+                rodId,
                 type,
                 ActionContext.create(event.getPlayer(), type)
                         .heldItem(rod)
@@ -90,11 +90,11 @@ public final class MiscItemActionListener implements Listener {
             TriggerType type,
             ContextCustomizer customizer
     ) {
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) return;
+        String itemId = NamespaceUtils.itemID(item);
+        if (itemId == null) return;
 
         ActionContext.Builder builder = ActionContext.create(player, type).heldItem(item);
-        dispatcher.dispatch(customStack.getNamespacedID(), type, customizer.apply(builder).build());
+        dispatcher.dispatch(itemId, type, customizer.apply(builder).build());
     }
 
     @FunctionalInterface

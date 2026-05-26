@@ -19,6 +19,7 @@ import toutouchien.itemsadderadditions.integration.hook.MMOItemsHook;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -253,7 +254,7 @@ public final class IngredientResolver {
                     null, 0);   // tags are never custom items
         }
 
-        if (itemRef.toLowerCase().startsWith("mmoitems:")) {
+        if (itemRef.toLowerCase(Locale.ROOT).startsWith("mmoitems:")) {
             return buildMMOItemIngredient(itemRef, keyLabel, recipeId,
                     requiredAmount, damageAmount, replacement, ignoreDurability, potionType);
         }
@@ -277,8 +278,8 @@ public final class IngredientResolver {
                     namespacedId, 0);       // hash computed automatically
         }
 
-        Material mat = Material.matchMaterial(itemRef);
-        if (mat != null) {
+        Material mat = NamespaceUtils.vanillaMaterial(itemRef);
+        if (mat != null && mat.isItem()) {
             RecipeChoice matChoice = RecipeChoice.itemType(mat.asItemType());
             return new ParsedIngredient(
                     matChoice, matChoice,
@@ -320,7 +321,7 @@ public final class IngredientResolver {
             return null;
         }
 
-        String rest = itemRef.toLowerCase().substring("mmoitems:".length());
+        String rest = itemRef.toLowerCase(Locale.ROOT).substring("mmoitems:".length());
         int colon = rest.indexOf(':');
         if (colon <= 0) {
             Log.warn(LOG_TAG,
@@ -354,7 +355,8 @@ public final class IngredientResolver {
     private static RecipeChoice resolveTag(
             String tagRef, String recipeId, String key
     ) {
-        NamespacedKey tagKey = NamespacedKey.fromString(tagRef);
+        String normalizedTag = NamespaceUtils.normalizeMinecraftID(tagRef);
+        NamespacedKey tagKey = NamespacedKey.fromString(normalizedTag);
         if (tagKey == null) {
             Log.warn(LOG_TAG,
                     "Ingredient '{}' in recipe '{}': invalid tag key '#{}' .",
@@ -373,7 +375,16 @@ public final class IngredientResolver {
             return null;
         }
 
-        List<ItemType> itemTypes = tag.getValues().stream().map(Material::asItemType).toList();
+        List<ItemType> itemTypes = tag.getValues().stream()
+                .filter(Material::isItem)
+                .map(Material::asItemType)
+                .toList();
+        if (itemTypes.isEmpty()) {
+            Log.warn(LOG_TAG,
+                    "Ingredient '{}' in recipe '{}': tag '#{}' does not contain any item materials.",
+                    key, recipeId, tagRef);
+            return null;
+        }
         return RecipeChoice.itemType(RegistrySet.keySetFromValues(RegistryKey.ITEM, itemTypes));
     }
 

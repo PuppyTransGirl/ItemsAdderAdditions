@@ -21,11 +21,9 @@ public final class HeldItemTriggerHandler extends AbstractTriggerHandler {
         Player player = event.getPlayer();
         ItemStack newItem = player.getInventory().getItem(event.getNewSlot());
         if (newItem == null || newItem.getType().isAir()) return;
-        String itemId = getItemId(newItem);
-        if (itemId == null) return;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.HELD_ITEM)) {
             if (!(c.conditions() instanceof AdvancementConditions.HeldItem(String condItemId))) continue;
-            if (condItemId != null && !condItemId.equals(itemId)) continue;
+            if (!matchesItem(newItem, condItemId)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

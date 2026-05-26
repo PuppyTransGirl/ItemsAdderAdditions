@@ -212,7 +212,12 @@ public abstract class ActionExecutor implements Keyed {
         if (context.heldItem() == null)
             return true;
 
-        CustomStack customStack = CustomStack.byItemStack(context.heldItem());
+        CustomStack customStack;
+        try {
+            customStack = CustomStack.byItemStack(context.heldItem());
+        } catch (RuntimeException ignored) {
+            return true;
+        }
         if (customStack == null)
             return true;
 

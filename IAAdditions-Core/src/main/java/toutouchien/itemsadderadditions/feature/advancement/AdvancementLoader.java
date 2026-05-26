@@ -165,20 +165,24 @@ public final class AdvancementLoader {
         return switch (trigger) {
             case OBTAIN_ITEM -> {
                 List<String> rawItems = sec != null ? sec.getStringList("items") : List.of();
+                if (rawItems.isEmpty() && sec != null) {
+                    String singleItem = sec.getString("item");
+                    if (singleItem != null && !singleItem.isBlank()) rawItems = List.of(singleItem);
+                }
                 List<String> items = rawItems.stream()
-                        .map(id -> normalizeItemId(namespace, id))
+                        .map(id -> normalizeItemIdOrTag(namespace, id))
                         .toList();
                 int amount = sec != null ? sec.getInt("amount", 1) : 1;
                 yield new AdvancementConditions.ObtainItem(items, amount);
             }
             case CONSUME_ITEM -> new AdvancementConditions.ConsumeItem(
-                    normalizeItemId(namespace, sec != null ? sec.getString("item", "") : "")
+                    normalizeItemIdOrTag(namespace, sec != null ? sec.getString("item", "") : "")
             );
             case PLACE_BLOCK -> new AdvancementConditions.PlaceBlock(
-                    normalizeCustomContentId(namespace, sec != null ? sec.getString("block", "") : "")
+                    normalizeBlockIdOrTag(namespace, sec != null ? sec.getString("block", "") : "")
             );
             case BREAK_BLOCK -> new AdvancementConditions.BreakBlock(
-                    normalizeCustomContentId(namespace, sec != null ? sec.getString("block", "") : "")
+                    normalizeBlockIdOrTag(namespace, sec != null ? sec.getString("block", "") : "")
             );
             case PLACE_FURNITURE -> new AdvancementConditions.PlaceFurniture(
                     normalizeCustomContentId(namespace, sec != null ? sec.getString("furniture", "") : "")
@@ -193,7 +197,7 @@ public final class AdvancementLoader {
                     normalizeRecipeId(namespace, sec != null ? sec.getString("recipe", "") : "")
             );
             case KILL_ENTITY_WITH_ITEM -> new AdvancementConditions.KillEntityWithItem(
-                    normalizeItemId(namespace, sec != null ? sec.getString("item", "") : ""),
+                    normalizeItemIdOrTag(namespace, sec != null ? sec.getString("item", "") : ""),
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null)
             );
             case PERMISSION -> new AdvancementConditions.Permission(
@@ -204,13 +208,13 @@ public final class AdvancementLoader {
                     sec != null ? sec.getString("world") : null
             );
             case USING_ITEM -> new AdvancementConditions.UsingItem(
-                    normalizeItemId(namespace, sec != null ? sec.getString("item", "") : "")
+                    normalizeItemIdOrTag(namespace, sec != null ? sec.getString("item", "") : "")
             );
             case TAME_ANIMAL -> new AdvancementConditions.TameAnimal(
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null)
             );
             case ENCHANTED_ITEM -> new AdvancementConditions.EnchantedItem(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null),
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null),
                     sec != null ? sec.getInt("min_levels", 0) : 0,
                     sec != null ? sec.getInt("max_levels", Integer.MAX_VALUE) : Integer.MAX_VALUE
             );
@@ -224,28 +228,28 @@ public final class AdvancementLoader {
                     sec != null ? sec.getString("from") : null
             );
             case PLAYER_HURT_ENTITY -> new AdvancementConditions.PlayerHurtEntity(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null),
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null),
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null)
             );
             case ENTITY_HURT_PLAYER -> new AdvancementConditions.EntityHurtPlayer(
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null)
             );
             case SHOOT_BOW -> new AdvancementConditions.ShootBow(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case VILLAGER_TRADE -> new AdvancementConditions.VillagerTrade(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case FILLED_BUCKET -> new AdvancementConditions.FilledBucket(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case FISHING_ROD_HOOKED -> new AdvancementConditions.FishingRodHooked(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("rod") : null),
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("rod") : null),
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("caught_entity_type") : null)
             );
             case PLAYER_KILLED_ENTITY -> new AdvancementConditions.PlayerKilledEntity(
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null),
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case RECIPE_UNLOCKED -> new AdvancementConditions.RecipeUnlocked(
                     normalizeRecipeId(namespace, sec != null ? sec.getString("recipe", "") : "")
@@ -254,24 +258,24 @@ public final class AdvancementLoader {
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("effect") : null)
             );
             case BEE_NEST_DESTROYED -> new AdvancementConditions.BeeNestDestroyed(
-                    NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("block") : null)
+                    NamespaceUtils.normalizeBlockIDOrTagNullable(namespace, sec != null ? sec.getString("block") : null)
             );
             case ENTITY_KILLED_PLAYER -> new AdvancementConditions.EntityKilledPlayer(
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null)
             );
             case ITEM_DURABILITY_CHANGED -> new AdvancementConditions.ItemDurabilityChanged(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case ITEM_USED_ON_BLOCK -> new AdvancementConditions.ItemUsedOnBlock(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null),
-                    NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("block") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null),
+                    NamespaceUtils.normalizeBlockIDOrTagNullable(namespace, sec != null ? sec.getString("block") : null)
             );
             case KILLED_BY_ARROW -> new AdvancementConditions.KilledByArrow(
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null)
             );
             case PLAYER_INTERACTED_WITH_ENTITY -> new AdvancementConditions.PlayerInteractedWithEntity(
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null),
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case PLAYER_SHEARED_EQUIPMENT -> new AdvancementConditions.PlayerShearedEquipment(
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null)
@@ -280,13 +284,13 @@ public final class AdvancementLoader {
                     normalizeRecipeId(namespace, sec != null ? sec.getString("recipe", "") : "")
             );
             case SHOT_CROSSBOW -> new AdvancementConditions.ShotCrossbow(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case STARTED_RIDING -> new AdvancementConditions.StartedRiding(
                     NamespaceUtils.normalizeMinecraftIDNullable(sec != null ? sec.getString("entity_type") : null)
             );
             case HELD_ITEM -> new AdvancementConditions.HeldItem(
-                    normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
+                    normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case FALL_FROM_HEIGHT -> parseFallFromHeight(sec);
             case SLEPT_IN_BED, USED_TOTEM, USED_ENDER_EYE, IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
@@ -326,13 +330,18 @@ public final class AdvancementLoader {
         return null;
     }
 
-    private static String normalizeItemId(String namespace, String raw) {
-        return NamespaceUtils.normalizeItemID(namespace, raw);
+    private static String normalizeItemIdOrTag(String namespace, String raw) {
+        return NamespaceUtils.normalizeItemIDOrTag(namespace, raw);
     }
 
     @Nullable
-    private static String normalizeItemIdNullable(String namespace, @Nullable String raw) {
-        return NamespaceUtils.normalizeItemIDNullable(namespace, raw);
+    private static String normalizeItemIdOrTagNullable(String namespace, @Nullable String raw) {
+        return NamespaceUtils.normalizeItemIDOrTagNullable(namespace, raw);
+    }
+
+    private static String normalizeBlockIdOrTag(String namespace, String raw) {
+        if (raw.isBlank()) return "";
+        return NamespaceUtils.normalizeBlockIDOrTag(namespace, raw);
     }
 
     private static String normalizeCustomContentId(String namespace, String raw) {

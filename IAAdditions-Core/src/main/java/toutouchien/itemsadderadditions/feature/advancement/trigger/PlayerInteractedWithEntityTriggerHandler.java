@@ -21,11 +21,10 @@ public final class PlayerInteractedWithEntityTriggerHandler extends AbstractTrig
         if (event.getHand() != EquipmentSlot.HAND) return;
         Player player = event.getPlayer();
         String entityType = event.getRightClicked().getType().getKey().toString();
-        String itemId = getItemId(player.getInventory().getItemInMainHand());
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.PLAYER_INTERACTED_WITH_ENTITY)) {
             if (!(c.conditions() instanceof AdvancementConditions.PlayerInteractedWithEntity(String condEntityType, String condItemId))) continue;
             if (condEntityType != null && !condEntityType.equals(entityType)) continue;
-            if (condItemId != null && !condItemId.equals(itemId)) continue;
+            if (!matchesItem(player.getInventory().getItemInMainHand(), condItemId)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

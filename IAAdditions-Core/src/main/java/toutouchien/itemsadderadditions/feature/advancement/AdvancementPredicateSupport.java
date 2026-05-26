@@ -355,8 +355,7 @@ final class AdvancementPredicateSupport {
 
     @Nullable
     static Material material(String normalizedId) {
-        String key = stripNamespace(normalizedId).toUpperCase(Locale.ROOT);
-        return Material.matchMaterial(key);
+        return NamespaceUtils.vanillaMaterial(normalizedId);
     }
 
     @Nullable
@@ -379,9 +378,11 @@ final class AdvancementPredicateSupport {
 
 
     static String normalizeItemIdOrTag(String namespace, String raw) {
-        String trimmed = raw.trim().toLowerCase(Locale.ROOT);
-        if (trimmed.startsWith("#")) return "#" + NamespaceUtils.normalizeMinecraftID(trimmed.substring(1));
-        return NamespaceUtils.normalizeItemID(namespace, trimmed);
+        return NamespaceUtils.normalizeItemIDOrTag(namespace, raw);
+    }
+
+    static String normalizeBlockIdOrTag(String namespace, String raw) {
+        return NamespaceUtils.normalizeBlockIDOrTag(namespace, raw);
     }
 
     static String normalizeMinecraftIdOrTag(String raw) {

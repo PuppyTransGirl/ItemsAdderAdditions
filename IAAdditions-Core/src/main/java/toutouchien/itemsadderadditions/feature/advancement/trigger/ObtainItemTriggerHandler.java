@@ -22,16 +22,15 @@ public final class ObtainItemTriggerHandler extends AbstractTriggerHandler {
     public void onPickup(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         ItemStack pickedUp = event.getItem().getItemStack();
-        String itemId = getItemId(pickedUp);
-        if (itemId == null) return;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.OBTAIN_ITEM)) {
             if (!(c.conditions() instanceof AdvancementConditions.ObtainItem(
                     List<String> itemIds, int amount
             ))) continue;
-            if (!itemIds.contains(itemId)) continue;
+            if (itemIds.stream().noneMatch(itemId -> matchesItem(pickedUp, itemId))) continue;
             int total = pickedUp.getAmount();
             for (ItemStack stack : player.getInventory().getContents()) {
-                if (stack != null && !stack.getType().isAir() && itemId.equals(getItemId(stack))) {
+                if (stack != null && !stack.getType().isAir()
+                        && itemIds.stream().anyMatch(itemId -> matchesItem(stack, itemId))) {
                     total += stack.getAmount();
                 }
             }

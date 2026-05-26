@@ -20,12 +20,11 @@ public final class PlayerKilledEntityTriggerHandler extends AbstractTriggerHandl
         Player killer = event.getEntity().getKiller();
         if (killer == null) return;
         String entityType = event.getEntity().getType().getKey().toString();
-        String heldItemId = getItemId(killer.getInventory().getItemInMainHand());
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.PLAYER_KILLED_ENTITY)) {
             if (!(c.conditions() instanceof AdvancementConditions.PlayerKilledEntity(String condEntityType, String condItemId)))
                 continue;
             if (condEntityType != null && !condEntityType.equals(entityType)) continue;
-            if (condItemId != null && !condItemId.equals(heldItemId)) continue;
+            if (!matchesItem(killer.getInventory().getItemInMainHand(), condItemId)) continue;
             award(killer, advancementKeyFor(c), c.name());
         }
     }

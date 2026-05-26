@@ -16,12 +16,11 @@ public final class EnchantedItemTriggerHandler extends AbstractTriggerHandler {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEnchant(EnchantItemEvent event) {
-        String enchantedItemId = getItemId(event.getItem());
         int levels = event.getExpLevelCost();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.ENCHANTED_ITEM)) {
             if (!(c.conditions() instanceof AdvancementConditions.EnchantedItem(String itemId, int minLevels, int maxLevels)))
                 continue;
-            if (itemId != null && !itemId.equals(enchantedItemId)) continue;
+            if (!matchesItem(event.getItem(), itemId)) continue;
             if (levels < minLevels || levels > maxLevels) continue;
             award(event.getEnchanter(), advancementKeyFor(c), c.name());
         }

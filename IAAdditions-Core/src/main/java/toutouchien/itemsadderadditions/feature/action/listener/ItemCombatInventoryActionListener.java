@@ -1,6 +1,5 @@
 package toutouchien.itemsadderadditions.feature.action.listener;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +13,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionDispatcher;
 import toutouchien.itemsadderadditions.feature.action.TriggerType;
@@ -31,11 +31,11 @@ public final class ItemCombatInventoryActionListener implements Listener {
         if (!(event.getDamager() instanceof Player player)) return;
 
         ItemStack tool = player.getInventory().getItemInMainHand();
-        CustomStack customTool = CustomStack.byItemStack(tool);
-        if (customTool == null) return;
+        String toolId = NamespaceUtils.itemID(tool);
+        if (toolId == null) return;
 
         dispatcher.dispatch(
-                customTool.getNamespacedID(),
+                toolId,
                 TriggerType.ITEM_ATTACK,
                 ActionContext.create(player, TriggerType.ITEM_ATTACK)
                         .target(event.getEntity())
@@ -51,11 +51,11 @@ public final class ItemCombatInventoryActionListener implements Listener {
         if (killer == null) return;
 
         ItemStack tool = killer.getInventory().getItemInMainHand();
-        CustomStack customTool = CustomStack.byItemStack(tool);
-        if (customTool == null) return;
+        String toolId = NamespaceUtils.itemID(tool);
+        if (toolId == null) return;
 
         dispatcher.dispatch(
-                customTool.getNamespacedID(),
+                toolId,
                 TriggerType.ITEM_KILL,
                 ActionContext.create(killer, TriggerType.ITEM_KILL)
                         .target(dead)
@@ -107,11 +107,11 @@ public final class ItemCombatInventoryActionListener implements Listener {
     }
 
     private void dispatchItem(Player player, ItemStack item, TriggerType type) {
-        CustomStack customStack = CustomStack.byItemStack(item);
-        if (customStack == null) return;
+        String itemId = NamespaceUtils.itemID(item);
+        if (itemId == null) return;
 
         dispatcher.dispatch(
-                customStack.getNamespacedID(),
+                itemId,
                 type,
                 ActionContext.create(player, type)
                         .heldItem(item)

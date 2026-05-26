@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions.feature.advancement.trigger;
 
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +33,18 @@ public abstract class AbstractTriggerHandler implements Listener {
     @Nullable
     protected static String getItemId(@Nullable ItemStack item) {
         return NamespaceUtils.itemID(item);
+    }
+
+    protected static boolean matchesItem(@Nullable ItemStack item, @Nullable String expectedIdOrTag) {
+        return expectedIdOrTag == null || NamespaceUtils.matchesItemIDOrTag(item, expectedIdOrTag);
+    }
+
+    protected static boolean matchesBlock(Block block, @Nullable String expectedIdOrTag) {
+        return expectedIdOrTag == null || NamespaceUtils.matchesBlockIDOrTag(block, expectedIdOrTag);
+    }
+
+    protected static boolean matchesContentId(String actualId, String expectedId) {
+        return expectedId.startsWith("#") ? false : NamespaceUtils.matchesContentID(actualId, expectedId);
     }
 
     protected NamespacedKey advancementKeyFor(AdvancementCriterionDefinition criterion) {
