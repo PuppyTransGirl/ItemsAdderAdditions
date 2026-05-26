@@ -1,0 +1,349 @@
+---
+title: Spelerspredicaten
+description: Voeg extra vereisten voor de spelerstatus toe aan elk aangepast voortgangscriterium, zoals flags, gamemode, level, inventarisslots, effecten, locatie en vanilla-achtige entiteitspredicaten.
+version: "1.0.9"
+---
+
+Spelerspredicaten laten je extra vereisten toevoegen aan een criterium, bovenop de trigger zelf. Plaats ze onder `conditions.player`. De trigger moet eerst afgaan; daarna wordt het spelerspredicaat gecontroleerd vlak voordat het criterium wordt toegekend.
+
+```yaml
+criteria:
+  sneaky_sleep:
+    trigger: slept_in_bed
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+```
+
+<Callout>
+    `conditions.player` werkt met runtime-triggers. De trigger `impossible` negeert spelerspredicaten, omdat die alleen
+    handmatig kan worden toegekend.
+</Callout>
+
+## Object- en lijstformaten
+
+Gebruik één object wanneer je maar één predicaat nodig hebt. Alle sleutels in het object moeten overeenkomen.
+
+```yaml
+conditions:
+  player:
+    type: minecraft:player
+    flags:
+      is_sneaking: true
+    type_specific:
+      type: minecraft:player
+      gamemode: survival
+```
+
+Je kunt ook een lijst gebruiken. Elke invoer in de lijst moet overeenkomen. Dit is handig wanneer je liever vanilla-achtige predicaatwrappers gebruikt.
+
+```yaml
+conditions:
+  player:
+    - condition: minecraft:entity_properties
+      predicate:
+        flags:
+          is_sneaking: true
+    - condition: minecraft:entity_properties
+      predicate:
+        type_specific:
+          type: minecraft:player
+          gamemode: survival
+```
+
+## Bereiksyntaxis
+
+Numerieke waarden accepteren een exact getal of een `min`/`max`-object.
+
+```yaml
+level: 10
+
+level:
+  min: 10
+  max: 30
+```
+
+Deze syntaxis wordt gebruikt door spelerslevel, voedselniveau, bewegingssnelheid, potionduur, enchantmentlevel, itemaantal, duurzaamheid, lichtniveau en andere numerieke controles.
+
+## Veelgebruikte spelercontroles
+
+```yaml
+conditions:
+  player:
+    flags:
+      is_sneaking: true
+      is_sprinting: false
+    type_specific:
+      type: minecraft:player
+      gamemode: adventure
+      level:
+        min: 10
+      food:
+        level:
+          min: 16
+        saturation:
+          min: 4.0
+```
+
+| Sleutel | Type | Beschrijving |
+|-----|------|-------------|
+| `flags.is_baby` | boolean | Komt overeen met baby-/volwassenstatus wanneer de entiteit dit ondersteunt. |
+| `flags.is_on_fire` | boolean | Vereist dat de speler wel of niet in brand staat. |
+| `flags.is_sneaking` | boolean | Vereist sluipstatus. |
+| `flags.is_sprinting` | boolean | Vereist sprintstatus. |
+| `flags.is_swimming` | boolean | Vereist zwemstatus. |
+| `flags.is_on_ground` | boolean | Vereist status op de grond. |
+| `flags.is_flying` | boolean | Komt overeen met creative flight of glijden. |
+| `flags.is_fall_flying` | boolean | Vereist glijden met elytra. |
+| `type_specific.gamemode` | string of lijst | Komt overeen met één of meer gamemodes: `survival`, `creative`, `adventure` of `spectator`. |
+| `type_specific.level` | getal of bereik | Komt overeen met het XP-level van de speler. |
+| `type_specific.food.level` | getal of bereik | Komt overeen met het voedselniveau. |
+| `type_specific.food.saturation` | getal of bereik | Komt overeen met verzadiging. |
+
+`gamemode`, `level`, `food`, `advancements`, `recipes`, `stats`, `input` en `looking_at` kunnen ook direct in `player` worden geplaatst, maar `type_specific` is duidelijker en ligt dichter bij de vanilla-predicaatstructuur.
+
+## Inputcontroles
+
+Inputpredicaten kunnen de huidige bewegingsinvoer van de speler controleren wanneer de server die informatie beschikbaar stelt. `sneak` en `sprint` vallen terug op de Bukkit-spelerstatus wanneer directe inputdata niet beschikbaar is.
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      input:
+        forward: true
+        jump: true
+        sneak: false
+        sprint: true
+```
+
+| Sleutel | Type | Beschrijving |
+|-----|------|-------------|
+| `input.forward` | boolean | Vereist de status van de vooruit-toets. |
+| `input.backward` | boolean | Vereist de status van de achteruit-toets. |
+| `input.left` | boolean | Vereist de status van de links-toets. |
+| `input.right` | boolean | Vereist de status van de rechts-toets. |
+| `input.jump` | boolean | Vereist de status van de spring-toets. |
+| `input.sneak` | boolean | Vereist sneak-input of sluipstatus. |
+| `input.sprint` | boolean | Vereist sprint-input of sprintstatus. |
+
+## Locatiecontroles
+
+```yaml
+conditions:
+  player:
+    location:
+      dimension: minecraft:overworld
+      world: world
+      biomes:
+        - minecraft:plains
+        - minecraft:forest
+      position:
+        x:
+          min: 100
+          max: 200
+        y:
+          min: 60
+        z: 0
+      block:
+        blocks: minecraft:grass_block
+      light:
+        min: 8
+      can_see_sky: true
+```
+
+| Sleutel | Type | Beschrijving |
+|-----|------|-------------|
+| `location.dimension` / `dimensions` | string of lijst | Komt overeen met de wereldomgeving, zoals `minecraft:overworld`, `minecraft:the_nether` of `minecraft:the_end`. |
+| `location.world` | string | Komt overeen met de Bukkit-wereldnaam. |
+| `location.biome` / `biomes` | string of lijst | Komt overeen met bioomsleutels. |
+| `location.position.x` | getal of bereik | Komt overeen met X-coördinaat. |
+| `location.position.y` | getal of bereik | Komt overeen met Y-coördinaat. |
+| `location.position.z` | getal of bereik | Komt overeen met Z-coördinaat. |
+| `location.block` | blokpredicaat | Komt overeen met het blok op de locatie. |
+| `location.light` | getal of bereik | Komt overeen met het bloklichtniveau. |
+| `location.can_see_sky` | boolean | Vereist zicht op de lucht. |
+
+`location.structure` en `location.structures` worden niet ondersteund. Als je ze configureert, zal het predicaat niet overeenkomen.
+
+## Blokpredicaten
+
+Blokpredicaten worden gebruikt door `location.block`, `stepping_on` en `movement_affected_by`.
+
+```yaml
+conditions:
+  player:
+    stepping_on:
+      block:
+        blocks: minecraft:stone
+        state:
+          axis: y
+```
+
+| Sleutel | Type | Beschrijving |
+|-----|------|-------------|
+| `block` | string of section | Verkorte vorm voor één blok, of een volledige blokpredicaatsectie. |
+| `blocks` / `id` | string of lijst | Blok-ID's om mee te vergelijken. |
+| `state.<name>` | string of bereik | Komt exact overeen met een blokstatuswaarde, of met `min`/`max`. |
+
+Bloktagsyntaxis zoals `#minecraft:logs` wordt opgelost met vanilla-bloktags. Tags komen alleen overeen met vanilla-blokken; gebruik expliciete ItemsAdder-blok-ID's voor aangepaste blokken.
+
+## Item- en uitrustingspredicaten
+
+Itempredicaten kunnen worden gebruikt in `equipment`, `slots` en geneste entiteitspredicaten. Ze accepteren ItemsAdder-ID's, MMOItems-ID's, vanilla item-ID's en vanilla itemtags zoals `#minecraft:planks`.
+
+```yaml
+conditions:
+  player:
+    equipment:
+      mainhand:
+        items: my_pack:ruby_sword
+        count: 1
+        durability:
+          min: 100
+        components:
+          minecraft:custom_model_data: 123
+        enchantments:
+          - enchantment: minecraft:sharpness
+            levels:
+              min: 3
+```
+
+| Sleutel | Type | Beschrijving |
+|-----|------|-------------|
+| `item` / `items` | string of lijst | Item-ID's om mee te vergelijken. Een gewone string kan worden gebruikt als verkorte vorm voor één item. |
+| `count` | getal of bereik | Komt overeen met het stapelaantal. |
+| `durability` | getal of bereik | Komt overeen met resterende duurzaamheid. |
+| `components.minecraft:custom_model_data` | integer | Komt overeen met custom model data. |
+| `components.minecraft:custom_name` | string | Komt overeen met de weergavenaam van het item. |
+| `components.minecraft:damage` | integer | Komt overeen met itemdamage. |
+| `enchantments[].enchantment` / `id` | string | Enchantmentsleutel. |
+| `enchantments[].levels` | getal of bereik | Vereist enchantmentlevel. |
+
+Vanilla itemtags worden opgelost met het vanilla-itemregister. Itemsecties `predicates` worden nog niet ondersteund en laten het itempredicaat gesloten falen in plaats van per ongeluk te matchen.
+
+## Slots
+
+Gebruik `slots` wanneer je de inventaris van de speler moet controleren in plaats van alleen uitgeruste items.
+
+```yaml
+conditions:
+  player:
+    slots:
+      weapon.mainhand:
+        items: minecraft:diamond_sword
+      inventory.0:
+        items: minecraft:apple
+        count: 2
+      hotbar.2:
+        items: my_pack:ruby_staff
+```
+
+| Slotsleutel | Beschrijving |
+|----------|-------------|
+| `mainhand` of `weapon.mainhand` | Item in de hoofdhand. |
+| `offhand` of `weapon.offhand` | Item in de off-hand. |
+| `head` of `armor.head` | Helm-slot. |
+| `chest` of `armor.chest` | Borstplaat. |
+| `legs` of `armor.legs` | Leggings. |
+| `feet` of `armor.feet` | Laarzen. |
+| `*`, `inventory.*`, `container.*` | Elk slot in de spelersinventaris. |
+| `hotbar.<slot>` | Hotbar-slot, van `0` tot `8`. |
+| `inventory.<slot>` of `inventory.<start>-<end>` | Hoofdinventarisslots, na de hotbar. |
+| `container.<slot>` of `container.<start>-<end>` | Ruwe containerslotnummers. |
+
+## Potioneffecten
+
+```yaml
+conditions:
+  player:
+    effects:
+      minecraft:speed:
+        amplifier:
+          min: 1
+        duration:
+          min: 100
+        ambient: false
+        visible: true
+```
+
+| Sleutel | Type | Beschrijving |
+|-----|------|-------------|
+| `effects.<effect>.amplifier` | getal of bereik | Komt overeen met de potionversterker. |
+| `effects.<effect>.duration` | getal of bereik | Komt overeen met resterende duur in ticks. |
+| `effects.<effect>.ambient` | boolean | Komt overeen met de ambient-flag. |
+| `effects.<effect>.visible` | boolean | Komt overeen met de zichtbaarheid van particles. |
+
+## Voortgang, recepten en statistieken
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      advancements:
+        minecraft:story/mine_stone: true
+        my_pack:custom_root:
+          root_trigger: true
+      recipes:
+        minecraft:diamond_sword: true
+      stats:
+        - type: minecraft:custom
+          stat: minecraft:jump
+          value:
+            min: 50
+```
+
+| Sleutel | Type | Beschrijving |
+|-----|------|-------------|
+| `advancements.<id>` | boolean of section | Vereist dat een andere voortgang wel of niet voltooid is. Een section controleert genoemde criteria. |
+| `recipes.<id>` | boolean | Vereist dat een recept ontdekt of niet ontdekt is. |
+| `stats[].type` | string | Statistiekgroep, zoals `minecraft:custom`, `minecraft:mined`, `minecraft:used`, `minecraft:killed` of `minecraft:killed_by`. |
+| `stats[].stat` | string | Statistieksleutel, materiaalsleutel of entiteitsleutel afhankelijk van het statistiektype. |
+| `stats[].value` | getal of bereik | Vereiste statistiekwaarde. |
+
+## Geneste entiteitscontroles
+
+Hetzelfde entiteitspredicaatsysteem kan worden gebruikt voor gerelateerde entiteiten.
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      looking_at:
+        type: minecraft:zombie
+        distance:
+          absolute:
+            max: 12
+    vehicle:
+      type: minecraft:horse
+```
+
+| Sleutel | Type | Beschrijving |
+|-----|------|-------------|
+| `passenger` | entiteitspredicaat | Komt overeen met een van de passagiers van de speler. |
+| `vehicle` | entiteitspredicaat | Komt overeen met de entiteit waarop de speler rijdt. |
+| `targeted_entity` | entiteitspredicaat | Voor mobs: komt overeen met hun huidige doelwit. |
+| `type_specific.looking_at` | entiteitspredicaat | Voor spelers: komt overeen met de entiteit waarnaar ze kijken binnen 100 blokken. |
+| `distance` | section | Komt overeen met de afstand van de speler tot de gerelateerde entiteit. Ondersteunt `absolute`, `horizontal`, `x`, `y` en `z`. |
+
+## Andere typespecifieke predicaten
+
+Geneste entiteitspredicaten kunnen ook een paar entiteitsspecifieke controles gebruiken.
+
+| Type | Sleutels | Beschrijving |
+|------|------|-------------|
+| `minecraft:sheep` | `sheared` | Komt overeen met of het schaap geschoren is. |
+| `minecraft:slime`, `minecraft:magma_cube`, `minecraft:cube_mob` | `size` | Komt overeen met slimegrootte met een getal of bereik. |
+| `minecraft:raider` | `is_captain`, `has_raid` | Komt overeen met raider-patrouillekapitein en raidstatus wanneer beschikbaar. |
+| `minecraft:fishing_hook` | `in_open_water` | Komt overeen met open-waterstatus van de vishaak wanneer beschikbaar. |
+
+## Beperkingen
+
+- Entiteitstypetags worden syntactisch geaccepteerd maar niet opgelost. Vanilla item- en bloktags worden opgelost waar item-/blokpredicaten worden ondersteund.
+- Entiteitsniveau-secties `components` en `predicates` worden niet ondersteund en laten het predicaat gesloten falen.
+- Locatiestructuren worden niet ondersteund.
+- NBT-matching is bewust beperkt; het ondersteunt alleen eenvoudige scoreboard-tagcontroles binnen een `nbt`-string.

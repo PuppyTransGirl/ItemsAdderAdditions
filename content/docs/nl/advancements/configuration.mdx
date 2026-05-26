@@ -22,7 +22,7 @@ advancements:
 | `enabled` | bool | `true` | Stel dit in op `false` om deze voortgang over te slaan zonder deze uit het bestand te verwijderen. |
 | `parent` | string | *(geen)* | ID van de bovenliggende voortgang. Laat weg om dit een hoofdvoortgang (tabblad) te maken. Zie [Ouder](#ouder). |
 | `display` | section | *(vereist)* | Visuele instellingen. Zie [Weergave](#weergave). |
-| `criteria` | section | *(geen)* | Voorwaarden die moeten worden vervuld om de voortgang te voltooien. Zie [Triggers](/docs/advancements/triggers). |
+| `criteria` | section | *(geen)* | Voorwaarden die moeten worden vervuld om de voortgang te voltooien. Elk criterium heeft één trigger, triggerspecifieke voorwaarden en een optioneel `conditions.player`-predicaat. Zie [Triggers](/docs/advancements/triggers) en [Spelerspredicaten](/docs/advancements/player-predicates). |
 | `rewards` | section | *(geen)* | Ervaring en receptontgrendeling. Zie [Beloningen](#beloningen). |
 | `on_complete` | section | *(geen)* | Acties die worden uitgevoerd wanneer de voortgang volledig is voltooid. Zie [Voltooiingsacties](/docs/advancements/completion-actions). |
 
@@ -62,6 +62,38 @@ display:
 
 <Callout>
     `background` is wat maakt dat een voortgang een nieuw tabblad creëert. Het wordt alleen gebruikt op hoofdvoortgangen (geen `parent`).
+</Callout>
+
+## Criteria
+
+Elk criterium heeft een `trigger` en een optionele `conditions`-sectie. Triggerspecifieke opties staan direct onder `conditions`. Je kunt ook een `player`-predicaat toevoegen aan elke runtime-trigger om een extra spelerstatuscontrole te vereisen voordat het criterium wordt toegekend.
+
+```yaml
+criteria:
+  sneaky_sleep:
+    trigger: slept_in_bed
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+
+  high_fall:
+    trigger: fall_from_height
+    conditions:
+      distance:
+        y:
+          min: 30
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|-----|------|---------|-------------|
+| `trigger` | string | `impossible` | Triggertype voor dit criterium. Zie de volledige [triggerreferentie](/docs/advancements/triggers). |
+| `conditions` | section | *(geen)* | Triggerspecifieke opties, plus optionele `player`-predicaten. |
+| `conditions.player` | section of lijst | *(elke speler)* | Extra spelerspredicaat dat wordt gecontroleerd wanneer het criterium bijna wordt toegekend. Wordt genegeerd door de trigger `impossible`. Zie [Spelerspredicaten](/docs/advancements/player-predicates). |
+
+<Callout>
+    Kindvoortgangen hebben minstens één geldig criterium nodig. Hoofdvoortgangen kunnen `criteria` weglaten; IAA maakt
+    een intern hoofdcriterium aan en kent dit automatisch toe zodat het voortgangstabblad verschijnt.
 </Callout>
 
 ## Beloningen

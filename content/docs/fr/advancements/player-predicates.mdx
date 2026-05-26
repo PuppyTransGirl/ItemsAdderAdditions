@@ -1,0 +1,349 @@
+---
+title: Prédicats de joueur
+description: Ajoutez des exigences supplémentaires liées à l’état du joueur à n’importe quel critère de progrès personnalisé, comme les flags, le mode de jeu, le niveau, les emplacements d’inventaire, les effets, la position et les prédicats d’entité de style vanilla.
+version: "1.0.9"
+---
+
+Les prédicats de joueur permettent d’ajouter des exigences supplémentaires à un critère, en plus du déclencheur lui-même. Placez-les sous `conditions.player`. Le déclencheur doit d’abord se produire, puis le prédicat de joueur est vérifié juste avant l’attribution du critère.
+
+```yaml
+criteria:
+  sneaky_sleep:
+    trigger: slept_in_bed
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+```
+
+<Callout>
+    `conditions.player` fonctionne avec les déclencheurs d’exécution. Le déclencheur `impossible` ignore les prédicats
+    de joueur, car il ne peut être accordé que manuellement.
+</Callout>
+
+## Formats objet et liste
+
+Utilisez un objet unique lorsque vous n’avez besoin que d’un seul prédicat. Toutes les clés de l’objet doivent correspondre.
+
+```yaml
+conditions:
+  player:
+    type: minecraft:player
+    flags:
+      is_sneaking: true
+    type_specific:
+      type: minecraft:player
+      gamemode: survival
+```
+
+Vous pouvez aussi utiliser une liste. Chaque entrée de la liste doit correspondre. C’est utile si vous préférez les wrappers de prédicats au style vanilla.
+
+```yaml
+conditions:
+  player:
+    - condition: minecraft:entity_properties
+      predicate:
+        flags:
+          is_sneaking: true
+    - condition: minecraft:entity_properties
+      predicate:
+        type_specific:
+          type: minecraft:player
+          gamemode: survival
+```
+
+## Syntaxe des plages
+
+Les valeurs numériques acceptent soit un nombre exact, soit un objet `min`/`max`.
+
+```yaml
+level: 10
+
+level:
+  min: 10
+  max: 30
+```
+
+Cette syntaxe est utilisée par le niveau du joueur, le niveau de nourriture, la vitesse de déplacement, la durée des potions, le niveau d’enchantement, la quantité d’objets, la durabilité, le niveau de lumière et d’autres vérifications numériques.
+
+## Vérifications courantes du joueur
+
+```yaml
+conditions:
+  player:
+    flags:
+      is_sneaking: true
+      is_sprinting: false
+    type_specific:
+      type: minecraft:player
+      gamemode: adventure
+      level:
+        min: 10
+      food:
+        level:
+          min: 16
+        saturation:
+          min: 4.0
+```
+
+| Clé | Type | Description |
+|-----|------|-------------|
+| `flags.is_baby` | booléen | Correspond à l’état bébé/adulte lorsque l’entité le prend en charge. |
+| `flags.is_on_fire` | booléen | Exige que le joueur soit en feu ou ne soit pas en feu. |
+| `flags.is_sneaking` | booléen | Exige l’état accroupi. |
+| `flags.is_sprinting` | booléen | Exige l’état de sprint. |
+| `flags.is_swimming` | booléen | Exige l’état de nage. |
+| `flags.is_on_ground` | booléen | Exige l’état au sol. |
+| `flags.is_flying` | booléen | Correspond au vol créatif ou au vol plané. |
+| `flags.is_fall_flying` | booléen | Exige le vol plané avec des élytres. |
+| `type_specific.gamemode` | chaîne ou liste | Correspond à un ou plusieurs modes de jeu : `survival`, `creative`, `adventure` ou `spectator`. |
+| `type_specific.level` | nombre ou plage | Correspond au niveau d’XP du joueur. |
+| `type_specific.food.level` | nombre ou plage | Correspond au niveau de nourriture. |
+| `type_specific.food.saturation` | nombre ou plage | Correspond à la saturation. |
+
+`gamemode`, `level`, `food`, `advancements`, `recipes`, `stats`, `input` et `looking_at` peuvent aussi être placés directement dans `player`, mais `type_specific` est plus clair et plus proche de la structure des prédicats vanilla.
+
+## Vérifications d’entrées
+
+Les prédicats d’entrée peuvent vérifier les entrées de déplacement actuelles du joueur lorsque le serveur expose ces informations. `sneak` et `sprint` utilisent l’état Bukkit du joueur comme fallback lorsque les données d’entrée directes ne sont pas disponibles.
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      input:
+        forward: true
+        jump: true
+        sneak: false
+        sprint: true
+```
+
+| Clé | Type | Description |
+|-----|------|-------------|
+| `input.forward` | booléen | Exige l’état de la touche avancer. |
+| `input.backward` | booléen | Exige l’état de la touche reculer. |
+| `input.left` | booléen | Exige l’état de la touche gauche. |
+| `input.right` | booléen | Exige l’état de la touche droite. |
+| `input.jump` | booléen | Exige l’état de la touche saut. |
+| `input.sneak` | booléen | Exige l’entrée accroupissement ou l’état accroupi. |
+| `input.sprint` | booléen | Exige l’entrée sprint ou l’état de sprint. |
+
+## Vérifications de position
+
+```yaml
+conditions:
+  player:
+    location:
+      dimension: minecraft:overworld
+      world: world
+      biomes:
+        - minecraft:plains
+        - minecraft:forest
+      position:
+        x:
+          min: 100
+          max: 200
+        y:
+          min: 60
+        z: 0
+      block:
+        blocks: minecraft:grass_block
+      light:
+        min: 8
+      can_see_sky: true
+```
+
+| Clé | Type | Description |
+|-----|------|-------------|
+| `location.dimension` / `dimensions` | chaîne ou liste | Correspond à l’environnement du monde, comme `minecraft:overworld`, `minecraft:the_nether` ou `minecraft:the_end`. |
+| `location.world` | chaîne | Correspond au nom du monde Bukkit. |
+| `location.biome` / `biomes` | chaîne ou liste | Correspond aux clés de biomes. |
+| `location.position.x` | nombre ou plage | Correspond à la coordonnée X. |
+| `location.position.y` | nombre ou plage | Correspond à la coordonnée Y. |
+| `location.position.z` | nombre ou plage | Correspond à la coordonnée Z. |
+| `location.block` | prédicat de bloc | Correspond au bloc à la position. |
+| `location.light` | nombre ou plage | Correspond au niveau de lumière du bloc. |
+| `location.can_see_sky` | booléen | Exige une visibilité vers le ciel. |
+
+`location.structure` et `location.structures` ne sont pas pris en charge. Si vous les configurez, le prédicat ne correspondra pas.
+
+## Prédicats de blocs
+
+Les prédicats de blocs sont utilisés par `location.block`, `stepping_on` et `movement_affected_by`.
+
+```yaml
+conditions:
+  player:
+    stepping_on:
+      block:
+        blocks: minecraft:stone
+        state:
+          axis: y
+```
+
+| Clé | Type | Description |
+|-----|------|-------------|
+| `block` | chaîne ou section | Raccourci pour un seul bloc ou section complète de prédicat de bloc. |
+| `blocks` / `id` | chaîne ou liste | IDs de blocs à faire correspondre. |
+| `state.<name>` | chaîne ou plage | Correspond exactement à une valeur d’état de bloc, ou avec `min`/`max`. |
+
+La syntaxe de tag de bloc comme `#minecraft:logs` est résolue avec les tags de blocs vanilla. Les tags correspondent uniquement aux blocs vanilla ; utilisez des IDs de blocs ItemsAdder explicites pour les blocs personnalisés.
+
+## Prédicats d’objets et d’équipement
+
+Les prédicats d’objets peuvent être utilisés dans `equipment`, `slots` et les prédicats d’entité imbriqués. Ils acceptent les IDs ItemsAdder, les IDs MMOItems, les IDs d’objets vanilla et les tags d’objets vanilla comme `#minecraft:planks`.
+
+```yaml
+conditions:
+  player:
+    equipment:
+      mainhand:
+        items: my_pack:ruby_sword
+        count: 1
+        durability:
+          min: 100
+        components:
+          minecraft:custom_model_data: 123
+        enchantments:
+          - enchantment: minecraft:sharpness
+            levels:
+              min: 3
+```
+
+| Clé | Type | Description |
+|-----|------|-------------|
+| `item` / `items` | chaîne ou liste | IDs d’objets à faire correspondre. Une chaîne simple peut servir de raccourci pour un objet. |
+| `count` | nombre ou plage | Correspond à la quantité de la pile. |
+| `durability` | nombre ou plage | Correspond à la durabilité restante. |
+| `components.minecraft:custom_model_data` | entier | Correspond au custom model data. |
+| `components.minecraft:custom_name` | chaîne | Correspond au nom d’affichage de l’objet. |
+| `components.minecraft:damage` | entier | Correspond aux dégâts de l’objet. |
+| `enchantments[].enchantment` / `id` | chaîne | Clé de l’enchantement. |
+| `enchantments[].levels` | nombre ou plage | Niveau d’enchantement requis. |
+
+Les tags d’objets vanilla sont résolus avec le registre d’objets vanilla. Les sections `predicates` des objets ne sont pas encore prises en charge et font échouer le prédicat d’objet de manière fermée au lieu de correspondre accidentellement.
+
+## Emplacements
+
+Utilisez `slots` lorsque vous devez vérifier l’inventaire du joueur au lieu des seuls objets équipés.
+
+```yaml
+conditions:
+  player:
+    slots:
+      weapon.mainhand:
+        items: minecraft:diamond_sword
+      inventory.0:
+        items: minecraft:apple
+        count: 2
+      hotbar.2:
+        items: my_pack:ruby_staff
+```
+
+| Clé d’emplacement | Description |
+|----------|-------------|
+| `mainhand` ou `weapon.mainhand` | Objet de la main principale. |
+| `offhand` ou `weapon.offhand` | Objet de la main secondaire. |
+| `head` ou `armor.head` | Emplacement du casque. |
+| `chest` ou `armor.chest` | Plastron. |
+| `legs` ou `armor.legs` | Jambières. |
+| `feet` ou `armor.feet` | Bottes. |
+| `*`, `inventory.*`, `container.*` | N’importe quel emplacement de l’inventaire du joueur. |
+| `hotbar.<slot>` | Emplacement de la hotbar, de `0` à `8`. |
+| `inventory.<slot>` ou `inventory.<start>-<end>` | Emplacements de l’inventaire principal, avec un décalage après la hotbar. |
+| `container.<slot>` ou `container.<start>-<end>` | Numéros d’emplacements bruts du conteneur. |
+
+## Effets de potion
+
+```yaml
+conditions:
+  player:
+    effects:
+      minecraft:speed:
+        amplifier:
+          min: 1
+        duration:
+          min: 100
+        ambient: false
+        visible: true
+```
+
+| Clé | Type | Description |
+|-----|------|-------------|
+| `effects.<effect>.amplifier` | nombre ou plage | Correspond à l’amplificateur de potion. |
+| `effects.<effect>.duration` | nombre ou plage | Correspond à la durée restante en ticks. |
+| `effects.<effect>.ambient` | booléen | Correspond au flag ambient. |
+| `effects.<effect>.visible` | booléen | Correspond à la visibilité des particules. |
+
+## Progression, recettes et statistiques
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      advancements:
+        minecraft:story/mine_stone: true
+        my_pack:custom_root:
+          root_trigger: true
+      recipes:
+        minecraft:diamond_sword: true
+      stats:
+        - type: minecraft:custom
+          stat: minecraft:jump
+          value:
+            min: 50
+```
+
+| Clé | Type | Description |
+|-----|------|-------------|
+| `advancements.<id>` | booléen ou section | Exige qu’un autre progrès soit terminé ou non. Une section vérifie des critères nommés. |
+| `recipes.<id>` | booléen | Exige qu’une recette soit découverte ou non découverte. |
+| `stats[].type` | chaîne | Groupe de statistiques, comme `minecraft:custom`, `minecraft:mined`, `minecraft:used`, `minecraft:killed` ou `minecraft:killed_by`. |
+| `stats[].stat` | chaîne | Clé de statistique, clé de matériau ou clé d’entité selon le type de statistique. |
+| `stats[].value` | nombre ou plage | Valeur de statistique requise. |
+
+## Vérifications d’entités imbriquées
+
+Le même système de prédicats d’entités peut être utilisé pour les entités liées.
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      looking_at:
+        type: minecraft:zombie
+        distance:
+          absolute:
+            max: 12
+    vehicle:
+      type: minecraft:horse
+```
+
+| Clé | Type | Description |
+|-----|------|-------------|
+| `passenger` | prédicat d’entité | Correspond à l’un des passagers du joueur. |
+| `vehicle` | prédicat d’entité | Correspond à l’entité que le joueur chevauche. |
+| `targeted_entity` | prédicat d’entité | Pour les mobs, correspond à leur cible actuelle. |
+| `type_specific.looking_at` | prédicat d’entité | Pour les joueurs, correspond à l’entité qu’ils regardent dans un rayon de 100 blocs. |
+| `distance` | section | Correspond à la distance entre le joueur et l’entité liée. Prend en charge `absolute`, `horizontal`, `x`, `y` et `z`. |
+
+## Autres prédicats spécifiques au type
+
+Les prédicats d’entité imbriqués peuvent aussi utiliser quelques vérifications propres à certains types d’entités.
+
+| Type | Clés | Description |
+|------|------|-------------|
+| `minecraft:sheep` | `sheared` | Correspond à l’état tondu ou non du mouton. |
+| `minecraft:slime`, `minecraft:magma_cube`, `minecraft:cube_mob` | `size` | Correspond à la taille du slime avec un nombre ou une plage. |
+| `minecraft:raider` | `is_captain`, `has_raid` | Correspond à l’état de capitaine de patrouille et à l’état de raid lorsque disponible. |
+| `minecraft:fishing_hook` | `in_open_water` | Correspond à l’état en eau libre de l’hameçon lorsque disponible. |
+
+## Limitations
+
+- Les tags de types d’entités sont acceptés syntaxiquement, mais ne sont pas résolus. Les tags d’objets et de blocs vanilla sont résolus là où les prédicats d’objets/blocs sont pris en charge.
+- Les sections `components` et `predicates` au niveau de l’entité ne sont pas prises en charge et font échouer le prédicat de manière fermée.
+- Les structures de position ne sont pas prises en charge.
+- La correspondance NBT est volontairement limitée ; elle ne prend en charge que les vérifications simples de scoreboard tags dans une chaîne `nbt`.
