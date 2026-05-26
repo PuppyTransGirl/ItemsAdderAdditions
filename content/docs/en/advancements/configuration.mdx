@@ -22,9 +22,9 @@ advancements:
 | `enabled` | boolean | `true` | Set to `false` to skip this advancement without removing it from the file. |
 | `parent` | string | *(none)* | Parent advancement ID. Omit to make this a root (tab) advancement. See [Parent](#parent). |
 | `display` | section | *(required)* | Visual settings. See [Display](#display). |
-| `criteria` | section | *(none)* | Conditions that must be met to complete the advancement. Each criterion has one trigger, trigger-specific conditions, and an optional `conditions.player` predicate. See [Triggers](/docs/en/advancements/triggers) and [Player predicates](/docs/en/advancements/player-predicates). |
+| `criteria` | section | *(none)* | Conditions that must be met to complete the advancement. Each criterion has one trigger, trigger-specific conditions, and an optional `conditions.player` predicate. See [Triggers](/docs/advancements/triggers) and [Player predicates](/docs/advancements/player-predicates). |
 | `rewards` | section | *(none)* | Experience, loot tables, and recipe unlocks. See [Rewards](#rewards). |
-| `on_complete` | section | *(none)* | Actions run when the advancement is fully completed. See [Completion actions](/docs/en/advancements/completion-actions). |
+| `on_complete` | section | *(none)* | Actions run when the advancement is fully completed. See [Completion actions](/docs/advancements/completion-actions). |
 
 ## Parent
 
@@ -87,9 +87,9 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `trigger` | string | `impossible` | Trigger type for this criterion. See the full [trigger reference](/docs/en/advancements/triggers). |
+| `trigger` | string | `impossible` | Trigger type for this criterion. See the full [trigger reference](/docs/advancements/triggers). |
 | `conditions` | section | *(none)* | Trigger-specific options, plus optional `player` predicates. |
-| `conditions.player` | section or list | *(any player)* | Extra player predicate checked when the criterion is about to be awarded. Ignored by the `impossible` trigger. See [Player predicates](/docs/en/advancements/player-predicates). |
+| `conditions.player` | section or list | *(any player)* | Extra player predicate checked when the criterion is about to be awarded. Ignored by the `impossible` trigger. See [Player predicates](/docs/advancements/player-predicates). |
 
 <Callout>
     Child advancements need at least one valid criterion. Root advancements can omit `criteria`; IAA creates an internal
