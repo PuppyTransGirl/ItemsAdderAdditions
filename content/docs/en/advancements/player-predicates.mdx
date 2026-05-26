@@ -1,0 +1,349 @@
+---
+title: Player Predicates
+description: Add extra player-state requirements to any custom advancement criterion, including flags, gamemode, level, inventory slots, effects, location, and vanilla-style entity predicates.
+version: "1.0.9"
+---
+
+Player predicates let you add extra requirements to a criterion beyond the trigger itself. Put them under `conditions.player`. The trigger must fire first, then the player predicate is checked immediately before the criterion is awarded.
+
+```yaml
+criteria:
+  sneaky_sleep:
+    trigger: slept_in_bed
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+```
+
+<Callout>
+    `conditions.player` works with runtime triggers. The `impossible` trigger ignores player predicates because it can
+    only be awarded manually.
+</Callout>
+
+## Object and list formats
+
+Use a single object when you only need one predicate. All keys inside the object must match.
+
+```yaml
+conditions:
+  player:
+    type: minecraft:player
+    flags:
+      is_sneaking: true
+    type_specific:
+      type: minecraft:player
+      gamemode: survival
+```
+
+You can also use a list. Every entry in the list must match. This is useful if you prefer vanilla-style predicate wrappers.
+
+```yaml
+conditions:
+  player:
+    - condition: minecraft:entity_properties
+      predicate:
+        flags:
+          is_sneaking: true
+    - condition: minecraft:entity_properties
+      predicate:
+        type_specific:
+          type: minecraft:player
+          gamemode: survival
+```
+
+## Range syntax
+
+Numeric values accept either an exact number or a `min`/`max` object.
+
+```yaml
+level: 10
+
+level:
+  min: 10
+  max: 30
+```
+
+This syntax is used by player level, food level, movement speed, potion duration, enchantment level, item count, durability, light level, and other numeric checks.
+
+## Common player checks
+
+```yaml
+conditions:
+  player:
+    flags:
+      is_sneaking: true
+      is_sprinting: false
+    type_specific:
+      type: minecraft:player
+      gamemode: adventure
+      level:
+        min: 10
+      food:
+        level:
+          min: 16
+        saturation:
+          min: 4.0
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `flags.is_baby` | boolean | Match baby/adult state when the entity supports it. |
+| `flags.is_on_fire` | boolean | Require the player to be on fire or not on fire. |
+| `flags.is_sneaking` | boolean | Require sneaking state. |
+| `flags.is_sprinting` | boolean | Require sprinting state. |
+| `flags.is_swimming` | boolean | Require swimming state. |
+| `flags.is_on_ground` | boolean | Require on-ground state. |
+| `flags.is_flying` | boolean | Matches creative flight or gliding. |
+| `flags.is_fall_flying` | boolean | Require elytra gliding state. |
+| `type_specific.gamemode` | string or list | Match one or more gamemodes: `survival`, `creative`, `adventure`, or `spectator`. |
+| `type_specific.level` | number or range | Match the player's XP level. |
+| `type_specific.food.level` | number or range | Match food level. |
+| `type_specific.food.saturation` | number or range | Match saturation. |
+
+`gamemode`, `level`, `food`, `advancements`, `recipes`, `stats`, `input`, and `looking_at` can also be placed directly inside `player`, but `type_specific` is clearer and closer to vanilla predicate structure.
+
+## Input checks
+
+Input predicates can check the player's current movement inputs when the server exposes that information. `sneak` and `sprint` fall back to Bukkit's player state when direct input data is unavailable.
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      input:
+        forward: true
+        jump: true
+        sneak: false
+        sprint: true
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `input.forward` | boolean | Require the forward key state. |
+| `input.backward` | boolean | Require the backward key state. |
+| `input.left` | boolean | Require the left key state. |
+| `input.right` | boolean | Require the right key state. |
+| `input.jump` | boolean | Require the jump key state. |
+| `input.sneak` | boolean | Require sneak input or sneaking state. |
+| `input.sprint` | boolean | Require sprint input or sprinting state. |
+
+## Location checks
+
+```yaml
+conditions:
+  player:
+    location:
+      dimension: minecraft:overworld
+      world: world
+      biomes:
+        - minecraft:plains
+        - minecraft:forest
+      position:
+        x:
+          min: 100
+          max: 200
+        y:
+          min: 60
+        z: 0
+      block:
+        blocks: minecraft:grass_block
+      light:
+        min: 8
+      can_see_sky: true
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `location.dimension` / `dimensions` | string or list | Match the world environment, such as `minecraft:overworld`, `minecraft:the_nether`, or `minecraft:the_end`. |
+| `location.world` | string | Match the Bukkit world name. |
+| `location.biome` / `biomes` | string or list | Match biome keys. |
+| `location.position.x` | number or range | Match X coordinate. |
+| `location.position.y` | number or range | Match Y coordinate. |
+| `location.position.z` | number or range | Match Z coordinate. |
+| `location.block` | block predicate | Match the block at the location. |
+| `location.light` | number or range | Match block light level. |
+| `location.can_see_sky` | boolean | Require sky visibility. |
+
+`location.structure` and `location.structures` are not supported. If you configure them, the predicate will not match.
+
+## Block predicates
+
+Block predicates are used by `location.block`, `stepping_on`, and `movement_affected_by`.
+
+```yaml
+conditions:
+  player:
+    stepping_on:
+      block:
+        blocks: minecraft:stone
+        state:
+          axis: y
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `block` | string or section | Shorthand for a single block, or a full block predicate section. |
+| `blocks` / `id` | string or list | Block IDs to match. |
+| `state.<name>` | string or range | Match a block-state value exactly, or with `min`/`max`. |
+
+Block tag syntax such as `#minecraft:logs` is accepted in config but is not resolved by this lightweight runtime check. Use explicit block IDs for reliable matching.
+
+## Item and equipment predicates
+
+Item predicates can be used in `equipment`, `slots`, and nested entity predicates. They accept ItemsAdder IDs, MMOItems IDs, and vanilla item IDs.
+
+```yaml
+conditions:
+  player:
+    equipment:
+      mainhand:
+        items: my_pack:ruby_sword
+        count: 1
+        durability:
+          min: 100
+        components:
+          minecraft:custom_model_data: 123
+        enchantments:
+          - enchantment: minecraft:sharpness
+            levels:
+              min: 3
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `item` / `items` | string or list | Item IDs to match. A plain string can be used as shorthand for one item. |
+| `count` | number or range | Match stack amount. |
+| `durability` | number or range | Match remaining durability. |
+| `components.minecraft:custom_model_data` | integer | Match custom model data. |
+| `components.minecraft:custom_name` | string | Match the item's display name. |
+| `components.minecraft:damage` | integer | Match item damage. |
+| `enchantments[].enchantment` / `id` | string | Enchantment key. |
+| `enchantments[].levels` | number or range | Required enchantment level. |
+
+Item tags and item `predicates` sections are not resolved. Unsupported item predicates make the item predicate fail closed instead of matching accidentally.
+
+## Slots
+
+Use `slots` when you need to check the player's inventory instead of only equipped items.
+
+```yaml
+conditions:
+  player:
+    slots:
+      weapon.mainhand:
+        items: minecraft:diamond_sword
+      inventory.0:
+        items: minecraft:apple
+        count: 2
+      hotbar.2:
+        items: my_pack:ruby_staff
+```
+
+| Slot key | Description |
+|----------|-------------|
+| `mainhand` or `weapon.mainhand` | Main hand item. |
+| `offhand` or `weapon.offhand` | Off-hand item. |
+| `head` or `armor.head` | Helmet slot. |
+| `chest` or `armor.chest` | Chestplate slot. |
+| `legs` or `armor.legs` | Leggings slot. |
+| `feet` or `armor.feet` | Boots slot. |
+| `*`, `inventory.*`, `container.*` | Any player inventory slot. |
+| `hotbar.<slot>` | Hotbar slot, from `0` to `8`. |
+| `inventory.<slot>` or `inventory.<start>-<end>` | Main inventory slots, offset after the hotbar. |
+| `container.<slot>` or `container.<start>-<end>` | Raw container slot numbers. |
+
+## Potion effects
+
+```yaml
+conditions:
+  player:
+    effects:
+      minecraft:speed:
+        amplifier:
+          min: 1
+        duration:
+          min: 100
+        ambient: false
+        visible: true
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `effects.<effect>.amplifier` | number or range | Match potion amplifier. |
+| `effects.<effect>.duration` | number or range | Match remaining duration in ticks. |
+| `effects.<effect>.ambient` | boolean | Match ambient flag. |
+| `effects.<effect>.visible` | boolean | Match particle visibility. |
+
+## Progress, recipes, and statistics
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      advancements:
+        minecraft:story/mine_stone: true
+        my_pack:custom_root:
+          root_trigger: true
+      recipes:
+        minecraft:diamond_sword: true
+      stats:
+        - type: minecraft:custom
+          stat: minecraft:jump
+          value:
+            min: 50
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `advancements.<id>` | boolean or section | Require another advancement to be done or not done. A section checks named criteria. |
+| `recipes.<id>` | boolean | Require a recipe to be discovered or undiscovered. |
+| `stats[].type` | string | Statistic group, such as `minecraft:custom`, `minecraft:mined`, `minecraft:used`, `minecraft:killed`, or `minecraft:killed_by`. |
+| `stats[].stat` | string | Statistic key, material key, or entity key depending on the statistic type. |
+| `stats[].value` | number or range | Required statistic value. |
+
+## Nested entity checks
+
+The same entity predicate system can be used for related entities.
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      looking_at:
+        type: minecraft:zombie
+        distance:
+          absolute:
+            max: 12
+    vehicle:
+      type: minecraft:horse
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `passenger` | entity predicate | Match one of the player's passengers. |
+| `vehicle` | entity predicate | Match the entity the player is riding. |
+| `targeted_entity` | entity predicate | For mobs, match their current target. |
+| `type_specific.looking_at` | entity predicate | For players, match the entity they are looking at within 100 blocks. |
+| `distance` | section | Match distance from the player to the related entity. Supports `absolute`, `horizontal`, `x`, `y`, and `z`. |
+
+## Other type-specific predicates
+
+Nested entity predicates can also use a few entity-specific checks.
+
+| Type | Keys | Description |
+|------|------|-------------|
+| `minecraft:sheep` | `sheared` | Match whether the sheep is sheared. |
+| `minecraft:slime`, `minecraft:magma_cube`, `minecraft:cube_mob` | `size` | Match slime size with a number or range. |
+| `minecraft:raider` | `is_captain`, `has_raid` | Match raider patrol captain and raid state when available. |
+| `minecraft:fishing_hook` | `in_open_water` | Match fishing-hook open-water state when available. |
+
+## Limitations
+
+- Entity type tags, item tags, and block tags are accepted syntactically but are not resolved. Use explicit IDs for reliable checks.
+- Entity-level `components` and `predicates` sections are not supported and will make the predicate fail closed.
+- Location structures are not supported.
+- NBT matching is intentionally limited; it only supports simple scoreboard tag checks inside an `nbt` string.

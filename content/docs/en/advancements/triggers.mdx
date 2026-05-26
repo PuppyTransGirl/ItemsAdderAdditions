@@ -14,7 +14,7 @@ criteria:
       # trigger-specific options
 ```
 
-An advancement can have multiple criteria. All of them must be completed before the advancement is awarded.
+An advancement can have multiple criteria. All of them must be completed before the advancement is awarded. Every runtime trigger also supports an optional `conditions.player` predicate for extra player-state requirements; see [Player predicates](/docs/en/advancements/player-predicates).
 
 ---
 
@@ -60,7 +60,7 @@ criteria:
 
 ## using_item
 
-Fires when the player right-clicks (in air or on a block) while holding a custom item in their main hand.
+Fires when the player right-clicks (in air or on a block) while holding an item in their main hand.
 
 ```yaml
 criteria:
@@ -517,12 +517,12 @@ criteria:
   unlock_diamond_sword:
     trigger: recipe_unlocked
     conditions:
-      recipe: minecraft:diamond_sword
+      recipe: minecraft:diamond_sword  # optional
 ```
 
-| Key | Type | Required | Description |
-|-----|------|----------|-------------|
-| `recipe` | string | yes | Recipe key as `namespace:id`. |
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `recipe` | string | *(any)* | Recipe key as `namespace:id`. If omitted, any discovered recipe matches. |
 
 ---
 
@@ -620,21 +620,21 @@ criteria:
 
 ## changed_dimension
 
-Fires when the player moves to a different dimension.
+Fires when the player changes world environment.
 
 ```yaml
 criteria:
   enter_nether:
     trigger: changed_dimension
     conditions:
-      to: minecraft:the_nether    # optional
-      from: minecraft:overworld   # optional
+      to: nether    # optional
+      from: normal  # optional
 ```
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `to` | string | *(any)* | Dimension key the player traveled to (e.g. `minecraft:the_nether`). |
-| `from` | string | *(any)* | Dimension key the player traveled from. |
+| `to` | string | *(any)* | Target Bukkit environment: `normal`, `nether`, or `the_end`. |
+| `from` | string | *(any)* | Source Bukkit environment: `normal`, `nether`, or `the_end`. |
 
 ---
 
@@ -664,13 +664,37 @@ criteria:
 
 ## fall_from_height
 
-Fires when the player takes fall damage. No conditions.
+Fires when the player takes fall damage.
 
 ```yaml
 criteria:
   survived_fall:
     trigger: fall_from_height
+    conditions:
+      distance:
+        y:
+          min: 30
+          max: 320
 ```
+
+You can also use a single number as the minimum fall distance:
+
+```yaml
+criteria:
+  small_fall:
+    trigger: fall_from_height
+    conditions:
+      distance: 8
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `distance` | number or section | `0` to unlimited | Fall distance range. A number means minimum distance. A section can use `min`/`max`, or a nested `y`, `absolute`, or `horizontal` range. |
+| `distance.min` | number | `0` | Minimum fall distance. |
+| `distance.max` | number | *(unlimited)* | Maximum fall distance. |
+| `distance.y` | section | *(none)* | Preferred range form for vertical fall distance. Supports `min` and `max`. |
+| `distance.absolute` | section | *(none)* | Alternative range form. Supports `min` and `max`. |
+| `distance.horizontal` | section | *(none)* | Alternative range form. Supports `min` and `max`. |
 
 ---
 
@@ -688,7 +712,7 @@ criteria:
 
 ## held_item
 
-IAA custom trigger. Fires when the player scrolls to a hotbar slot that contains a specific item.
+IAA custom trigger. Fires when the player scrolls to a hotbar slot that contains an item.
 
 ```yaml
 criteria:

@@ -22,8 +22,8 @@ advancements:
 | `enabled` | boolean | `true` | Set to `false` to skip this advancement without removing it from the file. |
 | `parent` | string | *(none)* | Parent advancement ID. Omit to make this a root (tab) advancement. See [Parent](#parent). |
 | `display` | section | *(required)* | Visual settings. See [Display](#display). |
-| `criteria` | section | *(none)* | Conditions that must be met to complete the advancement. See [Triggers](/docs/en/advancements/triggers). |
-| `rewards` | section | *(none)* | Experience and recipe unlocks. See [Rewards](#rewards). |
+| `criteria` | section | *(none)* | Conditions that must be met to complete the advancement. Each criterion has one trigger, trigger-specific conditions, and an optional `conditions.player` predicate. See [Triggers](/docs/en/advancements/triggers) and [Player predicates](/docs/en/advancements/player-predicates). |
+| `rewards` | section | *(none)* | Experience, loot tables, and recipe unlocks. See [Rewards](#rewards). |
 | `on_complete` | section | *(none)* | Actions run when the advancement is fully completed. See [Completion actions](/docs/en/advancements/completion-actions). |
 
 ## Parent
@@ -64,11 +64,46 @@ display:
     `background` is what makes an advancement create a new tab. It is only used on root advancements (no `parent`).
 </Callout>
 
+## Criteria
+
+Each criterion has a `trigger` and an optional `conditions` section. Trigger-specific options live directly under `conditions`. You can also add a `player` predicate to any runtime trigger to require an extra player state check before the criterion is awarded.
+
+```yaml
+criteria:
+  sneaky_sleep:
+    trigger: slept_in_bed
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+
+  high_fall:
+    trigger: fall_from_height
+    conditions:
+      distance:
+        y:
+          min: 30
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `trigger` | string | `impossible` | Trigger type for this criterion. See the full [trigger reference](/docs/en/advancements/triggers). |
+| `conditions` | section | *(none)* | Trigger-specific options, plus optional `player` predicates. |
+| `conditions.player` | section or list | *(any player)* | Extra player predicate checked when the criterion is about to be awarded. Ignored by the `impossible` trigger. See [Player predicates](/docs/en/advancements/player-predicates). |
+
+<Callout>
+    Child advancements need at least one valid criterion. Root advancements can omit `criteria`; IAA creates an internal
+    root criterion and grants it automatically so the advancement tab appears.
+</Callout>
+
+
 ## Rewards
 
 ```yaml
 rewards:
   experience: 50
+  loot:
+    - minecraft:chests/simple_dungeon
   recipes:
     - my_pack:ruby_sword_recipe
     - minecraft:golden_apple
@@ -147,6 +182,8 @@ advancements:
           recipe: my_pack:ruby_potion_recipe
     rewards:
       experience: 100
+      loot:
+        - minecraft:chests/simple_dungeon
 ```
 
 <Callout>

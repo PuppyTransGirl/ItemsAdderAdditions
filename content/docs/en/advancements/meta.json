@@ -5,6 +5,7 @@
     "index",
     "configuration",
     "triggers",
+    "player-predicates",
     "completion-actions"
   ]
 }

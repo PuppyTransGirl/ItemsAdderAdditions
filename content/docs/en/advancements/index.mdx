@@ -10,9 +10,10 @@ Define custom Minecraft advancement trees directly in your ItemsAdder content YA
 
 - Create **new advancement tabs** with a custom background texture
 - Build **tree structures** by parenting advancements to each other
-- Use **24 built-in trigger types** (obtain item, craft recipe, kill entity, enter biome, breed animals, and more)
+- Use **41 built-in trigger types** (obtain item, craft recipe, kill entity, enter biome, breed animals, player state checks, and more)
 - Run **completion actions** when an advancement finishes (title, sound, commands, action bar)
-- Grant **experience and unlock recipes** as rewards
+- Add optional **player predicates** to any criterion, such as sneaking, gamemode, level, inventory slots, potion effects, location, and more
+- Grant **experience, loot tables, and recipe unlocks** as rewards
 - Player progress persists across reloads
 
 ## Basic structure
@@ -55,7 +56,7 @@ advancements:
 
 ## How it works
 
-IAA loads every content file that contains an `advancements` section. Each entry becomes one Minecraft advancement injected at runtime via NMS. Player progress is stored by vanilla in the world save files and persists across reloads.
+IAA loads every content file that contains an `advancements` section. Each entry becomes one Minecraft advancement injected at runtime via NMS. Player progress is stored by vanilla in the world save files and persists across reloads. Root advancements without criteria are automatically granted so their tab is visible to players after join or reload.
 
 Root advancements (no `parent`) create a new tab in the advancements screen. Children connect visually to their parent in the tree.
 
