@@ -10,7 +10,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.ParsedIngredient;
-import toutouchien.itemsadderadditions.integration.hook.MMOItemsHook;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 @NullMarked
 final class CraftingIngredientMatcher {
@@ -65,7 +65,8 @@ final class CraftingIngredientMatcher {
         assert customId != null; // guarded by isCustomItem()
 
         if (customId.startsWith("mmoitems:")) {
-            return matchesMmoItem(ingredient, slot, customId);
+            if (!NamespaceUtils.matchesItemID(slot, customId)) return false;
+            return ingredient.potionType() == null || matchesPotionType(ingredient, slot);
         }
 
         CustomStack slotCustom = CustomStack.byItemStack(slot);
@@ -75,22 +76,6 @@ final class CraftingIngredientMatcher {
         if (slotId.hashCode() != ingredient.customNamespacedIdHash()) return false;
         if (!slotId.equals(customId)) return false;
 
-        return ingredient.potionType() == null || matchesPotionType(ingredient, slot);
-    }
-
-    /**
-     * Checks whether {@code slot} is the MMOItems item encoded in
-     * {@code mmoId} (e.g. {@code "mmoitems:sword:fire_sword"}).
-     */
-    private static boolean matchesMmoItem(ParsedIngredient ingredient, ItemStack slot, String mmoId) {
-        String rest = mmoId.substring("mmoitems:".length());
-        int colon = rest.indexOf(':');
-        if (colon <= 0) return false;
-
-        String type = rest.substring(0, colon);
-        String id = rest.substring(colon + 1);
-
-        if (!MMOItemsHook.INSTANCE.isMmoItem(slot, type, id)) return false;
         return ingredient.potionType() == null || matchesPotionType(ingredient, slot);
     }
 

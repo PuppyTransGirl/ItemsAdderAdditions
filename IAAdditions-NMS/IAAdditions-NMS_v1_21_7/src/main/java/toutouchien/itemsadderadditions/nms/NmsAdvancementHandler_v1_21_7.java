@@ -152,26 +152,41 @@ public final class NmsAdvancementHandler_v1_21_7 implements INmsAdvancementHandl
         }
     }
 
-    private static void broadcastAdded(List<AdvancementHolder> holders) {
-        Map<ResourceLocation, AdvancementProgress> progress = new HashMap<>();
-        for (AdvancementHolder h : holders) {
-            Map<String, CriterionProgress> empty = new HashMap<>();
-            for (String name : h.value().criteria().keySet()) {
-                empty.put(name, new CriterionProgress());
+    private static void arrangeAffectedRoots(ServerAdvancementManager sam, Collection<AdvancementHolder> holders) {
+        Set<AdvancementNode> roots = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (AdvancementHolder holder : holders) {
+            AdvancementNode node = sam.tree().get(holder.id());
+            if (node == null) continue;
+
+            AdvancementNode root = node;
+            while (root.parent() != null) {
+                root = root.parent();
             }
-            progress.put(h.id(), newProgress(empty));
+            roots.add(root);
         }
-        ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
-                false, holders, Collections.emptySet(), progress, false
-        );
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            ((CraftPlayer) player).getHandle().connection.send(packet);
+
+        for (AdvancementNode root : roots) {
+            TreeNodePosition.run(root);
         }
     }
 
-    private static void broadcastRemoved(Set<ResourceLocation> ids) {
+    private static Map<ResourceLocation, AdvancementProgress> buildInitialProgress(List<AdvancementHolder> holders) {
+        Map<ResourceLocation, AdvancementProgress> progress = new HashMap<>();
+        for (AdvancementHolder holder : holders) {
+            Map<String, CriterionProgress> criteria = new HashMap<>();
+            for (String name : holder.value().criteria().keySet()) {
+                criteria.put(name, new CriterionProgress());
+            }
+            progress.put(holder.id(), newProgress(criteria));
+        }
+        return progress;
+    }
+
+    private static void broadcastUpdate(List<AdvancementHolder> added, Set<ResourceLocation> removed) {
+        if (added.isEmpty() && removed.isEmpty()) return;
+
         ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
-                false, Collections.emptyList(), ids, Collections.emptyMap(), false
+                false, added, removed, buildInitialProgress(added), false
         );
         for (Player player : Bukkit.getOnlinePlayers()) {
             ((CraftPlayer) player).getHandle().connection.send(packet);
@@ -181,39 +196,61 @@ public final class NmsAdvancementHandler_v1_21_7 implements INmsAdvancementHandl
     @Override
     public void registerAll(List<AdvancementSpec> specs) {
         if (specs.isEmpty()) return;
-        ServerAdvancementManager sam = MinecraftServer.getServer().getAdvancements();
-        Map<ResourceLocation, AdvancementHolder> map = mutableMap(sam);
-        List<AdvancementHolder> newHolders = new ArrayList<>(specs.size());
-        for (AdvancementSpec spec : specs) {
-            AdvancementHolder holder = buildHolder(spec);
-            map.put(toRL(spec.key()), holder);
-            newHolders.add(holder);
-        }
-        sam.tree().addAll(newHolders);
-        broadcastAdded(newHolders);
-        for (AdvancementSpec spec : specs) {
-            if (!spec.autoGrantRoot()) continue;
-            AdvancementHolder holder = map.get(toRL(spec.key()));
-            if (holder == null) continue;
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                grantCriteria(player, holder, spec.criteriaNames());
-            }
-        }
+        replaceAll(Collections.emptySet(), specs);
     }
 
     @Override
     public void unregisterAll(Collection<NamespacedKey> keys) {
         if (keys.isEmpty()) return;
+        replaceAll(keys, Collections.emptyList());
+    }
+
+    @Override
+    public void replaceAll(Collection<NamespacedKey> oldKeys, List<AdvancementSpec> specs) {
+        if (oldKeys.isEmpty() && specs.isEmpty()) return;
+
         ServerAdvancementManager sam = MinecraftServer.getServer().getAdvancements();
         Map<ResourceLocation, AdvancementHolder> map = mutableMap(sam);
-        Set<ResourceLocation> removed = new HashSet<>();
-        for (NamespacedKey key : keys) {
-            ResourceLocation rl = toRL(key);
-            if (map.remove(rl) != null) removed.add(rl);
+
+        Set<ResourceLocation> removed = new LinkedHashSet<>();
+        for (NamespacedKey key : oldKeys) {
+            ResourceLocation id = toRL(key);
+            if (map.remove(id) != null) {
+                removed.add(id);
+            }
         }
-        if (removed.isEmpty()) return;
-        sam.tree().remove(removed);
-        broadcastRemoved(removed);
+        if (!removed.isEmpty()) {
+            sam.tree().remove(removed);
+        }
+
+        List<AdvancementHolder> added = new ArrayList<>(specs.size());
+        Map<NamespacedKey, AdvancementHolder> addedByKey = new HashMap<>(specs.size());
+        for (AdvancementSpec spec : specs) {
+            AdvancementHolder holder = buildHolder(spec);
+            ResourceLocation id = toRL(spec.key());
+            map.put(id, holder);
+            added.add(holder);
+            addedByKey.put(spec.key(), holder);
+        }
+
+        if (!added.isEmpty()) {
+            sam.tree().addAll(added);
+            arrangeAffectedRoots(sam, added);
+        }
+
+        broadcastUpdate(added, removed);
+
+        if (added.isEmpty()) return;
+
+        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+        for (AdvancementSpec spec : specs) {
+            if (!spec.autoGrantRoot()) continue;
+            AdvancementHolder holder = addedByKey.get(spec.key());
+            if (holder == null) continue;
+            for (Player player : players) {
+                grantCriteria(player, holder, spec.criteriaNames());
+            }
+        }
     }
 
     @Override

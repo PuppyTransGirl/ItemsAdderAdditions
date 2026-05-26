@@ -12,6 +12,7 @@ import toutouchien.itemsadderadditions.common.logging.Log;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @NullMarked
@@ -231,13 +232,12 @@ public final class NamespaceUtils {
      */
     @Nullable
     public static ItemStack itemByID(@Nullable String currentNamespace, String id) {
-        // Normalise under "minecraft" to match keys stored in vanillaItemCache.
-        String normalizedId = normalizeID("minecraft", id);
+        String normalizedId = normalizeItemID(currentNamespace, id);
 
         // Check for external integration namespaces (e.g. mmoitems:TYPE:ID).
         if (normalizedId.startsWith("mmoitems:")) {
             ItemProvider provider = mmoitemsProvider;
-            if (provider == null) return null;
+            if (provider == null || !provider.isAvailable()) return null;
             String rest = normalizedId.substring("mmoitems:".length());
             int colon = rest.indexOf(':');
             if (colon <= 0) return null;
@@ -284,7 +284,7 @@ public final class NamespaceUtils {
      *                         is returned as-is (lowercase).
      */
     public static String normalizeID(@Nullable String currentNamespace, String id) {
-        String lowerId = id.toLowerCase();
+        String lowerId = id.trim().toLowerCase(Locale.ROOT);
 
         if (lowerId.contains(":"))
             return lowerId; // Already contains namespace
@@ -292,7 +292,103 @@ public final class NamespaceUtils {
         if (currentNamespace == null)
             return lowerId; // No namespace to prepend - caller's lookup will handle it
 
-        return currentNamespace.toLowerCase() + ":" + lowerId;
+        return currentNamespace.toLowerCase(Locale.ROOT) + ":" + lowerId;
+    }
+
+    /**
+     * Normalizes an item ID exactly once at config-load time.
+     *
+     * <p>Lookup order for bare IDs is intentionally the same as most YAML files
+     * expect: ItemsAdder item in the current namespace first, then vanilla
+     * {@code minecraft:*}. IDs that already contain a namespace are only
+     * lowercased, which keeps external formats such as
+     * {@code mmoitems:TYPE:ID} compatible.
+     *
+     * @param currentNamespace namespace to use for bare ItemsAdder IDs
+     * @param id raw item ID from config
+     * @return canonical item ID used by runtime triggers
+     */
+    public static String normalizeItemID(@Nullable String currentNamespace, String id) {
+        String lowerId = id.trim().toLowerCase(Locale.ROOT);
+        if (lowerId.isBlank()) return lowerId;
+
+        // Keep already-qualified IDs as-is apart from casing. This preserves
+        // external integrations such as mmoitems:type:id.
+        if (lowerId.contains(":")) return lowerId;
+
+        CustomStack customStack = customItemByID(currentNamespace, lowerId);
+        if (customStack != null) return customStack.getNamespacedID();
+
+        return normalizeID("minecraft", lowerId);
+    }
+
+    @Nullable
+    public static String normalizeItemIDNullable(@Nullable String currentNamespace, @Nullable String id) {
+        return id == null ? null : normalizeItemID(currentNamespace, id);
+    }
+
+    /**
+     * Normalizes vanilla registry IDs such as block, biome, entity, effect, or
+     * recipe keys. Bare IDs are resolved under {@code minecraft}.
+     */
+    public static String normalizeMinecraftID(String id) {
+        String lowerId = id.trim().toLowerCase(Locale.ROOT);
+        if (lowerId.isBlank()) return lowerId;
+        return normalizeID("minecraft", lowerId);
+    }
+
+    @Nullable
+    public static String normalizeMinecraftIDNullable(@Nullable String id) {
+        return id == null ? null : normalizeMinecraftID(id);
+    }
+
+    /**
+     * Returns the canonical ID of an ItemStack for runtime comparisons.
+     *
+     * <p>ItemsAdder items are returned as {@code namespace:id}, MMOItems are
+     * delegated to the registered provider and returned as
+     * {@code mmoitems:type:id}, and vanilla items are returned as
+     * {@code minecraft:item}.
+     */
+    @Nullable
+    public static String itemID(@Nullable ItemStack item) {
+        if (item == null || item.getType().isAir()) return null;
+
+        CustomStack customStack = CustomStack.byItemStack(item);
+        if (customStack != null) return customStack.getNamespacedID();
+
+        ItemProvider provider = mmoitemsProvider;
+        if (provider != null && provider.isAvailable()) {
+            String externalId = provider.getItemId(item);
+            if (externalId != null && !externalId.isBlank()) {
+                return externalId.toLowerCase(Locale.ROOT);
+            }
+        }
+
+        return item.getType().getKey().toString();
+    }
+
+    /**
+     * Matches an ItemStack against a normalized item ID, including MMOItems when
+     * a provider is registered.
+     */
+    public static boolean matchesItemID(@Nullable ItemStack item, String normalizedId) {
+        if (item == null || item.getType().isAir()) return false;
+
+        String lowerId = normalizedId.trim().toLowerCase(Locale.ROOT);
+        if (lowerId.startsWith("mmoitems:")) {
+            ItemProvider provider = mmoitemsProvider;
+            if (provider == null || !provider.isAvailable()) return false;
+
+            String rest = lowerId.substring("mmoitems:".length());
+            int colon = rest.indexOf(':');
+            if (colon <= 0) return false;
+
+            return provider.matchesItem(item, rest.substring(0, colon), rest.substring(colon + 1));
+        }
+
+        String itemId = itemID(item);
+        return lowerId.equals(itemId);
     }
 
     public static String namespace(String namespacedID) {
@@ -355,6 +451,31 @@ public final class NamespaceUtils {
          * @return the resolved stack, or {@code null} if the item does not exist
          */
         @Nullable ItemStack getItem(String type, String id);
+
+        /**
+         * Returns this provider's canonical ID for an item, or {@code null} when
+         * the item does not belong to the integration.
+         */
+        default @Nullable String getItemId(ItemStack item) {
+            return null;
+        }
+
+        /**
+         * Returns whether {@code item} is exactly the external item represented
+         * by {@code type:id}. Providers can override this to use native metadata
+         * checks instead of comparing display ItemStacks.
+         */
+        default boolean matchesItem(ItemStack item, String type, String id) {
+            String itemId = getItemId(item);
+            return itemId != null && itemId.equalsIgnoreCase("mmoitems:" + type + ":" + id);
+        }
+
+        /**
+         * Allows callers to fail open when the backing plugin is absent.
+         */
+        default boolean isAvailable() {
+            return true;
+        }
     }
 
     /**

@@ -13,6 +13,11 @@ public interface INmsAdvancementHandler {
 
     void unregisterAll(Collection<NamespacedKey> keys);
 
+    default void replaceAll(Collection<NamespacedKey> oldKeys, List<AdvancementSpec> newSpecs) {
+        unregisterAll(oldKeys);
+        registerAll(newSpecs);
+    }
+
     boolean award(Player player, NamespacedKey key, String criterionName);
 
     void onPlayerJoin(Player player, Collection<NamespacedKey> rootKeys);

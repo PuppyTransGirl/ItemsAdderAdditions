@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.feature.advancement;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -17,6 +18,7 @@ import toutouchien.itemsadderadditions.runtime.reload.ReloadableContentSystem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @NullMarked
 public final class AdvancementManager implements ReloadableContentSystem {
@@ -59,18 +61,17 @@ public final class AdvancementManager implements ReloadableContentSystem {
     @Override
     public ReloadStepResult reload(ContentReloadContext context) {
         long start = System.currentTimeMillis();
-        Log.info(LOG_TAG, "Loading custom advancements...");
+        Log.debug(LOG_TAG, "Loading custom advancements...");
 
+        Set<NamespacedKey> oldKeys = Set.copyOf(registry.keys());
         runtimeService.unregister();
-        NmsManager.instance().handler().advancements().unregisterAll(registry.keys());
-        registry.clear();
 
         List<AdvancementDefinition> defs = loadAll(context.registry());
         List<AdvancementSpec> specs = AdvancementSpecBuilder.buildAll(defs);
 
         registry.setAll(defs);
+        NmsManager.instance().handler().advancements().replaceAll(oldKeys, specs);
         runtimeService.register(plugin);
-        NmsManager.instance().handler().advancements().registerAll(specs);
 
         Log.info(LOG_TAG, "Loaded {} advancement(s) in {}ms.",
                 defs.size(), System.currentTimeMillis() - start);

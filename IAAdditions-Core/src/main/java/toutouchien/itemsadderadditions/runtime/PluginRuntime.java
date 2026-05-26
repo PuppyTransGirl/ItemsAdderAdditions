@@ -4,6 +4,7 @@ import net.momirealms.antigrieflib.AntiGriefLib;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -102,7 +103,27 @@ public final class PluginRuntime {
         startMetrics();
         setupAntiGriefLib();
         NamespaceUtils.initVanillaCache();
-        NamespaceUtils.setMMOItemsProvider(MMOItemsHook.INSTANCE::buildItemStack);
+        NamespaceUtils.setMMOItemsProvider(new NamespaceUtils.ItemProvider() {
+            @Override
+            public @Nullable ItemStack getItem(String type, String id) {
+                return MMOItemsHook.INSTANCE.buildItemStack(type, id);
+            }
+
+            @Override
+            public @Nullable String getItemId(ItemStack item) {
+                return MMOItemsHook.INSTANCE.getMmoId(item);
+            }
+
+            @Override
+            public boolean matchesItem(ItemStack item, String type, String id) {
+                return MMOItemsHook.INSTANCE.isMmoItem(item, type, id);
+            }
+
+            @Override
+            public boolean isAvailable() {
+                return MMOItemsHook.INSTANCE.isAvailable();
+            }
+        });
         NmsManager.initialize(plugin.getComponentLogger());
 
         this.actionsManager = new ActionsManager(settings);

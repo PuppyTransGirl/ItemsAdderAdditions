@@ -7,6 +7,7 @@ import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementConditions;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementCriterionDefinition;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementRegistry;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 @NullMarked
 public final class PlaceBlockTriggerHandler extends AbstractTriggerHandler {
@@ -19,7 +20,7 @@ public final class PlaceBlockTriggerHandler extends AbstractTriggerHandler {
         String blockId = event.getNamespacedID();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.PLACE_BLOCK)) {
             if (!(c.conditions() instanceof AdvancementConditions.PlaceBlock(String id))) continue;
-            if (!id.equals(blockId)) continue;
+            if (!NamespaceUtils.matchesWithRotation(blockId, id)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }

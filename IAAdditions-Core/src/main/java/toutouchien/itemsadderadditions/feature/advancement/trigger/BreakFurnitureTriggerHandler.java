@@ -7,6 +7,7 @@ import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementConditions;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementCriterionDefinition;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementRegistry;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 @NullMarked
 public final class BreakFurnitureTriggerHandler extends AbstractTriggerHandler {
@@ -19,7 +20,7 @@ public final class BreakFurnitureTriggerHandler extends AbstractTriggerHandler {
         String id = event.getNamespacedID();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.BREAK_FURNITURE)) {
             if (!(c.conditions() instanceof AdvancementConditions.BreakFurniture(String furnitureId))) continue;
-            if (!furnitureId.equals(id)) continue;
+            if (!NamespaceUtils.matchesWithRotation(id, furnitureId)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }

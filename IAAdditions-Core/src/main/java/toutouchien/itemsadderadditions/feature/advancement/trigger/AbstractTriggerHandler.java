@@ -1,16 +1,15 @@
 package toutouchien.itemsadderadditions.feature.advancement.trigger;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementCriterionDefinition;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementDefinition;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementRegistry;
-import toutouchien.itemsadderadditions.integration.hook.MMOItemsHook;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 
 @NullMarked
@@ -19,13 +18,6 @@ public abstract class AbstractTriggerHandler implements Listener {
 
     protected AbstractTriggerHandler(AdvancementRegistry registry) {
         this.registry = registry;
-    }
-
-    @Nullable
-    protected static String getIaId(@Nullable ItemStack item) {
-        if (item == null || item.getType().isAir()) return null;
-        CustomStack cs = CustomStack.byItemStack(item);
-        return cs == null ? null : cs.getNamespacedID();
     }
 
     /**
@@ -39,12 +31,7 @@ public abstract class AbstractTriggerHandler implements Listener {
      */
     @Nullable
     protected static String getItemId(@Nullable ItemStack item) {
-        if (item == null || item.getType().isAir()) return null;
-        String iaId = getIaId(item);
-        if (iaId != null) return iaId;
-        String mmoId = MMOItemsHook.INSTANCE.getMmoId(item);
-        if (mmoId != null) return mmoId;
-        return item.getType().getKey().toString();
+        return NamespaceUtils.itemID(item);
     }
 
     protected NamespacedKey advancementKeyFor(AdvancementCriterionDefinition criterion) {
