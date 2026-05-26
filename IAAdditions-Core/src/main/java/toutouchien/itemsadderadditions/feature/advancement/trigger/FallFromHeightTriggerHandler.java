@@ -19,8 +19,12 @@ public final class FallFromHeightTriggerHandler extends AbstractTriggerHandler {
     public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
+        double fallDistance = player.getFallDistance();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.FALL_FROM_HEIGHT)) {
-            if (!(c.conditions() instanceof AdvancementConditions.None)) continue;
+            if (!(c.conditions() instanceof AdvancementConditions.FallFromHeight(double minDistance, double maxDistance))) {
+                continue;
+            }
+            if (fallDistance < minDistance || fallDistance > maxDistance) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

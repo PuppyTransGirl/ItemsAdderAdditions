@@ -43,6 +43,7 @@ public sealed interface AdvancementConditions permits
         AdvancementConditions.ShotCrossbow,
         AdvancementConditions.StartedRiding,
         AdvancementConditions.HeldItem,
+        AdvancementConditions.FallFromHeight,
         AdvancementConditions.None {
 
     record ObtainItem(List<String> itemIds, int amount) implements AdvancementConditions {}
@@ -117,6 +118,9 @@ public sealed interface AdvancementConditions permits
     record StartedRiding(@Nullable String entityType) implements AdvancementConditions {}
 
     record HeldItem(@Nullable String itemId) implements AdvancementConditions {}
+
+    /** @param minDistance 0 = no minimum; @param maxDistance {@link Double#MAX_VALUE} = no maximum */
+    record FallFromHeight(double minDistance, double maxDistance) implements AdvancementConditions {}
 
     record None() implements AdvancementConditions {
         public static final None INSTANCE = new None();

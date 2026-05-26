@@ -7,5 +7,10 @@ import toutouchien.itemsadderadditions.feature.advancement.trigger.RuntimeTrigge
 public record AdvancementCriterionDefinition(
         String name,
         RuntimeTrigger trigger,
-        AdvancementConditions conditions
-) {}
+        AdvancementConditions conditions,
+        AdvancementPlayerPredicate playerPredicate
+) {
+    public AdvancementCriterionDefinition(String name, RuntimeTrigger trigger, AdvancementConditions conditions) {
+        this(name, trigger, conditions, AdvancementPlayerPredicate.ANY);
+    }
+}

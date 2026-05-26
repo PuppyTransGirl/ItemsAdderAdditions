@@ -44,6 +44,15 @@ public abstract class AbstractTriggerHandler implements Listener {
     }
 
     protected void award(Player player, NamespacedKey advancementKey, String criterionName) {
+        AdvancementDefinition advancement = registry.get(advancementKey);
+        if (advancement != null) {
+            AdvancementCriterionDefinition criterion = advancement.criteria().stream()
+                    .filter(c -> c.name().equals(criterionName))
+                    .findFirst()
+                    .orElse(null);
+            if (criterion != null && !criterion.playerPredicate().matches(player)) return;
+        }
+
         NmsManager.instance().handler().advancements().award(player, advancementKey, criterionName);
     }
 }

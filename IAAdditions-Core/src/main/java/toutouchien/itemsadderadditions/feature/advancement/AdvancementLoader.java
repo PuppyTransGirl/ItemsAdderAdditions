@@ -148,10 +148,13 @@ public final class AdvancementLoader {
                         triggerStr, namespace, advId, name);
                 continue;
             }
-            AdvancementConditions conditions = parseConditions(
-                    namespace, trigger, entry.getConfigurationSection("conditions")
-            );
-            result.add(new AdvancementCriterionDefinition(name, trigger, conditions));
+            ConfigurationSection conditionsSec = entry.getConfigurationSection("conditions");
+            AdvancementConditions conditions = parseConditions(namespace, trigger, conditionsSec);
+            AdvancementPlayerPredicate playerPredicate = trigger == RuntimeTrigger.IMPOSSIBLE
+                    ? AdvancementPlayerPredicate.ANY
+                    : AdvancementPlayerPredicate.parse(namespace,
+                    conditionsSec != null ? conditionsSec.getConfigurationSection("player") : null);
+            result.add(new AdvancementCriterionDefinition(name, trigger, conditions, playerPredicate));
         }
         return result;
     }
@@ -285,8 +288,42 @@ public final class AdvancementLoader {
             case HELD_ITEM -> new AdvancementConditions.HeldItem(
                     normalizeItemIdNullable(namespace, sec != null ? sec.getString("item") : null)
             );
-            case SLEPT_IN_BED, USED_TOTEM, FALL_FROM_HEIGHT, USED_ENDER_EYE, IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
+            case FALL_FROM_HEIGHT -> parseFallFromHeight(sec);
+            case SLEPT_IN_BED, USED_TOTEM, USED_ENDER_EYE, IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
         };
+    }
+
+    private static AdvancementConditions.FallFromHeight parseFallFromHeight(@Nullable ConfigurationSection sec) {
+        if (sec == null || !sec.contains("distance")) {
+            return new AdvancementConditions.FallFromHeight(0.0D, Double.MAX_VALUE);
+        }
+
+        ConfigurationSection distanceSec = sec.getConfigurationSection("distance");
+        if (distanceSec == null) {
+            return new AdvancementConditions.FallFromHeight(sec.getDouble("distance", 0.0D), Double.MAX_VALUE);
+        }
+
+        ConfigurationSection preferredRange = firstExistingSection(distanceSec, "y", "absolute", "horizontal");
+        if (preferredRange != null) {
+            return new AdvancementConditions.FallFromHeight(
+                    preferredRange.contains("min") ? preferredRange.getDouble("min") : 0.0D,
+                    preferredRange.contains("max") ? preferredRange.getDouble("max") : Double.MAX_VALUE
+            );
+        }
+
+        return new AdvancementConditions.FallFromHeight(
+                distanceSec.contains("min") ? distanceSec.getDouble("min") : 0.0D,
+                distanceSec.contains("max") ? distanceSec.getDouble("max") : Double.MAX_VALUE
+        );
+    }
+
+    @Nullable
+    private static ConfigurationSection firstExistingSection(ConfigurationSection parent, String... keys) {
+        for (String key : keys) {
+            ConfigurationSection section = parent.getConfigurationSection(key);
+            if (section != null) return section;
+        }
+        return null;
     }
 
     private static String normalizeItemId(String namespace, String raw) {
