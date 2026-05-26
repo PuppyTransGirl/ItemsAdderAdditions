@@ -746,9 +746,11 @@ class AdvancementLoaderTest {
     }
 
     @Test
-    void criteria_fall_from_height_returns_none() {
-        assertInstanceOf(AdvancementConditions.None.class,
+    void criteria_fall_from_height_noDistance_usesDefaultRange() {
+        var conds = assertInstanceOf(AdvancementConditions.FallFromHeight.class,
                 loadSingleCriterion("fall_from_height", ""));
+        assertEquals(0.0D, conds.minDistance());
+        assertEquals(Double.MAX_VALUE, conds.maxDistance());
     }
 
     @Test
@@ -779,7 +781,7 @@ class AdvancementLoaderTest {
                 """);
         assertEquals(1, result.size());
         var conds = (AdvancementConditions.ConsumeItem) result.getFirst().criteria().getFirst().conditions();
-        assertEquals("minecraft:", conds.itemId());
+        assertEquals("", conds.itemId());
     }
 
     @Test

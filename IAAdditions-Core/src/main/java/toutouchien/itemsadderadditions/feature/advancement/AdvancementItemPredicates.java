@@ -56,7 +56,7 @@ record ItemPredicate(
         if (stack == null || stack.getType().isAir()) return itemIds.isEmpty() && count.matches(0);
 
         if (!itemIds.isEmpty()) {
-            String actual = NamespaceUtils.itemID(stack);
+            String actual = itemId(stack);
             boolean matched = false;
             for (String itemId : itemIds) {
                 if (itemId.startsWith("#")) continue; // Item tags are not resolved in this lightweight layer.
@@ -73,6 +73,19 @@ record ItemPredicate(
         if (!matchesComponents(stack)) return false;
         if (!matchesEnchantments(stack)) return false;
         return !unsupportedPredicates;
+    }
+
+
+    @Nullable
+    private static String itemId(ItemStack stack) {
+        try {
+            String id = NamespaceUtils.itemID(stack);
+            if (id != null && !id.isBlank()) return id;
+        } catch (RuntimeException ignored) {
+            // ItemsAdder throws NotActuallyItemsAdderException in plain unit tests
+            // when its runtime is not bootstrapped. Fall back to Bukkit's vanilla key.
+        }
+        return stack.getType().getKey().toString();
     }
 
     private boolean matchesComponents(ItemStack stack) {

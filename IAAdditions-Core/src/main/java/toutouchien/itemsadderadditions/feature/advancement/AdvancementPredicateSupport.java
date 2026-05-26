@@ -502,6 +502,12 @@ final class AdvancementPredicateSupport {
     @Nullable
     static Object section(Object raw, String key) {
         if (raw instanceof ConfigurationSection sec) {
+            // Prefer direct child keys over Bukkit's path lookup. Some vanilla
+            // advancement predicate keys intentionally contain dots, e.g.
+            // "weapon.mainhand", "inventory.0", or advancement ids.
+            Object direct = sec.getValues(false).get(key);
+            if (isSection(direct)) return direct;
+
             ConfigurationSection child = sec.getConfigurationSection(key);
             return child;
         }
@@ -514,7 +520,13 @@ final class AdvancementPredicateSupport {
 
     @Nullable
     static Object value(Object raw, String key) {
-        if (raw instanceof ConfigurationSection sec) return sec.get(key);
+        if (raw instanceof ConfigurationSection sec) {
+            // Prefer direct child keys over Bukkit's path lookup. Dotted keys are
+            // common in vanilla predicates and must not be split as config paths.
+            Map<String, Object> directValues = sec.getValues(false);
+            if (directValues.containsKey(key)) return directValues.get(key);
+            return sec.get(key);
+        }
         if (raw instanceof Map<?, ?> map) return map.get(key);
         return null;
     }
