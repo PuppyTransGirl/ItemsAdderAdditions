@@ -141,6 +141,10 @@ public final class AdvancementLoader {
         for (String name : sec.getKeys(false)) {
             ConfigurationSection entry = sec.getConfigurationSection(name);
             if (entry == null) continue;
+            if (!entry.contains("trigger")) {
+                Log.warn(LOG_TAG, "Criterion '{}:{}.{}' has no 'trigger' key - it will never fire. Did you forget to add a trigger?",
+                        namespace, advId, name);
+            }
             String triggerStr = entry.getString("trigger", "impossible");
             RuntimeTrigger trigger = RuntimeTrigger.fromYaml(triggerStr);
             if (trigger == null) {
