@@ -58,13 +58,27 @@ public final class OpenVariantTransformer {
         return state.isOpen(BlockCoord.of(location));
     }
 
+    /**
+     * Cleans up all tracked state for this location without touching the entity.
+     * Use this when IA is already handling entity removal (e.g. FurnitureBreakEvent).
+     */
+    public void forgetState(Location location) {
+        BlockCoord key = BlockCoord.of(location);
+        state.forget(key);
+        state.removeLiveEntity(key);
+    }
+
+    /**
+     * Removes the live open-variant entity via the IA API (so its hitbox is cleaned up)
+     * and clears all tracked state. Use this when WE are initiating the removal.
+     */
     public void forceRemove(Location location) {
         BlockCoord key = BlockCoord.of(location);
         state.forget(key);
 
         Entity liveEntity = state.removeLiveEntity(key);
         if (liveEntity != null && liveEntity.isValid()) {
-            liveEntity.remove();
+            OpenVariantPlacement.removeFurnitureEntity(liveEntity);
         }
     }
 

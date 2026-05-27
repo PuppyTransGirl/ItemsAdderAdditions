@@ -121,6 +121,7 @@ public final class StorageBehaviour extends BehaviourExecutor {
         );
 
         ShulkerDropTracker shulkerDropTracker = new ShulkerDropTracker(
+                plugin,
                 namespacedID,
                 contentsKey,
                 uniqueIdKey

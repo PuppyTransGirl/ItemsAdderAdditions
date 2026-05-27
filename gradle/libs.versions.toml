@@ -7,7 +7,7 @@ jspecify = "1.0.0"
 bytebuddy = "1.18.8"
 
 # Minecraft plugins (compile-only)
-itemsadder = "4.0.10"
+itemsadder = "4.0.17-beta-12-test-8"
 placeholderapi = "2.11.7"
 mythicmobs = "5.6.1"
 coreprotect = "23.1"
@@ -37,7 +37,7 @@ commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
-itemsadder = { module = "dev.lone:api-itemsadder", version.ref = "itemsadder" }
+itemsadder = { module = "beer.devs:itemsadder-api", version.ref = "itemsadder" }
 placeholderapi = { module = "me.clip:placeholderapi", version.ref = "placeholderapi" }
 mythicmobs = { module = "io.lumine:Mythic-Dist", version.ref = "mythicmobs" }
 coreprotect = { module = "net.coreprotect:coreprotect", version.ref = "coreprotect" }

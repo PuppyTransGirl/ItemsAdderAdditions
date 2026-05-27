@@ -49,6 +49,10 @@ public final class StorageFurnitureListener implements Listener {
         if (!event.getNamespacedID().equals(runtime.namespacedId())) return;
         if (runtime.storageType() != StorageType.SHULKER) return;
 
+        // Yes, it can be null
+        if (event.getPlayer() == null)
+            return;
+
         ItemStack[] stored = runtime.shulkerDropTracker()
                 .consumePlaceContents(event.getPlayer().getUniqueId());
         if (stored == null) return;

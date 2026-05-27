@@ -129,6 +129,25 @@ public final class StorageSessionManager {
         }
     }
 
+    /**
+     * Closes any open sessions at {@code location} due to the open-variant furniture entity
+     * itself being broken by IA. Unlike {@link #closeSessionsAt}, this does NOT attempt to
+     * remove the open-variant entity — IA already owns that removal via FurnitureBreakEvent.
+     */
+    public void closeSessionsForOpenVariantBreak(Location location) {
+        var matchingSessions = sessions.near(location, BREAK_MATCH_DISTANCE_SQUARED);
+        Set<Inventory> savedInventories = persister.saveBeforeHolderBreak(matchingSessions, null);
+
+        for (StorageSession session : matchingSessions) {
+            sessions.remove(session.player().getUniqueId());
+            session.player().closeInventory();
+        }
+
+        if (!savedInventories.isEmpty()) {
+            sounds.playClose(location, true);
+        }
+    }
+
     public void clear() {
         Set<Inventory> flushed = new HashSet<>();
         for (StorageSession session : sessions.all()) {

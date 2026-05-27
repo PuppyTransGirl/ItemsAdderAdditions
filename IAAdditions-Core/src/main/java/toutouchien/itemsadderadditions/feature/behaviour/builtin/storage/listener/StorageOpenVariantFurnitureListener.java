@@ -52,8 +52,9 @@ public final class StorageOpenVariantFurnitureListener implements Listener {
 
         ItemStack[] contents = runtime.sessionManager().getLiveContentsAt(entity.getLocation());
 
-        runtime.sessionManager().closeSessionsAt(entity.getLocation(), null);
-        runtime.openVariantTransformer().forceRemove(entity.getLocation());
+        // Use the break-specific variant: IA already owns entity removal via this event.
+        runtime.sessionManager().closeSessionsForOpenVariantBreak(entity.getLocation());
+        runtime.openVariantTransformer().forgetState(entity.getLocation());
 
         runtime.handleOpenVariantBreakDrops(entity.getLocation(), contents);
     }

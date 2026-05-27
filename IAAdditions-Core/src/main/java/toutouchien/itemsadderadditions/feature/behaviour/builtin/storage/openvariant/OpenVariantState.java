@@ -84,7 +84,7 @@ final class OpenVariantState {
     void clear() {
         liveEntities.values().stream()
                 .filter(Entity::isValid)
-                .forEach(Entity::remove);
+                .forEach(OpenVariantPlacement::removeFurnitureEntity);
         liveEntities.clear();
         openCounts.clear();
         savedBlockIds.clear();

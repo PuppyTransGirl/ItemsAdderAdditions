@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
 
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +14,7 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
@@ -20,6 +22,7 @@ import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.StorageBehaviour;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -41,20 +44,21 @@ public final class ShulkerDropTracker implements Listener {
      */
     private final Map<UUID, ItemStack[]> pendingPlaceContents = new HashMap<>();
 
+    private final JavaPlugin plugin;
     private final String namespacedID;
-    private final java.security.Key contentsKey;
     private final org.bukkit.NamespacedKey contentsNamespacedKey;
     private final org.bukkit.NamespacedKey uniqueIdKey;
 
     public ShulkerDropTracker(
+            JavaPlugin plugin,
             String namespacedID,
             org.bukkit.NamespacedKey contentsKey,
             org.bukkit.NamespacedKey uniqueIdKey
     ) {
+        this.plugin = plugin;
         this.namespacedID = namespacedID;
         this.contentsNamespacedKey = contentsKey;
         this.uniqueIdKey = uniqueIdKey;
-        this.contentsKey = null; // unused field - see below
     }
 
     private static boolean hasAnyContent(@Nullable ItemStack[] contents) {
@@ -65,8 +69,42 @@ public final class ShulkerDropTracker implements Listener {
     }
 
     public void stageDrop(Location loc, ItemStack[] contents) {
-        pendingShulkerDrops.put(BlockCoord.of(loc), contents);
+        BlockCoord key = BlockCoord.of(loc);
+        pendingShulkerDrops.put(key, contents);
         Log.debug("ShulkerDropTracker", "Staged shulker drop at " + loc);
+
+        // Fallback: if ItemSpawnEvent doesn't fire (or doesn't match) within a couple of ticks,
+        // search for the dropped item nearby and inject, or scatter contents individually.
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            ItemStack[] unconsumed = pendingShulkerDrops.remove(key);
+            if (unconsumed == null) return; // already consumed by ItemSpawnEvent
+
+            Log.debug("ShulkerDropTracker", "ItemSpawnEvent did not consume staged drop - searching nearby.");
+            if (loc.getWorld() == null) return;
+
+            Collection<Entity> nearby = loc.getWorld().getNearbyEntities(loc, 2.0, 2.0, 2.0);
+            for (Entity e : nearby) {
+                if (!(e instanceof Item droppedItem)) continue;
+                CustomStack cs = CustomStack.byItemStack(droppedItem.getItemStack());
+                if (cs == null || !cs.getNamespacedID().equals(namespacedID)) continue;
+                if (StorageInventoryManager.extractFromItem(droppedItem.getItemStack(), contentsNamespacedKey) != null)
+                    continue;
+
+                injectIfNonEmpty(droppedItem, unconsumed);
+                Log.debug("ShulkerDropTracker", "Injected into nearby dropped item via fallback.");
+                return;
+            }
+
+            // Item not found - drop contents individually so they are not lost
+            if (hasAnyContent(unconsumed)) {
+                Log.debug("ShulkerDropTracker", "No matching item found - dropping contents individually.");
+                for (ItemStack item : unconsumed) {
+                    if (item != null && item.getType() != org.bukkit.Material.AIR) {
+                        loc.getWorld().dropItemNaturally(loc, item);
+                    }
+                }
+            }
+        }, 3L);
     }
 
     @Nullable
