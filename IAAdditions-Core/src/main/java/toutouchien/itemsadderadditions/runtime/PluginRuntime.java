@@ -217,6 +217,7 @@ public final class PluginRuntime {
         this.bStats = new Metrics(plugin, BSTATS_PLUGIN_ID);
         bStats.addCustomChart(new SimplePie("platform", this::detectPlatform));
         bStats.addCustomChart(new SimplePie("default_pack", () -> isUsingDefaultPack() ? "Yes" : "No"));
+        bStats.addCustomChart(new SimplePie("ia_version", () -> itemsAdderVersion()));
     }
 
     private String detectPlatform() {
@@ -239,6 +240,14 @@ public final class PluginRuntime {
         Plugin itemsAdder = plugin.getServer().getPluginManager().getPlugin("ItemsAdder");
         if (itemsAdder == null) return false;
         return new File(itemsAdder.getDataFolder(), "contents/iaadditions").isDirectory();
+    }
+
+    private String itemsAdderVersion() {
+        Plugin itemsAdder = plugin.getServer().getPluginManager().getPlugin("ItemsAdder");
+        if (itemsAdder == null)
+            return "Other";
+
+        return itemsAdder.getPluginMeta().getVersion();
     }
 
     private void setupAntiGriefLib() {
