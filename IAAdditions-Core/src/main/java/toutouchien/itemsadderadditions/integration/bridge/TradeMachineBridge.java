@@ -87,7 +87,7 @@ public final class TradeMachineBridge {
     private static Field ensureRegistryField(Object handler)
             throws NoSuchFieldException {
         if (registryField == null) {
-            registryField = findField(handler.getClass(), "vG", "vK", "vs");
+            registryField = findField(handler.getClass(), "vQ", "vG", "vK", "vs");
         }
         return registryField;
     }
@@ -95,7 +95,7 @@ public final class TradeMachineBridge {
     private static Field ensureSessionMapField(Object handler)
             throws NoSuchFieldException {
         if (sessionMapField == null) {
-            sessionMapField = findField(handler.getClass(), "vH", "vL", "vt");
+            sessionMapField = findField(handler.getClass(), "vR", "vH", "vL", "vt");
         }
         return sessionMapField;
     }
@@ -104,7 +104,7 @@ public final class TradeMachineBridge {
             throws NoSuchFieldException {
         if (behaviorContainerField == null) {
             behaviorContainerField = findField(
-                    customItemData.getClass(), "BD", "BH", "Bm");
+                    customItemData.getClass(), "BN", "BD", "BH", "Bm");
         }
         return behaviorContainerField;
     }

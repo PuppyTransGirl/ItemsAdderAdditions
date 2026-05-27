@@ -1,13 +1,13 @@
-package toutouchien.itemsadderadditions.patch.impl.ia_4_0_16;
+package toutouchien.itemsadderadditions.patch.impl.ia_4_0_17;
 
 import org.objectweb.asm.commons.GeneratorAdapter;
 import toutouchien.itemsadderadditions.integration.bridge.StonecutterPatchBridge;
 import toutouchien.itemsadderadditions.patch.*;
 
-public final class StonecutterSelectiveBypassPatch_IA_4_0_16 extends CallSiteInjectPatch {
+public final class StonecutterSelectiveBypassPatch_IA_4_0_17 extends CallSiteInjectPatch {
     @Override
     public VersionConstraint supportedVersions() {
-        return VersionSet.ia("4.0.16");
+        return VersionSet.ia("4.0.17");
     }
 
     @Override
@@ -42,15 +42,8 @@ public final class StonecutterSelectiveBypassPatch_IA_4_0_16 extends CallSiteInj
 
     @Override
     protected void inject(GeneratorAdapter ga) {
-        // Stack currently: [boolean originalResult]
-        // Push method arg 0 = InventoryClickEvent
         ga.loadArg(0);
 
-        // Call:
-        // boolean StonecutterPatchBridge.filterCustomItemCheck(
-        //     boolean original,
-        //     InventoryClickEvent event
-        // )
         BytecodeHelper.invokeStatic(
                 ga,
                 StonecutterPatchBridge.class,

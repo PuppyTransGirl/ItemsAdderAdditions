@@ -25,7 +25,7 @@ public final class CraftingRecipeBypassPatch_IA_4_0_16 extends MethodInjectPatch
 
     @Override
     public VersionConstraint supportedVersions() {
-        return VersionSet.ia("4.0.16", "4.0.17");
+        return VersionSet.ia("4.0.16");
     }
 
     @Override

@@ -1,13 +1,13 @@
-package toutouchien.itemsadderadditions.patch.impl.ia_4_0_16;
+package toutouchien.itemsadderadditions.patch.impl.ia_4_0_17;
 
 import toutouchien.itemsadderadditions.patch.MethodCallReplacePatch;
 import toutouchien.itemsadderadditions.patch.VersionConstraint;
 import toutouchien.itemsadderadditions.patch.VersionSet;
 
-public class AddEnchantmentPatch_IA_4_0_16 extends MethodCallReplacePatch {
+public final class AddEnchantmentPatch_IA_4_0_17 extends MethodCallReplacePatch {
     @Override
     public VersionConstraint supportedVersions() {
-        return VersionSet.ia("4.0.16");
+        return VersionSet.ia("4.0.17");
     }
 
     @Override
@@ -15,7 +15,6 @@ public class AddEnchantmentPatch_IA_4_0_16 extends MethodCallReplacePatch {
         return "itemsadder/m/jq";
     }
 
-    // ItemStack c(ItemStack source, ItemStack target)
     @Override
     protected String targetMethod() {
         return "c";
@@ -27,7 +26,6 @@ public class AddEnchantmentPatch_IA_4_0_16 extends MethodCallReplacePatch {
                 + "Lorg/bukkit/inventory/ItemStack;";
     }
 
-    // The call we want to intercept
     @Override
     protected String targetCallOwner() {
         return "org/bukkit/inventory/ItemStack";

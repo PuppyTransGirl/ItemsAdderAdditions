@@ -69,7 +69,7 @@ public final class StatRequirementsBridge {
             synchronized (StatRequirementsBridge.class) {
                 field = internalCustomStackField;
                 if (field == null) {
-                    field = findField(actionsLoader.getClass(), "xW", "xI", "ya");
+                    field = findField(actionsLoader.getClass(), "yg", "xW", "xI", "ya");
                     internalCustomStackField = field;
                 }
             }

@@ -1,4 +1,4 @@
-package toutouchien.itemsadderadditions.patch.impl.ia_4_0_16;
+package toutouchien.itemsadderadditions.patch.impl.ia_4_0_17;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -9,20 +9,10 @@ import toutouchien.itemsadderadditions.patch.MethodInjectPatch;
 import toutouchien.itemsadderadditions.patch.VersionConstraint;
 import toutouchien.itemsadderadditions.patch.VersionSet;
 
-/**
- * Injects into the {@code jq(Plugin, a)} constructor so that
- * {@link TradeMachineBridge#capture(Object)} receives the fully-initialised
- * {@code jq} instance right after construction completes.
- *
- * <p>Injecting at {@link InjectPoint#BEFORE_RETURN} (i.e. at the RETURN
- * opcode of the constructor) guarantees that {@code this.vG} and
- * {@code this.vH} have already been assigned before we hand the reference
- * to the bridge.
- */
-public class TradeMachineCapturePatch_IA_4_0_16 extends MethodInjectPatch {
+public final class TradeMachineCapturePatch_IA_4_0_17 extends MethodInjectPatch {
     @Override
     public VersionConstraint supportedVersions() {
-        return VersionSet.ia("4.0.16");
+        return VersionSet.ia("4.0.17");
     }
 
     @Override
@@ -30,7 +20,6 @@ public class TradeMachineCapturePatch_IA_4_0_16 extends MethodInjectPatch {
         return "itemsadder/m/jq";
     }
 
-    // jq(Plugin plugin, a a2)
     @Override
     protected String targetMethod() {
         return "<init>";
@@ -43,14 +32,9 @@ public class TradeMachineCapturePatch_IA_4_0_16 extends MethodInjectPatch {
 
     @Override
     protected InjectPoint injectPoint() {
-        // Fire after the entire constructor body has run, so vG/vH are set.
         return InjectPoint.BEFORE_RETURN;
     }
 
-    /**
-     * Stack is empty (void constructor). We push {@code this} and call
-     * {@code TradeMachineBridge.capture(Object)}.
-     */
     @Override
     protected void inject(GeneratorAdapter ga) {
         ga.loadThis();

@@ -4,8 +4,7 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_15.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_16.*;
-import toutouchien.itemsadderadditions.patch.impl.ia_4_0_17.CooldownCapturePatch_IA_4_0_17;
-import toutouchien.itemsadderadditions.patch.impl.ia_4_0_17.StatRequirementsCapturePatch_IA_4_0_17;
+import toutouchien.itemsadderadditions.patch.impl.ia_4_0_17.*;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -40,7 +39,7 @@ public final class PatchManager {
             new StonecutterSelectiveBypassPatch_IA_4_0_15(),
             new TradeMachineCapturePatch_IA_4_0_15(),
 
-            // IA 4.0.16 (Most of them are compatible with 4.0.17)
+            // IA 4.0.16
             new AddEnchantmentPatch_IA_4_0_16(),
             new CooldownCapturePatch_IA_4_0_16(),
             new CraftingRecipeBypassPatch_IA_4_0_16(),
@@ -49,8 +48,12 @@ public final class PatchManager {
             new StonecutterSelectiveBypassPatch_IA_4_0_16(),
 
             // IA 4.0.17
+            new AddEnchantmentPatch_IA_4_0_17(),
             new CooldownCapturePatch_IA_4_0_17(),
-            new StatRequirementsCapturePatch_IA_4_0_17()
+            new CraftingRecipeBypassPatch_IA_4_0_17(),
+            new StatRequirementsCapturePatch_IA_4_0_17(),
+            new StonecutterSelectiveBypassPatch_IA_4_0_17(),
+            new TradeMachineCapturePatch_IA_4_0_17()
     );
 
     private PatchManager() {
