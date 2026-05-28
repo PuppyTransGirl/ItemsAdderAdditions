@@ -21,10 +21,7 @@ import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvar
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound.StorageSoundPlayer;
 import toutouchien.itemsadderadditions.integration.hook.CoreProtectHook;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Coordinates open storage GUI sessions for one loaded storage behaviour.
@@ -160,14 +157,15 @@ public final class StorageSessionManager {
     }
 
     public void clear() {
+        Collection<StorageSession> snapshot = sessions.all();
+        sessions.clear();
         Set<Inventory> flushed = new HashSet<>();
-        for (StorageSession session : sessions.all()) {
+        for (StorageSession session : snapshot) {
             if (flushed.add(session.inventory())) {
                 saveSessionContents(session, false);
             }
             session.player().closeInventory();
         }
-        sessions.clear();
     }
 
     public void executeClose(Location location, boolean playSound) {
