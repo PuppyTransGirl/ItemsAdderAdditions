@@ -6,6 +6,7 @@ import {Inter} from 'next/font/google';
 import type {Metadata} from 'next';
 import type {ReactNode} from 'react';
 import {GoogleAnalytics} from '@next/third-parties/google';
+import Script from 'next/script';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -79,6 +80,13 @@ export default function Layout({ children }: { children: ReactNode }) {
         <ClipboardPolyfill/>
         <RootProvider search={{ SearchDialog: StaticSearchDialog }}>{children}</RootProvider>
         <GoogleAnalytics gaId="G-XJSY3N88FX" />
+        <Script id="clarity-script" strategy="afterInteractive">{`
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i+"?ref=bwt";
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "wyctponbvj");
+        `}</Script>
         </body>
         </html>
     );
