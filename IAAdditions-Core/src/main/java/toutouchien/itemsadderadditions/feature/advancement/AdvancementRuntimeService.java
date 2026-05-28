@@ -13,10 +13,12 @@ import java.util.List;
 @NullMarked
 public final class AdvancementRuntimeService {
     private final AdvancementRegistry registry;
+    private final Plugin plugin;
     private final List<Listener> activeListeners = new ArrayList<>();
 
     public AdvancementRuntimeService(AdvancementRegistry registry, Plugin plugin) {
         this.registry = registry;
+        this.plugin = plugin;
     }
 
     public void register(Plugin plugin) {
@@ -62,7 +64,7 @@ public final class AdvancementRuntimeService {
                 new StartedRidingTriggerHandler(registry),
                 new HeldItemTriggerHandler(registry),
                 new AdvancementCompletionListener(registry),
-                new AdvancementPlayerJoinListener(registry)
+                new AdvancementPlayerJoinListener(registry, plugin)
         );
         for (Listener l : listeners) {
             Bukkit.getPluginManager().registerEvents(l, plugin);

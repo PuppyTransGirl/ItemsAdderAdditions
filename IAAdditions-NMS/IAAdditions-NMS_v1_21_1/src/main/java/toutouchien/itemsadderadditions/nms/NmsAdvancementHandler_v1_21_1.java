@@ -223,6 +223,23 @@ public final class NmsAdvancementHandler_v1_21_1 implements INmsAdvancementHandl
 
         broadcastUpdate(added, removed);
 
+        List<AdvancementHolder> hiddenAdded = added.stream()
+                .filter(h -> h.value().display().map(DisplayInfo::isHidden).orElse(false))
+                .toList();
+        if (!hiddenAdded.isEmpty()) {
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                PlayerAdvancements pa = ((CraftPlayer) onlinePlayer).getHandle().getAdvancements();
+                Set<ResourceLocation> toHide = new LinkedHashSet<>();
+                for (AdvancementHolder h : hiddenAdded) {
+                    if (!pa.getOrStartProgress(h).isDone()) toHide.add(h.id());
+                }
+                if (toHide.isEmpty()) continue;
+                ((CraftPlayer) onlinePlayer).getHandle().connection.send(
+                        new ClientboundUpdateAdvancementsPacket(false, Collections.emptyList(), toHide, Collections.emptyMap())
+                );
+            }
+        }
+
         if (added.isEmpty()) return;
 
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
@@ -241,6 +258,11 @@ public final class NmsAdvancementHandler_v1_21_1 implements INmsAdvancementHandl
         ServerAdvancementManager sam = MinecraftServer.getServer().getAdvancements();
         AdvancementHolder holder = sam.get(toRL(key));
         if (holder == null) return false;
+        if (holder.value().display().map(DisplayInfo::isHidden).orElse(false)) {
+            ((CraftPlayer) player).getHandle().connection.send(
+                    new ClientboundUpdateAdvancementsPacket(false, List.of(holder), Collections.emptySet(), Collections.emptyMap())
+            );
+        }
         PlayerAdvancements pa = ((CraftPlayer) player).getHandle().getAdvancements();
         return pa.award(holder, criterionName);
     }
@@ -254,6 +276,24 @@ public final class NmsAdvancementHandler_v1_21_1 implements INmsAdvancementHandl
             List<String> names = new ArrayList<>(holder.value().criteria().keySet());
             grantCriteria(player, holder, names);
         }
+    }
+
+    @Override
+    public void removeIncompleteHiddenAdvancements(Player player, Collection<NamespacedKey> hiddenKeys) {
+        if (hiddenKeys.isEmpty()) return;
+        ServerAdvancementManager sam = MinecraftServer.getServer().getAdvancements();
+        PlayerAdvancements pa = ((CraftPlayer) player).getHandle().getAdvancements();
+        Set<ResourceLocation> toRemove = new LinkedHashSet<>();
+        for (NamespacedKey key : hiddenKeys) {
+            ResourceLocation id = toRL(key);
+            AdvancementHolder holder = sam.get(id);
+            if (holder == null) continue;
+            if (!pa.getOrStartProgress(holder).isDone()) toRemove.add(id);
+        }
+        if (toRemove.isEmpty()) return;
+        ((CraftPlayer) player).getHandle().connection.send(
+                new ClientboundUpdateAdvancementsPacket(false, Collections.emptyList(), toRemove, Collections.emptyMap())
+        );
     }
 
     @SuppressWarnings("unchecked")

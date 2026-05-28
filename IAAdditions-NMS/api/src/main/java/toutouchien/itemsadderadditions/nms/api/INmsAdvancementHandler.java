@@ -21,4 +21,6 @@ public interface INmsAdvancementHandler {
     boolean award(Player player, NamespacedKey key, String criterionName);
 
     void onPlayerJoin(Player player, Collection<NamespacedKey> rootKeys);
+
+    void removeIncompleteHiddenAdvancements(Player player, Collection<NamespacedKey> hiddenKeys);
 }

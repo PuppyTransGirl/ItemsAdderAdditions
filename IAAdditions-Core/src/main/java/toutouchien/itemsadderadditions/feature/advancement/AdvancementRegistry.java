@@ -47,6 +47,13 @@ public final class AdvancementRegistry {
                 .toList();
     }
 
+    public List<NamespacedKey> hiddenKeys() {
+        return definitions.values().stream()
+                .filter(def -> def.display().hidden())
+                .map(AdvancementDefinition::key)
+                .toList();
+    }
+
     public List<AdvancementCriterionDefinition> criteriaByTrigger(RuntimeTrigger trigger) {
         return definitions.values().stream()
                 .flatMap(def -> def.criteria().stream())
