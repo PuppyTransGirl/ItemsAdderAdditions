@@ -3,7 +3,9 @@ package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.listen
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.Events.CustomBlockBreakEvent;
 import dev.lone.itemsadder.api.Events.CustomBlockPlaceEvent;
+import org.bukkit.GameMode;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -12,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageRuntime;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
@@ -63,17 +66,34 @@ public final class StorageBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(CustomBlockBreakEvent event) {
-        if (!runtime.matchesClosedId(event.getNamespacedID())) return;
+        Log.debug("StorageBlockBreak", "CustomBlockBreakEvent fired: id={}, runtimeId={}, loc={}",
+                event.getNamespacedID(), runtime.namespacedId(), event.getBlock().getLocation());
+
+        if (!runtime.matchesClosedId(event.getNamespacedID())) {
+            Log.debug("StorageBlockBreak", "Ignoring: id does not match closed id.");
+            return;
+        }
 
         Block block = event.getBlock();
+        Log.debug("StorageBlockBreak", "Closing sessions at {} (storageType={})",
+                block.getLocation(), runtime.storageType());
         runtime.sessionManager().closeSessionsAt(
                 block.getLocation(),
                 runtime.preloadedBlockContents()
         );
 
         ItemStack[] contents = runtime.consumePreloadedBlockContents(block.getLocation());
-        runtime.handleContainerBreak(block.getLocation(), contents);
+        Log.debug("StorageBlockBreak", "Consumed preloaded contents: hasContents={}", contents != null);
+
+        Player breaker = event.getPlayer();
+        boolean creative = breaker != null && breaker.getGameMode() == GameMode.CREATIVE;
+        if (creative) {
+            Log.debug("StorageBlockBreak", "Breaker in creative - skipping drops.");
+        } else {
+            runtime.handleContainerBreak(block.getLocation(), contents);
+        }
         StorageInventoryManager.clearBlock(block, runtime.plugin());
+        Log.debug("StorageBlockBreak", "Block break handling completed.");
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

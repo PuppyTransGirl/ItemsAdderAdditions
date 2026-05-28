@@ -104,7 +104,7 @@ public final class ShulkerDropTracker implements Listener {
                     }
                 }
             }
-        }, 3L);
+        }, 40L);
     }
 
     @Nullable
@@ -140,6 +140,13 @@ public final class ShulkerDropTracker implements Listener {
         }
 
         pendingPlaceContents.put(player.getUniqueId(), stored);
+
+        // Strip the stored data from the in-hand item before IA consumes it.
+        // IA caches the placed item's NBT on the furniture entity and re-drops
+        // it on break - if we leave the data in, we duplicate (IA-dropped chest
+        // with contents AND our scatter/inject).
+        StorageInventoryManager.clearStoredData(hand, contentsNamespacedKey, uniqueIdKey);
+
         Log.debug("ShulkerDropTracker", "Pre-captured contents for " + player.getName());
     }
 

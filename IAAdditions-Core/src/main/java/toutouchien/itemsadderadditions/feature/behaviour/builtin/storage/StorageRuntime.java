@@ -162,10 +162,17 @@ public final class StorageRuntime {
     }
 
     public void handleContainerBreak(Location location, @Nullable ItemStack[] contents) {
+        Log.debug("StorageBreak", "handleContainerBreak: loc={}, storageType={}, hasContents={}",
+                location, storageType, contents != null);
+
         if (storageType == StorageType.STORAGE) {
+            Log.debug("StorageBreak", "STORAGE: dropping contents directly.");
             dropContents(location, contents);
         } else if (storageType == StorageType.SHULKER && contents != null) {
+            Log.debug("StorageBreak", "SHULKER: staging drop for injection into shulker item.");
             shulkerDropTracker.stageDrop(location, contents);
+        } else {
+            Log.debug("StorageBreak", "DISPOSAL or empty SHULKER: no drops handled.");
         }
     }
 
@@ -176,7 +183,13 @@ public final class StorageRuntime {
             Location loc,
             @Nullable ItemStack[] contents
     ) {
-        if (storageType == StorageType.DISPOSAL) return;
+        Log.debug("StorageBreak", "handleOpenVariantBreakDrops: loc={}, storageType={}, hasContents={}",
+                loc, storageType, contents != null);
+
+        if (storageType == StorageType.DISPOSAL) {
+            Log.debug("StorageBreak", "DISPOSAL: skipping open-variant drops.");
+            return;
+        }
 
         CustomStack original = CustomStack.getInstance(namespacedId);
         if (original == null) {
@@ -191,12 +204,15 @@ public final class StorageRuntime {
         ItemStack drop = original.getItemStack();
 
         if (storageType == StorageType.SHULKER && contents != null) {
+            Log.debug("StorageBreak", "SHULKER open-variant: injecting contents into drop.");
             StorageInventoryManager.injectIntoItem(drop, contents, contentsKey);
             StorageInventoryManager.stampUniqueId(drop, uniqueIdKey);
         } else if (storageType == StorageType.STORAGE) {
+            Log.debug("StorageBreak", "STORAGE open-variant: scattering contents.");
             dropContents(loc, contents);
         }
 
+        Log.debug("StorageBreak", "Dropping original closed item '{}' at {}.", namespacedId, loc);
         loc.getWorld().dropItemNaturally(loc, drop);
     }
 

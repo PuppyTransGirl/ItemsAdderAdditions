@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryResolver;
@@ -116,7 +117,11 @@ public final class StorageSessionManager {
 
     public void closeSessionsAt(Location location, @Nullable Map<BlockCoord, ItemStack[]> preloadCache) {
         var matchingSessions = sessions.near(location, BREAK_MATCH_DISTANCE_SQUARED);
+        Log.debug("StorageSession", "closeSessionsAt {}: matchingSessions={}, hasPreloadCache={}",
+                location, matchingSessions.size(), preloadCache != null);
+
         Set<Inventory> savedInventories = persister.saveBeforeHolderBreak(matchingSessions, preloadCache);
+        Log.debug("StorageSession", "closeSessionsAt {}: savedInventories={}", location, savedInventories.size());
 
         for (StorageSession session : matchingSessions) {
             sessions.remove(session.player().getUniqueId());
@@ -124,6 +129,7 @@ public final class StorageSessionManager {
         }
 
         if (!savedInventories.isEmpty()) {
+            Log.debug("StorageSession", "closeSessionsAt {}: calling forceRemoveOpenVariant.", location);
             persister.forceRemoveOpenVariant(location);
             sounds.playClose(location, true);
         }
@@ -136,7 +142,12 @@ public final class StorageSessionManager {
      */
     public void closeSessionsForOpenVariantBreak(Location location) {
         var matchingSessions = sessions.near(location, BREAK_MATCH_DISTANCE_SQUARED);
+        Log.debug("StorageSession", "closeSessionsForOpenVariantBreak {}: matchingSessions={}",
+                location, matchingSessions.size());
+
         Set<Inventory> savedInventories = persister.saveBeforeHolderBreak(matchingSessions, null);
+        Log.debug("StorageSession", "closeSessionsForOpenVariantBreak {}: savedInventories={}",
+                location, savedInventories.size());
 
         for (StorageSession session : matchingSessions) {
             sessions.remove(session.player().getUniqueId());

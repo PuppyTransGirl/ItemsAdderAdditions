@@ -4,15 +4,17 @@ import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomFurniture;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 @NullMarked
-final class OpenVariantPlacement {
+public final class OpenVariantPlacement {
     private static final String LOG_TAG = "OpenVariant";
 
     private OpenVariantPlacement() {
@@ -64,17 +66,64 @@ final class OpenVariantPlacement {
         return entity;
     }
 
-    static void removeFurnitureEntity(Entity entity) {
+    public static void removeFurnitureEntity(Entity entity) {
+        Log.debug(LOG_TAG, "removeFurnitureEntity: entity={}, type={}, valid={}, loc={}",
+                entity, entity.getType(), entity.isValid(), entity.getLocation());
+
         CustomFurniture furniture = CustomFurniture.byAlreadySpawned(entity);
         if (furniture != null) {
+            Log.debug(LOG_TAG, "removeFurnitureEntity: resolved CustomFurniture - calling remove(false) to clean barriers.");
             furniture.remove(false);
+            Log.debug(LOG_TAG, "removeFurnitureEntity: CustomFurniture.remove(false) returned. Entity valid={}, dead={}",
+                    entity.isValid(), entity.isDead());
             return;
         }
+        Log.debug(LOG_TAG, "removeFurnitureEntity: CustomFurniture.byAlreadySpawned returned null - falling back to entity.remove(). Barriers may remain.");
         entity.remove();
     }
 
     static void clearBlock(Location location) {
         location.getBlock().setType(Material.AIR);
+    }
+
+    /**
+     * Schedules a delayed sweep around {@code center} (1-block radius cube) that clears
+     * any leftover BARRIER blocks. Use after IA's furniture break flow so we run after
+     * IA's own (sometimes incomplete) cleanup.
+     */
+    public static void scheduleBarrierSweep(JavaPlugin plugin, Location center, int radius) {
+        plugin.getServer().getScheduler().runTask(plugin, () -> sweepBarriers(center, radius));
+    }
+
+    private static void sweepBarriers(Location center, int radius) {
+        World world = center.getWorld();
+        if (world == null) {
+            Log.debug(LOG_TAG, "Barrier sweep: world is null at {}.", center);
+            return;
+        }
+
+        int cx = center.getBlockX();
+        int cy = center.getBlockY();
+        int cz = center.getBlockZ();
+        int cleared = 0;
+        int scanned = 0;
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    Block block = world.getBlockAt(cx + dx, cy + dy, cz + dz);
+                    scanned++;
+                    if (block.getType() != Material.BARRIER) continue;
+
+                    Log.debug(LOG_TAG, "Barrier sweep: clearing BARRIER at {},{},{}.",
+                            block.getX(), block.getY(), block.getZ());
+                    block.setType(Material.AIR);
+                    cleared++;
+                }
+            }
+        }
+        Log.debug(LOG_TAG, "Barrier sweep around ({},{},{}) radius={}: scanned={}, cleared={}.",
+                cx, cy, cz, radius, scanned, cleared);
     }
 
     private static Block supportBlock(Location location, boolean replacingBlockHolder) {

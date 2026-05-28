@@ -64,6 +64,7 @@ public final class OpenVariantTransformer {
      */
     public void forgetState(Location location) {
         BlockCoord key = BlockCoord.of(location);
+        Log.debug(LOG_TAG, "forgetState at {}: clearing tracked state without touching entity.", location);
         state.forget(key);
         state.removeLiveEntity(key);
     }
@@ -74,11 +75,16 @@ public final class OpenVariantTransformer {
      */
     public void forceRemove(Location location) {
         BlockCoord key = BlockCoord.of(location);
+        Log.debug(LOG_TAG, "forceRemove at {}.", location);
         state.forget(key);
 
         Entity liveEntity = state.removeLiveEntity(key);
         if (liveEntity != null && liveEntity.isValid()) {
+            Log.debug(LOG_TAG, "forceRemove: removing live open-variant entity {}.", liveEntity);
             OpenVariantPlacement.removeFurnitureEntity(liveEntity);
+        } else {
+            Log.debug(LOG_TAG, "forceRemove: no live entity to remove (liveEntity={}, valid={}).",
+                    liveEntity, liveEntity != null && liveEntity.isValid());
         }
     }
 
