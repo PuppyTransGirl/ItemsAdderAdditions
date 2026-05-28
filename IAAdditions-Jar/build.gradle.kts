@@ -70,6 +70,9 @@ tasks {
         )
         systemProperty("com.mojang.eula.agree", rootProject.findProperty("com.mojang.eula.agree") ?: true)
         jvmArgs("-Xmx4096M", "-Xms4096M")
+        javaLauncher.set(project.javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(25))
+        })
         downloadPlugins {
             modrinth("PlaceholderAPI", libs.versions.placeholderapi.get())
         }
