@@ -46,6 +46,7 @@ public enum RuntimeTrigger {
     SHOT_CROSSBOW,
     STARTED_RIDING,
     HELD_ITEM,
+    TICK,
     IMPOSSIBLE;
 
     @Nullable

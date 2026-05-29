@@ -297,7 +297,7 @@ public final class AdvancementLoader {
                     normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case FALL_FROM_HEIGHT -> parseFallFromHeight(sec);
-            case SLEPT_IN_BED, USED_TOTEM, USED_ENDER_EYE, IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
+            case SLEPT_IN_BED, USED_TOTEM, USED_ENDER_EYE, TICK, IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
         };
     }
 

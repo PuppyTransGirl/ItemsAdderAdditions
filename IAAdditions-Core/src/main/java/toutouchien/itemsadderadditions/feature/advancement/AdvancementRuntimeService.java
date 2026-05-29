@@ -63,6 +63,7 @@ public final class AdvancementRuntimeService {
                 new ShotCrossbowTriggerHandler(registry),
                 new StartedRidingTriggerHandler(registry),
                 new HeldItemTriggerHandler(registry),
+                new TickTriggerHandler(registry),
                 new AdvancementCompletionListener(registry),
                 new AdvancementPlayerJoinListener(registry, plugin)
         );
