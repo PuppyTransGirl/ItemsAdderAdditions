@@ -48,7 +48,7 @@ class MapDecorationsComponentTest {
                   rotation: 90.0
                 """), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.FILLED_MAP), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.FILLED_MAP), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.MAP_DECORATIONS));
     }
 

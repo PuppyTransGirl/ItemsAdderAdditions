@@ -42,7 +42,7 @@ class SuspiciousStewEffectsComponentTest {
                 sec(Map.of("type", "minecraft:speed", "duration", 100)),
                 sec(Map.of("type", "night_vision"))), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.SUSPICIOUS_STEW), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.SUSPICIOUS_STEW), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS));
     }
 

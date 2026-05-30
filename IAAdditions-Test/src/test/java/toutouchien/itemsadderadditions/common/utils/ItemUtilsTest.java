@@ -27,7 +27,7 @@ class ItemUtilsTest {
     }
 
     private static ItemStack diamond(int amount) {
-        return new ItemStack(Material.DIAMOND, amount);
+        return ItemStack.of(Material.DIAMOND, amount);
     }
 
     private static int countDiamonds(PlayerMock p) {
@@ -87,7 +87,7 @@ class ItemUtilsTest {
     @Test
     void nonMatchingItemsNotTouched() {
         player.getInventory().addItem(diamond(5));
-        player.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, 5));
+        player.getInventory().addItem(ItemStack.of(Material.GOLD_INGOT, 5));
         ItemUtils.removeItemsFromInventory(player, diamond(1), 5);
 
         // diamonds gone, gold ingots untouched

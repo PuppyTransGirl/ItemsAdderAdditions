@@ -37,7 +37,7 @@ class MapIdComponentTest {
         MapIdComponent component = new MapIdComponent();
         assertTrue(component.configure(42, "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.FILLED_MAP), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.FILLED_MAP), "test:item");
         assertEquals(MapId.mapId(42), stack.getData(DataComponentTypes.MAP_ID));
     }
 }

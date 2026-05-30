@@ -101,7 +101,7 @@ class ActionExecutorTest {
         action.run(ActionContext.create(player, TriggerType.ITEM_INTERACT).build());
 
         assertEquals(1, CountingAction.executions);
-        assertEquals(List.of(player), CountingAction.runTargets);
+        assertEquals(CountingAction.runTargets, List.of(player));
     }
 
     @Test

@@ -36,7 +36,7 @@ class BundleContentsComponentTest {
         BundleContentsComponent component = new BundleContentsComponent();
         assertTrue(component.configure(List.of("stone", "minecraft:dirt"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.BUNDLE), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.BUNDLE), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.BUNDLE_CONTENTS));
     }
 

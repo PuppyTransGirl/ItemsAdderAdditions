@@ -25,7 +25,7 @@ class OminousBottleAmplifierComponentTest {
     }
 
     private static ItemStack bottle() {
-        return new ItemStack(Material.OMINOUS_BOTTLE);
+        return ItemStack.of(Material.OMINOUS_BOTTLE);
     }
 
     @ParameterizedTest

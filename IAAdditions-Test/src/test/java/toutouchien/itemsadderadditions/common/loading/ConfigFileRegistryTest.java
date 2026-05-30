@@ -60,7 +60,7 @@ class ConfigFileRegistryTest {
         assertEquals(1, registry.totalFilesScanned());
         assertEquals(1, registry.totalFilesTagged());
         assertEquals(1, registry.fileCount(ConfigFileCategory.CAMPFIRE_RECIPES));
-        assertTrue(registry.getFiles(ConfigFileCategory.CAMPFIRE_RECIPES).getFirst().file().getName().equals("recipes.yml"));
+        assertEquals("recipes.yml", registry.getFiles(ConfigFileCategory.CAMPFIRE_RECIPES).getFirst().file().getName());
     }
 
     @Test

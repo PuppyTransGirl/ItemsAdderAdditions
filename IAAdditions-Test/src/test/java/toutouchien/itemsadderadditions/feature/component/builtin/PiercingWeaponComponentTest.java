@@ -48,7 +48,7 @@ class PiercingWeaponComponentTest {
         PiercingWeaponComponent component = new PiercingWeaponComponent();
         assertTrue(component.configure(new YamlConfiguration(), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.PIERCING_WEAPON));
     }
 
@@ -62,7 +62,7 @@ class PiercingWeaponComponentTest {
                 hit_sound: entity.arrow.hit
                 """), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.PIERCING_WEAPON));
     }
 }

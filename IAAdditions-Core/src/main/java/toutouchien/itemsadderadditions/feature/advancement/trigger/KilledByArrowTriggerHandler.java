@@ -21,7 +21,7 @@ public final class KilledByArrowTriggerHandler extends AbstractTriggerHandler {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
-        Player player = (Player) event.getEntity();
+        Player player = event.getEntity();
         EntityDamageEvent lastDamage = player.getLastDamageCause();
         if (!(lastDamage instanceof EntityDamageByEntityEvent damageByEntity)) return;
         if (!(damageByEntity.getDamager() instanceof AbstractArrow arrow)) return;

@@ -35,7 +35,7 @@ class ProfileComponentTest {
     }
 
     private static ItemStack head() {
-        return new ItemStack(Material.PLAYER_HEAD);
+        return ItemStack.of(Material.PLAYER_HEAD);
     }
 
     @Test

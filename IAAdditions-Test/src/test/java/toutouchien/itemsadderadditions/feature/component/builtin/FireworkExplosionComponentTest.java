@@ -64,7 +64,7 @@ class FireworkExplosionComponentTest {
         FireworkExplosionComponent component = new FireworkExplosionComponent();
         assertTrue(component.configure(yamlOf("type: BURST\ncolors:\n  - '#123456'"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.FIREWORK_STAR), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.FIREWORK_STAR), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.FIREWORK_EXPLOSION));
     }
 }

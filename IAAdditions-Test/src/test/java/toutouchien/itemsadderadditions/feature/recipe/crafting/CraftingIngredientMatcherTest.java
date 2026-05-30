@@ -27,7 +27,7 @@ class CraftingIngredientMatcherTest {
     }
 
     private static ParsedIngredient vanillaIngredient(Material mat) {
-        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(mat));
+        RecipeChoice choice = new RecipeChoice.ExactChoice(ItemStack.of(mat));
         return new ParsedIngredient(choice, 1, 0, null);
     }
 
@@ -38,12 +38,12 @@ class CraftingIngredientMatcherTest {
 
     @Test
     void isAir_airItem_returnsTrue() {
-        assertTrue(CraftingIngredientMatcher.isAir(new ItemStack(Material.AIR)));
+        assertTrue(CraftingIngredientMatcher.isAir(ItemStack.of(Material.AIR)));
     }
 
     @Test
     void isAir_realItem_returnsFalse() {
-        assertFalse(CraftingIngredientMatcher.isAir(new ItemStack(Material.STONE)));
+        assertFalse(CraftingIngredientMatcher.isAir(ItemStack.of(Material.STONE)));
     }
 
     @Test
@@ -53,7 +53,7 @@ class CraftingIngredientMatcherTest {
 
     @Test
     void itemInfo_item_containsMaterialAndAmount() {
-        String info = CraftingIngredientMatcher.itemInfo(new ItemStack(Material.STONE, 5));
+        String info = CraftingIngredientMatcher.itemInfo(ItemStack.of(Material.STONE, 5));
         assertTrue(info.contains("STONE"), "Expected STONE in: " + info);
         assertTrue(info.contains("5"), "Expected amount in: " + info);
     }
@@ -61,19 +61,19 @@ class CraftingIngredientMatcherTest {
     @Test
     void remainingDurability_undamageableItem_returnsMaxInt() {
         assertEquals(Integer.MAX_VALUE, CraftingIngredientMatcher.remainingDurability(
-                new ItemStack(Material.STONE)));
+                ItemStack.of(Material.STONE)));
     }
 
     @Test
     void remainingDurability_freshTool_returnsFullDurability() {
-        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        ItemStack sword = ItemStack.of(Material.DIAMOND_SWORD);
         int full = Material.DIAMOND_SWORD.getMaxDurability();
         assertEquals(full, CraftingIngredientMatcher.remainingDurability(sword));
     }
 
     @Test
     void remainingDurability_damagedTool_returnsReducedValue() {
-        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        ItemStack sword = ItemStack.of(Material.DIAMOND_SWORD);
         Damageable meta = (Damageable) sword.getItemMeta();
         meta.setDamage(10);
         sword.setItemMeta(meta);
@@ -84,7 +84,7 @@ class CraftingIngredientMatcherTest {
 
     @Test
     void applyDamage_belowMaxDurability_returnsFalseAndAppliesDamage() {
-        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        ItemStack sword = ItemStack.of(Material.DIAMOND_SWORD);
         boolean broken = CraftingIngredientMatcher.applyDamage(sword, 10);
 
         assertFalse(broken);
@@ -94,7 +94,7 @@ class CraftingIngredientMatcherTest {
 
     @Test
     void applyDamage_exceedsMaxDurability_returnsTrue() {
-        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        ItemStack sword = ItemStack.of(Material.DIAMOND_SWORD);
         int maxDurability = Material.DIAMOND_SWORD.getMaxDurability();
 
         boolean broken = CraftingIngredientMatcher.applyDamage(sword, maxDurability + 1);
@@ -104,7 +104,7 @@ class CraftingIngredientMatcherTest {
 
     @Test
     void applyDamage_exactlyMaxDurability_returnsTrue() {
-        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        ItemStack sword = ItemStack.of(Material.DIAMOND_SWORD);
         int maxDurability = Material.DIAMOND_SWORD.getMaxDurability();
 
         boolean broken = CraftingIngredientMatcher.applyDamage(sword, maxDurability);
@@ -115,45 +115,45 @@ class CraftingIngredientMatcherTest {
     @Test
     void matches_sameMaterial_returnsTrue() {
         ParsedIngredient ingredient = vanillaIngredient(Material.STONE);
-        assertTrue(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.STONE)));
+        assertTrue(CraftingIngredientMatcher.matches(ingredient, ItemStack.of(Material.STONE)));
     }
 
     @Test
     void matches_differentMaterial_returnsFalse() {
         ParsedIngredient ingredient = vanillaIngredient(Material.STONE);
-        assertFalse(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.DIRT)));
+        assertFalse(CraftingIngredientMatcher.matches(ingredient, ItemStack.of(Material.DIRT)));
     }
 
     @Test
     void matches_ingredientWithRequiredAmountTwo_matchesSlotOfAny() {
         // requiredAmount is NOT checked by matches() itself - only material identity is tested
-        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
+        RecipeChoice choice = new RecipeChoice.ExactChoice(ItemStack.of(Material.STONE));
         ParsedIngredient ingredient = new ParsedIngredient(choice, 2, 0, null);
 
-        assertTrue(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.STONE, 1)));
+        assertTrue(CraftingIngredientMatcher.matches(ingredient, ItemStack.of(Material.STONE, 1)));
     }
 
     @Test
     void matches_ignoreDurability_undamagedItem_returnsTrue() {
-        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
+        RecipeChoice choice = new RecipeChoice.ExactChoice(ItemStack.of(Material.STONE));
         ParsedIngredient ingredient = new ParsedIngredient(
                 choice, choice, 1, 0, null, true, null, null, 0);
-        assertTrue(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.STONE)));
+        assertTrue(CraftingIngredientMatcher.matches(ingredient, ItemStack.of(Material.STONE)));
     }
 
     @Test
     void matches_ignoreDurability_differentMaterial_returnsFalse() {
-        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
+        RecipeChoice choice = new RecipeChoice.ExactChoice(ItemStack.of(Material.STONE));
         ParsedIngredient ingredient = new ParsedIngredient(
                 choice, choice, 1, 0, null, true, null, null, 0);
-        assertFalse(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.DIRT)));
+        assertFalse(CraftingIngredientMatcher.matches(ingredient, ItemStack.of(Material.DIRT)));
     }
 
     @Test
     void matches_ignoreDurabilityFalse_exactMatch_returnsTrue() {
-        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
+        RecipeChoice choice = new RecipeChoice.ExactChoice(ItemStack.of(Material.STONE));
         ParsedIngredient ingredient = new ParsedIngredient(
                 choice, choice, 1, 0, null, false, null, null, 0);
-        assertTrue(CraftingIngredientMatcher.matches(ingredient, new ItemStack(Material.STONE)));
+        assertTrue(CraftingIngredientMatcher.matches(ingredient, ItemStack.of(Material.STONE)));
     }
 }

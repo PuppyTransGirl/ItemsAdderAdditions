@@ -51,7 +51,7 @@ class MinimumAttackChargeComponentTest {
         MinimumAttackChargeComponent component = new MinimumAttackChargeComponent();
         assertTrue(component.configure(0.25, "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         assertEquals(0.25f, stack.getData(DataComponentTypes.MINIMUM_ATTACK_CHARGE), 0.0001f);
     }
 }

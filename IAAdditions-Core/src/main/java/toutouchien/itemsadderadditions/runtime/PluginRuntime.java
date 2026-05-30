@@ -227,7 +227,7 @@ public final class PluginRuntime {
         this.bStats = new Metrics(plugin, BSTATS_PLUGIN_ID);
         bStats.addCustomChart(new SimplePie("platform", this::detectPlatform));
         bStats.addCustomChart(new SimplePie("default_pack", () -> isUsingDefaultPack() ? "Yes" : "No"));
-        bStats.addCustomChart(new SimplePie("ia_version", () -> itemsAdderVersion()));
+        bStats.addCustomChart(new SimplePie("ia_version", this::itemsAdderVersion));
     }
 
     private String detectPlatform() {

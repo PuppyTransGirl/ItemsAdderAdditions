@@ -24,7 +24,7 @@ class DyedColorComponentTest {
     }
 
     private static ItemStack armor() {
-        return new ItemStack(Material.LEATHER_CHESTPLATE);
+        return ItemStack.of(Material.LEATHER_CHESTPLATE);
     }
 
     @Test

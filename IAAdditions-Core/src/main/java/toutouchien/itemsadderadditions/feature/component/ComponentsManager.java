@@ -63,7 +63,7 @@ public final class ComponentsManager implements ReloadableContentSystem {
 
     /**
      * Registers the item modifier with ItemsAdder. Must be called once on plugin enable.
-     * The modifier itself is lightweight — it delegates to pre-built bindings.
+     * The modifier itself is lightweight - it delegates to pre-built bindings.
      */
     public void registerModifier() {
         ItemsAdder.Advanced.injectItemModifier(ItemsAdderAdditions.instance(), this::applyComponents);
@@ -116,7 +116,7 @@ public final class ComponentsManager implements ReloadableContentSystem {
             if (prototype == null) continue;
 
             if (!prototype.isSupportedOnCurrentVersion()) {
-                Log.warn(NAME, "Component '{}' on '{}' requires a newer Minecraft version — skipping.", key, namespacedId);
+                Log.warn(NAME, "Component '{}' on '{}' requires a newer Minecraft version - skipping.", key, namespacedId);
                 continue;
             }
 

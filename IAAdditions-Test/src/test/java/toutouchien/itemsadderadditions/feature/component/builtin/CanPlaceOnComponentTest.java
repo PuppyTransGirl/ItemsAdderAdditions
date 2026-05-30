@@ -33,7 +33,7 @@ class CanPlaceOnComponentTest {
         CanPlaceOnComponent component = new CanPlaceOnComponent();
         assertTrue(component.configure(List.of("minecraft:stone"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.TORCH), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.TORCH), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.CAN_PLACE_ON));
     }
 

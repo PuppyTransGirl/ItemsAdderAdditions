@@ -29,13 +29,13 @@ class CraftingPredicateEngineTest {
     }
 
     private static CraftingRecipeData recipe(Material mat, int required) {
-        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(mat));
+        RecipeChoice choice = new RecipeChoice.ExactChoice(ItemStack.of(mat));
         ParsedIngredient ingredient = new ParsedIngredient(choice, required, 0, null);
         return new CraftingRecipeData(
                 new NamespacedKey("test", "recipe"),
                 false, null,
                 Map.of('A', ingredient),
-                new ItemStack(Material.STONE),
+                ItemStack.of(Material.STONE),
                 null
         );
     }
@@ -54,10 +54,10 @@ class CraftingPredicateEngineTest {
 
     @Test
     void toNineSlot_fourElements_expandsToNineCorrectly() {
-        ItemStack a = new ItemStack(Material.STONE);
-        ItemStack b = new ItemStack(Material.DIRT);
-        ItemStack c = new ItemStack(Material.OAK_LOG);
-        ItemStack d = new ItemStack(Material.SAND);
+        ItemStack a = ItemStack.of(Material.STONE);
+        ItemStack b = ItemStack.of(Material.DIRT);
+        ItemStack c = ItemStack.of(Material.OAK_LOG);
+        ItemStack d = ItemStack.of(Material.SAND);
         ItemStack[] four = {a, b, c, d};
 
         ItemStack[] nine = CraftingPredicateEngine.toNineSlot(four);
@@ -89,12 +89,12 @@ class CraftingPredicateEngineTest {
 
     @Test
     void isAir_airItem_returnsTrue() {
-        assertTrue(CraftingPredicateEngine.isAir(new ItemStack(Material.AIR)));
+        assertTrue(CraftingPredicateEngine.isAir(ItemStack.of(Material.AIR)));
     }
 
     @Test
     void isAir_nonAirItem_returnsFalse() {
-        assertFalse(CraftingPredicateEngine.isAir(new ItemStack(Material.STONE)));
+        assertFalse(CraftingPredicateEngine.isAir(ItemStack.of(Material.STONE)));
     }
 
     @Test
@@ -104,7 +104,7 @@ class CraftingPredicateEngineTest {
 
     @Test
     void itemInfo_item_containsMaterialAndAmount() {
-        String info = CraftingPredicateEngine.itemInfo(new ItemStack(Material.STONE, 3));
+        String info = CraftingPredicateEngine.itemInfo(ItemStack.of(Material.STONE, 3));
         assertTrue(info.contains("STONE"), "Expected STONE in: " + info);
         assertTrue(info.contains("3"), "Expected amount in: " + info);
     }
@@ -113,28 +113,28 @@ class CraftingPredicateEngineTest {
     void ingredientsSatisfied_exactAmount_returnsTrue() {
         CraftingRecipeData data = recipe(Material.STONE, 2);
         assertTrue(CraftingPredicateEngine.ingredientsSatisfied(data,
-                matrix(new ItemStack(Material.STONE, 2))));
+                matrix(ItemStack.of(Material.STONE, 2))));
     }
 
     @Test
     void ingredientsSatisfied_moreThanRequired_returnsTrue() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
         assertTrue(CraftingPredicateEngine.ingredientsSatisfied(data,
-                matrix(new ItemStack(Material.STONE, 5))));
+                matrix(ItemStack.of(Material.STONE, 5))));
     }
 
     @Test
     void ingredientsSatisfied_amountSummedAcrossSlots_returnsTrue() {
         CraftingRecipeData data = recipe(Material.STONE, 3);
         assertTrue(CraftingPredicateEngine.ingredientsSatisfied(data,
-                matrix(new ItemStack(Material.STONE, 2), new ItemStack(Material.STONE, 1))));
+                matrix(ItemStack.of(Material.STONE, 2), ItemStack.of(Material.STONE, 1))));
     }
 
     @Test
     void ingredientsSatisfied_insufficientAmount_returnsFalse() {
         CraftingRecipeData data = recipe(Material.STONE, 3);
         assertFalse(CraftingPredicateEngine.ingredientsSatisfied(data,
-                matrix(new ItemStack(Material.STONE, 2))));
+                matrix(ItemStack.of(Material.STONE, 2))));
     }
 
     @Test
@@ -147,46 +147,46 @@ class CraftingPredicateEngineTest {
     void ingredientsSatisfied_wrongMaterial_returnsFalse() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
         assertFalse(CraftingPredicateEngine.ingredientsSatisfied(data,
-                matrix(new ItemStack(Material.DIRT, 3))));
+                matrix(ItemStack.of(Material.DIRT, 3))));
     }
 
     @Test
     void findIngredient_matchingMaterial_returnsIngredient() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
-        assertNotNull(CraftingPredicateEngine.findIngredient(data, new ItemStack(Material.STONE)));
+        assertNotNull(CraftingPredicateEngine.findIngredient(data, ItemStack.of(Material.STONE)));
     }
 
     @Test
     void findIngredient_wrongMaterial_returnsNull() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
-        assertNull(CraftingPredicateEngine.findIngredient(data, new ItemStack(Material.DIRT)));
+        assertNull(CraftingPredicateEngine.findIngredient(data, ItemStack.of(Material.DIRT)));
     }
 
     @Test
     void canCraftAgain_enoughItemsForAnotherCraft_returnsTrue() {
         CraftingRecipeData data = recipe(Material.STONE, 2);
         assertTrue(CraftingPredicateEngine.canCraftAgain(data,
-                matrix(new ItemStack(Material.STONE, 4))));
+                matrix(ItemStack.of(Material.STONE, 4))));
     }
 
     @Test
     void canCraftAgain_exactlyEnoughForAnotherCraft_returnsTrue() {
         CraftingRecipeData data = recipe(Material.STONE, 2);
         assertTrue(CraftingPredicateEngine.canCraftAgain(data,
-                matrix(new ItemStack(Material.STONE, 2))));
+                matrix(ItemStack.of(Material.STONE, 2))));
     }
 
     @Test
     void canCraftAgain_notEnoughForAnotherCraft_returnsFalse() {
         CraftingRecipeData data = recipe(Material.STONE, 2);
         assertFalse(CraftingPredicateEngine.canCraftAgain(data,
-                matrix(new ItemStack(Material.STONE, 1))));
+                matrix(ItemStack.of(Material.STONE, 1))));
     }
 
     @Test
     void applyPredicatesOnce_partialConsumption_reducesSlotAmount() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
-        ItemStack[] m = matrix(new ItemStack(Material.STONE, 3));
+        ItemStack[] m = matrix(ItemStack.of(Material.STONE, 3));
         CraftingPredicateEngine.applyPredicatesOnce(data, m);
 
         assertNotNull(m[0]);
@@ -196,7 +196,7 @@ class CraftingPredicateEngineTest {
     @Test
     void applyPredicatesOnce_exactConsumption_setsSlotToNull() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
-        ItemStack[] m = matrix(new ItemStack(Material.STONE, 1));
+        ItemStack[] m = matrix(ItemStack.of(Material.STONE, 1));
         CraftingPredicateEngine.applyPredicatesOnce(data, m);
 
         assertNull(m[0]);
@@ -205,8 +205,8 @@ class CraftingPredicateEngineTest {
     @Test
     void applyPredicatesOnce_unrelatedSlots_untouched() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
-        ItemStack dirt = new ItemStack(Material.DIRT, 5);
-        ItemStack[] m = matrix(new ItemStack(Material.STONE, 1), dirt);
+        ItemStack dirt = ItemStack.of(Material.DIRT, 5);
+        ItemStack[] m = matrix(ItemStack.of(Material.STONE, 1), dirt);
         CraftingPredicateEngine.applyPredicatesOnce(data, m);
 
         assertSame(dirt, m[1]);

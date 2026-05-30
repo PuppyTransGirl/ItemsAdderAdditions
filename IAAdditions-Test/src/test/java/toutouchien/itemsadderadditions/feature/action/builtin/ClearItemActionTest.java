@@ -79,7 +79,7 @@ class ClearItemActionTest {
 
     @Test
     void run_removesVanillaItemFromInventory() {
-        player.getInventory().addItem(new ItemStack(Material.STONE, 5));
+        player.getInventory().addItem(ItemStack.of(Material.STONE, 5));
 
         ClearItemAction action = new ClearItemAction();
         action.configure(yamlOf("item: minecraft:stone\namount: 3"), "test:item");
@@ -92,7 +92,7 @@ class ClearItemActionTest {
 
     @Test
     void run_removesEntireStack_whenAmountExceedsInventory() {
-        player.getInventory().addItem(new ItemStack(Material.STONE, 2));
+        player.getInventory().addItem(ItemStack.of(Material.STONE, 2));
 
         ClearItemAction action = new ClearItemAction();
         action.configure(yamlOf("item: minecraft:stone\namount: 10"), "test:item");
@@ -105,7 +105,7 @@ class ClearItemActionTest {
 
     @Test
     void run_defaultAmountIsOne() {
-        player.getInventory().addItem(new ItemStack(Material.STONE, 5));
+        player.getInventory().addItem(ItemStack.of(Material.STONE, 5));
 
         ClearItemAction action = new ClearItemAction();
         action.configure(yamlOf("item: minecraft:stone"), "test:item");
@@ -118,8 +118,8 @@ class ClearItemActionTest {
 
     @Test
     void run_doesNotTouchOtherMaterials() {
-        player.getInventory().addItem(new ItemStack(Material.STONE, 5));
-        player.getInventory().addItem(new ItemStack(Material.DIAMOND, 5));
+        player.getInventory().addItem(ItemStack.of(Material.STONE, 5));
+        player.getInventory().addItem(ItemStack.of(Material.DIAMOND, 5));
 
         ClearItemAction action = new ClearItemAction();
         action.configure(yamlOf("item: minecraft:stone\namount: 5"), "test:item");

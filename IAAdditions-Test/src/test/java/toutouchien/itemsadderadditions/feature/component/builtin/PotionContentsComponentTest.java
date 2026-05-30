@@ -31,7 +31,7 @@ class PotionContentsComponentTest {
     }
 
     private static ItemStack potion() {
-        return new ItemStack(Material.POTION);
+        return ItemStack.of(Material.POTION);
     }
 
     @Test

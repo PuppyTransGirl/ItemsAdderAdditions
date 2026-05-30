@@ -191,6 +191,6 @@ class IngredientResolverTest {
         ParsedIngredient ingredient = IngredientResolver.resolve("ns", cfg, "S", "recipe");
 
         assertNotNull(ingredient);
-        assertTrue(ingredient.choice().test(new ItemStack(Material.STONE)));
+        assertTrue(ingredient.choice().test(ItemStack.of(Material.STONE)));
     }
 }

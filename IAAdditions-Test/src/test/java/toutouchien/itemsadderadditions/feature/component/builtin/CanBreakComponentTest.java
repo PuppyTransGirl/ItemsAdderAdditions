@@ -24,7 +24,7 @@ class CanBreakComponentTest {
     }
 
     private static ItemStack pick() {
-        return new ItemStack(Material.DIAMOND_PICKAXE);
+        return ItemStack.of(Material.DIAMOND_PICKAXE);
     }
 
     @Test

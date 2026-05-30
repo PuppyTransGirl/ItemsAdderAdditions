@@ -50,7 +50,7 @@ class ActionContextTest {
 
     @Test
     void heldItemIsPreserved() {
-        ItemStack item = new ItemStack(Material.DIAMOND_SWORD);
+        ItemStack item = ItemStack.of(Material.DIAMOND_SWORD);
         ActionContext ctx = ActionContext.create(player, TriggerType.ITEM_INTERACT)
                 .heldItem(item)
                 .build();

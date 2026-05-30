@@ -25,17 +25,26 @@ record IntRange(@Nullable Integer min, @Nullable Integer max) {
     }
 
     public static IntRange parseValue(@Nullable Object raw) {
-        if (raw == null) return ANY;
-        if (raw instanceof Number number) {
-            int exact = number.intValue();
-            return new IntRange(exact, exact);
-        }
-        if (raw instanceof String stringValue && !stringValue.isBlank()) {
-            try {
-                int exact = Integer.parseInt(stringValue.trim());
-                return new IntRange(exact, exact);
-            } catch (NumberFormatException ignored) {
+        switch (raw) {
+            case null -> {
                 return ANY;
+            }
+
+            case Number number -> {
+                int exact = number.intValue();
+                return new IntRange(exact, exact);
+            }
+
+            case String stringValue when !stringValue.isBlank() -> {
+                try {
+                    int exact = Integer.parseInt(stringValue.trim());
+                    return new IntRange(exact, exact);
+                } catch (NumberFormatException ignored) {
+                    return ANY;
+                }
+            }
+
+            default -> {
             }
         }
         return new IntRange(intObject(value(raw, "min")), intObject(value(raw, "max")));
@@ -56,17 +65,26 @@ record DoubleRange(@Nullable Double min, @Nullable Double max) {
     }
 
     public static DoubleRange parseValue(@Nullable Object raw) {
-        if (raw == null) return ANY;
-        if (raw instanceof Number number) {
-            double exact = number.doubleValue();
-            return new DoubleRange(exact, exact);
-        }
-        if (raw instanceof String stringValue && !stringValue.isBlank()) {
-            try {
-                double exact = Double.parseDouble(stringValue.trim());
-                return new DoubleRange(exact, exact);
-            } catch (NumberFormatException ignored) {
+        switch (raw) {
+            case null -> {
                 return ANY;
+            }
+
+            case Number number -> {
+                double exact = number.doubleValue();
+                return new DoubleRange(exact, exact);
+            }
+
+            case String stringValue when !stringValue.isBlank() -> {
+                try {
+                    double exact = Double.parseDouble(stringValue.trim());
+                    return new DoubleRange(exact, exact);
+                } catch (NumberFormatException ignored) {
+                    return ANY;
+                }
+            }
+
+            default -> {
             }
         }
         return new DoubleRange(doubleObject(value(raw, "min")), doubleObject(value(raw, "max")));

@@ -169,7 +169,7 @@ public final class OpenVariantTransformer {
         }
 
         ItemStack originalItem = display.getItemStack();
-        state.savedItem(key, originalItem == null ? new ItemStack(Material.AIR) : originalItem.clone());
+        state.savedItem(key, originalItem == null ? ItemStack.of(Material.AIR) : originalItem.clone());
         display.setItemStack(openStack.getItemStack());
         state.liveEntity(key, display);
         return display;

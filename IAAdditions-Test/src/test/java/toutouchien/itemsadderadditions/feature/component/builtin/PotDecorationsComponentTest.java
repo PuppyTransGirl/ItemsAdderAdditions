@@ -42,7 +42,7 @@ class PotDecorationsComponentTest {
         PotDecorationsComponent component = new PotDecorationsComponent();
         assertTrue(component.configure(yamlOf("back: brick\nfront: arms_up_pottery_sherd"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DECORATED_POT), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DECORATED_POT), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.POT_DECORATIONS));
     }
 

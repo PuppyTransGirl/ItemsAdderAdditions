@@ -23,7 +23,7 @@ class BaseColorComponentTest {
     }
 
     private static ItemStack shield() {
-        return new ItemStack(Material.SHIELD);
+        return ItemStack.of(Material.SHIELD);
     }
 
     @Test

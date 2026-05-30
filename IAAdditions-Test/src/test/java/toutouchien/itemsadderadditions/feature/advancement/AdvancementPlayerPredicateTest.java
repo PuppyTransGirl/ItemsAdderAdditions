@@ -71,7 +71,7 @@ class AdvancementPlayerPredicateTest {
     @Test
     void entityFields_typeFlagsEquipmentAndEffects_mustAllMatch() {
         player.setSneaking(true);
-        player.getInventory().setItemInMainHand(new ItemStack(Material.DIAMOND_SWORD));
+        player.getInventory().setItemInMainHand(ItemStack.of(Material.DIAMOND_SWORD));
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 1, false, true));
 
         AdvancementPlayerPredicate predicate = predicate("""
@@ -156,8 +156,8 @@ class AdvancementPlayerPredicateTest {
 
     @Test
     void slotsPredicate_namedAndInventoryRanges_matchInventoryContents() {
-        player.getInventory().setItemInMainHand(new ItemStack(Material.DIAMOND_SWORD));
-        player.getInventory().setItem(9, new ItemStack(Material.APPLE, 2));
+        player.getInventory().setItemInMainHand(ItemStack.of(Material.DIAMOND_SWORD));
+        player.getInventory().setItem(9, ItemStack.of(Material.APPLE, 2));
 
         AdvancementPlayerPredicate predicate = predicate("""
                 slots:
@@ -170,7 +170,7 @@ class AdvancementPlayerPredicateTest {
 
         assertTrue(predicate.matches(player));
 
-        player.getInventory().setItem(9, new ItemStack(Material.CARROT, 2));
+        player.getInventory().setItem(9, ItemStack.of(Material.CARROT, 2));
         assertFalse(predicate.matches(player));
     }
 

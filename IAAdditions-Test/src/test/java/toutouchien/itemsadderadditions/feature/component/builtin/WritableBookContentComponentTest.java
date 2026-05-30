@@ -33,7 +33,7 @@ class WritableBookContentComponentTest {
         WritableBookContentComponent component = new WritableBookContentComponent();
         assertTrue(component.configure(List.of("Page one", "Page two"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.WRITABLE_BOOK), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.WRITABLE_BOOK), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.WRITABLE_BOOK_CONTENT));
     }
 

@@ -48,7 +48,7 @@ class IntangibleProjectileComponentTest {
         IntangibleProjectileComponent component = new IntangibleProjectileComponent();
         component.configure(true, "test:item");
 
-        ItemStack stack = component.apply(new ItemStack(Material.SNOWBALL), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.SNOWBALL), "test:item");
         assertTrue(stack.hasData(DataComponentTypes.INTANGIBLE_PROJECTILE));
     }
 }

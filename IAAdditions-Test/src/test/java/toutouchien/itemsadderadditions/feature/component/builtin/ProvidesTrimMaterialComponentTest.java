@@ -41,7 +41,7 @@ class ProvidesTrimMaterialComponentTest {
         ProvidesTrimMaterialComponent component = new ProvidesTrimMaterialComponent();
         assertTrue(component.configure("gold", "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_CHESTPLATE), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_CHESTPLATE), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.PROVIDES_TRIM_MATERIAL));
     }
 }

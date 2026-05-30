@@ -24,7 +24,7 @@ class MapColorComponentTest {
     }
 
     private static ItemStack map() {
-        return new ItemStack(Material.FILLED_MAP);
+        return ItemStack.of(Material.FILLED_MAP);
     }
 
     @Test

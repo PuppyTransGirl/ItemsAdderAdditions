@@ -29,12 +29,12 @@ class CraftingRecipeDataTest {
     }
 
     private static ParsedIngredient vanilla(Material mat) {
-        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(mat));
+        RecipeChoice choice = new RecipeChoice.ExactChoice(ItemStack.of(mat));
         return new ParsedIngredient(choice, 1, 0, null);
     }
 
     private static ParsedIngredient withPredicate(Material mat) {
-        RecipeChoice choice = new RecipeChoice.ExactChoice(new ItemStack(mat));
+        RecipeChoice choice = new RecipeChoice.ExactChoice(ItemStack.of(mat));
         return new ParsedIngredient(choice, 2, 0, null);
     }
 
@@ -43,7 +43,7 @@ class CraftingRecipeDataTest {
                 new NamespacedKey("test", "recipe"),
                 false, null,
                 ingredients,
-                new ItemStack(Material.STONE),
+                ItemStack.of(Material.STONE),
                 null
         );
     }

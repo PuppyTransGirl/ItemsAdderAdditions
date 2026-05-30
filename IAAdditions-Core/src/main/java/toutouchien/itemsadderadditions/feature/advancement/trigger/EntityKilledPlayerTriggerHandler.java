@@ -21,7 +21,7 @@ public final class EntityKilledPlayerTriggerHandler extends AbstractTriggerHandl
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
-        Player player = (Player) event.getEntity();
+        Player player = event.getEntity();
         EntityDamageEvent lastDamage = player.getLastDamageCause();
         if (!(lastDamage instanceof EntityDamageByEntityEvent damageByEntity)) return;
         Entity damager = damageByEntity.getDamager();

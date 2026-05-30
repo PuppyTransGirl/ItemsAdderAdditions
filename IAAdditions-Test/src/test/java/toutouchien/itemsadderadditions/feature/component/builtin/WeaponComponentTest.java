@@ -43,7 +43,7 @@ class WeaponComponentTest {
         WeaponComponent component = new WeaponComponent();
         assertTrue(component.configure(new YamlConfiguration(), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.WEAPON));
     }
 
@@ -52,7 +52,7 @@ class WeaponComponentTest {
         WeaponComponent component = new WeaponComponent();
         assertTrue(component.configure(yamlOf("item_damage_per_attack: 3\ndisable_blocking_for_seconds: 2.0"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.WEAPON));
     }
 }

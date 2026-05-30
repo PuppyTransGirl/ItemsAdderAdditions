@@ -42,7 +42,7 @@ class StoredEnchantmentsComponentTest {
         StoredEnchantmentsComponent component = new StoredEnchantmentsComponent();
         assertTrue(component.configure(yamlOf("sharpness: 5\nunbreaking: 3"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.ENCHANTED_BOOK), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.ENCHANTED_BOOK), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.STORED_ENCHANTMENTS));
     }
 

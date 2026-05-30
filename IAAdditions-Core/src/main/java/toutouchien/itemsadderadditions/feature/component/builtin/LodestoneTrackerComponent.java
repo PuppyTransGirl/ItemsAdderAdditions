@@ -51,7 +51,7 @@ public final class LodestoneTrackerComponent extends ComponentExecutor {
         if (worldName != null) {
             World world = Bukkit.getWorld(worldName);
             if (world == null) {
-                Log.warn("Components", "'lodestone_tracker' world '{}' not found for '{}' — applying without location.", worldName, namespacedID);
+                Log.warn("Components", "'lodestone_tracker' world '{}' not found for '{}' - applying without location.", worldName, namespacedID);
             } else {
                 location = new Location(world, x, y, z);
             }

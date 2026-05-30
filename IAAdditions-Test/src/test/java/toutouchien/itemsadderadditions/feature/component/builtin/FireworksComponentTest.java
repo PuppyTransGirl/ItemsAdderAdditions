@@ -67,7 +67,7 @@ class FireworksComponentTest {
         FireworksComponent component = new FireworksComponent();
         assertTrue(component.configure(sec(Map.of("flight_duration", 1)), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.FIREWORK_ROCKET), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.FIREWORK_ROCKET), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.FIREWORKS));
     }
 }

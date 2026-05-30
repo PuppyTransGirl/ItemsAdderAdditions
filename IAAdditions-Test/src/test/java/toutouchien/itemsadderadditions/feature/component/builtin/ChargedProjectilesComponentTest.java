@@ -35,7 +35,7 @@ class ChargedProjectilesComponentTest {
         ChargedProjectilesComponent component = new ChargedProjectilesComponent();
         assertTrue(component.configure(List.of("arrow", "minecraft:firework_rocket"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.CROSSBOW), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.CROSSBOW), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.CHARGED_PROJECTILES));
     }
 

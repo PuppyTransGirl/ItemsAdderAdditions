@@ -42,7 +42,7 @@ class BannerPatternsComponentTest {
                 sec(Map.of("type", "stripe_top", "color", "RED")),
                 sec(Map.of("type", "square_bottom_left", "color", "blue"))), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.WHITE_BANNER), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.WHITE_BANNER), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.BANNER_PATTERNS));
     }
 

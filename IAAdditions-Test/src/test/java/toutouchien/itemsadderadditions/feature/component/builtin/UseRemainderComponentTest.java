@@ -33,7 +33,7 @@ class UseRemainderComponentTest {
         UseRemainderComponent component = new UseRemainderComponent();
         assertTrue(component.configure("glass_bottle", "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.POTION), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.POTION), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.USE_REMAINDER));
     }
 

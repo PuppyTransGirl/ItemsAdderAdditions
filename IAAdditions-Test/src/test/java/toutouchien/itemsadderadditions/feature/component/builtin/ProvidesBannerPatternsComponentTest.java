@@ -40,7 +40,7 @@ class ProvidesBannerPatternsComponentTest {
         ProvidesBannerPatternsComponent component = new ProvidesBannerPatternsComponent();
         assertTrue(component.configure("no_item_required", "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.PAPER), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.PAPER), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.PROVIDES_BANNER_PATTERNS));
     }
 }

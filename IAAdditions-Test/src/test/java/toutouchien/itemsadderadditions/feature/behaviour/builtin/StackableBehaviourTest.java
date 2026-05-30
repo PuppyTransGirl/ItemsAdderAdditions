@@ -62,8 +62,8 @@ class StackableBehaviourTest {
 
         List<Object> steps = steps(behaviour);
         assertEquals(2, steps.size());
-        assertEquals(List.of("ns:bone_meal", "minecraft:stick"), field(steps.get(0), "items"));
-        assertEquals(256, field(steps.get(0), "decrementAmount"));
+        assertEquals(List.of("ns:bone_meal", "minecraft:stick"), field(steps.getFirst(), "items"));
+        assertEquals(256, field(steps.getFirst(), "decrementAmount"));
     }
 
     @Test

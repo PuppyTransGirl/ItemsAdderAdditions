@@ -30,7 +30,7 @@ class ActionEventFiltersTest {
     }
 
     private static PlayerInteractEvent event(PlayerMock player, Action action) {
-        return new PlayerInteractEvent(player, action, new ItemStack(Material.STONE), null, BlockFace.SELF, EquipmentSlot.HAND);
+        return new PlayerInteractEvent(player, action, ItemStack.of(Material.STONE), null, BlockFace.SELF, EquipmentSlot.HAND);
     }
 
     @Test

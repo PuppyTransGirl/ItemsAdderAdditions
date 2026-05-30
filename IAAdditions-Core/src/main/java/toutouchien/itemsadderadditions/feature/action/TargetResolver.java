@@ -55,9 +55,7 @@ public final class TargetResolver {
         Set<Entity> entities = new HashSet<>();
 
         switch (targetMode.toLowerCase()) {
-            case "self" -> {
-                entities.add(context.player());
-            }
+            case "self" -> entities.add(context.player());
 
             case "all" -> {
                 entities.add(context.player());

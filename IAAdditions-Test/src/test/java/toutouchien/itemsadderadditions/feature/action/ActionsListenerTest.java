@@ -43,6 +43,6 @@ class ActionsListenerTest {
     void returnedListIsImmutable() {
         List<Listener> listeners = ActionsListener.createAll();
 
-        assertThrows(UnsupportedOperationException.class, () -> listeners.clear());
+        assertThrows(UnsupportedOperationException.class, listeners::clear);
     }
 }

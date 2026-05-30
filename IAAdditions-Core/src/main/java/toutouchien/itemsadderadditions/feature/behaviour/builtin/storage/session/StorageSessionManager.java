@@ -135,7 +135,7 @@ public final class StorageSessionManager {
     /**
      * Closes any open sessions at {@code location} due to the open-variant furniture entity
      * itself being broken by IA. Unlike {@link #closeSessionsAt}, this does NOT attempt to
-     * remove the open-variant entity — IA already owns that removal via FurnitureBreakEvent.
+     * remove the open-variant entity - IA already owns that removal via FurnitureBreakEvent.
      */
     public void closeSessionsForOpenVariantBreak(Location location) {
         var matchingSessions = sessions.near(location, BREAK_MATCH_DISTANCE_SQUARED);

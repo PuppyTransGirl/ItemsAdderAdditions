@@ -74,7 +74,7 @@ class ReplaceItemActionTest {
 
     @Test
     void run_replacesMainHandItem() {
-        player.getInventory().setItemInMainHand(new ItemStack(Material.STONE));
+        player.getInventory().setItemInMainHand(ItemStack.of(Material.STONE));
 
         ReplaceItemAction action = new ReplaceItemAction();
         action.configure(yamlOf("item: minecraft:diamond"), "test:item");
@@ -87,7 +87,7 @@ class ReplaceItemActionTest {
 
     @Test
     void run_replacesOffHandItem() {
-        player.getInventory().setItemInOffHand(new ItemStack(Material.STONE));
+        player.getInventory().setItemInOffHand(ItemStack.of(Material.STONE));
 
         ReplaceItemAction action = new ReplaceItemAction();
         action.configure(yamlOf("item: minecraft:diamond"), "test:item");
@@ -101,7 +101,7 @@ class ReplaceItemActionTest {
 
     @Test
     void run_unknownItem_doesNotChangeMainHand() {
-        player.getInventory().setItemInMainHand(new ItemStack(Material.STONE));
+        player.getInventory().setItemInMainHand(ItemStack.of(Material.STONE));
 
         ReplaceItemAction action = new ReplaceItemAction();
         // Custom IA item - not in vanilla cache → itemByID returns null → no-op
@@ -115,8 +115,8 @@ class ReplaceItemActionTest {
 
     @Test
     void run_mainhandNotAffectedByOffhandTrigger() {
-        player.getInventory().setItemInMainHand(new ItemStack(Material.STONE));
-        player.getInventory().setItemInOffHand(new ItemStack(Material.GRAVEL));
+        player.getInventory().setItemInMainHand(ItemStack.of(Material.STONE));
+        player.getInventory().setItemInOffHand(ItemStack.of(Material.GRAVEL));
 
         ReplaceItemAction action = new ReplaceItemAction();
         action.configure(yamlOf("item: minecraft:diamond"), "test:item");

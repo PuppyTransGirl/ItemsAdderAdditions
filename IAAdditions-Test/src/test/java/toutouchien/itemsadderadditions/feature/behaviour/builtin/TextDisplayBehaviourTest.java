@@ -79,7 +79,7 @@ class TextDisplayBehaviourTest {
         behaviour.load(new BehaviourHost("ns:item", ItemCategory.ITEM, null));
 
         assertNull(runtime(behaviour));
-        assertSame(behaviour.host().category(), ItemCategory.ITEM);
+        assertSame(ItemCategory.ITEM, behaviour.host().category());
     }
 
     @Test

@@ -35,7 +35,7 @@ class UseCooldownComponentTest {
     }
 
     private static ItemStack sword() {
-        return new ItemStack(Material.DIAMOND_SWORD);
+        return ItemStack.of(Material.DIAMOND_SWORD);
     }
 
     @SuppressWarnings("UnstableApiUsage")

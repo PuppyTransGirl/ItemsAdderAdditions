@@ -29,7 +29,7 @@ class AdvancementSpecBuilderTest {
 
     private static AdvancementDefinition makeRoot(String ns, String id) {
         var display = new AdvancementDisplayDefinition(
-                new ItemStack(Material.STONE), "Root", "desc", "task",
+                ItemStack.of(Material.STONE), "Root", "desc", "task",
                 "minecraft:textures/block/stone.png", false, false, false
         );
         return new AdvancementDefinition(
@@ -40,7 +40,7 @@ class AdvancementSpecBuilderTest {
 
     private static AdvancementDefinition makeChild(String ns, String id, String parentId) {
         var display = new AdvancementDisplayDefinition(
-                new ItemStack(Material.DIAMOND), "Child", "desc", "task",
+                ItemStack.of(Material.DIAMOND), "Child", "desc", "task",
                 null, true, true, false
         );
         var criterion = new AdvancementCriterionDefinition(
@@ -91,7 +91,7 @@ class AdvancementSpecBuilderTest {
     @Test
     void rewards_mappedCorrectly() {
         var display = new AdvancementDisplayDefinition(
-                new ItemStack(Material.STONE), "T", "D", "task", null, true, true, false
+                ItemStack.of(Material.STONE), "T", "D", "task", null, true, true, false
         );
         var rewards = new AdvancementRewardDefinition(
                 50, List.of("minecraft:chests/simple_dungeon"),

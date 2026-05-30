@@ -31,7 +31,7 @@ class DeathProtectionComponentTest {
     }
 
     private static ItemStack totem() {
-        return new ItemStack(Material.TOTEM_OF_UNDYING);
+        return ItemStack.of(Material.TOTEM_OF_UNDYING);
     }
 
     private static YamlConfiguration withEffects(ConfigurationSection... effects) {

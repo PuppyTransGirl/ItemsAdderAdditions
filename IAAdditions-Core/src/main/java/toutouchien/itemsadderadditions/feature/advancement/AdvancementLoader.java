@@ -125,12 +125,12 @@ public final class AdvancementLoader {
             // Try as vanilla material using only the key part
             try {
                 Material mat = Material.matchMaterial(parts[1]);
-                if (mat != null && mat.isItem()) return new ItemStack(mat);
+                if (mat != null && mat.isItem()) return ItemStack.of(mat);
             } catch (Exception ignored) {
             }
         }
         Log.warn(LOG_TAG, "Could not resolve icon '{}' for advancement {}", iconId, advId);
-        return new ItemStack(Material.BARRIER);
+        return ItemStack.of(Material.BARRIER);
     }
 
     private static List<AdvancementCriterionDefinition> parseCriteria(

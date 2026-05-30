@@ -80,7 +80,7 @@ class AdvancementPredicateBuildingBlocksTest {
 
     @Test
     void itemPredicate_matchesItemsCountDurabilityAndSupportedComponents() {
-        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD, 1);
+        ItemStack sword = ItemStack.of(Material.DIAMOND_SWORD, 1);
         var meta = sword.getItemMeta();
         assertNotNull(meta);
         meta.setCustomModelData(123);
@@ -116,7 +116,7 @@ class AdvancementPredicateBuildingBlocksTest {
                   minecraft:custom_data: {}
                 """));
 
-        assertFalse(predicate.matches(new ItemStack(Material.DIAMOND)));
+        assertFalse(predicate.matches(ItemStack.of(Material.DIAMOND)));
     }
 
     @Test

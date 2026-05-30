@@ -45,7 +45,7 @@ class DamageResistantComponentTest {
 
     @Test
     void applyWithoutConfigureLeavesDataUntouched() {
-        ItemStack stack = new ItemStack(Material.DIAMOND_SWORD);
+        ItemStack stack = ItemStack.of(Material.DIAMOND_SWORD);
         ItemStack result = new DamageResistantComponent().apply(stack, "test:item");
 
         // No tag was configured, so apply() must not touch the item or invoke the factory.

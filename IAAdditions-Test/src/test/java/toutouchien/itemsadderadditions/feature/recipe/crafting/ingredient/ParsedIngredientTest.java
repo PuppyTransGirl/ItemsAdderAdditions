@@ -25,7 +25,7 @@ class ParsedIngredientTest {
     }
 
     private static RecipeChoice stoneChoice() {
-        return new RecipeChoice.ExactChoice(new ItemStack(Material.STONE));
+        return new RecipeChoice.ExactChoice(ItemStack.of(Material.STONE));
     }
 
     private static ParsedIngredient vanilla() {
@@ -85,7 +85,7 @@ class ParsedIngredientTest {
 
     @Test
     void hasPredicate_withReplacement_returnsTrue() {
-        ParsedIngredient ing = new ParsedIngredient(stoneChoice(), 1, 0, new ItemStack(Material.STICK));
+        ParsedIngredient ing = new ParsedIngredient(stoneChoice(), 1, 0, ItemStack.of(Material.STICK));
         assertTrue(ing.hasPredicate());
     }
 

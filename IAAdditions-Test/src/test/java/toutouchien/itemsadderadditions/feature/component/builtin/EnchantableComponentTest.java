@@ -46,7 +46,7 @@ class EnchantableComponentTest {
         EnchantableComponent component = new EnchantableComponent();
         component.configure(10, "test:item");
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
 
         assertEquals(Enchantable.enchantable(10), stack.getData(DataComponentTypes.ENCHANTABLE));
     }

@@ -40,7 +40,7 @@ class AttackRangeComponentTest {
     private static AttackRange applied(YamlConfiguration cfg) {
         AttackRangeComponent component = new AttackRangeComponent();
         assertTrue(component.configure(cfg, "test:item"));
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         AttackRange range = stack.getData(DataComponentTypes.ATTACK_RANGE);
         assertNotNull(range);
         return range;

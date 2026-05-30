@@ -29,7 +29,7 @@ class AdvancementRegistryTest {
 
     private static AdvancementDefinition makeRoot(String ns, String id) {
         var display = new AdvancementDisplayDefinition(
-                new ItemStack(Material.STONE), "Root", "desc", "task",
+                ItemStack.of(Material.STONE), "Root", "desc", "task",
                 "minecraft:textures/block/stone.png", true, true, false
         );
         return new AdvancementDefinition(
@@ -40,7 +40,7 @@ class AdvancementRegistryTest {
 
     private static AdvancementDefinition makeChild(String ns, String id, String parentId, RuntimeTrigger trigger) {
         var display = new AdvancementDisplayDefinition(
-                new ItemStack(Material.DIAMOND), "Child", "desc", "task", null, true, true, false
+                ItemStack.of(Material.DIAMOND), "Child", "desc", "task", null, true, true, false
         );
         var criterion = new AdvancementCriterionDefinition("c1", trigger, AdvancementConditions.None.INSTANCE);
         return new AdvancementDefinition(

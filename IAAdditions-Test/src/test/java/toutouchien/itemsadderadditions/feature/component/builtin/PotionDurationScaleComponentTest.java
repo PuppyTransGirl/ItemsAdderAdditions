@@ -45,7 +45,7 @@ class PotionDurationScaleComponentTest {
         PotionDurationScaleComponent component = new PotionDurationScaleComponent();
         assertTrue(component.configure(2.0, "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.POTION), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.POTION), "test:item");
         assertEquals(2.0f, stack.getData(DataComponentTypes.POTION_DURATION_SCALE), 0.0001f);
     }
 }

@@ -108,7 +108,7 @@ class OpenVariantStateTest {
     @Test
     void savedItemCanBeRemovedOnce() {
         OpenVariantState state = new OpenVariantState();
-        ItemStack item = new ItemStack(Material.DIAMOND);
+        ItemStack item = ItemStack.of(Material.DIAMOND);
         state.savedItem(KEY, item);
 
         assertSame(item, state.removeSavedItem(KEY));
@@ -123,7 +123,7 @@ class OpenVariantStateTest {
         state.liveEntity(KEY, entity);
         state.savedBlockId(KEY, "ns:block");
         state.savedYaw(KEY, 90f);
-        state.savedItem(KEY, new ItemStack(Material.STONE));
+        state.savedItem(KEY, ItemStack.of(Material.STONE));
 
         state.forget(KEY);
 
@@ -140,7 +140,7 @@ class OpenVariantStateTest {
         state.increment(KEY);
         state.savedBlockId(KEY, "ns:block");
         state.savedYaw(KEY, 90f);
-        state.savedItem(KEY, new ItemStack(Material.STONE));
+        state.savedItem(KEY, ItemStack.of(Material.STONE));
 
         state.clear();
 

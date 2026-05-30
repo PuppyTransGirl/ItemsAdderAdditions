@@ -48,7 +48,7 @@ class KineticWeaponComponentTest {
         KineticWeaponComponent component = new KineticWeaponComponent();
         assertTrue(component.configure(new YamlConfiguration(), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.KINETIC_WEAPON));
     }
 
@@ -68,7 +68,7 @@ class KineticWeaponComponentTest {
                   min_relative_speed: 0.2
                 """), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.KINETIC_WEAPON));
     }
 }

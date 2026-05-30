@@ -33,7 +33,7 @@ class LodestoneTrackerComponentTest {
     }
 
     private static ItemStack compass() {
-        return new ItemStack(Material.COMPASS);
+        return ItemStack.of(Material.COMPASS);
     }
 
     @Test

@@ -66,7 +66,7 @@ class SwingAnimationComponentTest {
         SwingAnimationComponent component = new SwingAnimationComponent();
         assertTrue(component.configure(yamlOf("type: STAB\nduration: 8"), "test:item"));
 
-        ItemStack stack = component.apply(new ItemStack(Material.DIAMOND_SWORD), "test:item");
+        ItemStack stack = component.apply(ItemStack.of(Material.DIAMOND_SWORD), "test:item");
         assertNotNull(stack.getData(DataComponentTypes.SWING_ANIMATION));
     }
 }
