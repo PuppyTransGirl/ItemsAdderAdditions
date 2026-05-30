@@ -14,8 +14,9 @@ import toutouchien.itemsadderadditions.feature.component.annotation.Component;
 @NullMarked
 @Component(key = "use_cooldown")
 public final class UseCooldownComponent extends ComponentExecutor {
+    @Nullable
     @Parameter(key = "cooldown", type = Float.class, required = true)
-    private float cooldown;
+    private Float cooldown;
 
     @Nullable
     @Parameter(key = "group", type = String.class)

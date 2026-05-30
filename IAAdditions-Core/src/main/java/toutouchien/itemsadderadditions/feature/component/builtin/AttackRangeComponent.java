@@ -39,7 +39,7 @@ public final class AttackRangeComponent extends ComponentExecutor {
     @Parameter(key = "max_creative_reach", type = Float.class, min = 0F, max = 64F)
     private float maxCreativeReach = 5F;
 
-    @Parameter(key = "hitbox_marning", type = Float.class, min = 0F, max = 1F)
+    @Parameter(key = "hitbox_margin", type = Float.class, min = 0F, max = 1F)
     private float hitboxMargin = 0.3F;
 
     @Parameter(key = "mob_factor", type = Float.class, min = 0F, max = 2.0F)
