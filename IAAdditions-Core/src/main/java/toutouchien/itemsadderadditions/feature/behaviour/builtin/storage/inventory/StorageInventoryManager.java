@@ -113,21 +113,6 @@ public final class StorageInventoryManager {
         return meta.getPersistentDataContainer().get(key, DataType.ITEM_STACK_ARRAY);
     }
 
-    /**
-     * Removes stored-contents and unique-id PDC entries from {@code item}.
-     * Used at pre-placement so IA's furniture-entity NBT cache holds a clean item
-     * and cannot re-drop a duplicate-with-contents on break.
-     */
-    public static void clearStoredData(ItemStack item, NamespacedKey contentsKey, NamespacedKey uniqueIdKey) {
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return;
-
-        meta.getPersistentDataContainer().remove(contentsKey);
-        meta.getPersistentDataContainer().remove(uniqueIdKey);
-        item.setItemMeta(meta);
-    }
-
     public static void populateInventory(Inventory inventory, @Nullable ItemStack @Nullable [] contents) {
         if (contents == null)
             return;

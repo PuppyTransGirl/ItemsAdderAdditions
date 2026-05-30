@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
 
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -14,15 +15,16 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.StorageBehaviour;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +35,13 @@ import java.util.UUID;
  */
 @NullMarked
 public final class ShulkerDropTracker implements Listener {
+    /**
+     * Chebyshev block radius for matching a freshly spawned item to a staged drop. IA drops the
+     * furniture item with {@code World#dropItemNaturally}, which nudges the location away from
+     * solid blocks, so the item rarely spawns in the exact furniture block.
+     */
+    private static final int MATCH_RADIUS = 2;
+
     /**
      * Contents waiting to be injected into a dropping item after a block/furniture break.
      */
@@ -73,38 +82,34 @@ public final class ShulkerDropTracker implements Listener {
         pendingShulkerDrops.put(key, contents);
         Log.debug("ShulkerDropTracker", "Staged shulker drop at " + loc);
 
-        // Fallback: if ItemSpawnEvent doesn't fire (or doesn't match) within a couple of ticks,
-        // search for the dropped item nearby and inject, or scatter contents individually.
+        // Fallback: if no spawn/drop event claimed the staged contents within a couple of ticks,
+        // search for IA's dropped item nearby and write the contents into it, or scatter them as
+        // a last resort so they are never lost.
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             ItemStack[] unconsumed = pendingShulkerDrops.remove(key);
-            if (unconsumed == null) return; // already consumed by ItemSpawnEvent
+            if (unconsumed == null) return; // already consumed by a spawn/drop event
 
-            Log.debug("ShulkerDropTracker", "ItemSpawnEvent did not consume staged drop - searching nearby.");
-            if (loc.getWorld() == null) return;
+            World world = loc.getWorld();
+            if (world == null) return;
 
-            Collection<Entity> nearby = loc.getWorld().getNearbyEntities(loc, 2.0, 2.0, 2.0);
-            for (Entity e : nearby) {
+            Log.debug("ShulkerDropTracker", "No spawn event claimed staged drop - searching nearby.");
+            for (Entity e : world.getNearbyEntities(loc, MATCH_RADIUS, MATCH_RADIUS, MATCH_RADIUS)) {
                 if (!(e instanceof Item droppedItem)) continue;
                 CustomStack cs = CustomStack.byItemStack(droppedItem.getItemStack());
-                if (cs == null || !cs.getNamespacedID().equals(namespacedID)) continue;
-                if (StorageInventoryManager.extractFromItem(droppedItem.getItemStack(), contentsNamespacedKey) != null)
-                    continue;
+                if (cs == null || !matchesId(cs.getNamespacedID())) continue;
 
-                injectIfNonEmpty(droppedItem, unconsumed);
-                Log.debug("ShulkerDropTracker", "Injected into nearby dropped item via fallback.");
+                applyContents(droppedItem, unconsumed);
+                Log.debug("ShulkerDropTracker", "Applied contents to nearby dropped item via fallback.");
                 return;
             }
 
-            // Item not found - drop contents individually so they are not lost
             if (hasAnyContent(unconsumed)) {
-                Log.debug("ShulkerDropTracker", "No matching item found - dropping contents individually.");
-                for (ItemStack item : unconsumed) {
-                    if (item != null && item.getType() != org.bukkit.Material.AIR) {
-                        loc.getWorld().dropItemNaturally(loc, item);
-                    }
-                }
+                Log.debug("ShulkerDropTracker", "No dropped item found - scattering contents.");
+                for (ItemStack item : unconsumed)
+                    if (item != null && item.getType() != org.bukkit.Material.AIR)
+                        world.dropItemNaturally(loc, item);
             }
-        }, 40L);
+        }, 3L);
     }
 
     @Nullable
@@ -140,58 +145,93 @@ public final class ShulkerDropTracker implements Listener {
         }
 
         pendingPlaceContents.put(player.getUniqueId(), stored);
-
-        // Strip the stored data from the in-hand item before IA consumes it.
-        // IA caches the placed item's NBT on the furniture entity and re-drops
-        // it on break - if we leave the data in, we duplicate (IA-dropped chest
-        // with contents AND our scatter/inject).
-        StorageInventoryManager.clearStoredData(hand, contentsNamespacedKey, uniqueIdKey);
-
         Log.debug("ShulkerDropTracker", "Pre-captured contents for " + player.getName());
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockDropItem(BlockDropItemEvent event) {
-        BlockCoord key = BlockCoord.of(event.getBlock().getLocation());
-        ItemStack[] contents = pendingShulkerDrops.get(key);
-        if (contents == null) return;
+        if (pendingShulkerDrops.isEmpty()) return;
 
         for (Item droppedItem : event.getItems()) {
             CustomStack cs = CustomStack.byItemStack(droppedItem.getItemStack());
-            if (cs == null || !cs.getNamespacedID().equals(namespacedID)) continue;
+            if (cs == null || !matchesId(cs.getNamespacedID())) continue;
 
-            pendingShulkerDrops.remove(key);
-            injectIfNonEmpty(droppedItem, contents);
+            BlockCoord key = findStaged(droppedItem.getLocation());
+            if (key == null) continue;
+
+            ItemStack[] contents = pendingShulkerDrops.remove(key);
+            applyContents(droppedItem, contents);
             return;
         }
-        Log.debug("ShulkerDropTracker", "No matching item in drops yet - waiting for ItemSpawnEvent.");
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onItemSpawn(ItemSpawnEvent event) {
         if (pendingShulkerDrops.isEmpty()) return;
 
-        BlockCoord spawnKey = BlockCoord.of(event.getEntity().getLocation());
-        ItemStack[] contents = pendingShulkerDrops.get(spawnKey);
-        if (contents == null) return;
-
         Item spawnedItem = event.getEntity();
         CustomStack cs = CustomStack.byItemStack(spawnedItem.getItemStack());
-        if (cs == null || !cs.getNamespacedID().equals(namespacedID)) return;
+        if (cs == null || !matchesId(cs.getNamespacedID())) return;
 
-        pendingShulkerDrops.remove(spawnKey);
-        injectIfNonEmpty(spawnedItem, contents);
+        BlockCoord key = findStaged(spawnedItem.getLocation());
+        if (key == null) return;
+
+        ItemStack[] contents = pendingShulkerDrops.remove(key);
+        applyContents(spawnedItem, contents);
     }
 
-    private void injectIfNonEmpty(Item target, ItemStack[] contents) {
-        if (!hasAnyContent(contents)) {
-            Log.debug("ShulkerDropTracker", "Contents all air - item left clean.");
-            return;
+    private boolean matchesId(String id) {
+        return NamespaceUtils.matchesWithRotation(id, namespacedID);
+    }
+
+    /**
+     * Finds a staged drop whose block is at, or within {@link #MATCH_RADIUS} blocks of,
+     * {@code loc}. Prefers an exact block match before falling back to the nearest one.
+     */
+    @Nullable
+    private BlockCoord findStaged(Location loc) {
+        BlockCoord exact = BlockCoord.of(loc);
+        if (pendingShulkerDrops.containsKey(exact)) return exact;
+
+        String world = loc.getWorld() == null ? "" : loc.getWorld().getName();
+        int bx = loc.getBlockX();
+        int by = loc.getBlockY();
+        int bz = loc.getBlockZ();
+        for (BlockCoord key : pendingShulkerDrops.keySet()) {
+            if (!key.world().equals(world)) continue;
+            if (Math.abs(key.x() - bx) <= MATCH_RADIUS
+                    && Math.abs(key.y() - by) <= MATCH_RADIUS
+                    && Math.abs(key.z() - bz) <= MATCH_RADIUS)
+                return key;
         }
+        return null;
+    }
+
+    /**
+     * Overwrites the dropped item's stored data with {@code contents}: injects and stamps a fresh
+     * unique id when there is anything to store, otherwise strips any stale data so the item drops
+     * clean. Overwriting (rather than skipping items that already carry data) is what prevents the
+     * duplicate-with-contents drop when IA re-drops the item it cached at placement time.
+     */
+    private void applyContents(Item target, @Nullable ItemStack[] contents) {
         ItemStack stack = target.getItemStack().clone();
-        StorageInventoryManager.injectIntoItem(stack, contents, contentsNamespacedKey);
-        StorageInventoryManager.stampUniqueId(stack, uniqueIdKey);
+        if (hasAnyContent(contents)) {
+            StorageInventoryManager.injectIntoItem(stack, contents, contentsNamespacedKey);
+            StorageInventoryManager.stampUniqueId(stack, uniqueIdKey);
+            Log.debug("ShulkerDropTracker", "Wrote live contents into dropped item.");
+        } else {
+            stripStoredData(stack);
+            Log.debug("ShulkerDropTracker", "Live contents empty - dropped item left clean.");
+        }
         target.setItemStack(stack);
-        Log.debug("ShulkerDropTracker", "Injected contents and stamped UID into item.");
+    }
+
+    private void stripStoredData(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+
+        meta.getPersistentDataContainer().remove(contentsNamespacedKey);
+        meta.getPersistentDataContainer().remove(uniqueIdKey);
+        item.setItemMeta(meta);
     }
 }

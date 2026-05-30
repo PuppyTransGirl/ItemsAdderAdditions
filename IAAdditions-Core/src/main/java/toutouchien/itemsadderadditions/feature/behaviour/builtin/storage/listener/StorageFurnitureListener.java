@@ -36,41 +36,28 @@ public final class StorageFurnitureListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFurnitureBreak(FurnitureBreakEvent event) {
-        Log.debug("StorageFurnitureBreak", "FurnitureBreakEvent fired: id={}, runtimeId={}, entity={}, loc={}",
-                event.getNamespacedID(), runtime.namespacedId(), event.getBukkitEntity(),
-                event.getBukkitEntity() == null ? "null" : event.getBukkitEntity().getLocation());
-
-        if (!event.getNamespacedID().equals(runtime.namespacedId())) {
-            Log.debug("StorageFurnitureBreak", "Ignoring break: id mismatch.");
-            return;
-        }
+        if (!event.getNamespacedID().equals(runtime.namespacedId())) return;
 
         Entity entity = event.getBukkitEntity();
-        Log.debug("StorageFurnitureBreak", "Closing sessions at {} (storageType={})",
-                entity.getLocation(), runtime.storageType());
+        if (entity == null) return;
+
+        // Flush any open session to the entity PDC, then read the live contents.
         runtime.sessionManager().closeSessionsAt(entity.getLocation(), null);
 
+        // Stage the live contents so they can be written into IA's own dropped item once it
+        // spawns (handled by ShulkerDropTracker). Creative breaks drop nothing, so skip staging.
         Player breaker = event.getPlayer();
         boolean creative = breaker != null && breaker.getGameMode() == GameMode.CREATIVE;
         if (creative) {
             Log.debug("StorageFurnitureBreak", "Breaker in creative - skipping drops.");
         } else {
-            ItemStack[] contents = StorageInventoryManager.loadFromEntity(
-                    entity,
-                    runtime.contentsKey()
-            );
-            Log.debug("StorageFurnitureBreak", "Loaded contents from entity: hasContents={}",
-                    contents != null);
-
+            ItemStack[] contents = StorageInventoryManager.loadFromEntity(entity, runtime.contentsKey());
             runtime.handleContainerBreak(entity.getLocation(), contents);
         }
 
-        Log.debug("StorageFurnitureBreak", "Calling removeFurnitureEntity on {} (valid={}, type={})",
-                entity, entity.isValid(), entity.getType());
+        // IA's own barrier cleanup on furniture break is incomplete, so clear any orphaned
+        // hitbox blocks ourselves a tick later.
         OpenVariantPlacement.removeFurnitureEntity(entity);
-        Log.debug("StorageFurnitureBreak", "Removal completed. Entity now valid={}, dead={}",
-                entity.isValid(), entity.isDead());
-
         OpenVariantPlacement.scheduleBarrierSweep(runtime.plugin(), entity.getLocation(), 1);
     }
 
