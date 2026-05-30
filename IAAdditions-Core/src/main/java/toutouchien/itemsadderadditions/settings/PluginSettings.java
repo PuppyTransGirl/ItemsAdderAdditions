@@ -17,12 +17,14 @@ public record PluginSettings(
         Map<PluginFeature, Boolean> features,
         ToggleMap actions,
         ToggleMap behaviours,
+        ToggleMap components,
         UpdateCheckerSettings updateChecker
 ) {
     public PluginSettings {
         features = Map.copyOf(features);
         actions = new ToggleMap(actions.values(), actions.defaultValue());
         behaviours = new ToggleMap(behaviours.values(), behaviours.defaultValue());
+        components = new ToggleMap(components.values(), components.defaultValue());
     }
 
     public static PluginSettings load(FileConfiguration config) {
@@ -33,6 +35,7 @@ public record PluginSettings(
                 features,
                 reader.toggleSection("actions", true),
                 reader.toggleSection("behaviours", true),
+                reader.toggleSection("components", true),
                 readUpdateChecker(reader)
         );
     }
@@ -62,5 +65,9 @@ public record PluginSettings(
 
     public boolean behaviourEnabled(String key) {
         return behaviours.enabled(key);
+    }
+
+    public boolean componentEnabled(String key) {
+        return components.enabled(key);
     }
 }

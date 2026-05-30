@@ -10,6 +10,7 @@ import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionsManager;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementManager;
 import toutouchien.itemsadderadditions.feature.behaviour.BehavioursManager;
+import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeRegistryReloader;
 import toutouchien.itemsadderadditions.feature.painting.CustomPaintingManager;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeManager;
@@ -34,6 +35,7 @@ public final class ReloadCoordinator {
     public ReloadCoordinator(
             ActionsManager actions,
             BehavioursManager behaviours,
+            ComponentsManager components,
             CustomPaintingManager paintings,
             RecipeManager recipes,
             CreativeRegistryReloader creativeRegistry,
@@ -43,6 +45,7 @@ public final class ReloadCoordinator {
                 paintings,
                 actions,
                 behaviours,
+                components,
                 creativeRegistry,
                 recipes,
                 advancements,

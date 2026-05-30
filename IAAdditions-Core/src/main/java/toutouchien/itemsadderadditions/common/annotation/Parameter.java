@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  *
  * <p>When present on a field inside an {@link toutouchien.itemsadderadditions.feature.action.ActionExecutor},
  * {@link toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor}, or
- * {@link toutouchien.itemsadderadditions.feature.component.ComponentProperty},
+ * {@link toutouchien.itemsadderadditions.feature.component.ComponentExecutor},
  * {@link ParameterInjector} will read the
  * corresponding YAML key and inject the value into the field.
  *

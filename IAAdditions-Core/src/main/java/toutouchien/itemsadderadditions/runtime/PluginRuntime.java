@@ -15,6 +15,7 @@ import toutouchien.itemsadderadditions.feature.action.ActionsListener;
 import toutouchien.itemsadderadditions.feature.action.ActionsManager;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementManager;
 import toutouchien.itemsadderadditions.feature.behaviour.BehavioursManager;
+import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeRegistryReloader;
 import toutouchien.itemsadderadditions.feature.painting.CustomPaintingManager;
@@ -55,6 +56,7 @@ public final class PluginRuntime {
     private PluginSettings settings;
     private ActionsManager actionsManager;
     private BehavioursManager behavioursManager;
+    private ComponentsManager componentsManager;
     private CustomPaintingManager customPaintingManager;
     private RecipeManager recipeManager;
     private AdvancementManager advancementManager;
@@ -129,15 +131,18 @@ public final class PluginRuntime {
 
         this.actionsManager = new ActionsManager(settings);
         this.behavioursManager = new BehavioursManager(settings);
+        this.componentsManager = new ComponentsManager(settings);
         this.customPaintingManager = new CustomPaintingManager(plugin);
         this.recipeManager = new RecipeManager(plugin);
         this.advancementManager = new AdvancementManager(plugin);
+        componentsManager.registerModifier();
 
         setupCreativeInventoryIntegration();
         this.creativeRegistryReloader = new CreativeRegistryReloader(plugin);
         this.reloadCoordinator = new ReloadCoordinator(
                 actionsManager,
                 behavioursManager,
+                componentsManager,
                 customPaintingManager,
                 recipeManager,
                 creativeRegistryReloader,
@@ -188,6 +193,10 @@ public final class PluginRuntime {
         return require(behavioursManager, "behavioursManager");
     }
 
+    public ComponentsManager componentsManager() {
+        return require(componentsManager, "componentsManager");
+    }
+
     public @Nullable CreativeMenuManager creativeMenuManager() {
         return creativeMenuManager;
     }
@@ -211,6 +220,7 @@ public final class PluginRuntime {
     private void applySettingsToManagers() {
         actionsManager().applySettings(settings());
         behavioursManager().applySettings(settings());
+        componentsManager().applySettings(settings());
     }
 
     private void startMetrics() {

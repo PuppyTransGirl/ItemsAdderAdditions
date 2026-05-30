@@ -6,140 +6,137 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
-import toutouchien.itemsadderadditions.common.config.ConfigUtils;
-import toutouchien.itemsadderadditions.common.inject.ParameterInjector;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.common.utils.ReflectionUtils;
-import toutouchien.itemsadderadditions.feature.component.annotation.Property;
-import toutouchien.itemsadderadditions.feature.component.property.UseCooldownProperty;
+import toutouchien.itemsadderadditions.common.registry.ExecutorRegistry;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.runtime.reload.ContentReloadContext;
+import toutouchien.itemsadderadditions.runtime.reload.ReloadPhase;
+import toutouchien.itemsadderadditions.runtime.reload.ReloadStepResult;
+import toutouchien.itemsadderadditions.runtime.reload.ReloadableContentSystem;
+import toutouchien.itemsadderadditions.settings.PluginSettings;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Injects IAA-specific item components into ItemsAdder items via the
- * {@link ItemsAdder.Advanced#injectItemModifier} hook.
+ * Manages item data component injection for all custom items.
  *
- * <h3>Two kinds of component property</h3>
- * <dl>
- *   <dt>{@link SimpleComponentProperty}</dt>
- *   <dd>Reads a single top-level value (e.g. an integer or string) and applies it.
- *       The generic type parameter declares the expected value type; coercion from
- *       YAML number types is automatic.</dd>
+ * <p>The modifier hook is registered once on {@link #registerModifier()} and stays
+ * active for the plugin's lifetime. During each reload, {@link #reload} rebuilds the
+ * bindings map from the items' {@code components:} config sections. The modifier then
+ * does a simple map lookup and applies the pre-configured executors.</p>
  *
- *   <dt>{@link ComponentProperty} (non-simple)</dt>
- *   <dd>Reads a whole {@link ConfigurationSection} and injects {@code @Parameter}-
- *       annotated fields via {@link ParameterInjector} before calling
- *       {@link ComponentProperty#applyComponent}.</dd>
- * </dl>
- *
- * <h3>Adding a new property</h3>
+ * <h3>Adding a new component</h3>
  * <ol>
- *   <li>Implement {@link SimpleComponentProperty} or {@link ComponentProperty}.</li>
- *   <li>Annotate the class with {@link Property @Property(key = "your_yaml_key")}.</li>
- *   <li>Add an instance to {@link #PROPERTIES}.</li>
+ *   <li>Extend {@link ComponentExecutor} and annotate with {@link toutouchien.itemsadderadditions.feature.component.annotation.Component @Component(key = "...")}.</li>
+ *   <li>Override {@link ComponentExecutor#minimumVersion()} if the component requires
+ *       a specific Minecraft version.</li>
+ *   <li>Add an instance to {@link BuiltInComponents#create()}.</li>
  * </ol>
+ *
+ * <h3>YAML structure</h3>
+ * <pre>
+ * items:
+ *   my_item:
+ *     components:
+ *       rarity: RARE
+ *       use_cooldown:
+ *         cooldown_seconds: 1.5
+ * </pre>
  */
 @NullMarked
-public final class ComponentsManager {
-    /**
-     * All registered component properties.
-     * These are prototype instances - they are <em>not</em> mutated during apply.
-     */
-    private static final List<ComponentProperty> PROPERTIES = List.of(
-            new UseCooldownProperty()
-    );
+public final class ComponentsManager implements ReloadableContentSystem {
+    private static final String NAME = "Components";
 
-    /**
-     * Applies one property to {@code itemStack} and returns the (possibly modified) stack.
-     */
-    private static ItemStack applyProperty(
-            ComponentProperty property,
-            CustomStack customStack,
-            ItemStack itemStack
-    ) {
-        Property annotation = property.getClass().getAnnotation(Property.class);
-        if (annotation == null) {
-            Log.warn("Components", "Missing @Property annotation on: {}",
-                    property.getClass().getName());
-            return itemStack;
-        }
+    private final ExecutorRegistry<ComponentExecutor> registry = new ExecutorRegistry<>(NAME);
+    private volatile Map<String, List<ComponentExecutor>> bindings = Map.of();
 
-        FileConfiguration config = customStack.getConfig();
-        ConfigurationSection itemSection =
-                config.getConfigurationSection("items." + customStack.getId());
+    public ComponentsManager(PluginSettings settings) {
+        applySettings(settings);
+    }
 
-        if (itemSection == null || !itemSection.contains(annotation.key()))
-            return itemStack; // This item doesn't use this property - skip.
-
-        if (property instanceof SimpleComponentProperty<?> simple) {
-            return applySimpleProperty(simple, annotation, itemSection, customStack, itemStack);
-        }
-
-        // Section-based property: inject @Parameter fields, then apply.
-        ConfigurationSection propertySection = itemSection.getConfigurationSection(annotation.key());
-        if (propertySection == null) return itemStack;
-
-        if (ParameterInjector.inject(property, propertySection, customStack.getNamespacedID())) {
-            property.applyComponent(propertySection, customStack.getId(), itemStack);
-        }
-
-        return itemStack;
+    public void applySettings(PluginSettings settings) {
+        registry.registerBuiltIns(settings::componentEnabled, BuiltInComponents.create());
     }
 
     /**
-     * Reads a single YAML value, coerces its numeric type if necessary, and
-     * delegates to {@link SimpleComponentProperty#applyComponent}.
+     * Registers the item modifier with ItemsAdder. Must be called once on plugin enable.
+     * The modifier itself is lightweight — it delegates to pre-built bindings.
      */
-    @SuppressWarnings("unchecked")
-    private static ItemStack applySimpleProperty(
-            SimpleComponentProperty<?> property,
-            Property annotation,
-            ConfigurationSection itemSection,
-            CustomStack customStack,
-            ItemStack itemStack
-    ) {
-        @Nullable Class<?> expectedType = ReflectionUtils.getTypeArgument(property.getClass());
-        @Nullable Object value = itemSection.get(annotation.key());
-
-        if (expectedType != null) {
-            value = ConfigUtils.coerceNumber(value, expectedType);
-        }
-
-        if (expectedType == null || !expectedType.isInstance(value)) {
-            if (value != null && expectedType != null) {
-                Log.itemWarn("Components", customStack.getNamespacedID(),
-                        "property '{}' has wrong type: expected {}, got {}",
-                        annotation.key(), expectedType.getSimpleName(),
-                        value.getClass().getSimpleName());
-            }
-            return itemStack;
-        }
-
-        // Safe: we just checked expectedType.isInstance(value).
-        ((SimpleComponentProperty<Object>) property)
-                .applyComponent(value, customStack.getId(), itemStack);
-
-        return itemStack;
+    public void registerModifier() {
+        ItemsAdder.Advanced.injectItemModifier(ItemsAdderAdditions.instance(), this::applyComponents);
     }
 
-    /**
-     * Registers the item modifier with ItemsAdder so it is called for every item
-     * at load time. Safe to call multiple times (IAA handles deduplication).
-     */
-    public void applyComponents() {
-        ItemsAdder.Advanced.ModifierHandler modifier = (namespacedID, itemStack) -> {
-            CustomStack customStack = CustomStack.byItemStack(itemStack);
-            if (customStack == null) return itemStack;
+    @Override
+    public String name() {
+        return NAME;
+    }
 
-            for (ComponentProperty property : PROPERTIES) {
-                itemStack = applyProperty(property, customStack, itemStack);
+    @Override
+    public ReloadPhase phase() {
+        return ReloadPhase.ITEM_BINDINGS;
+    }
+
+    @Override
+    public ReloadStepResult reload(ContentReloadContext context) {
+        Map<String, List<ComponentExecutor>> newBindings = new HashMap<>();
+        int total = 0;
+
+        for (CustomStack item : context.items()) {
+            String namespacedId = item.getNamespacedID();
+            FileConfiguration config = item.getConfig();
+
+            ConfigurationSection section =
+                    config.getConfigurationSection("items." + item.getId() + ".components");
+            if (section == null) continue;
+
+            List<ComponentExecutor> executors = loadItemComponents(section, namespacedId);
+            if (executors.isEmpty()) continue;
+
+            newBindings.put(namespacedId, List.copyOf(executors));
+            total += executors.size();
+        }
+
+        this.bindings = Map.copyOf(newBindings);
+        Log.loaded(NAME, total, "component(s)");
+        return ReloadStepResult.loaded(NAME, total);
+    }
+
+    public ExecutorRegistry<ComponentExecutor> registry() {
+        return registry;
+    }
+
+    private List<ComponentExecutor> loadItemComponents(ConfigurationSection section, String namespacedId) {
+        List<ComponentExecutor> executors = new ArrayList<>();
+
+        for (String key : section.getKeys(false)) {
+            ComponentExecutor prototype = registry.getPrototype(key);
+            if (prototype == null) continue;
+
+            if (!prototype.isSupportedOnCurrentVersion()) {
+                Log.warn(NAME, "Component '{}' on '{}' requires a newer Minecraft version — skipping.", key, namespacedId);
+                continue;
             }
 
-            return itemStack;
-        };
+            ComponentExecutor instance = prototype.newInstance();
+            if (!instance.configure(section.get(key), namespacedId)) continue;
 
-        ItemsAdder.Advanced.injectItemModifier(ItemsAdderAdditions.instance(), modifier);
+            executors.add(instance);
+        }
+
+        return executors;
+    }
+
+    private ItemStack applyComponents(String namespacedID, ItemStack itemStack) {
+        List<ComponentExecutor> executors = bindings.get(namespacedID);
+        if (executors == null) return itemStack;
+
+        for (ComponentExecutor executor : executors) {
+            itemStack = executor.apply(itemStack, namespacedID);
+        }
+
+        return itemStack;
     }
 }
