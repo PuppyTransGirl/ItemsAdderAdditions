@@ -8,6 +8,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.registry.ExecutorRegistry;
+import toutouchien.itemsadderadditions.feature.component.binding.GenericComponentBinding;
+import toutouchien.itemsadderadditions.feature.component.model.ComponentKey;
+import toutouchien.itemsadderadditions.feature.component.parse.ComponentTreeParser;
+import toutouchien.itemsadderadditions.nms.api.NmsManager;
+import toutouchien.itemsadderadditions.nms.api.component.ComponentValue;
+import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandler;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.runtime.reload.ContentReloadContext;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadPhase;
@@ -23,17 +29,11 @@ import java.util.Map;
 /**
  * Manages item data component injection for all custom items.
  *
- * <p>The modifier hook is registered once on {@link #registerModifier()} and stays
- * active for the plugin's lifetime. During each reload, {@link #reload} rebuilds the
- * bindings map from the items' {@code components:} config sections. The modifier then
- * does a simple map lookup and applies the pre-configured executors.</p>
- *
- * <h3>Adding a new component</h3>
+ * <p>Lookup order per component key:</p>
  * <ol>
- *   <li>Extend {@link ComponentExecutor} and annotate with {@link toutouchien.itemsadderadditions.feature.component.annotation.Component @Component(key = "...")}.</li>
- *   <li>Override {@link ComponentExecutor#minimumVersion()} if the component requires
- *       a specific Minecraft version.</li>
- *   <li>Add an instance to {@link BuiltInComponents#create()}.</li>
+ *   <li>Raw key matches a registered specialized handler: use it (existing Paper API path).</li>
+ *   <li>No specialized match: normalize key, attempt generic NMS codec path.</li>
+ *   <li>Generic backend unsupported on this version: warn and skip.</li>
  * </ol>
  *
  * <h3>YAML structure</h3>
@@ -44,6 +44,11 @@ import java.util.Map;
  *       rarity: RARE
  *       use_cooldown:
  *         cooldown_seconds: 1.5
+ *       custom_data:
+ *         my_plugin:
+ *           id: my_item
+ *       minecraft:repairable:
+ *         items: "#minecraft:planks"
  * </pre>
  */
 @NullMarked
@@ -51,7 +56,8 @@ public final class ComponentsManager implements ReloadableContentSystem {
     private static final String NAME = "Components";
 
     private final ExecutorRegistry<ComponentExecutor> registry = new ExecutorRegistry<>(NAME);
-    private volatile Map<String, List<ComponentExecutor>> bindings = Map.of();
+    private volatile Map<String, List<ComponentExecutor>> specializedBindings = Map.of();
+    private volatile Map<String, List<GenericComponentBinding>> genericBindings = Map.of();
 
     public ComponentsManager(PluginSettings settings) {
         applySettings(settings);
@@ -61,10 +67,6 @@ public final class ComponentsManager implements ReloadableContentSystem {
         registry.registerBuiltIns(settings::componentEnabled, BuiltInComponents.create());
     }
 
-    /**
-     * Registers the item modifier with ItemsAdder. Must be called once on plugin enable.
-     * The modifier itself is lightweight - it delegates to pre-built bindings.
-     */
     public void registerModifier() {
         ItemsAdder.Advanced.injectItemModifier(ItemsAdderAdditions.instance(), this::applyComponents);
     }
@@ -81,7 +83,8 @@ public final class ComponentsManager implements ReloadableContentSystem {
 
     @Override
     public ReloadStepResult reload(ContentReloadContext context) {
-        Map<String, List<ComponentExecutor>> newBindings = new HashMap<>();
+        Map<String, List<ComponentExecutor>> newSpecialized = new HashMap<>();
+        Map<String, List<GenericComponentBinding>> newGeneric = new HashMap<>();
         int total = 0;
 
         for (CustomStack item : context.items()) {
@@ -92,14 +95,23 @@ public final class ComponentsManager implements ReloadableContentSystem {
                     config.getConfigurationSection("items." + item.getId() + ".components");
             if (section == null) continue;
 
-            List<ComponentExecutor> executors = loadItemComponents(section, namespacedId);
-            if (executors.isEmpty()) continue;
+            List<ComponentExecutor> specialized = new ArrayList<>();
+            List<GenericComponentBinding> generic = new ArrayList<>();
+            loadItemComponents(section, namespacedId, specialized, generic);
 
-            newBindings.put(namespacedId, List.copyOf(executors));
-            total += executors.size();
+            if (!specialized.isEmpty()) {
+                newSpecialized.put(namespacedId, List.copyOf(specialized));
+                total += specialized.size();
+            }
+
+            if (!generic.isEmpty()) {
+                newGeneric.put(namespacedId, List.copyOf(generic));
+                total += generic.size();
+            }
         }
 
-        this.bindings = Map.copyOf(newBindings);
+        this.specializedBindings = Map.copyOf(newSpecialized);
+        this.genericBindings = Map.copyOf(newGeneric);
         Log.loaded(NAME, total, "component(s)");
         return ReloadStepResult.loaded(NAME, total);
     }
@@ -108,33 +120,54 @@ public final class ComponentsManager implements ReloadableContentSystem {
         return registry;
     }
 
-    private List<ComponentExecutor> loadItemComponents(ConfigurationSection section, String namespacedId) {
-        List<ComponentExecutor> executors = new ArrayList<>();
-
+    private void loadItemComponents(
+            ConfigurationSection section,
+            String namespacedId,
+            List<ComponentExecutor> specialized,
+            List<GenericComponentBinding> generic
+    ) {
         for (String key : section.getKeys(false)) {
+            // 1. Try specialized handler (uses raw key - preserves existing YAML syntax).
             ComponentExecutor prototype = registry.getPrototype(key);
-            if (prototype == null) continue;
+            if (prototype != null) {
+                if (!prototype.isSupportedOnCurrentVersion()) {
+                    Log.warn(NAME, "Component '{}' on '{}' requires a newer Minecraft version - skipping.", key, namespacedId);
+                    continue;
+                }
 
-            if (!prototype.isSupportedOnCurrentVersion()) {
-                Log.warn(NAME, "Component '{}' on '{}' requires a newer Minecraft version - skipping.", key, namespacedId);
+                ComponentExecutor instance = prototype.newInstance();
+                if (instance.configure(section.get(key), namespacedId)) {
+                    specialized.add(instance);
+                }
                 continue;
             }
 
-            ComponentExecutor instance = prototype.newInstance();
-            if (!instance.configure(section.get(key), namespacedId)) continue;
+            // 2. Generic fallback: normalize key and add as generic binding.
+            ComponentKey normalized = ComponentKey.from(key);
+            if (!normalized.isValid()) {
+                Log.itemWarn(NAME, namespacedId, "Component key '{}' is invalid - skipping.", key);
+                continue;
+            }
 
-            executors.add(instance);
+            ComponentValue value = ComponentTreeParser.parse(section.get(key));
+            generic.add(new GenericComponentBinding(normalized, value));
         }
-
-        return executors;
     }
 
     private ItemStack applyComponents(String namespacedID, ItemStack itemStack) {
-        List<ComponentExecutor> executors = bindings.get(namespacedID);
-        if (executors == null) return itemStack;
+        List<ComponentExecutor> executors = specializedBindings.get(namespacedID);
+        if (executors != null) {
+            for (ComponentExecutor executor : executors) {
+                itemStack = executor.apply(itemStack, namespacedID);
+            }
+        }
 
-        for (ComponentExecutor executor : executors) {
-            itemStack = executor.apply(itemStack, namespacedID);
+        List<GenericComponentBinding> generics = genericBindings.get(namespacedID);
+        if (generics != null) {
+            INmsItemComponentHandler handler = NmsManager.instance().handler().itemComponents();
+            for (GenericComponentBinding binding : generics) {
+                itemStack = binding.apply(itemStack, namespacedID, handler);
+            }
         }
 
         return itemStack;

@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.nms;
 import net.minecraft.server.MinecraftServer;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.nms.api.*;
+import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandler;
 
 @NullMarked
 public final class NmsHandler_v26_1_2 implements INmsHandler {
@@ -16,6 +17,7 @@ public final class NmsHandler_v26_1_2 implements INmsHandler {
     private final NmsToastHandler_v26_1_2 toasts = new NmsToastHandler_v26_1_2();
     private final NmsTextDisplayHandler_v26_1_2 textDisplays = new NmsTextDisplayHandler_v26_1_2();
     private final NmsAdvancementHandler_v26_1_2 advancements = new NmsAdvancementHandler_v26_1_2();
+    private final NmsItemComponentHandler_v26_1_2 itemComponents = new NmsItemComponentHandler_v26_1_2();
 
     @Override
     public INmsBedHandler bed() {
@@ -67,6 +69,11 @@ public final class NmsHandler_v26_1_2 implements INmsHandler {
     @Override
     public INmsAdvancementHandler advancements() {
         return advancements;
+    }
+
+    @Override
+    public INmsItemComponentHandler itemComponents() {
+        return itemComponents;
     }
 
     @Override

@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.nms;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.nms.api.*;
+import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandler;
 
 @NullMarked
 public final class NmsHandler_v1_20_6 implements INmsHandler {
@@ -14,6 +15,7 @@ public final class NmsHandler_v1_20_6 implements INmsHandler {
     private final NmsToastHandler_v1_20_6 toasts = new NmsToastHandler_v1_20_6();
     private final NmsTextDisplayHandler_v1_20_6 textDisplays = new NmsTextDisplayHandler_v1_20_6();
     private final NmsAdvancementHandler_v1_20_6 advancements = new NmsAdvancementHandler_v1_20_6();
+    private final NmsItemComponentHandler_v1_20_6 itemComponents = new NmsItemComponentHandler_v1_20_6();
 
     @Override
     public INmsBedHandler bed() {
@@ -68,6 +70,11 @@ public final class NmsHandler_v1_20_6 implements INmsHandler {
     @Override
     public INmsAdvancementHandler advancements() {
         return advancements;
+    }
+
+    @Override
+    public INmsItemComponentHandler itemComponents() {
+        return itemComponents;
     }
 
     @Override
