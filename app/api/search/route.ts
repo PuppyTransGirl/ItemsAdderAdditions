@@ -23,7 +23,7 @@ const searchSource = {
     getPages: (lang?: string) => source.getPages(lang).filter(p => !EXCLUDED_SEARCH_LOCALES.has(p.locale ?? '')),
 };
 
-const server = createFromSource(searchSource, {
+const server = createFromSource(searchSource as unknown as typeof source, {
     language: 'english',
 });
 
