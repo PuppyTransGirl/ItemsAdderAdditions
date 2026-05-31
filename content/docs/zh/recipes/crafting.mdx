@@ -1,0 +1,403 @@
+---
+title: 合成
+description: 通过 iaa_crafting_table 添加高级合成配方，支持 ItemsAdder 物品、MMOItems 物品、原版物品、原版标签、精确数量、耐久度要求、无序配方支持以及合成完成时的音效和命令
+version: "1.0.7"
+---
+
+ItemsAdderAdditions 新增了一种额外的合成配方类型，名为 `iaa_crafting_table`
+
+当你需要标准 `crafting_table` 类型不具备的额外原料验证功能时，可使用此类型：
+
+- 原版物品/方块标签
+- ItemsAdder、MMOItems 和原版物品原料
+- 原料数量
+- 原料耐久度损耗
+- 替换物品
+- 忽略耐久度匹配
+- 药水类型筛选
+- 无序原料列表
+
+## 重要提示
+
+使用这些额外功能的配方必须放置在：
+
+```yaml
+recipes:
+  iaa_crafting_table:
+```
+
+如果你只需要普通的 ItemsAdder 合成功能，可以继续使用常规的 `crafting_table` 配方类型
+
+## 基础有序配方
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    wooden_scythe:
+      pattern:
+        - "XPP"
+        - "PXS"
+        - "XXS"
+      ingredients:
+        P: "#minecraft:planks"
+        S: STICK
+      result:
+        item: "my_pack:wooden_scythe"
+```
+
+## 基础无序配方
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    mega_diamond:
+      shapeless: true
+      ingredients:
+        - item: IRON_INGOT
+          amount: 2
+        - item: GOLD_INGOT
+          amount: 2
+        - item: COPPER_INGOT
+          amount: 2
+      result:
+        item: DIAMOND
+        amount: 3
+```
+
+## 配置结构
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    my_recipe:
+      enabled: true
+      permission: "my_pack.recipe.use"
+      pattern:
+        - "ABC"
+        - "DEF"
+        - "GHI"
+      ingredients:
+        A: STICK
+      result:
+        item: DIAMOND
+        amount: 1
+```
+
+## 支持的标准配方功能
+
+`iaa_crafting_table` 同样支持你可能已从 ItemsAdder 了解的常见合成功能，例如：
+
+- `enabled`
+- `permission`
+- 使用 `pattern` 的有序配方
+- 无序配方
+- 多个 `pattern...` 变体
+- `potion_type` 原料筛选
+
+## ItemsAdderAdditions 的额外功能
+
+使用 `iaa_crafting_table` 的主要原因在于它额外的原料谓词支持：
+
+- 使用 `#minecraft:tag` 的原版标签
+- 使用 `mmoitems:type:id` 的 MMOItems 原料
+- 单个原料的 `amount`
+- 单个原料的 `damage`
+- 单个原料的 `replacement`
+- `ignore_durability`
+- 无序列表式原料格式
+
+## 参数
+
+### `enabled`
+
+可选。默认为 `true`
+
+如果设置为 `false`，该配方将不会被注册
+
+### `permission`
+
+可选
+
+如果设置此项，玩家必须拥有此权限才能看到该配方的合成结果并进行合成
+
+```yaml
+permission: "my_pack.recipe.use"
+```
+
+### `shapeless`
+
+可选。默认为 `false`
+
+如果设置为 `true`，该配方将被视为无序配方
+
+## 合成完成动作
+
+使用 `on_complete` 可在配方合成完成时播放音效和/或执行命令
+
+```yaml
+on_complete:
+  sound:
+    name: "minecraft:entity.player.levelup"
+    source: master # 可选，默认: master
+    volume: 1.0 # 可选，默认: 1.0
+    pitch: 1.0 # 可选，默认: 1.0
+  commands:
+    reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true # 可选，默认: false
+```
+
+`{player}` 会被替换为进行合成的玩家名称。命令默认以玩家身份执行；设置 `as_console: true` 可从控制台执行
+
+## 结果
+
+### `result.item`
+
+必填
+
+输出物品
+
+支持原版材质、ItemsAdder 物品和 MMOItems 物品。标签仅对原料有效，不能用于结果
+
+```yaml
+result:
+  item: "my_pack:custom_sword"
+```
+
+### `result.amount`
+
+可选。默认为 `1`
+
+```yaml
+result:
+  item: DIAMOND
+  amount: 3
+```
+
+## 有序配方
+
+有序配方使用 `pattern` 和以字符为键的 `ingredients` 部分
+
+```yaml
+my_recipe:
+  pattern:
+    - "XPP"
+    - "PXS"
+    - "XXS"
+  ingredients:
+    P: "#minecraft:planks"
+    S: STICK
+  result:
+    item: "my_pack:wooden_scythe"
+```
+
+### 网格注意事项
+
+- 原料键必须是单个字符
+- `X` 表示空槽位。不要将 `X` 定义为原料
+- 其他未在 `ingredients` 中定义的字符同样被视为空槽位
+- 支持使用 `pattern_1`、`pattern_2` 等键定义多个配方变体
+
+## 无序配方
+
+无序配方使用：
+
+```yaml
+shapeless: true
+```
+
+并且可以使用原料列表：
+
+```yaml
+my_recipe:
+  shapeless: true
+  ingredients:
+    - item: IRON_INGOT
+      amount: 2
+    - item: GOLD_INGOT
+      amount: 2
+  result:
+    item: DIAMOND
+```
+
+## 原料格式
+
+原料支持多种格式
+
+### 简单字符串
+
+```yaml
+ingredients:
+  S: STICK
+  P: "#minecraft:planks"
+  C: "my_pack:custom_part"
+  M: "mmoitems:material:ruby_shard"
+```
+
+### 详细对象
+
+```yaml
+ingredients:
+  S:
+    item: STICK
+    amount: 2
+    damage: 5
+    replacement: STICK
+    ignore_durability: true
+    potion_type: minecraft:water
+```
+
+### 无序列表格式
+
+```yaml
+ingredients:
+  - SNOWBALL
+  - item: WATER_BUCKET
+    replacement: BUCKET
+```
+
+## 高级原料功能
+
+### 标签
+
+通过在值前添加 `#` 前缀来使用原版 Minecraft 物品或方块标签。标签仅匹配原版注册表条目，不会匹配 ItemsAdder 或 MMOItems 内容
+
+```yaml
+ingredients:
+  P: "#minecraft:planks"
+```
+
+该标签中的任何物品都会匹配
+
+### `amount`
+
+要求提供多个相同原料
+
+```yaml
+ingredients:
+  I:
+    item: IRON_INGOT
+    amount: 3
+```
+
+### `damage`
+
+不消耗原料，而是按配置的数量损耗其耐久度
+
+适用于在合成中使用的工具
+
+```yaml
+ingredients:
+  H:
+    item: IRON_PICKAXE
+    damage: 10
+```
+
+### `replacement`
+
+合成后将原料替换为另一物品
+
+适用于桶、瓶子、模具和类似的容器
+
+```yaml
+ingredients:
+  W:
+    item: WATER_BUCKET
+    replacement: BUCKET
+```
+
+### `ignore_durability`
+
+匹配物品时忽略当前耐久度值
+
+```yaml
+ingredients:
+  T:
+    item: IRON_PICKAXE
+    ignore_durability: true
+```
+
+### `potion_type`
+
+将药水原料限定为特定的基础药水类型
+
+```yaml
+ingredients:
+  P:
+    item: POTION
+    potion_type: minecraft:jump_boost
+```
+
+## 完整有序配方示例
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    reinforced_blade:
+      enabled: true
+      permission: "my_pack.recipes.reinforced_blade"
+      pattern:
+        - "XIT"
+        - "XSI"
+        - "SXX"
+      ingredients:
+        I:
+          item: IRON_INGOT
+          amount: 2
+        S: STICK
+        T:
+          item: IRON_PICKAXE
+          damage: 8
+          ignore_durability: true
+      result:
+        item: "my_pack:reinforced_blade"
+        amount: 1
+```
+
+## 完整无序配方示例
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  iaa_crafting_table:
+    purified_bottle:
+      shapeless: true
+      ingredients:
+        - item: POTION
+          potion_type: minecraft:water
+        - item: DIAMOND
+          amount: 2
+      result:
+        item: "my_pack:purified_bottle"
+```
+
+## 支持的物品引用
+
+原料和结果物品可以使用：
+
+- 原版材质名，如 `STICK` 或 `DIAMOND`
+- 原版命名空间 ID，如 `minecraft:stick`
+- ItemsAdder ID，如 `namespace:item`
+- MMOItems ID，如 `mmoitems:type:id`
+
+原料还可以额外使用原版标签，如 `#minecraft:planks`。标签不能用作结果或替换物品
+
+## 备注
+
+- `replacement` 和 `damage` 在合成时生效
+- 带有高级谓词的无序配方应使用列表格式
+- `iaa_crafting_table` 是一个额外的高级配方类型，而非 ItemsAdder `crafting_table` 的替代品

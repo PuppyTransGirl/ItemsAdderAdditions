@@ -1,0 +1,66 @@
+---
+title: /iatrademachine
+description: 为玩家打开任意 ItemsAdder trade_machine 或 block_trade_machine 的界面，无需在世界上放置一个实际的方块
+version: "1.0.7"
+---
+
+## `/iatrademachine`
+
+为玩家打开 ItemsAdder 的 `trade_machine` 或 `block_trade_machine` 的界面，无需在世界上放置一个实际的方块或家具
+
+适用于通过菜单插件、NPC 或自定义命令流程打开交易界面
+
+## 语法
+
+```text
+/iatrademachine <玩家> <命名空间:ID> [-silent]
+```
+
+## 参数
+
+### `<玩家>`
+
+要为其打开交易的在线玩家
+
+### `<命名空间:ID>`
+
+拥有 `trade_machine` 或 `block_trade_machine` 行为的自定义方块或家具的 ID
+
+示例：
+
+```text
+stations:alchemy_table
+```
+
+### `-silent`
+
+可选标志
+
+如果添加此标志，命令将隐藏通常发送给命令执行者的确认消息
+
+## 示例
+
+```text
+/iatrademachine twinkycome stations:alchemy_table
+```
+
+```text
+/iatrademachine twinkycome stations:alchemy_table -silent
+```
+
+## 权限
+
+```text
+ia.admin.iatrademachine
+```
+
+## 备注
+
+- 玩家和控制台均可执行此命令
+- 要求目标 ID 拥有 `trade_machine` 或 `block_trade_machine` 行为
+- 必须使用完整的命名空间 ID
+- 如果该 ID 没有支持的交易行为，命令将执行失败
+
+## 用例示例
+
+将此命令与 DeluxeMenus 等菜单插件结合使用，可创建一个分类选择菜单，直接打开不同的交易界面，而无需让玩家在一个庞大的交易界面中来回翻找

@@ -1,0 +1,92 @@
+---
+title: 文本展示
+description: 在任意 ItemsAdder 自定义方块或家具上方显示悬浮文本。支持 MiniMessage 格式、PlaceholderAPI 占位符和字体图片
+version: "1.0.8"
+---
+
+将一个或多个悬浮文本展示附加到自定义方块或家具上。支持 MiniMessage 格式、PlaceholderAPI 占位符和 ItemsAdder 字体图片
+
+适用于**方块**、**家具**和**复杂家具**
+
+## 基本配置
+
+```yaml
+behaviours:
+  text_display:
+    text: "<yellow>你好！"
+```
+
+多行文本（每个列表条目为一行）：
+
+```yaml
+behaviours:
+  text_display:
+    text:
+      - "<bold>存储"
+      - "<gray>右键点击打开"
+```
+
+## 多个展示实体
+
+使用 `displays` 部分可将多个文本展示附加到同一物品上。每个条目可独立设置位置和样式
+
+```yaml
+behaviours:
+  text_display:
+    displays:
+      label:
+        text: "<gold><bold>我的箱子"
+        offset: "0, 0.5, 0"
+      hint:
+        text: "<gray><i>右键点击打开"
+        offset: "0, 0.25, 0"
+```
+
+## 选项
+
+| 键                  | 类型                                                | 默认值            | 描述                                                                                              |
+|--------------------|---------------------------------------------------|----------------|-------------------------------------------------------------------------------------------------|
+| `text`             | 字符串或列表                                            | *（必填）*         | 要显示的文本。支持 MiniMessage、PlaceholderAPI 和 `:icon:` 字体图片                                            |
+| `offset`           | `"x, y, z"` 或列表                                   | `"0, 0.25, 0"` | 相对于方块或家具中心的位置偏移                                                                                 |
+| `billboard`        | `FIXED` \| `VERTICAL` \| `HORIZONTAL` \| `CENTER` | `VERTICAL`     | 展示实体如何旋转以面向玩家                                                                                   |
+| `alignment`        | `LEFT` \| `CENTER` \| `RIGHT`                     | `CENTER`       | 展示实体内的文本对齐方式                                                                                    |
+| `text_shadow`      | 布尔值                                               | `true`         | 文本是否有投影                                                                                         |
+| `see_through`      | 布尔值                                               | `false`        | 文本是否可透视方块                                                                                       |
+| `line_width`       | 整数 ≥ 1                                            | `1403`         | 换行前的最大行宽（像素）                                                                                    |
+| `background`       | `#RRGGBB`、`#RRGGBBAA`、`false` 或 `null`            | `null`         | 背景颜色。`null` 或 `false` 使用原版默认的深色背景                                                               |
+| `text_opacity`     | 浮点数 0.0-1.0                                       | *（省略时为默认值）*    | 文本不透明度。`0.0` 为完全透明，`1.0` 为完全不透明。完全省略此键则使用原版默认值（完全不透明）                                           |
+| `scale`            | 浮点数 > 0、`"x, y, z"` 或列表                           | `1.0`          | 文本大小倍率。单个值统一应用；使用 `"x, y, z"` 或包含 3 个元素的列表可进行非均匀缩放                                              |
+| `view_range`       | 浮点数 > 0                                           | `16.0`         | 展示实体可见的距离（方块）                                                                                   |
+| `refresh_interval` | 整数 ≥ 0                                            | `0`            | 每位玩家的文本刷新频率（以刻为单位）。`0` 禁用自动刷新。使用会随时间变化的 PlaceholderAPI 占位符时，设置为正值                               |
+| `brightness`       | 整数 0-15、`[block, sky]` 或配置节                       | *（省略时使用世界光照）*  | 覆盖光照等级。单个整数会将方块光和天空光设为相同值。使用包含两个元素的列表 `[block, sky]` 或带有 `block:` 和 `sky:` 键的配置节可分别设置。省略则继承世界光照 |
+| `shadow_radius`    | 浮点数 ≥ 0                                           | `0.0`          | 文本后方投影的半径                                                                                       |
+| `shadow_strength`  | 浮点数 ≥ 0                                           | `1.0`          | 投影的强度（不透明度）                                                                                     |
+| `yaw`              | 浮点数                                               | `0.0`          | 展示实体的水平旋转角度（度）。仅在 `billboard` 为 `FIXED` 时有意义                                                    |
+| `pitch`            | 浮点数                                               | `0.0`          | 展示实体的垂直旋转角度（度）。仅在 `billboard` 为 `FIXED` 时有意义                                                    |
+
+## 完整示例
+
+```yaml
+behaviours:
+  text_display:
+    text:
+      - "<aqua><player_name>"
+      - "<gray>分数：<gold>%vault_eco_balance%"
+    offset: "0, 0.6, 0"
+    billboard: VERTICAL
+    alignment: CENTER
+    text_shadow: true
+    see_through: false
+    line_width: 1403
+    background: "#00000080"
+    scale: 1.0
+    view_range: 16.0
+    refresh_interval: 20
+```
+
+## 备注
+
+- 文本支持 [MiniMessage](https://docs.advntr.dev/minimessage/format.html) 格式标签
+- 如果安装了 PlaceholderAPI，PlaceholderAPI 占位符会按玩家解析
+- 支持 ItemsAdder 字体图片（`:my_icon:`）
+- 使用会随时间更新的占位符时，请将 `refresh_interval` 设置为正值（例如 `20` 表示每秒刷新一次）

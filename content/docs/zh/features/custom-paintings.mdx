@@ -1,0 +1,77 @@
+---
+title: 自定义画
+description: 从你的 ItemsAdder YML 文件注册自定义画变体。需要 Paper 1.21.5+
+version: "1.0.8"
+---
+
+<Callout type="warn">
+    **版本要求：** 需要 **Paper 1.21.5 或更高版本**。在旧版本上此功能将被禁用
+</Callout>
+
+自定义画直接在 ItemsAdder 内容 YML 文件中使用顶层 `paintings` 部分定义。每个条目都会注册一个真正的 Minecraft 画变体，玩家可以在游戏中遇到
+
+## 配置
+
+```yaml
+info:
+  namespace: mynamespace
+
+paintings:
+  sunset:
+    enabled: true
+    width: 2
+    height: 1
+    asset: mynamespace:sunset
+    title: "<yellow>日落"
+    author: "Toutou"
+    item: mynamespace:sunset_painting
+    include_in_random: true
+```
+
+## 选项
+
+| 键                   | 类型          | 默认值     | 描述                                           |
+|---------------------|-------------|---------|----------------------------------------------|
+| `enabled`           | 布尔值         | `true`  | 设置为 `false` 可在不移除条目的情况下跳过该画                  |
+| `width`             | 整数          | *（必填）*  | 画的宽度（以方块计）                                   |
+| `height`            | 整数          | *（必填）*  | 画的高度（以方块计）                                   |
+| `asset`             | `命名空间:键`    | *（必填）*  | 纹理资源键。参见下方的[纹理路径](#纹理路径)                     |
+| `title`             | 字符串         | *（无）*   | 可选的在提示框中显示的标题。支持 MiniMessage                 |
+| `author`            | 字符串         | *（无）*   | 可选的在提示框中显示的作者名                               |
+| `item`              | `命名空间:物品ID` | *（无）*   | 可选关联的 ItemsAdder 物品。在有效的墙面上右键点击时，此物品会放置该自定义画 |
+| `include_in_random` | 布尔值         | `false` | 当设为 `true` 时，原版画物品在墙面空间合适时可以随机选中此自定义画        |
+
+## 纹理路径
+
+`asset` 值映射到 ItemsAdder 内容文件夹中的纹理文件。对于 `asset: mynamespace:sunset`，插件期望的文件路径为：
+
+```
+contents/mynamespace/textures/painting/sunset.png
+```
+
+无需数据包文件。插件会在运行时注入画变体并自动更新原版 `minecraft:placeable` 画标签
+
+## 在游戏中放置画
+
+如果你设置了 `item`，该 ItemsAdder 物品的行为将类似自定义画物品：
+
+- 在有效墙面上右键点击会放置该自定义画
+- 会遵循保护插件的检查
+- 副手重复放置问题会被自动处理
+
+如果 `include_in_random` 设为 `false`（默认值），该画只能通过其关联物品放置。将其设为 `true` 也可让原版画物品随机选中它
+
+## 启用/禁用
+
+你可以在插件的 `config.yml` 中切换此功能：
+
+```yaml
+features:
+  custom_paintings: true
+```
+
+## 备注
+
+- 此功能仅在 Minecraft **1.21.5** 及更高版本上可用。在旧版本上，`paintings` 部分会被静默忽略
+- 画变体本身不需要 `/iazip` 或手动资源包步骤，但你的纹理文件必须照常包含在资源包中
+- 关联的 `item` 必须是已存在的 ItemsAdder 物品。如果该物品缺失，画变体仍会被注册，但没有放置物品可用

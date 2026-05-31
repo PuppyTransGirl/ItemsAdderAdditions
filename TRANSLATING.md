@@ -2,7 +2,7 @@
 
 The wiki supports multiple languages via [Fumadocs](https://fumadocs.dev/) i18n. Each language lives in its own folder under `content/docs/` and a few lines of code register it with the site.
 
-Currently supported: **English** (`en`), **French** (`fr`), **Dutch** (`nl`).
+Currently supported: **English** (`en`), **French** (`fr`), **Dutch** (`nl`), **Chinese** (`zh`).
 
 ---
 

@@ -1,0 +1,83 @@
+---
+title: 动作参数
+description: 所有动作的通用参数。控制权限、执行延迟和实体目标选择
+version: "1.0.0"
+---
+
+每个动作都支持一组共享参数。这些参数允许你为动作设置权限门槛、添加延迟，以及控制动作的应用对象。你可以在同一个动作中任意组合使用它们
+
+## 参数
+
+### `permission`
+
+如果设置此项，则仅当玩家拥有此权限节点时动作才会触发。没有该权限的玩家会被静默忽略
+
+```yaml
+actionbar:
+  text: "<green>你好！"
+  permission: "my_pack.greet"
+```
+
+### `delay`
+
+在执行动作前等待指定的刻数。20 刻 = 1 秒。默认为 `0`（立即执行）
+
+```yaml
+message:
+  text: "<gold>加载中..."
+  delay: 40 # 触发后 2 秒
+```
+
+### `target`
+
+控制动作应用于谁。默认为 `self`
+
+| 值          | 描述                                        |
+|------------|-------------------------------------------|
+| `self`     | 触发事件的玩家 *(默认)*                            |
+| `other`    | 玩家正在交互的实体（例如正在攻击的实体）                      |
+| `all`      | 触发玩家**和**目标实体                             |
+| `radius`   | 交互点周围球形范围内的所有实体 - 需要 `target_radius`      |
+| `in_sight` | 玩家当前注视的实体 - 需要 `target_in_sight_distance` |
+
+```yaml
+message:
+  text: "<red>你打中了某人！"
+  target: other
+```
+
+### `target_radius`
+
+仅当 `target: radius` 时使用。定义以交互点为中心的球体直径（以方块计）
+
+```yaml
+actionbar:
+  text: "<yellow>范围效果！"
+  target: radius
+  target_radius: 10
+```
+
+### `target_in_sight_distance`
+
+仅当 `target: in_sight` 时使用。搜索实体时从玩家眼睛位置进行射线检测的最大距离（以方块计）。如果在该范围内未找到任何实体，则完全跳过该动作
+
+```yaml
+ignite:
+  duration: 100
+  target: in_sight
+  target_in_sight_distance: 10
+```
+
+## 完整示例
+
+```yaml
+my_item:
+  events:
+    interact:
+      right:
+        actionbar:
+          text: "<aqua>已右键点击！"
+          permission: "some.permission" # 只有拥有此权限的玩家才能触发
+          delay: 10 # 半秒延迟
+          target: self # 仅应用于点击者自身
+```

@@ -1,0 +1,36 @@
+---
+title: 标题
+description: 当 ItemsAdder 物品事件触发时，在玩家屏幕上显示 MiniMessage 格式的标题和副标题。支持淡入和淡出时间设置
+version: "1.0.0"
+---
+
+```yaml
+title:
+  title: "<bold><gold>欢迎！"
+  subtitle: "<gray>祝你玩得愉快" # 可选
+  fade_in: 5 # 可选，默认：10 刻
+  stay: 40 # 可选，默认：70 刻
+  fade_out: 30 # 可选，默认：20 刻
+```
+
+## 参数
+
+### `title`
+
+必填。大标题文本。支持 [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/)、[PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) 和字体图片
+
+### `subtitle`
+
+可选。标题下方显示的较小文本。支持 MiniMessage、PlaceholderAPI 和字体图片
+
+### `fade_in`
+
+可选。默认为 `10` 刻。淡入持续时间
+
+### `stay`
+
+可选。默认为 `70` 刻。标题在屏幕上停留的时间
+
+### `fade_out`
+
+可选。默认为 `20` 刻。淡出持续时间

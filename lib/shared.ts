@@ -3,7 +3,7 @@ export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';
 
-export const languages = ['en', 'fr', 'nl'] as const;
+export const languages = ['en', 'fr', 'nl', 'zh'] as const;
 export type Language = typeof languages[number];
 export const defaultLanguage: Language = 'en';
 

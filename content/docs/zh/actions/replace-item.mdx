@@ -1,0 +1,78 @@
+---
+title: 替换物品
+description: 将玩家手中的物品替换为原版 Minecraft、ItemsAdder 或 MMOItems 物品。可选择复制原物品的耐久度、附魔和持久化数据
+version: "1.0.9"
+---
+
+```yaml
+replace_item:
+  item: my_pack:upgraded_sword
+  copy_durability: true # 可选，默认：false
+  copy_enchantments: true # 可选，默认：false
+  copy_pdc: true # 可选，默认：false
+```
+
+替换目标玩家手持的物品。
+
+普通物品触发器替换主手物品。副手触发器变体（如 `ITEM_INTERACT_OFFHAND`）则替换副手物品
+
+## 参数
+
+### `item`
+
+必填。要给予玩家的替换物品。可使用[此列表](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary)中的原版材质、使用 `命名空间:id` 或仅 `id` 的自定义 ItemsAdder 物品，或使用 `mmoitems:type:id` 的 MMOItems 物品
+
+不支持 `#minecraft:planks` 等标签，因为该动作必须指定一个具体的物品堆叠
+
+```yaml
+replace_item:
+  item: minecraft:diamond_sword
+```
+
+```yaml
+replace_item:
+  item: my_pack:ruby_sword
+```
+
+```yaml
+replace_item:
+  item: mmoitems:sword:flame_blade
+```
+
+### `copy_durability`
+
+可选。默认为 `false`
+
+如果设为 `true`，则将原物品当前的耐久度损耗复制到替换物品上。仅当两个物品都支持耐久度时生效
+
+### `copy_enchantments`
+
+可选。默认为 `false`
+
+如果设为 `true`，则将原物品的所有附魔复制到替换物品上
+
+### `copy_pdc`
+
+可选。默认为 `false`
+
+如果设为 `true`，则将原物品的持久化数据容器复制到替换物品中。当替换物品上存在相同的键时，原物品的值会覆盖它们
+
+## 完整示例
+
+```yaml
+my_pack:ruby_sword:
+  events:
+    interact:
+      right:
+        replace_item:
+          item: my_pack:charged_ruby_sword
+          copy_durability: true
+          copy_enchantments: true
+          copy_pdc: true
+```
+
+## 备注
+
+- 如果配置的 `item` 无法解析，该动作不会执行任何操作
+- 如果动作目标不是玩家，该动作不会执行任何操作
+- 支持 `permission`、`delay` 和 `target` 等通用动作参数。参见[动作参数](/zh/docs/actions/parameters)

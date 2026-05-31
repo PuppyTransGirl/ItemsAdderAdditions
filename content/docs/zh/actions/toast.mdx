@@ -1,0 +1,30 @@
+---
+title: 弹窗
+description: 当 ItemsAdder 物品事件触发时，向玩家显示一个带有自定义图标和消息的进度样式弹窗
+version: "1.0.0"
+---
+
+```yaml
+toast:
+  icon: my_item
+  text:
+    - "<white>我的 <gradient:#AC52D4:#6C3484>ItemsAdderAdditions"
+    - "<#E6FBFE><bold>自定义弹窗"
+  frame: "task" # 可选，默认：goal
+```
+
+## 参数
+
+### `icon`
+
+必填。作为弹窗图标显示的物品。可使用[此列表](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary)中的原版材质、使用 `命名空间:id` 或仅 `id` 的自定义 ItemsAdder 物品，或使用 `mmoitems:type:id` 的 MMOItems 物品。弹窗图标不支持标签
+
+### `text`
+
+必填。弹窗消息。可以是单个字符串或列表（每个条目为一行）。支持 [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/)、[PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) 和字体图片
+
+### `frame`
+
+可选。默认为 `goal`。弹窗样式：`task`、`goal` 或 `challenge`
+
+<VideoGif src="/assets/actions_toast_example"/>

@@ -1,0 +1,10 @@
+{
+  "title": "行为",
+  "icon": "Zap",
+  "pages": [
+    "bed",
+    "...",
+    "storage",
+    "text-display"
+  ]
+}

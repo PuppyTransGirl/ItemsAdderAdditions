@@ -1,0 +1,26 @@
+---
+title: 发射火球
+description: 当 ItemsAdder 物品事件触发时，从玩家或实体发射一个可配置的火球。在你的 YAML 配置中设置威力、速度和爆炸强度
+version: "1.0.2"
+---
+
+```yaml
+shoot_fireball:
+  power: 1
+  speed: 2.0 # 可选，默认：1.0
+  fire: false # 可选，默认：true
+```
+
+## 参数
+
+### `power`
+
+必填。火球的爆炸威力
+
+### `speed`
+
+可选。默认为 `1.0`。弹射物的速度倍率
+
+### `fire`
+
+可选。默认为 `true`。火球撞击时是否产生火焰

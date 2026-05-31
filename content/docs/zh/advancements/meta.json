@@ -1,0 +1,11 @@
+{
+  "title": "进度",
+  "icon": "Trophy",
+  "pages": [
+    "index",
+    "configuration",
+    "triggers",
+    "player-predicates",
+    "completion-actions"
+  ]
+}

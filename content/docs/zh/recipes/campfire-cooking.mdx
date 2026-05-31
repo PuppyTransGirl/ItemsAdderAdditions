@@ -1,0 +1,78 @@
+---
+title: 营火
+description: 为 ItemsAdder、MMOItems 或原版 Minecraft 物品添加营火配方。直接在你的内容 YML 文件中定义，无需额外创建配方文件
+version: "1.0.3"
+---
+
+无需创建额外的配方文件即可添加营火配方
+
+## 参数
+
+### `enabled`
+
+可选。默认为 `true`。设置为 `false` 可跳过注册该配方
+
+### `ingredient.item`
+
+必填。配方的输入物品。可使用原版材质、ItemsAdder 物品或 MMOItems 物品
+
+```yaml
+ingredient:
+  item: BEEF
+```
+
+```yaml
+ingredient:
+  item: my_pack:raw_fish_fillet
+```
+
+```yaml
+ingredient:
+  item: mmoitems:consumable:raw_fish
+```
+
+### `result.item`
+
+必填。烹饪后的输出物品
+
+```yaml
+result:
+  item: COOKED_BEEF
+```
+
+### `result.amount`
+
+可选。默认为 `1`。产出的物品数量
+
+### `cook_time`
+
+可选。默认为 `600` 刻。烹饪时间。20 刻 = 1 秒
+
+### `exp`
+
+可选。默认为 `0.0`。取出烹饪结果时授予的经验值
+
+## 完整示例
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  campfire_cooking:
+    roasted_berry_skewer:
+      ingredient:
+        item: my_pack:berry_skewer_raw
+      result:
+        item: my_pack:berry_skewer_roasted
+        amount: 1
+      cook_time: 160
+      exp: 0.25
+```
+
+## 备注
+
+- 支持原版、ItemsAdder 和 MMOItems 物品
+- 此处不支持 `#minecraft:fishes` 等标签，因为营火配方需要一个具体的输入物品堆叠
+- `roasted_berry_skewer` 等配方 ID 是内部标识符
+- 命名空间来自 `info.namespace`

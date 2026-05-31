@@ -1,0 +1,189 @@
+---
+title: 配置参考
+description: "自定义 ItemsAdder 进度的完整 YAML 参考：显示属性、准则、奖励和完成动作全部在一个配置文件中"
+version: "1.0.9"
+---
+
+每个进度条目都位于任意 ItemsAdder 内容文件的顶层 `advancements` 键下。IAA 会自动加载包含此键的文件
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+  <进度ID>:
+    # ... 下方选项
+```
+
+## 顶层选项
+
+| 键             | 类型  | 默认值    | 描述                                                                                                                                                    |
+|---------------|-----|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `enabled`     | 布尔值 | `true` | 设置为 `false` 可跳过此进度，而无需从文件中移除                                                                                                                          |
+| `parent`      | 字符串 | *（无）*  | 父进度 ID。省略此项可使此进度成为根（标签）进度。参见[父进度](#父进度)                                                                                                               |
+| `display`     | 配置节 | *（必填）* | 视觉设置。参见[显示](#显示)。                                                                                                                                     |
+| `criteria`    | 配置节 | *（无）*  | 完成进度必须满足的准则。每个准则都有一个触发器、触发器特定的准则，以及可选的 `conditions.player` 谓词。参见[触发器](/zh/docs/advancements/triggers)和[玩家谓词](/zh/docs/advancements/player-predicates) |
+| `rewards`     | 配置节 | *（无）*  | 经验值、战利品表和配方解锁。参见[奖励](#奖励)                                                                                                                             |
+| `on_complete` | 配置节 | *（无）*  | 进度完全完成时执行的动作。参见[完成动作](/zh/docs/advancements/completion-actions)                                                                                       |
+
+## 父进度
+
+```yaml
+parent: root              # 与此文件相同的命名空间，解析为 my_pack:root
+parent: otherns:someroot  # 显式命名空间
+```
+
+如果 `parent` 不包含冒号，则会自动添加文件的命名空间作为前缀。如果完全省略 `parent`，此进度将成为根进度并在进度界面中创建一个新的标签
+
+## 显示
+
+```yaml
+display:
+  title: "<gold>第一把红宝石剑"
+  description: "<gray>获得你的第一把自定义剑"
+  icon: my_pack:ruby_sword
+  frame: task
+  background: "minecraft:gui/advancements/backgrounds/adventure"
+  show_toast: true
+  announce_to_chat: true
+  hidden: false
+```
+
+| 键                  | 类型        | 默认值                 | 描述                                                                           |
+|--------------------|-----------|---------------------|------------------------------------------------------------------------------|
+| `title`            | 字符串       | *（必填）*              | 进度标题。支持 [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) |
+| `description`      | 字符串       | `""`                | 提示框描述。支持 MiniMessage                                                         |
+| `icon`             | `命名空间:id` | `minecraft:barrier` | 用作图标的物品。接受 ItemsAdder 物品 ID、MMOItems ID 或原版材质 ID。不支持标签，因为图标必须解析为一个具体的物品      |
+| `frame`            | 字符串       | `task`              | 图标边框形状：`task`、`goal` 或 `challenge`                                           |
+| `background`       | 字符串       | *（无）*               | **仅限根进度。** 标签背景的纹理路径（例如 `minecraft:gui/advancements/backgrounds/adventure`）  |
+| `show_toast`       | 布尔值       | `true`              | 完成时显示弹窗通知                                                                    |
+| `announce_to_chat` | 布尔值       | `true`              | 在聊天中向所有玩家广播完成消息                                                              |
+| `hidden`           | 布尔值       | `false`             | 在完成之前隐藏此进度                                                                   |
+
+<Callout>
+    `background` 是使进度创建新标签的关键。它仅用于根进度（没有 `parent` 的进度）
+</Callout>
+
+## 准则
+
+每个准则都有一个 `trigger` 和一个可选的 `conditions` 部分。触发器特定的选项直接放在 `conditions` 下。你还可以为任意运行时触发器添加 `player` 谓词，以要求在授予准则之前进行额外的玩家状态检查
+
+```yaml
+criteria:
+  sneaky_sleep:
+    trigger: slept_in_bed
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+
+  high_fall:
+    trigger: fall_from_height
+    conditions:
+      distance:
+        y:
+          min: 30
+```
+
+| 键                   | 类型     | 默认值          | 描述                                                                                        |
+|---------------------|--------|--------------|-------------------------------------------------------------------------------------------|
+| `trigger`           | 字符串    | `impossible` | 此准则的触发器类型。参见完整的[触发器参考](/zh/docs/advancements/triggers)                                    |
+| `conditions`        | 配置节    | *（无）*        | 触发器特定的选项，外加可选的 `player` 谓词                                                                |
+| `conditions.player` | 配置节或列表 | *（任意玩家）*     | 在即将授予准则时检查的额外玩家谓词。`impossible` 触发器会忽略此项。参见[玩家谓词](/zh/docs/advancements/player-predicates) |
+
+<Callout>
+    子进度至少需要一个有效的准则。根进度可以省略 `criteria`；IAA 会创建一个内部根准则并自动授予，以便进度标签能够显示
+</Callout>
+
+## 奖励
+
+```yaml
+rewards:
+  experience: 50
+  loot:
+    - minecraft:chests/simple_dungeon
+  recipes:
+    - my_pack:ruby_sword_recipe
+    - minecraft:golden_apple
+```
+
+| 键            | 类型    | 默认值  | 描述                                     |
+|--------------|-------|------|----------------------------------------|
+| `experience` | 整数    | `0`  | 完成时授予的经验点数                             |
+| `loot`       | 字符串列表 | `[]` | 完成时调用的战利品表键                            |
+| `recipes`    | 字符串列表 | `[]` | 要解锁的配方键。接受 `命名空间:id` 或纯 `id`（使用文件命名空间） |
+
+## 完整示例
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+
+  root:
+    display:
+      title: "我的服务器"
+      description: "我的服务器的自定义成就"
+      icon: minecraft:nether_star
+      background: "minecraft:gui/advancements/backgrounds/adventure"
+      show_toast: false
+      announce_to_chat: false
+      frame: task
+
+  first_ruby_sword:
+    parent: root
+    display:
+      title: "第一把红宝石剑"
+      description: "获得你的第一把自定义剑"
+      icon: my_pack:ruby_sword
+      frame: task
+      show_toast: true
+      announce_to_chat: true
+    criteria:
+      obtain:
+        trigger: obtain_item
+        conditions:
+          items:
+            - my_pack:ruby_sword
+          amount: 1
+    on_complete:
+      sound:
+        name: minecraft:entity.player.levelup
+      title:
+        title: "<gold>成就达成！"
+        subtitle: "<gray>获得了第一把红宝石剑"
+      commands:
+        reward:
+          command: "give {player} gold_ingot 4"
+          as_console: true
+
+  master_crafter:
+    parent: my_pack:root
+    display:
+      title: "锻造大师"
+      description: "制作剑、盾牌和药水"
+      icon: minecraft:crafting_table
+      frame: goal
+    criteria:
+      craft_sword:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_sword_recipe
+      craft_shield:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_shield_recipe
+      craft_potion:
+        trigger: craft_recipe
+        conditions:
+          recipe: my_pack:ruby_potion_recipe
+    rewards:
+      experience: 100
+      loot:
+        - minecraft:chests/simple_dungeon
+```
+
+<Callout>
+    多准则进度（如上方的 `master_crafter`）需要完成所有准则。每个准则都会被独立追踪；进度由原版保存，并在重载后仍然保留
+</Callout>
