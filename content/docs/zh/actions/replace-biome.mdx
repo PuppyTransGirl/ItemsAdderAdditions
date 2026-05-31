@@ -1,0 +1,171 @@
+---
+title: 替换生物群系
+description: 使用 ItemsAdder 动作将玩家周围球形或立方体区域内的 Minecraft 生物群系更改为任意原版或数据包生物群系
+version: "1.0.7"
+---
+
+```yaml
+replace_biome:
+  biome: "minecraft:cherry_grove"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+当 ItemsAdder 事件触发时，更改选定区域内的生物群系
+
+## 参数
+
+### `biome`
+
+要应用的生物群系
+
+使用有效的生物群系命名空间 ID，例如 `minecraft:plains`、`minecraft:desert` 或 `minecraft:cherry_grove`
+你也可以使用自定义插件/数据包的生物群系
+
+```yaml
+replace_biome:
+  biome: "minecraft:desert"
+```
+
+### `shape`
+
+用于生物群系替换区域的形状
+
+支持的形状：
+
+- `CUBOID`
+- `RHOMBUS`
+- `SPHERE`
+- `CYLINDER`
+- `SHELL`
+- `TORUS`
+- `CONE`
+- `BEAM`
+- `PYRAMID`
+
+```yaml
+replace_biome:
+  biome: "minecraft:swamp"
+  shape: CYLINDER
+```
+
+### `radius`
+
+定义形状的大小
+
+根据形状和你想要的配置方式，有两种支持的半径格式
+
+#### 统一半径
+
+适用于球体等圆形形状
+
+```yaml
+replace_biome:
+  biome: "minecraft:snowy_taiga"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+#### 按轴半径
+
+适用于拉伸或自定义大小的形状
+
+```yaml
+replace_biome:
+  biome: "minecraft:jungle"
+  shape: CUBOID
+  radius:
+    x: 5
+    y: 4
+    z: 3
+```
+
+## 形状说明
+
+部分形状是基于旋转的：
+
+- `PYRAMID`
+- `BEAM`
+- `CONE`
+
+这些形状会受动作执行时玩家朝向的影响
+
+对于这些形状，`x`、`y` 和 `z` 仍然控制最终的形状尺寸，尽管形状是使用玩家的朝向进行定向的
+
+## 保护插件兼容性
+
+玩家没有建筑权限的位置（通过 [AntiGriefLib](https://github.com/Xiao-MoMi/AntiGriefLib) 检查）会被静默跳过。支持的插件包括 WorldGuard、GriefPrevention、Towny、GriefDefender、RedProtect 以及 AntiGriefLib 支持的其他插件
+
+## 重要限制
+
+Minecraft 的生物群系编辑在小范围内并非完全精确。结果可能看起来有些随机或粗糙，尤其是在使用较小的半径值时。这是游戏本身的限制
+
+- 小型的 `SPHERE`（球体）形状可能看起来不是完美的球形
+- 方向性形状可能看起来略显不均匀
+- 部分边缘可能看起来粗糙
+
+使用较大的半径时，形状会更接近预期效果
+
+## 示例
+
+### 球体
+
+```yaml
+replace_biome:
+  biome: "minecraft:mushroom_fields"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 6
+```
+
+### 立方体
+
+```yaml
+replace_biome:
+  biome: "minecraft:badlands"
+  shape: CUBOID
+  radius:
+    x: 5
+    y: 4
+    z: 3
+```
+
+### 基于玩家朝向的光束
+
+```yaml
+replace_biome:
+  biome: "minecraft:nether_wastes"
+  shape: BEAM
+  radius:
+    x: 12
+    y: 2
+    z: 2
+```
+
+### 基于玩家朝向的圆锥体
+
+```yaml
+replace_biome:
+  biome: "minecraft:soul_sand_valley"
+  shape: CONE
+  radius:
+    x: 10
+    y: 4
+    z: 4
+```
+
+## 完整示例
+
+```yaml
+my_item:
+  events:
+    interact:
+      right:
+        replace_biome:
+          biome: "minecraft:cherry_grove"
+          shape: SPHERE
+          radius:
+            blocks_from_center: 5
+```

@@ -1,0 +1,128 @@
+---
+title: 完成动作
+description: 配置玩家完成自定义 ItemsAdder 进度时触发的音效、标题、动作栏和命令动作。所有类型可以组合使用
+version: "1.0.9"
+---
+
+`on_complete` 部分定义了玩家获得进度时会发生什么。支持四种动作类型：音效、标题、动作栏和命令。所有四种类型可以在单个进度中组合使用
+
+```yaml
+on_complete:
+  sound: ...
+  title: ...
+  actionbar: ...
+  commands: ...
+```
+
+动作在进度授予后立即触发。对于有多个准则的进度，`on_complete` 在最后一个准则完成时运行一次
+
+---
+
+## sound
+
+在玩家位置播放音效
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:entity.player.levelup
+    volume: 1.0
+    pitch: 1.0
+    source: master
+```
+
+| 键        | 类型  | 默认值      | 描述                                                                                                |
+|----------|-----|----------|---------------------------------------------------------------------------------------------------|
+| `name`   | 字符串 | *（必填）*   | 音效键（例如 `minecraft:entity.player.levelup`）                                                         |
+| `volume` | 浮点数 | `1.0`    | 音量倍率                                                                                              |
+| `pitch`  | 浮点数 | `1.0`    | 音高倍率                                                                                              |
+| `source` | 字符串 | `master` | 音频来源类别：`master`、`music`、`record`、`weather`、`block`、`hostile`、`neutral`、`player`、`ambient`、`voice` |
+
+---
+
+## title
+
+在屏幕上显示标题和可选的副标题
+
+```yaml
+on_complete:
+  title:
+    title: "<gold><bold>成就达成！"
+    subtitle: "<gray>获得了第一把红宝石剑"
+    fade_in: 10
+    stay: 70
+    fade_out: 20
+```
+
+| 键          | 类型  | 默认值    | 描述                                                                                             |
+|------------|-----|--------|------------------------------------------------------------------------------------------------|
+| `title`    | 字符串 | *（必填）* | 大标题文本。支持 [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) 和 PlaceholderAPI |
+| `subtitle` | 字符串 | `""`   | 标题下方较小的文本。支持 MiniMessage 和 PlaceholderAPI                                                      |
+| `fade_in`  | 整数  | `10`   | 淡入持续时间（以刻为单位，20 刻 = 1 秒）                                                                       |
+| `stay`     | 整数  | `70`   | 标题在屏幕上停留的时间，以刻为单位                                                                              |
+| `fade_out` | 整数  | `20`   | 淡出持续时间（以刻为单位）                                                                                  |
+
+---
+
+## actionbar
+
+向玩家的动作栏发送消息
+
+```yaml
+on_complete:
+  actionbar:
+    text: "<green>获得了红宝石剑！"
+```
+
+| 键      | 类型  | 必填 | 描述                                    |
+|--------|-----|----|---------------------------------------|
+| `text` | 字符串 | 是  | 动作栏文本。支持 MiniMessage 和 PlaceholderAPI |
+
+---
+
+## commands
+
+运行一个或多个命令。每个条目都是一个命名的子部分；名称是任意的，仅用于区分条目
+
+```yaml
+on_complete:
+  commands:
+    give_reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true
+    notify:
+      command: "broadcast {player} 获得了红宝石剑成就！"
+      as_console: true
+```
+
+| 键            | 类型  | 默认值     | 描述                                     |
+|--------------|-----|---------|----------------------------------------|
+| `command`    | 字符串 | *（必填）*  | 要运行的命令。`{player}` 会被替换为玩家名称            |
+| `as_console` | 布尔值 | `false` | 以控制台发送者身份运行。当设为 `false` 时，玩家以其自身权限运行命令 |
+
+---
+
+## 完整示例
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:entity.player.levelup
+    volume: 1.0
+    pitch: 1.2
+  title:
+    title: "<gold><bold>成就达成！"
+    subtitle: "<gray>获得了第一把红宝石剑"
+    fade_in: 10
+    stay: 70
+    fade_out: 20
+  actionbar:
+    text: "<green>你获得了红宝石剑！"
+  commands:
+    reward_gold:
+      command: "give {player} gold_ingot 4"
+      as_console: true
+    log:
+      command: "say {player} 完成了「第一把红宝石剑」"
+      as_console: true
+```

@@ -1,0 +1,94 @@
+---
+title: 切石机
+description: 为 ItemsAdder、MMOItems 或原版 Minecraft 物品添加切石机配方。直接在你的内容 YML 文件中定义，可选合成完成音效和命令
+version: "1.0.3"
+---
+
+无需创建额外的配方文件即可添加切石机配方
+
+## 参数
+
+### `enabled`
+
+可选。默认为 `true`。设置为 `false` 可跳过注册该配方
+
+### `ingredient.item`
+
+必填。显示在切石机中的输入物品。可使用原版材质、ItemsAdder 物品或 MMOItems 物品
+
+```yaml
+ingredient:
+  item: STONE
+```
+
+```yaml
+ingredient:
+  item: my_pack:rough_marble
+```
+
+```yaml
+ingredient:
+  item: mmoitems:material:rough_marble
+```
+
+### `result.item`
+
+必填。输出物品
+
+```yaml
+result:
+  item: STONE_BRICKS
+```
+
+### `result.amount`
+
+可选。默认为 `1`。产出的物品数量
+
+## 合成完成动作
+
+使用 `on_complete` 可在配方合成完成时播放音效和/或执行命令
+
+```yaml
+on_complete:
+  sound:
+    name: "minecraft:entity.player.levelup"
+    source: master # 可选，默认: master
+    volume: 1.0 # 可选，默认: 1.0
+    pitch: 1.0 # 可选，默认: 1.0
+  commands:
+    reward:
+      command: "give {player} gold_ingot 4"
+      as_console: true # 可选，默认: false
+```
+
+`{player}` 会被替换为进行合成的玩家名称。命令默认以玩家身份执行；设置 `as_console: true` 可从控制台执行
+
+## 完整示例
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  stonecutter:
+    marble_tiles:
+      ingredient:
+        item: my_pack:rough_marble
+      result:
+        item: my_pack:marble_tiles
+        amount: 2
+      on_complete:
+        sound:
+          name: "minecraft:block.stonecutter.use"
+        commands:
+          reward:
+            command: "give {player} diamond 1"
+            as_console: true
+```
+
+## 备注
+
+- 支持原版、ItemsAdder 和 MMOItems 物品
+- 此处不支持 `#minecraft:stone_tool_materials` 等标签，因为切石机需要一个具体的输入物品堆叠
+- `marble_tiles` 等配方 ID 是内部标识符
+- 命名空间来自 `info.namespace`

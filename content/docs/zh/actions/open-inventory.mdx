@@ -1,0 +1,29 @@
+---
+title: 打开物品栏
+description: 使用 ItemsAdder 动作为玩家打开任意原版 Minecraft 工作方块 GUI。支持工作台、铁砧、附魔台等
+version: "1.0.0"
+---
+
+<Callout type="warn">
+    `title` 参数需要 Paper 1.21.4 或更高版本。
+</Callout>
+
+```yaml
+open_inventory:
+  type: "anvil"
+  title: "<blue>我的超棒自定义铁砧" # 可选
+```
+
+支持 [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) 格式、[PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) 占位符和 [ItemsAdder](https://itemsadder.com/) 字体图片
+
+## 支持的类型
+
+- `anvil`
+- `cartography`、`cartography_table`
+- `crafting_table`、`workbench`
+- `enchanting`、`enchanting_table`
+- `ender_chest`
+- `grindstone`
+- `loom`
+- `smithing`、`smithing_table`
+- `stonecutter`

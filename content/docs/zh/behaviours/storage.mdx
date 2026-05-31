@@ -1,0 +1,132 @@
+---
+title: 存储
+description: 将任意 ItemsAdder 自定义方块或家具变为存储容器。支持共享存储、潜影盒式便携容器和垃圾桶模式
+version: "1.0.0"
+---
+
+将任意自定义方块或家具变为存储容器。提供三种模式
+
+| 类型         | 行为                         |
+|------------|----------------------------|
+| `STORAGE`  | 共享容器 - 所有玩家看到的是同一个物品栏      |
+| `SHULKER`  | 存储物品在方块被破坏时会保留在物品内，重新放置时恢复 |
+| `DISPOSAL` | 垃圾桶 - 关闭 GUI 时存储物品会被静默删除   |
+
+## 配置
+
+<Tabs items={['STORAGE', 'SHULKER', 'DISPOSAL']}>
+    <Tab value="STORAGE">
+        ```yaml
+        behaviours:
+          storage:
+            type: STORAGE
+            rows: 3 # 可选，默认：3
+            inventory_type: furnace # 可选，设置后取代 rows
+            title: "<gold>社区箱子</gold>" # 可选，默认为方块/家具的名称
+            open_variant: my_open_storage # 可选
+            open_sound: # 可选
+              name: entity.villager.celebrate # 或自定义音效
+              volume: 1.0 # 可选，默认：1.0
+              pitch: 1.0 # 可选，默认：1.0
+              category: MASTER # 可选，默认：MASTER
+            close_sound: # 可选
+              name: entity.villager.ambient # 或自定义音效
+              volume: 1.0 # 可选，默认：1.0
+              pitch: 1.0 # 可选，默认：1.0
+              category: MASTER # 可选，默认：MASTER
+        ```
+    </Tab>
+    <Tab value="SHULKER">
+        ```yaml
+        behaviours:
+          storage:
+            type: SHULKER
+            rows: 3 # 可选，默认：3
+            inventory_type: furnace # 可选，设置后取代 rows
+            title: "<dark_purple>便携存储</dark_purple>" # 可选，默认为方块/家具的名称
+            open_variant: my_open_storage # 可选
+            open_sound: # 可选
+              name: entity.villager.celebrate # 或自定义音效
+              volume: 1.0 # 可选，默认：1.0
+              pitch: 1.0 # 可选，默认：1.0
+              category: MASTER # 可选，默认：MASTER
+            close_sound: # 可选
+              name: entity.villager.ambient # 或自定义音效
+              volume: 1.0 # 可选，默认：1.0
+              pitch: 1.0 # 可选，默认：1.0
+              category: MASTER # 可选，默认：MASTER
+        ```
+    </Tab>
+    <Tab value="DISPOSAL">
+        ```yaml
+        behaviours:
+          storage:
+            type: DISPOSAL
+            rows: 1 # 可选，默认：3
+            title: "<red>垃圾桶</red>" # 可选，默认为方块/家具的名称
+            open_variant: my_open_storage # 可选
+            open_sound: # 可选
+              name: entity.villager.celebrate # 或自定义音效
+              volume: 1.0 # 可选，默认：1.0
+              pitch: 1.0 # 可选，默认：1.0
+              category: MASTER # 可选，默认：MASTER
+            close_sound: # 可选
+              name: entity.villager.ambient # 或自定义音效
+              volume: 1.0 # 可选，默认：1.0
+              pitch: 1.0 # 可选，默认：1.0
+              category: MASTER # 可选，默认：MASTER
+        ```
+    </Tab>
+</Tabs>
+
+`name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `命名空间:值` 格式的自定义音效
+
+支持 [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) 格式、[PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) 占位符和 [ItemsAdder](https://itemsadder.com/) 字体图片
+
+## 物品栏类型
+
+默认情况下，存储会打开一个箱子风格的物品栏，其高度由 `rows` 控制（1-6，默认：3）
+设置 `inventory_type` 可改为打开特定类型的物品栏 - 设置此项后 `rows` 将被忽略
+
+| 值               | GUI 形状             |
+|-----------------|--------------------|
+| `furnace`       | 熔炉（输入 + 燃料 + 输出）   |
+| `blast_furnace` | 高炉                 |
+| `smoker`        | 烟熏炉                |
+| `brewing_stand` | 酿造台（3 个瓶子 + 2 个槽位） |
+| `dispenser`     | 发射器（3×3）           |
+| `dropper`       | 投掷器（3×3）           |
+| `hopper`        | 漏斗（1×5）            |
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    inventory_type: furnace
+    title: "<gray>自定义熔炉</gray>"
+```
+
+## 开启变体
+
+你可以选择设置 `open_variant`，使自定义方块、家具或复杂家具在至少有一名玩家打开存储时切换为另一个变体
+
+示例：
+
+- 视觉上打开的箱子
+- 拥有打开模型的木桶
+- 具有不同活动状态的容器
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    open_variant: my_open_storage
+```
+
+`open_variant` 应为另一个自定义方块、家具或复杂家具的 ID，可以使用以下格式：
+- `id`
+- `命名空间:id`
+
+当所有玩家都关闭物品栏后，存储会恢复为其正常变体
+
+<VideoGif src="/assets/behaviours_storage_example"/>

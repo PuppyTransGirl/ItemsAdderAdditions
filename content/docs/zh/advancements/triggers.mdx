@@ -1,0 +1,779 @@
+---
+title: 触发器
+description: 适用于自定义 ItemsAdder 进度的所有内置触发器类型参考，包含每个触发器的准则和 YAML 示例
+version: "1.0.9"
+---
+
+触发器定义了玩家必须执行的操作才能完成一个准则。每个准则都有一个触发器和一个可选的 `conditions` 块
+
+```yaml
+criteria:
+  <准则ID>:
+    trigger: <触发器类型>
+    conditions:
+      # 触发器特定选项
+```
+
+一个进度可以有多个准则。所有准则都必须完成，进度才会被授予。每个运行时触发器还支持可选的 `conditions.player` 谓词，用于额外的玩家状态要求；参见[玩家谓词](/zh/docs/advancements/player-predicates)。物品准则支持 ItemsAdder ID、MMOItems ID、原版物品 ID 和原版物品标签。方块准则支持 ItemsAdder 方块 ID、原版方块 ID 和原版方块标签
+
+---
+
+## obtain_item
+
+当玩家从地上捡起物品时触发
+
+```yaml
+criteria:
+  get_sword:
+    trigger: obtain_item
+    conditions:
+      items:
+        - my_pack:ruby_sword
+        - my_pack:iron_sword
+      amount: 1
+```
+
+| 键        | 类型    | 默认值  | 描述                                                           |
+|----------|-------|------|--------------------------------------------------------------|
+| `items`  | 字符串列表 | `[]` | 物品 ID 或原版物品标签（IA、MMOItems、原版或 `#minecraft:tag`）。匹配任意一个即可触发准则 |
+| `amount` | 整数    | `1`  | 玩家必须一次性捡起的最小堆叠数量                                             |
+
+---
+
+## consume_item
+
+当玩家食用或饮用完一个物品时触发
+
+```yaml
+criteria:
+  eat_ruby_apple:
+    trigger: consume_item
+    conditions:
+      item: my_pack:ruby_apple
+```
+
+| 键      | 类型  | 必填 | 描述                                              |
+|--------|-----|----|-------------------------------------------------|
+| `item` | 字符串 | 是  | 物品 ID 或原版物品标签（IA、MMOItems、原版或 `#minecraft:tag`） |
+
+---
+
+## using_item
+
+当玩家手持物品右键点击（对着空气或方块）时触发
+
+```yaml
+criteria:
+  use_staff:
+    trigger: using_item
+    conditions:
+      item: my_pack:ruby_staff
+```
+
+| 键      | 类型  | 必填 | 描述                                              |
+|--------|-----|----|-------------------------------------------------|
+| `item` | 字符串 | 是  | 物品 ID 或原版物品标签（IA、MMOItems、原版或 `#minecraft:tag`） |
+
+---
+
+## place_block
+
+当玩家放置 ItemsAdder 自定义方块或原版方块时触发
+
+```yaml
+criteria:
+  place_ruby_ore:
+    trigger: place_block
+    conditions:
+      block: my_pack:ruby_ore
+```
+
+| 键       | 类型  | 必填 | 描述                                                   |
+|---------|-----|----|------------------------------------------------------|
+| `block` | 字符串 | 是  | ItemsAdder 方块 ID、原版方块 ID 或原版方块标签，如 `#minecraft:logs` |
+
+---
+
+## break_block
+
+当玩家破坏 ItemsAdder 自定义方块或原版方块时触发
+
+```yaml
+criteria:
+  mine_ruby_ore:
+    trigger: break_block
+    conditions:
+      block: my_pack:ruby_ore
+```
+
+| 键       | 类型  | 必填 | 描述                                                   |
+|---------|-----|----|------------------------------------------------------|
+| `block` | 字符串 | 是  | ItemsAdder 方块 ID、原版方块 ID 或原版方块标签，如 `#minecraft:logs` |
+
+---
+
+## place_furniture
+
+当玩家放置自定义家具物品时触发
+
+```yaml
+criteria:
+  place_lamp:
+    trigger: place_furniture
+    conditions:
+      furniture: my_pack:ruby_lamp
+```
+
+| 键           | 类型  | 必填 | 描述                          |
+|-------------|-----|----|-----------------------------|
+| `furniture` | 字符串 | 是  | ItemsAdder 家具 ID（`命名空间:id`） |
+
+---
+
+## break_furniture
+
+当玩家破坏自定义家具物品时触发
+
+```yaml
+criteria:
+  break_lamp:
+    trigger: break_furniture
+    conditions:
+      furniture: my_pack:ruby_lamp
+```
+
+| 键           | 类型  | 必填 | 描述                          |
+|-------------|-----|----|-----------------------------|
+| `furniture` | 字符串 | 是  | ItemsAdder 家具 ID（`命名空间:id`） |
+
+---
+
+## interact_furniture
+
+当玩家右键点击自定义家具物品时触发
+
+```yaml
+criteria:
+  use_workbench:
+    trigger: interact_furniture
+    conditions:
+      furniture: my_pack:ruby_workbench
+```
+
+| 键           | 类型  | 必填 | 描述                          |
+|-------------|-----|----|-----------------------------|
+| `furniture` | 字符串 | 是  | ItemsAdder 家具 ID（`命名空间:id`） |
+
+---
+
+## craft_recipe
+
+当玩家使用特定的 IAA 配方合成物品时触发
+
+```yaml
+criteria:
+  craft_sword:
+    trigger: craft_recipe
+    conditions:
+      recipe: my_pack:ruby_sword_recipe
+```
+
+| 键        | 类型  | 必填 | 描述                                  |
+|----------|-----|----|-------------------------------------|
+| `recipe` | 字符串 | 是  | 配方键，格式为 `命名空间:id` 或纯 `id`（使用文件命名空间） |
+
+---
+
+## kill_entity_with_item
+
+当玩家手持特定物品击杀实体时触发
+
+```yaml
+criteria:
+  slay_zombie:
+    trigger: kill_entity_with_item
+    conditions:
+      item: my_pack:ruby_sword
+      entity_type: minecraft:zombie  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                                          |
+|---------------|-----|--------|---------------------------------------------|
+| `item`        | 字符串 | *（必填）* | 玩家必须手持的物品 ID 或原版物品标签                        |
+| `entity_type` | 字符串 | *（任意）* | 原版实体类型键（例如 `minecraft:zombie`）。如果省略，任意实体均匹配 |
+
+---
+
+## player_hurt_entity
+
+当玩家对实体造成伤害时触发。与 `kill_entity_with_item` 不同，此触发器在每次攻击时都会触发，而不仅仅是击杀的那一击
+
+```yaml
+criteria:
+  hit_zombie:
+    trigger: player_hurt_entity
+    conditions:
+      item: my_pack:ruby_sword  # 可选
+      entity_type: minecraft:zombie  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                                     |
+|---------------|-----|--------|----------------------------------------|
+| `item`        | 字符串 | *（任意）* | 玩家必须手持的物品 ID 或原版物品标签。如果省略，任意物品（或空手）均匹配 |
+| `entity_type` | 字符串 | *（任意）* | 原版实体类型键。如果省略，任意实体均匹配                   |
+
+---
+
+## entity_hurt_player
+
+当实体对玩家造成伤害时触发
+
+```yaml
+criteria:
+  hurt_by_zombie:
+    trigger: entity_hurt_player
+    conditions:
+      entity_type: minecraft:zombie  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                    |
+|---------------|-----|--------|-----------------------|
+| `entity_type` | 字符串 | *（任意）* | 原版实体类型键。如果省略，任意攻击者均匹配 |
+
+---
+
+## player_killed_entity
+
+当玩家击杀实体时触发（无论使用何种武器）
+
+```yaml
+criteria:
+  kill_creeper:
+    trigger: player_killed_entity
+    conditions:
+      entity_type: minecraft:creeper  # 可选
+      item: my_pack:ruby_sword  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                        |
+|---------------|-----|--------|---------------------------|
+| `entity_type` | 字符串 | *（任意）* | 原版实体类型键。如果省略，任意实体均匹配      |
+| `item`        | 字符串 | *（任意）* | 玩家必须手持的物品 ID。如果省略，任意物品均匹配 |
+
+---
+
+## entity_killed_player
+
+当玩家被非玩家实体击杀时触发（弹射物击杀会解析为发射者）
+
+```yaml
+criteria:
+  killed_by_skeleton:
+    trigger: entity_killed_player
+    conditions:
+      entity_type: minecraft:skeleton  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                       |
+|---------------|-----|--------|--------------------------|
+| `entity_type` | 字符串 | *（任意）* | 击杀者的原版实体类型键。如果省略，任意实体均匹配 |
+
+---
+
+## killed_by_arrow
+
+当玩家被箭矢击杀时触发。实体类型匹配箭矢的发射者，如果箭矢没有发射者，则匹配箭矢本身
+
+```yaml
+criteria:
+  shot_by_skeleton:
+    trigger: killed_by_arrow
+    conditions:
+      entity_type: minecraft:skeleton  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                         |
+|---------------|-----|--------|----------------------------|
+| `entity_type` | 字符串 | *（任意）* | 发射者的原版实体类型键。如果省略，任意箭矢来源均匹配 |
+
+---
+
+## tame_animal
+
+当玩家驯服动物时触发
+
+```yaml
+criteria:
+  tame_wolf:
+    trigger: tame_animal
+    conditions:
+      entity_type: minecraft:wolf  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                      |
+|---------------|-----|--------|-------------------------|
+| `entity_type` | 字符串 | *（任意）* | 原版实体类型键。如果省略，任意可驯服动物均匹配 |
+
+---
+
+## bred_animals
+
+当玩家繁殖两只动物时触发
+
+```yaml
+criteria:
+  breed_cows:
+    trigger: bred_animals
+    conditions:
+      entity_type: minecraft:cow   # 可选，后代的类型
+      parent_type: minecraft:cow   # 可选
+      partner_type: minecraft:cow  # 可选
+```
+
+| 键              | 类型  | 默认值    | 描述      |
+|----------------|-----|--------|---------|
+| `entity_type`  | 字符串 | *（任意）* | 后代的实体类型 |
+| `parent_type`  | 字符串 | *（任意）* | 母方的实体类型 |
+| `partner_type` | 字符串 | *（任意）* | 父方的实体类型 |
+
+---
+
+## villager_trade
+
+当玩家与村民完成交易时触发
+
+```yaml
+criteria:
+  buy_diamond:
+    trigger: villager_trade
+    conditions:
+      item: minecraft:diamond  # 可选
+```
+
+| 键      | 类型  | 默认值    | 描述                      |
+|--------|-----|--------|-------------------------|
+| `item` | 字符串 | *（任意）* | 交易结果的物品 ID。如果省略，任意交易均匹配 |
+
+---
+
+## enchanted_item
+
+当玩家在附魔台上为物品附魔时触发
+
+```yaml
+criteria:
+  enchant_ruby_sword:
+    trigger: enchanted_item
+    conditions:
+      item: my_pack:ruby_sword  # 可选
+      min_levels: 10            # 可选
+      max_levels: 30            # 可选
+```
+
+| 键            | 类型  | 默认值     | 描述                     |
+|--------------|-----|---------|------------------------|
+| `item`       | 字符串 | *（任意）*  | 物品 ID。如果省略，任意被附魔的物品均匹配 |
+| `min_levels` | 整数  | `0`     | 附魔消耗的最低 XP 等级          |
+| `max_levels` | 整数  | *（无限制）* | 附魔消耗的最高 XP 等级          |
+
+---
+
+## shoot_bow
+
+当玩家用弓射出弹射物时触发
+
+```yaml
+criteria:
+  shoot_ruby_bow:
+    trigger: shoot_bow
+    conditions:
+      item: my_pack:ruby_bow  # 可选
+```
+
+| 键      | 类型  | 默认值    | 描述                  |
+|--------|-----|--------|---------------------|
+| `item` | 字符串 | *（任意）* | 弓的物品 ID。如果省略，任意弓均匹配 |
+
+---
+
+## shot_crossbow
+
+当玩家用弩射出弹射物时触发
+
+```yaml
+criteria:
+  shoot_crossbow:
+    trigger: shot_crossbow
+    conditions:
+      item: my_pack:ruby_crossbow  # 可选
+```
+
+| 键      | 类型  | 默认值    | 描述                  |
+|--------|-----|--------|---------------------|
+| `item` | 字符串 | *（任意）* | 弩的物品 ID。如果省略，任意弩均匹配 |
+
+---
+
+## fishing_rod_hooked
+
+当玩家收回钓竿钓到鱼或钩住实体时触发
+
+```yaml
+criteria:
+  hook_fish:
+    trigger: fishing_rod_hooked
+    conditions:
+      rod: my_pack:ruby_rod          # 可选
+      caught_entity_type: minecraft:cod  # 可选
+```
+
+| 键                    | 类型  | 默认值    | 描述                      |
+|----------------------|-----|--------|-------------------------|
+| `rod`                | 字符串 | *（任意）* | 钓鱼竿的物品 ID。如果省略，任意钓鱼竿均匹配 |
+| `caught_entity_type` | 字符串 | *（任意）* | 被钩住的实体类型。如果省略，任意捕获物均匹配  |
+
+---
+
+## filled_bucket
+
+当玩家用桶盛装液体时触发
+
+```yaml
+criteria:
+  fill_lava:
+    trigger: filled_bucket
+    conditions:
+      item: minecraft:lava_bucket  # 可选
+```
+
+| 键      | 类型  | 默认值    | 描述                                 |
+|--------|-----|--------|------------------------------------|
+| `item` | 字符串 | *（任意）* | 盛装后桶的物品 ID 或原版物品标签。如果省略，任意已盛装的桶均匹配 |
+
+---
+
+## item_durability_changed
+
+当玩家手中的物品消耗耐久度时触发
+
+```yaml
+criteria:
+  damage_ruby_sword:
+    trigger: item_durability_changed
+    conditions:
+      item: my_pack:ruby_sword  # 可选
+```
+
+| 键      | 类型  | 默认值    | 描述                              |
+|--------|-----|--------|---------------------------------|
+| `item` | 字符串 | *（任意）* | 受损物品的物品 ID 或原版物品标签。如果省略，任意物品均匹配 |
+
+---
+
+## item_used_on_block
+
+当玩家手持物品右键点击方块时触发
+
+```yaml
+criteria:
+  use_on_crafting_table:
+    trigger: item_used_on_block
+    conditions:
+      item: my_pack:ruby_wand          # 可选
+      block: minecraft:crafting_table  # 可选
+```
+
+| 键       | 类型  | 默认值    | 描述                               |
+|---------|-----|--------|----------------------------------|
+| `item`  | 字符串 | *（任意）* | 玩家必须手持的物品 ID 或原版物品标签             |
+| `block` | 字符串 | *（任意）* | ItemsAdder 方块 ID、原版方块 ID 或原版方块标签 |
+
+---
+
+## recipe_crafted
+
+当玩家使用原版合成系统合成任意物品时触发
+
+```yaml
+criteria:
+  craft_diamond_sword:
+    trigger: recipe_crafted
+    conditions:
+      recipe: minecraft:diamond_sword  # 可选
+```
+
+| 键        | 类型  | 默认值    | 描述                               |
+|----------|-----|--------|----------------------------------|
+| `recipe` | 字符串 | *（任意）* | 配方键，格式为 `命名空间:id`。如果省略，任意合成操作均匹配 |
+
+---
+
+## recipe_unlocked
+
+当玩家发现新配方时触发
+
+```yaml
+criteria:
+  unlock_diamond_sword:
+    trigger: recipe_unlocked
+    conditions:
+      recipe: minecraft:diamond_sword  # 可选
+```
+
+| 键        | 类型  | 默认值    | 描述                                 |
+|----------|-----|--------|------------------------------------|
+| `recipe` | 字符串 | *（任意）* | 配方键，格式为 `命名空间:id`。如果省略，任意已发现的配方均匹配 |
+
+---
+
+## player_interacted_with_entity
+
+当玩家用主手右键点击实体时触发
+
+```yaml
+criteria:
+  name_a_villager:
+    trigger: player_interacted_with_entity
+    conditions:
+      entity_type: minecraft:villager  # 可选
+      item: minecraft:name_tag         # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                                     |
+|---------------|-----|--------|----------------------------------------|
+| `entity_type` | 字符串 | *（任意）* | 原版实体类型键。如果省略，任意实体均匹配                   |
+| `item`        | 字符串 | *（任意）* | 玩家必须手持的物品 ID 或原版物品标签。如果省略，任意物品（或空手）均匹配 |
+
+---
+
+## player_sheared_equipment
+
+当玩家为实体剪毛时触发
+
+```yaml
+criteria:
+  shear_sheep:
+    trigger: player_sheared_equipment
+    conditions:
+      entity_type: minecraft:sheep  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                      |
+|---------------|-----|--------|-------------------------|
+| `entity_type` | 字符串 | *（任意）* | 原版实体类型键。如果省略，任意可剪毛实体均匹配 |
+
+---
+
+## bee_nest_destroyed
+
+当玩家破坏蜂箱或蜂巢时触发
+
+```yaml
+criteria:
+  break_beehive:
+    trigger: bee_nest_destroyed
+    conditions:
+      block: minecraft:beehive  # 可选
+```
+
+| 键       | 类型  | 默认值    | 描述                                                                         |
+|---------|-----|--------|----------------------------------------------------------------------------|
+| `block` | 字符串 | *（任意）* | 方块 ID 或原版方块标签（`minecraft:beehive`、`minecraft:bee_nest` 或标签）。如果省略，任意蜂巢方块均匹配 |
+
+---
+
+## started_riding
+
+当玩家骑乘实体时触发
+
+```yaml
+criteria:
+  ride_horse:
+    trigger: started_riding
+    conditions:
+      entity_type: minecraft:horse  # 可选
+```
+
+| 键             | 类型  | 默认值    | 描述                   |
+|---------------|-----|--------|----------------------|
+| `entity_type` | 字符串 | *（任意）* | 原版实体类型键。如果省略，任意坐骑均匹配 |
+
+---
+
+## effects_changed
+
+当玩家获得药水效果或药水效果发生变化时触发
+
+```yaml
+criteria:
+  get_speed:
+    trigger: effects_changed
+    conditions:
+      effect: minecraft:speed  # 可选
+```
+
+| 键        | 类型  | 默认值    | 描述                                             |
+|----------|-----|--------|------------------------------------------------|
+| `effect` | 字符串 | *（任意）* | 药水效果键（例如 `minecraft:speed`）。如果省略，任意效果的添加或更改均匹配 |
+
+---
+
+## changed_dimension
+
+当玩家改变世界环境时触发
+
+```yaml
+criteria:
+  enter_nether:
+    trigger: changed_dimension
+    conditions:
+      to: nether    # 可选
+      from: normal  # 可选
+```
+
+| 键      | 类型  | 默认值    | 描述                                         |
+|--------|-----|--------|--------------------------------------------|
+| `to`   | 字符串 | *（任意）* | 目标 Bukkit 环境：`normal`、`nether` 或 `the_end` |
+| `from` | 字符串 | *（任意）* | 来源 Bukkit 环境：`normal`、`nether` 或 `the_end` |
+
+---
+
+## slept_in_bed
+
+当玩家成功进入床时触发。无准则选项
+
+```yaml
+criteria:
+  first_sleep:
+    trigger: slept_in_bed
+```
+
+---
+
+## used_totem
+
+当玩家被不死图腾从死亡中拯救时触发。无准则选项
+
+```yaml
+criteria:
+  totem_pop:
+    trigger: used_totem
+```
+
+---
+
+## fall_from_height
+
+当玩家受到摔落伤害时触发
+
+```yaml
+criteria:
+  survived_fall:
+    trigger: fall_from_height
+    conditions:
+      distance:
+        y:
+          min: 30
+          max: 320
+```
+
+你也可以使用单个数字作为最小摔落距离：
+
+```yaml
+criteria:
+  small_fall:
+    trigger: fall_from_height
+    conditions:
+      distance: 8
+```
+
+| 键                     | 类型     | 默认值      | 描述                                                                         |
+|-----------------------|--------|----------|----------------------------------------------------------------------------|
+| `distance`            | 数字或配置节 | `0` 到无限制 | 摔落距离范围。一个数字表示最小距离。配置节可使用 `min`/`max`，或嵌套的 `y`、`absolute` 或 `horizontal` 范围 |
+| `distance.min`        | 数字     | `0`      | 最小摔落距离                                                                     |
+| `distance.max`        | 数字     | *（无限制）*  | 最大摔落距离                                                                     |
+| `distance.y`          | 配置节    | *（无）*    | 垂直摔落距离的首选范围形式。支持 `min` 和 `max`                                             |
+| `distance.absolute`   | 配置节    | *（无）*    | 备选范围形式。支持 `min` 和 `max`                                                    |
+| `distance.horizontal` | 配置节    | *（无）*    | 备选范围形式。支持 `min` 和 `max`                                                    |
+
+---
+
+## used_ender_eye
+
+当玩家投掷末影之眼时触发。无准则选项
+
+```yaml
+criteria:
+  use_ender_eye:
+    trigger: used_ender_eye
+```
+
+---
+
+## held_item
+
+IAA 自定义触发器。当玩家滚动到包含物品的快捷栏槽位时触发
+
+```yaml
+criteria:
+  equip_ruby_sword:
+    trigger: held_item
+    conditions:
+      item: my_pack:ruby_sword  # 可选
+```
+
+| 键      | 类型  | 默认值    | 描述                     |
+|--------|-----|--------|------------------------|
+| `item` | 字符串 | *（任意）* | 物品 ID。如果省略，滚动到的任意物品均匹配 |
+
+---
+
+## permission
+
+当玩家加入时，如果拥有指定的权限节点，则触发
+
+```yaml
+criteria:
+  has_vip:
+    trigger: permission
+    conditions:
+      permission: "myserver.rank.vip"
+```
+
+| 键            | 类型  | 必填 | 描述                         |
+|--------------|-----|----|----------------------------|
+| `permission` | 字符串 | 是  | 权限节点。在每次加入时检查；一旦玩家拥有该权限即触发 |
+
+---
+
+## in_biome
+
+当玩家进入特定生物群系时触发。在区块边界检查
+
+```yaml
+criteria:
+  visit_jungle:
+    trigger: in_biome
+    conditions:
+      biome: minecraft:jungle
+      world: world  # 可选
+```
+
+| 键       | 类型  | 默认值    | 描述                                            |
+|---------|-----|--------|-----------------------------------------------|
+| `biome` | 字符串 | *（必填）* | 生物群系键，格式为 `命名空间:id`（例如 `minecraft:deep_dark`） |
+| `world` | 字符串 | *（任意）* | 将检查限制在单个世界的世界名称                               |
+
+---
+
+## impossible
+
+自身永远不会触发。该准则只能通过 IAA API 或管理员命令授予
+
+```yaml
+criteria:
+  manual:
+    trigger: impossible
+```
+
+无 `conditions` 选项

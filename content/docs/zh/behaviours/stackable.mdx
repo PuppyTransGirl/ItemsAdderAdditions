@@ -1,0 +1,63 @@
+---
+title: 可堆叠
+description: 使 ItemsAdder 自定义方块按定义的顺序叠放在彼此之上。支持简单、复杂和多层级堆叠配置
+version: "1.0.0"
+---
+
+<Tabs items={['简单', '复杂', '完整']}>
+    <Tab value="简单">
+        ```yaml
+        behaviours:
+          stackable:
+            - my_block_2
+            - my_block_3
+            - my_block_4
+        ```
+    </Tab>
+    <Tab value="复杂">
+        ```yaml
+        behaviours:
+          stackable:
+            blocks:
+              - my_block_2
+              - my_block_3
+              - my_block_4
+            items: # 可选，默认为此行为所在的物品
+              - my_item
+              - BONE_MEAL
+            sound: # 可选
+              name: entity.villager.ambient # 或自定义音效
+              volume: 1.0 # 可选，默认：1.0
+              pitch: 1.0 # 可选，默认：1.0
+              category: MASTER # 可选，默认：MASTER
+            decrement_amount: 2 # 可选，默认：1
+        ```
+
+        `name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `命名空间:值` 格式的自定义音效
+    </Tab>
+    <Tab value="完整">
+        ```yaml
+        behaviours:
+          stackable:
+            first_step:
+              block: my_block_2
+              items: # 可选，默认为此行为所在的物品
+                - my_item
+                - BONE_MEAL
+              sound: # 可选
+                name: entity.villager.ambient # 或自定义音效
+                volume: 1.0 # 可选，默认：1.0
+                pitch: 1.0 # 可选，默认：1.0
+                category: MASTER # 可选，默认：MASTER
+              decrement_amount: 2 # 可选，默认：1
+            another_step:
+              ...
+        ```
+
+        `name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `命名空间:值` 格式的自定义音效
+    </Tab>
+</Tabs>
+
+这些 ID 必须指向自定义方块。支持的类型：`REAL`、`REAL_NOTE`、`REAL_TRANSPARENT` 和 `REAL_WIRE`。你可以根据需要添加任意多个步骤
+
+<VideoGif src="/assets/behaviours_stackable_example"/>

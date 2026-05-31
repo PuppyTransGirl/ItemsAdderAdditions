@@ -19,6 +19,11 @@ export const langTabs: LayoutTab[] = [
         url: localizedDocsRoute('nl'),
         icon: <span className="text-base leading-none">🇳🇱</span>,
     },
+    {
+        title: '中文',
+        url: localizedDocsRoute('zh'),
+        icon: <span className="text-base leading-none">🇨🇳</span>,
+    },
 ];
 
 export function baseOptions(): BaseLayoutProps {

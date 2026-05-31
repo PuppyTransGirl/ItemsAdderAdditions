@@ -1,0 +1,65 @@
+---
+title: 自定义进度
+description: 在你的 ItemsAdder YAML 文件中定义自定义 Minecraft 进度树，支持自定义触发器、新标签和完成动作
+version: "1.0.9"
+---
+
+直接在 ItemsAdder 内容 YML 文件中定义自定义 Minecraft 进度树，无需数据包，无需重启。添加一个 `advancements` 部分并运行 `/iareload` 即可
+
+## 功能
+
+- 使用自定义背景纹理创建**新的进度标签**
+- 通过将进度相互关联来构建**树状结构**
+- 使用 **41 种内置触发器类型**（获取物品、合成配方、击杀实体、进入生物群系、繁殖动物、玩家状态检查等）
+- 在进度完成时执行**完成动作**（标题、音效、命令、动作栏消息）
+- 为任意准则添加可选的**玩家谓词**，如潜行、游戏模式、等级、物品栏槽位、药水效果、位置等
+- 授予**经验值、战利品表和配方解锁**作为奖励
+- 玩家进度在重载后持久保留
+
+## 基本结构
+
+```yaml
+info:
+  namespace: my_pack
+
+advancements:
+
+  root: # 根进度
+    display:
+      title: "我的服务器"
+      description: "我的服务器的成就"
+      icon: minecraft:nether_star
+      background: "minecraft:gui/advancements/backgrounds/adventure"
+      show_toast: false
+      announce_to_chat: false
+
+  first_sword:
+    parent: root
+    display:
+      title: "第一把红宝石剑"
+      description: "获得你的第一把自定义剑"
+      icon: my_pack:ruby_sword
+      frame: task
+    criteria:
+      obtain:
+        trigger: obtain_item
+        conditions:
+          items:
+            - my_pack:ruby_sword
+    on_complete:
+      sound:
+        name: minecraft:entity.player.levelup
+      title:
+        title: "<gold>成就达成！"
+        subtitle: "<gray>获得了第一把红宝石剑"
+```
+
+## 工作原理
+
+IAA 会加载每个包含 `advancements` 部分的内容文件。每个条目都会通过 NMS 在运行时注入为一个 Minecraft 进度。玩家进度由原版存储在世界的存档文件中，并在重载后持久保留。没有准则的根进度会被自动授予，以便玩家在加入或重载后能看到其标签
+
+根进度（没有 `parent`）会在进度界面中创建一个新标签。子进度在树状结构中与其父进度在视觉上相连
+
+<Callout>
+    同一文件中的所有进度共享相同的 `info.namespace`。支持使用 `namespace:id` 格式跨命名空间的父进度
+</Callout>

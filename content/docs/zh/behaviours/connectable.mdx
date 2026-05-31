@@ -1,0 +1,89 @@
+---
+title: 可连接家具
+description: 使 ItemsAdder 自定义家具自动连接到相邻的匹配部件。支持楼梯、桌子、栅栏以及任意多变体家具
+version: "1.0.0"
+---
+
+<Tabs items={['楼梯类型', '桌子类型']}>
+    <Tab value="楼梯类型">
+        ```yaml
+        behaviours:
+          connectable:
+            type: stair # 可选（默认值：stair）
+        ```
+
+        ```yaml
+        behaviours:
+          connectable:
+            type: stair # 可选（默认值：stair）
+            default: connectable_furniture
+            straight: connectable_furniture_straight
+            left: connectable_furniture_left
+            right: connectable_furniture_right
+            outer: connectable_furniture_outer
+            inner: connectable_furniture_inner
+        ```
+
+        ![可连接家具楼梯类型示例](/assets/behaviours_connectable_stair_type_example.webp)
+    </Tab>
+    <Tab value="桌子类型">
+        ```yaml
+        behaviours:
+          connectable:
+            type: table
+        ```
+
+        ```yaml
+        behaviours:
+          connectable:
+            type: table
+            default: connectable_furniture
+            straight: connectable_furniture_straight
+            middle: connectable_furniture_middle
+            border: connectable_furniture_border
+            corner: connectable_furniture_corner
+            end: connectable_furniture_end
+        ```
+
+        ![可连接家具桌子类型示例](/assets/behaviours_connectable_table_type_example.webp)
+    </Tab>
+</Tabs>
+
+这些 ID 必须指向自定义家具
+
+## 默认 ID 解析
+
+所有家具类型 ID 均为可选。如果未指定，插件会自动查找匹配的家具 ID：
+
+- `default` 继承配置了该行为的家具 ID
+- 其他所有类型使用 `<家具名称>_<类型>`
+
+例如，如果该行为配置在名为 `connectable_furniture` 的家具上：
+
+### 楼梯类型自动查找
+
+- `default` → `connectable_furniture`
+- `straight` → `connectable_furniture_straight`
+- `left` → `connectable_furniture_left`
+- `right` → `connectable_furniture_right`
+- `outer` → `connectable_furniture_outer`
+- `inner` → `connectable_furniture_inner`
+
+### 桌子类型自动查找
+
+- `default` → `connectable_furniture`
+- `straight` → `connectable_furniture_straight`
+- `middle` → `connectable_furniture_middle`
+- `border` → `connectable_furniture_border`
+- `corner` → `connectable_furniture_corner`
+- `end` → `connectable_furniture_end`
+
+## 最简配置
+
+```yaml
+behaviours:
+  connectable:
+    type: stair # 或 table
+```
+
+大多数情况下你只需要设置类型；自动 ID 解析会处理其余部分

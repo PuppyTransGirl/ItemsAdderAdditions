@@ -1,0 +1,9 @@
+{
+  "title": "动作",
+  "icon": "Hammer",
+  "pages": [
+    "parameters",
+    "...",
+    "veinminer"
+  ]
+}

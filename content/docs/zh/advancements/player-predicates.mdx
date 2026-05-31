@@ -1,0 +1,348 @@
+---
+title: 玩家谓词
+description: 为任意自定义进度准则添加额外的玩家状态要求，包括标志、游戏模式、等级、物品栏槽位、药水效果、位置以及原版风格的实体谓词
+version: "1.0.9"
+---
+
+玩家谓词允许你在触发器之外为准则添加额外的要求。将它们放置在 `conditions.player` 下。触发器必须首先触发，然后在授予准则之前立即检查玩家谓词
+
+```yaml
+criteria:
+  sneaky_sleep:
+    trigger: slept_in_bed
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+```
+
+<Callout>
+    `conditions.player` 适用于运行时触发器。`impossible` 触发器会忽略玩家谓词，因为它只能手动授予
+</Callout>
+
+## 对象和列表格式
+
+当你只需要一个谓词时，使用单个对象。对象内的所有键都必须匹配
+
+```yaml
+conditions:
+  player:
+    type: minecraft:player
+    flags:
+      is_sneaking: true
+    type_specific:
+      type: minecraft:player
+      gamemode: survival
+```
+
+你也可以使用列表。列表中的每个条目都必须匹配。如果你偏好原版风格的谓词包装器，这种方式会很有用
+
+```yaml
+conditions:
+  player:
+    - condition: minecraft:entity_properties
+      predicate:
+        flags:
+          is_sneaking: true
+    - condition: minecraft:entity_properties
+      predicate:
+        type_specific:
+          type: minecraft:player
+          gamemode: survival
+```
+
+## 范围语法
+
+数值接受一个精确数字或 `min`/`max` 对象
+
+```yaml
+level: 10
+
+level:
+  min: 10
+  max: 30
+```
+
+此语法适用于玩家等级、饱食度、移动速度、药水持续时间、附魔等级、物品数量、耐久度、光照等级以及其他数值检查
+
+## 常用玩家检查
+
+```yaml
+conditions:
+  player:
+    flags:
+      is_sneaking: true
+      is_sprinting: false
+    type_specific:
+      type: minecraft:player
+      gamemode: adventure
+      level:
+        min: 10
+      food:
+        level:
+          min: 16
+        saturation:
+          min: 4.0
+```
+
+| 键                               | 类型     | 描述                                                          |
+|---------------------------------|--------|-------------------------------------------------------------|
+| `flags.is_baby`                 | 布尔值    | 当实体支持时，匹配幼年/成年状态                                            |
+| `flags.is_on_fire`              | 布尔值    | 要求玩家着火或未着火                                                  |
+| `flags.is_sneaking`             | 布尔值    | 要求潜行状态                                                      |
+| `flags.is_sprinting`            | 布尔值    | 要求疾跑状态                                                      |
+| `flags.is_swimming`             | 布尔值    | 要求游泳状态                                                      |
+| `flags.is_on_ground`            | 布尔值    | 要求在地面上                                                      |
+| `flags.is_flying`               | 布尔值    | 匹配创造模式飞行或滑翔                                                 |
+| `flags.is_fall_flying`          | 布尔值    | 要求鞘翅滑翔状态                                                    |
+| `type_specific.gamemode`        | 字符串或列表 | 匹配一种或多种游戏模式：`survival`、`creative`、`adventure` 或 `spectator` |
+| `type_specific.level`           | 数字或范围  | 匹配玩家的经验等级                                                   |
+| `type_specific.food.level`      | 数字或范围  | 匹配饱食度                                                       |
+| `type_specific.food.saturation` | 数字或范围  | 匹配饱和度                                                       |
+
+`gamemode`、`level`、`food`、`advancements`、`recipes`、`stats`、`input` 和 `looking_at` 也可以直接放在 `player` 内部，但 `type_specific` 更清晰，也更接近原版谓词结构
+
+## 输入检查
+
+当服务器暴露这些信息时，输入谓词可以检查玩家当前的移动输入。当直接输入数据不可用时，`sneak` 和 `sprint` 会回退到 Bukkit 的玩家状态
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      input:
+        forward: true
+        jump: true
+        sneak: false
+        sprint: true
+```
+
+| 键                | 类型  | 描述          |
+|------------------|-----|-------------|
+| `input.forward`  | 布尔值 | 要求前进键状态     |
+| `input.backward` | 布尔值 | 要求后退键状态     |
+| `input.left`     | 布尔值 | 要求左移键状态     |
+| `input.right`    | 布尔值 | 要求右移键状态     |
+| `input.jump`     | 布尔值 | 要求跳跃键状态     |
+| `input.sneak`    | 布尔值 | 要求潜行输入或潜行状态 |
+| `input.sprint`   | 布尔值 | 要求疾跑输入或疾跑状态 |
+
+## 位置检查
+
+```yaml
+conditions:
+  player:
+    location:
+      dimension: minecraft:overworld
+      world: world
+      biomes:
+        - minecraft:plains
+        - minecraft:forest
+      position:
+        x:
+          min: 100
+          max: 200
+        y:
+          min: 60
+        z: 0
+      block:
+        blocks: minecraft:grass_block
+      light:
+        min: 8
+      can_see_sky: true
+```
+
+| 键                                   | 类型     | 描述                                                                           |
+|-------------------------------------|--------|------------------------------------------------------------------------------|
+| `location.dimension` / `dimensions` | 字符串或列表 | 匹配世界环境，例如 `minecraft:overworld`、`minecraft:the_nether` 或 `minecraft:the_end` |
+| `location.world`                    | 字符串    | 匹配 Bukkit 世界名称                                                               |
+| `location.biome` / `biomes`         | 字符串或列表 | 匹配生物群系键                                                                      |
+| `location.position.x`               | 数字或范围  | 匹配 X 坐标                                                                      |
+| `location.position.y`               | 数字或范围  | 匹配 Y 坐标                                                                      |
+| `location.position.z`               | 数字或范围  | 匹配 Z 坐标                                                                      |
+| `location.block`                    | 方块谓词   | 匹配该位置的方块                                                                     |
+| `location.light`                    | 数字或范围  | 匹配方块光照等级                                                                     |
+| `location.can_see_sky`              | 布尔值    | 要求天空可见性                                                                      |
+
+不支持 `location.structure` 和 `location.structures`。如果配置了它们，谓词将不会匹配
+
+## 方块谓词
+
+方块谓词由 `location.block`、`stepping_on` 和 `movement_affected_by` 使用
+
+```yaml
+conditions:
+  player:
+    stepping_on:
+      block:
+        blocks: minecraft:stone
+        state:
+          axis: y
+```
+
+| 键               | 类型      | 描述                        |
+|-----------------|---------|---------------------------|
+| `block`         | 字符串或配置节 | 单个方块的简写形式，或完整的方块谓词配置节     |
+| `blocks` / `id` | 字符串或列表  | 要匹配的方块 ID                 |
+| `state.<name>`  | 字符串或范围  | 精确匹配方块状态值，或使用 `min`/`max` |
+
+方块标签语法（如 `#minecraft:logs`）会根据原版方块标签进行解析。标签仅匹配原版方块；自定义方块请使用显式的 ItemsAdder 方块 ID
+
+## 物品和装备谓词
+
+物品谓词可用于 `equipment`、`slots` 和嵌套实体谓词。它们接受 ItemsAdder ID、MMOItems ID、原版物品 ID 和原版物品标签，如 `#minecraft:planks`
+
+```yaml
+conditions:
+  player:
+    equipment:
+      mainhand:
+        items: my_pack:ruby_sword
+        count: 1
+        durability:
+          min: 100
+        components:
+          minecraft:custom_model_data: 123
+        enchantments:
+          - enchantment: minecraft:sharpness
+            levels:
+              min: 3
+```
+
+| 键                                        | 类型     | 描述                          |
+|------------------------------------------|--------|-----------------------------|
+| `item` / `items`                         | 字符串或列表 | 要匹配的物品 ID。普通字符串可用作单个物品的简写形式 |
+| `count`                                  | 数字或范围  | 匹配堆叠数量                      |
+| `durability`                             | 数字或范围  | 匹配剩余耐久度                     |
+| `components.minecraft:custom_model_data` | 整数     | 匹配自定义模型数据                   |
+| `components.minecraft:custom_name`       | 字符串    | 匹配物品的显示名称                   |
+| `components.minecraft:damage`            | 整数     | 匹配物品伤害值                     |
+| `enchantments[].enchantment` / `id`      | 字符串    | 附魔键                         |
+| `enchantments[].levels`                  | 数字或范围  | 所需的附魔等级                     |
+
+原版物品标签根据原版物品注册表进行解析。物品 `predicates` 部分仍然不受支持，并且会使物品谓词匹配失败，而不是意外匹配
+
+## 槽位
+
+当你需要检查玩家的物品栏而不仅仅是已装备的物品时，请使用 `slots`
+
+```yaml
+conditions:
+  player:
+    slots:
+      weapon.mainhand:
+        items: minecraft:diamond_sword
+      inventory.0:
+        items: minecraft:apple
+        count: 2
+      hotbar.2:
+        items: my_pack:ruby_staff
+```
+
+| 槽位键                                            | 描述                |
+|------------------------------------------------|-------------------|
+| `mainhand` 或 `weapon.mainhand`                 | 主手物品              |
+| `offhand` 或 `weapon.offhand`                   | 副手物品              |
+| `head` 或 `armor.head`                          | 头盔槽位              |
+| `chest` 或 `armor.chest`                        | 胸甲槽位              |
+| `legs` 或 `armor.legs`                          | 护腿槽位              |
+| `feet` 或 `armor.feet`                          | 靴子槽位              |
+| `*`、`inventory.*`、`container.*`                | 任意玩家物品栏槽位         |
+| `hotbar.<slot>`                                | 快捷栏槽位，从 `0` 到 `8` |
+| `inventory.<slot>` 或 `inventory.<start>-<end>` | 主物品栏槽位，在快捷栏之后偏移   |
+| `container.<slot>` 或 `container.<start>-<end>` | 原始容器槽位编号          |
+
+## 药水效果
+
+```yaml
+conditions:
+  player:
+    effects:
+      minecraft:speed:
+        amplifier:
+          min: 1
+        duration:
+          min: 100
+        ambient: false
+        visible: true
+```
+
+| 键                            | 类型    | 描述              |
+|------------------------------|-------|-----------------|
+| `effects.<effect>.amplifier` | 数字或范围 | 匹配药水等级          |
+| `effects.<effect>.duration`  | 数字或范围 | 匹配剩余持续时间（以刻为单位） |
+| `effects.<effect>.ambient`   | 布尔值   | 匹配环境效果标志        |
+| `effects.<effect>.visible`   | 布尔值   | 匹配粒子可见性         |
+
+## 进度、配方和统计
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      advancements:
+        minecraft:story/mine_stone: true
+        my_pack:custom_root:
+          root_trigger: true
+      recipes:
+        minecraft:diamond_sword: true
+      stats:
+        - type: minecraft:custom
+          stat: minecraft:jump
+          value:
+            min: 50
+```
+
+| 键                   | 类型      | 描述                                                                                                      |
+|---------------------|---------|---------------------------------------------------------------------------------------------------------|
+| `advancements.<id>` | 布尔值或配置节 | 要求另一个进度已完成或未完成。配置节检查命名的准则                                                                               |
+| `recipes.<id>`      | 布尔值     | 要求配方已发现或未发现                                                                                             |
+| `stats[].type`      | 字符串     | 统计组，例如 `minecraft:custom`、`minecraft:mined`、`minecraft:used`、`minecraft:killed` 或 `minecraft:killed_by` |
+| `stats[].stat`      | 字符串     | 统计键、材质键或实体键，取决于统计类型                                                                                     |
+| `stats[].value`     | 数字或范围   | 所需的统计值                                                                                                  |
+
+## 嵌套实体检查
+
+相同的实体谓词系统可用于相关实体
+
+```yaml
+conditions:
+  player:
+    type_specific:
+      type: minecraft:player
+      looking_at:
+        type: minecraft:zombie
+        distance:
+          absolute:
+            max: 12
+    vehicle:
+      type: minecraft:horse
+```
+
+| 键                          | 类型   | 描述                                                    |
+|----------------------------|------|-------------------------------------------------------|
+| `passenger`                | 实体谓词 | 匹配玩家的一个乘客                                             |
+| `vehicle`                  | 实体谓词 | 匹配玩家正在骑乘的实体                                           |
+| `targeted_entity`          | 实体谓词 | 对于生物，匹配其当前目标                                          |
+| `type_specific.looking_at` | 实体谓词 | 对于玩家，匹配其在 100 格范围内注视的实体                               |
+| `distance`                 | 配置节  | 匹配玩家到相关实体的距离。支持 `absolute`、`horizontal`、`x`、`y` 和 `z` |
+
+## 其他类型特定谓词
+
+嵌套实体谓词还可以使用一些特定于实体的检查
+
+| 类型                                                            | 键                       | 描述                |
+|---------------------------------------------------------------|-------------------------|-------------------|
+| `minecraft:sheep`                                             | `sheared`               | 匹配羊是否被剪毛          |
+| `minecraft:slime`、`minecraft:magma_cube`、`minecraft:cube_mob` | `size`                  | 使用数字或范围匹配史莱姆大小    |
+| `minecraft:raider`                                            | `is_captain`、`has_raid` | 当可用时，匹配巡逻队队长和袭击状态 |
+| `minecraft:fishing_hook`                                      | `in_open_water`         | 当可用时，匹配鱼钩的开放水域状态  |
+
+## 限制
+
+- 实体类型标签在语法上被接受但不会被解析。原版物品和方块标签在支持物品/方块谓词的地方会被解析
+- 实体级别的 `components` 和 `predicates` 部分不受支持，并且会使谓词匹配失败
+- 不支持位置结构
+- NBT 匹配被有意限制；它仅支持 `nbt` 字符串内的简单记分板标签检查

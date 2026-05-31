@@ -1,0 +1,58 @@
+---
+title: 创造模式物品栏集成
+description: 将所有 ItemsAdder 自定义物品自动填入 Minecraft 创造模式物品栏。需要 Paper 1.21.5+
+version: "1.0.0"
+---
+
+**致谢：** 此功能最初由 **Misieur**（[GitHub](https://github.com/Misieur)）编写
+
+<Callout type="warn">
+    **版本要求：** 需要 **Paper 1.21.5 或更高版本**。在旧版本上此功能将被禁用
+</Callout>
+
+将 ItemsAdder 注册的每个自定义物品注入原版创造模式菜单，无需逐项配置
+
+<Callout type="error">
+    **重要提示**：你需要具有管理员权限并在设置中启用**管理员物品选项卡**，才能在创造模式物品栏中查看 ItemsAdder 物品
+</Callout>
+
+## 设置
+
+运行 `/iazip` 重新生成资源包。重新加入服务器后，你的创造模式物品栏将包含所有自定义物品
+
+<Callout>
+    每次通过 ItemsAdder 添加或移除自定义物品后，你必须重新加入服务器并再次运行 `/iazip`，才能在创造模式物品栏中看到更新
+</Callout>
+
+## 启用/禁用
+
+你可以在插件的 `config.yml` 中切换此功能：
+
+```yaml
+features:
+  creative_inventory_integration: true
+```
+
+设置为 `false` 可完全禁用此功能。禁用后，插件将不会生成任何资源包文件或注入任何注册表条目
+
+## ItemsAdder 配置
+
+在首次设置期间，插件会自动将自身添加到 ItemsAdder 的资源包合并列表中：
+
+```yaml
+# 在 ItemsAdder/config.yml 中（自动管理）
+resource-pack:
+  zip:
+    merge_other_plugins_resourcepacks_folders:
+      - ItemsAdderAdditions/resourcepack
+```
+
+如果由于某种原因缺少此条目（例如文件不可写入），你可以安全地手动添加。如果插件无法自动应用更改，将会记录一条警告
+
+## 备注
+
+- **模板物品**将被排除。在 ItemsAdder 配置中标记为 `template: true` 的物品不会出现在创造模式菜单中
+- **方向变体**将被排除。当基础物品（不含方向后缀）存在于注册表中时，命名空间 ID 以 `_north`、`_south`、`_east`、`_west`、`_up` 或 `_down` 结尾的物品将被跳过
+- 在 ItemsAdder 配置中设置了 `hide_from_inventory: true` 的物品将被排除
+- 使用 `graphics.icon` 或 `resource.icon` 的物品将显示其平面的 GUI 图标。所有其他物品将使用其手持时正常显示的 3D 模型
+- 原版画不受影响；普通画物品将继续正常工作
