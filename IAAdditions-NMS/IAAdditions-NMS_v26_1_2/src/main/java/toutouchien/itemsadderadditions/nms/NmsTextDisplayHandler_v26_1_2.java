@@ -30,7 +30,6 @@ import java.util.List;
 
 @NullMarked
 public final class NmsTextDisplayHandler_v26_1_2 implements INmsTextDisplayHandler {
-
     private static Display.TextDisplay createTextDisplay(Location location) {
         World world = location.getWorld();
         if (world == null) {

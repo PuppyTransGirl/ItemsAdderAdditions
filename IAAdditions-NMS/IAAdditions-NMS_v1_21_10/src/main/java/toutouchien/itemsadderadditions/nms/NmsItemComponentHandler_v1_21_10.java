@@ -17,7 +17,6 @@ import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandle
 
 @NullMarked
 final class NmsItemComponentHandler_v1_21_10 implements INmsItemComponentHandler {
-
     @Override
     public boolean isSupported() {
         return true;

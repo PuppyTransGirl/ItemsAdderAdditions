@@ -1,7 +1,6 @@
 package toutouchien.itemsadderadditions.feature.component;
 
 import dev.lone.itemsadder.api.CustomStack;
-import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +13,6 @@ import toutouchien.itemsadderadditions.feature.component.parse.ComponentTreePars
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.nms.api.component.ComponentValue;
 import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandler;
-import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.runtime.reload.ContentReloadContext;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadPhase;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadStepResult;
@@ -65,10 +63,6 @@ public final class ComponentsManager implements ReloadableContentSystem {
 
     public void applySettings(PluginSettings settings) {
         registry.registerBuiltIns(settings::componentEnabled, BuiltInComponents.create());
-    }
-
-    public void registerModifier() {
-        ItemsAdder.Advanced.injectItemModifier(ItemsAdderAdditions.instance(), this::applyComponents);
     }
 
     @Override
@@ -154,7 +148,7 @@ public final class ComponentsManager implements ReloadableContentSystem {
         }
     }
 
-    private ItemStack applyComponents(String namespacedID, ItemStack itemStack) {
+    public ItemStack applyComponents(String namespacedID, ItemStack itemStack) {
         List<ComponentExecutor> executors = specializedBindings.get(namespacedID);
         if (executors != null) {
             for (ComponentExecutor executor : executors) {

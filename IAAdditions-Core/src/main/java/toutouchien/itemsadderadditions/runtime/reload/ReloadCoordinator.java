@@ -15,6 +15,7 @@ import toutouchien.itemsadderadditions.feature.creative.CreativeRegistryReloader
 import toutouchien.itemsadderadditions.feature.painting.CustomPaintingManager;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeManager;
 import toutouchien.itemsadderadditions.feature.worldgen.WorldgenReloadSystem;
+import toutouchien.itemsadderadditions.integration.valhalla.ValhallaManager;
 
 import java.io.File;
 import java.util.List;
@@ -36,6 +37,7 @@ public final class ReloadCoordinator {
             ActionsManager actions,
             BehavioursManager behaviours,
             ComponentsManager components,
+            ValhallaManager valhalla,
             CustomPaintingManager paintings,
             RecipeManager recipes,
             CreativeRegistryReloader creativeRegistry,
@@ -46,6 +48,7 @@ public final class ReloadCoordinator {
                 actions,
                 behaviours,
                 components,
+                valhalla,
                 creativeRegistry,
                 recipes,
                 advancements,

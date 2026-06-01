@@ -11,7 +11,6 @@ import toutouchien.itemsadderadditions.feature.component.annotation.Component;
 @NullMarked
 @Component(key = "intangible_projectile")
 public final class IntangibleProjectileComponent extends ComponentExecutor {
-
     @Override
     public boolean configure(@Nullable Object configData, String namespacedID) {
         if (configData instanceof Boolean b) return b;

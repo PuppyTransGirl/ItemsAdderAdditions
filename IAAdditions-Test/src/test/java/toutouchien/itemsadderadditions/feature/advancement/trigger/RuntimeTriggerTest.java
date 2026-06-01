@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class RuntimeTriggerTest {
-
     @ParameterizedTest
     @EnumSource(RuntimeTrigger.class)
     void fromYaml_allEnumValues_uppercase_roundtrip(RuntimeTrigger trigger) {

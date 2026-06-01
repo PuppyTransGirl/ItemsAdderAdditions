@@ -23,7 +23,9 @@ import toutouchien.itemsadderadditions.feature.recipe.RecipeManager;
 import toutouchien.itemsadderadditions.feature.update.UpdateChecker;
 import toutouchien.itemsadderadditions.feature.worldgen.FurniturePopulatorWorldListener;
 import toutouchien.itemsadderadditions.integration.hook.MMOItemsHook;
+import toutouchien.itemsadderadditions.integration.itemsadder.ItemModifierPipeline;
 import toutouchien.itemsadderadditions.integration.itemsadder.ItemsAdderLoadListener;
+import toutouchien.itemsadderadditions.integration.valhalla.ValhallaManager;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadCoordinator;
@@ -57,6 +59,7 @@ public final class PluginRuntime {
     private ActionsManager actionsManager;
     private BehavioursManager behavioursManager;
     private ComponentsManager componentsManager;
+    private ValhallaManager valhallaManager;
     private CustomPaintingManager customPaintingManager;
     private RecipeManager recipeManager;
     private AdvancementManager advancementManager;
@@ -64,6 +67,7 @@ public final class PluginRuntime {
     private ReloadCoordinator reloadCoordinator;
     private CreativeRegistryReloader creativeRegistryReloader;
 
+    private ItemModifierPipeline itemModifierPipeline;
     private Metrics bStats;
     private AntiGriefLib antiGriefLib;
 
@@ -132,10 +136,15 @@ public final class PluginRuntime {
         this.actionsManager = new ActionsManager(settings);
         this.behavioursManager = new BehavioursManager(settings);
         this.componentsManager = new ComponentsManager(settings);
+        this.valhallaManager = new ValhallaManager();
         this.customPaintingManager = new CustomPaintingManager(plugin);
         this.recipeManager = new RecipeManager(plugin);
         this.advancementManager = new AdvancementManager(plugin);
-        componentsManager.registerModifier();
+
+        this.itemModifierPipeline = new ItemModifierPipeline(plugin);
+        itemModifierPipeline.addContributor(componentsManager::applyComponents);
+        itemModifierPipeline.addContributor(valhallaManager::applyValhalla);
+        itemModifierPipeline.register();
 
         setupCreativeInventoryIntegration();
         this.creativeRegistryReloader = new CreativeRegistryReloader(plugin);
@@ -143,6 +152,7 @@ public final class PluginRuntime {
                 actionsManager,
                 behavioursManager,
                 componentsManager,
+                valhallaManager,
                 customPaintingManager,
                 recipeManager,
                 creativeRegistryReloader,
@@ -156,6 +166,8 @@ public final class PluginRuntime {
     public void disable() {
         bStats.shutdown();
 
+        itemModifierPipeline.shutdown();
+        valhallaManager.shutdown();
         actionsManager.shutdown();
         behavioursManager.shutdown();
         recipeManager.shutdown();
