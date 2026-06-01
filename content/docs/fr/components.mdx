@@ -1,0 +1,24 @@
+---
+title: Composants
+icon: Package
+description: Support des composants de données d'objets dans ItemsAdderAdditions. Appliquez des composants Minecraft aux objets personnalisés au chargement.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+  Cette page est en cours de traduction. Consultez la [version anglaise](/en/docs/components) pour la documentation complète.
+</Callout>
+
+ItemsAdderAdditions applique des composants de données Minecraft aux objets personnalisés au chargement via le hook de modificateur d'objets d'ItemsAdder. Ajoutez une section `components` sous la définition de votre objet et exécutez `/iareload`.
+
+```yaml
+items:
+  my_item:
+    components:
+      rarity: RARE
+      use_cooldown:
+        cooldown: 1.5
+      tool:
+        default_mining_speed: 2.0
+```

@@ -1,0 +1,931 @@
+---
+title: Components
+icon: Package
+description: Item data component support in ItemsAdderAdditions. Apply Minecraft data components to custom items at load time.
+---
+
+ItemsAdderAdditions applies Minecraft data components to custom items at load time via the ItemsAdder item modifier hook. Add a `components` section under your item definition and run `/iareload`.
+
+```yaml
+items:
+  my_item:
+    components:
+      rarity: RARE
+      use_cooldown:
+        cooldown: 1.5
+      tool:
+        default_mining_speed: 2.0
+        rules:
+          - blocks: "#minecraft:logs"
+            speed: 4.0
+            correct_for_drops: true
+```
+
+Components are applied once per reload. Every item stack built after a reload carries the configured components.
+
+## Status legend
+
+| Status | Meaning |
+|--------|---------|
+| **Specialized** | Dedicated IAA handler with an IAA-specific YAML syntax |
+| **Generic** | No dedicated handler; falls through to the generic NMS codec pipeline |
+| **Handled by IA** | Set by ItemsAdder itself; IAA skips it |
+| **Unsupported** | No Paper/NMS API; cannot be applied |
+
+## Generic NMS components
+
+For component keys that have no specialized IAA handler, IAA falls back to a generic NMS pipeline. The key is normalized (`custom_data` becomes `minecraft:custom_data`), the value tree is parsed from YAML, and the result is applied through Minecraft's Mojang codec system via NMS.
+
+**Minimum server version for generic components: 1.21.3.**
+
+On 1.20.6 and 1.21.1, the generic NMS pipeline is not available. Specialized handlers still work on those versions.
+
+### Usage
+
+Use the full namespaced key or the short form (the `minecraft:` prefix is added automatically):
+
+```yaml
+items:
+  my_item:
+    components:
+      minecraft:custom_data:
+        my_plugin:
+          id: my_item
+          tier: 3
+          enabled: true
+```
+
+Short form (equivalent):
+
+```yaml
+items:
+  my_item:
+    components:
+      custom_data:
+        my_plugin:
+          id: my_item
+```
+
+The YAML structure must match the vanilla codec for that component. IAA does not reinterpret the shape. If the codec rejects the value, IAA logs a warning and skips that component.
+
+**Note:** `minecraft:custom_data` is a real vanilla NBT compound component. Do not confuse it with Bukkit's `PersistentDataContainer` (PDC). The two systems are independent. PDC data is stored internally by Bukkit and is not `custom_data`.
+
+## Components reference
+
+### `attack_range`
+
+**Status:** Specialized | **Minimum version:** 1.21.11
+
+Overrides the attack range of the item for melee and projectile attacks.
+
+| Property | Type | Default | Range |
+|----------|------|---------|-------|
+| `min_reach` | Float | `0.0` | 0.0 - 64.0 |
+| `max_reach` | Float | `3.0` | 0.0 - 64.0 |
+| `min_creative_reach` | Float | `0.0` | 0.0 - 64.0 |
+| `max_creative_reach` | Float | `5.0` | 0.0 - 64.0 |
+| `hitbox_margin` | Float | `0.3` | 0.0 - 1.0 |
+| `mob_factor` | Float | `1.0` | 0.0 - 2.0 |
+
+```yaml
+components:
+  attack_range:
+    max_reach: 5.0
+    max_creative_reach: 7.0
+    hitbox_margin: 0.5
+```
+
+### `banner_patterns`
+
+**Status:** Specialized
+
+Sets the banner pattern layers on a banner item.
+
+| Property | Type | Format |
+|----------|------|--------|
+| `type` | String | Pattern type key (e.g. `stripe_top`, `square_bottom_left`) |
+| `color` | String | Dye color name (`WHITE`, `RED`, `BLUE`, etc.) |
+
+```yaml
+components:
+  banner_patterns:
+    - type: stripe_top
+      color: RED
+    - type: square_bottom_left
+      color: BLUE
+```
+
+Valid dye colors: `WHITE`, `ORANGE`, `MAGENTA`, `LIGHT_BLUE`, `YELLOW`, `LIME`, `PINK`, `GRAY`, `LIGHT_GRAY`, `CYAN`, `PURPLE`, `BLUE`, `BROWN`, `GREEN`, `RED`, `BLACK`.
+
+Pattern type keys are Minecraft registry keys. The `minecraft:` prefix is optional (e.g. `stripe_top` and `minecraft:stripe_top` are equivalent).
+
+### `base_color`
+
+**Status:** Specialized
+
+Sets the base color of a shield item.
+
+| Property | Type | Values |
+|----------|------|--------|
+| (value) | String | Dye color name |
+
+```yaml
+components:
+  base_color: RED
+```
+
+### `blocks_attacks`
+
+**Status:** Specialized
+
+Makes the item block incoming attacks like a shield.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `block_delay_seconds` | Float | `0.0` |
+| `disable_cooldown_scale` | Float | `1.0` |
+| `bypassed_by` | String | `null` (damage type tag, e.g. `#minecraft:bypasses_shield`) |
+| `block_sound` | String | `null` (sound key) |
+| `disable_sound` | String | `null` (sound key) |
+| `damage_reductions` | List of sections | `[]` |
+| `item_damage` | Section | `null` |
+
+`damage_reductions` entry:
+
+| Property | Type | Default |
+|----------|------|---------|
+| `type` | String or List | `null` (damage type tag or IDs; omit for all types) |
+| `horizontal_blocking_angle` | Float | `90.0` |
+| `base` | Float | `0.0` |
+| `factor` | Float | `1.0` |
+
+`item_damage` section:
+
+| Property | Type | Default |
+|----------|------|---------|
+| `threshold` | Float | `0.0` |
+| `base` | Float | `0.0` |
+| `factor` | Float | `1.0` |
+
+```yaml
+components:
+  blocks_attacks:
+    block_delay_seconds: 0.25
+    disable_cooldown_scale: 1.0
+    bypassed_by: "#minecraft:bypasses_shield"
+    block_sound: minecraft:item.shield.block
+    disable_sound: minecraft:item.shield.break
+    damage_reductions:
+      - type: "#minecraft:is_projectile"
+        horizontal_blocking_angle: 90.0
+        base: 0.0
+        factor: 0.5
+      - type: minecraft:player_attack
+        base: 1.0
+        factor: 1.0
+    item_damage:
+      threshold: 3.0
+      base: 1.0
+      factor: 1.0
+```
+
+The `type` field in `damage_reductions` accepts a tag string (`#minecraft:is_fire`), a single damage type key (`minecraft:fire`), or a list of damage type keys.
+
+### `bundle_contents`
+
+**Status:** Specialized
+
+Sets the initial contents of a bundle item. Accepts vanilla IDs, ItemsAdder IDs, and `mmoitems:TYPE:ID` format. See [compatibility](/en/docs/compatibility) for full format details.
+
+```yaml
+components:
+  bundle_contents:
+    - minecraft:arrow
+    - my_pack:special_arrow
+```
+
+### `can_break`
+
+**Status:** Specialized
+
+Restricts what blocks this item can break in Adventure mode.
+
+```yaml
+components:
+  can_break:
+    - minecraft:stone
+    - "#minecraft:logs"
+```
+
+Accepts block IDs (`minecraft:stone`) and block tags (`#minecraft:logs`). The `minecraft:` prefix is optional.
+
+### `can_place_on`
+
+**Status:** Specialized
+
+Restricts what blocks this item can be placed on in Adventure mode.
+
+```yaml
+components:
+  can_place_on:
+    - minecraft:grass_block
+    - "#minecraft:dirt"
+```
+
+Same format as `can_break`.
+
+### `charged_projectiles`
+
+**Status:** Specialized
+
+Sets the projectiles pre-loaded in a crossbow. Accepts vanilla IDs, ItemsAdder IDs, and `mmoitems:TYPE:ID` format.
+
+```yaml
+components:
+  charged_projectiles:
+    - minecraft:arrow
+    - my_pack:special_bolt
+```
+
+### `damage_resistant`
+
+**Status:** Specialized
+
+Makes the item entity immune to a category of damage (like netherite ignoring fire).
+
+```yaml
+components:
+  damage_resistant: minecraft:is_fire
+```
+
+Accepts a damage type tag key. The `#` prefix and `minecraft:` prefix are both optional (`is_fire`, `#is_fire`, `minecraft:is_fire`, `#minecraft:is_fire` are all equivalent).
+
+### `damage_type`
+
+**Status:** Specialized
+
+Sets the damage type used when the item entity deals damage.
+
+```yaml
+components:
+  damage_type: minecraft:magic
+```
+
+Must be a valid damage type registry key.
+
+### `death_protection`
+
+**Status:** Specialized
+
+Prevents death and optionally applies effects when triggered (like a totem of undying).
+
+| Property | Type | Default |
+|----------|------|---------|
+| `death_effects` | List of sections | `[]` (omit for bare protection) |
+
+Effect types in `death_effects`:
+
+| Type | Properties |
+|------|-----------|
+| `apply_effects` | `effects` (list of potion effects), `probability` (float, default 1.0) |
+| `remove_effects` | `effects` (list of effect type keys) |
+| `clear_all_effects` | _(no properties)_ |
+| `teleport_randomly` | `diameter` (float, default 16.0) |
+| `play_sound` | `sound` (namespaced sound key) |
+
+Potion effect entry (used in `apply_effects`):
+
+| Property | Type | Default |
+|----------|------|---------|
+| `type` | String | Effect type key (e.g. `regeneration`) |
+| `duration` | Integer | Duration in ticks |
+| `amplifier` | Integer | Level - 1 (0 = level I) |
+
+```yaml
+components:
+  death_protection:
+    death_effects:
+      - type: apply_effects
+        probability: 1.0
+        effects:
+          - type: regeneration
+            duration: 900
+            amplifier: 1
+          - type: absorption
+            duration: 100
+            amplifier: 1
+      - type: remove_effects
+        effects:
+          - wither
+          - poison
+      - type: play_sound
+        sound: minecraft:item.totem.use
+```
+
+Omit `death_effects` entirely for a bare totem effect (prevents death, no extra effects):
+
+```yaml
+components:
+  death_protection: {}
+```
+
+### `dyed_color`
+
+**Status:** Specialized
+
+Sets the dye color of leather armor or other dyeable items.
+
+```yaml
+components:
+  dyed_color: "#FF4400"
+```
+
+Accepts `#RRGGBB` hex color strings.
+
+### `enchantable`
+
+**Status:** Specialized
+
+Sets the enchantability value of the item (affects enchantment quality in the enchanting table).
+
+```yaml
+components:
+  enchantable: 15
+```
+
+Range: 1 - 255. Higher values improve enchantment quality.
+
+### `firework_explosion`
+
+**Status:** Specialized
+
+Sets the firework explosion effect on a firework star item.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `type` | String | `BALL` |
+| `colors` | List of `#RRGGBB` strings | `[]` |
+| `fade_colors` | List of `#RRGGBB` strings | `[]` |
+| `trail` | Boolean | `false` |
+| `flicker` | Boolean | `false` |
+
+Valid types: `BALL`, `BALL_LARGE`, `STAR`, `BURST`, `CREEPER`.
+
+```yaml
+components:
+  firework_explosion:
+    type: STAR
+    colors:
+      - "#FF0000"
+      - "#0000FF"
+    fade_colors:
+      - "#FFFFFF"
+    trail: true
+    flicker: false
+```
+
+### `fireworks`
+
+**Status:** Specialized
+
+Sets the firework properties on a firework rocket item.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `flight_duration` | Integer | `1` (0 - 255) |
+| `explosions` | List of sections | `[]` |
+
+Each entry in `explosions` uses the same schema as `firework_explosion`.
+
+```yaml
+components:
+  fireworks:
+    flight_duration: 2
+    explosions:
+      - type: BURST
+        colors:
+          - "#FFAA00"
+        trail: true
+```
+
+### `intangible_projectile`
+
+**Status:** Specialized
+
+Marks this item as an intangible projectile (cannot be picked up after being shot).
+
+```yaml
+components:
+  intangible_projectile: true
+```
+
+Set to `true` or any non-null value to enable. This is a marker component with no properties.
+
+### `kinetic_weapon`
+
+**Status:** Specialized | **Minimum version:** 1.21.5
+
+Makes the item deal damage based on player movement speed (like a mace).
+
+| Property | Type | Default |
+|----------|------|---------|
+| `contact_cooldown_ticks` | Integer | `0` |
+| `delay_ticks` | Integer | `0` |
+| `forward_movement` | Float | `1.0` |
+| `damage_multiplier` | Float | `1.0` |
+| `sound` | String (namespaced key) | `null` |
+| `hit_sound` | String (namespaced key) | `null` |
+| `dismount_conditions` | Section | `null` |
+| `knockback_conditions` | Section | `null` |
+| `damage_conditions` | Section | `null` |
+
+Condition sections (`dismount_conditions`, `knockback_conditions`, `damage_conditions`):
+
+| Property | Type | Default |
+|----------|------|---------|
+| `max_duration_ticks` | Integer | `0` |
+| `min_speed` | Float | `0.0` |
+| `min_relative_speed` | Float | `0.0` |
+
+```yaml
+components:
+  kinetic_weapon:
+    damage_multiplier: 2.0
+    forward_movement: 1.5
+    sound: minecraft:entity.player.attack.sweep
+    damage_conditions:
+      min_speed: 0.1
+```
+
+### `lodestone_tracker`
+
+**Status:** Specialized
+
+Makes a compass point toward a lodestone location.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `tracked` | Boolean | `true` |
+| `world` | String | `null` (world name; omit for an unlinked tracker) |
+| `x` | Integer | `0` |
+| `y` | Integer | `0` |
+| `z` | Integer | `0` |
+
+```yaml
+components:
+  lodestone_tracker:
+    world: world
+    x: 100
+    y: 64
+    z: -200
+    tracked: true
+```
+
+If `world` is omitted, the compass is unlinked (shows a spinning needle). If `world` is set but the world is not loaded at reload time, IAA logs a warning and applies the component without a location.
+
+### `map_color`
+
+**Status:** Specialized
+
+Sets the border color of a filled map item.
+
+```yaml
+components:
+  map_color: "#2A6DB5"
+```
+
+Accepts `#RRGGBB` hex color strings.
+
+### `map_decorations`
+
+**Status:** Specialized
+
+Sets fixed decorations (markers) on a filled map.
+
+```yaml
+components:
+  map_decorations:
+    my_marker:
+      type: RED_MARKER
+      x: 100.0
+      z: 200.0
+      rotation: 0.0
+    another_marker:
+      type: player
+      x: -50.0
+      z: 75.0
+      rotation: 90.0
+```
+
+Each key under `map_decorations` is a unique decoration ID. `type` is a `MapCursor.Type` key (case-insensitive; `minecraft:` prefix optional). `x` and `z` are world coordinates. `rotation` is in degrees.
+
+### `map_id`
+
+**Status:** Specialized
+
+Links the item to a specific map by its integer ID.
+
+```yaml
+components:
+  map_id: 42
+```
+
+### `minimum_attack_charge`
+
+**Status:** Specialized | **Minimum version:** 1.21.1
+
+Sets the minimum attack charge fraction required to trigger full-charge effects.
+
+```yaml
+components:
+  minimum_attack_charge: 0.9
+```
+
+Range: 0.0 - 1.0.
+
+### `ominous_bottle_amplifier`
+
+**Status:** Specialized
+
+Sets the amplifier level of an ominous bottle (affects Bad Omen strength when consumed).
+
+```yaml
+components:
+  ominous_bottle_amplifier: 3
+```
+
+Range: 0 - 4.
+
+### `piercing_weapon`
+
+**Status:** Specialized | **Minimum version:** 1.21.5
+
+Makes the item pierce through entities (like an arrow with Piercing).
+
+| Property | Type | Default |
+|----------|------|---------|
+| `deals_knockback` | Boolean | `true` |
+| `dismounts` | Boolean | `true` |
+| `sound` | String (namespaced key) | `null` |
+| `hit_sound` | String (namespaced key) | `null` |
+
+```yaml
+components:
+  piercing_weapon:
+    deals_knockback: true
+    dismounts: false
+    hit_sound: minecraft:entity.arrow.hit
+```
+
+### `pot_decorations`
+
+**Status:** Specialized
+
+Sets the pottery sherd decorations on a decorated pot.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `back` | String | `null` (vanilla item ID, e.g. `arms_up_pottery_sherd`) |
+| `left` | String | `null` |
+| `right` | String | `null` |
+| `front` | String | `null` |
+
+```yaml
+components:
+  pot_decorations:
+    back: arms_up_pottery_sherd
+    left: archer_pottery_sherd
+    right: blade_pottery_sherd
+    front: burn_pottery_sherd
+```
+
+Accepts vanilla item IDs. The `minecraft:` prefix is optional.
+
+### `potion_contents`
+
+**Status:** Specialized
+
+Sets the potion effects of a potion, splash potion, or lingering potion item.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `potion` | String | `null` (PotionType key, e.g. `minecraft:strength`) |
+| `color` | String | `null` (#RRGGBB hex override) |
+| `custom_name` | String | `null` |
+| `effects` | List of sections | `[]` |
+
+At least one of `potion`, `color`, `custom_name`, or `effects` must be present.
+
+```yaml
+components:
+  potion_contents:
+    potion: minecraft:strength
+    color: "#FF0000"
+    custom_name: "Super Strength"
+    effects:
+      - type: strength
+        duration: 600
+        amplifier: 2
+```
+
+### `potion_duration_scale`
+
+**Status:** Specialized
+
+Multiplies the duration of all potion effects applied by this item.
+
+```yaml
+components:
+  potion_duration_scale: 2.0
+```
+
+Range: 0.0 - 255.0.
+
+### `profile`
+
+**Status:** Specialized
+
+Sets the player skin profile on a player head item. Accepts a player name (resolved by the client) or a section with explicit profile data.
+
+Simple form (player name):
+
+```yaml
+components:
+  profile: Notch
+```
+
+Section form (explicit UUID, name, or texture):
+
+```yaml
+components:
+  profile:
+    name: Notch
+    uuid: 069a79f4-44e9-4726-a5be-fca90e38aaf5
+    texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvLi4uIn19fQ==
+```
+
+At least one of `name`, `uuid`, or `texture` is required in the section form.
+
+### `provides_banner_patterns`
+
+**Status:** Specialized
+
+Marks the item as an ingredient that unlocks banner patterns when placed in a loom.
+
+```yaml
+components:
+  provides_banner_patterns: minecraft:no_item_required
+```
+
+Accepts a banner pattern tag key. The `#` prefix is optional.
+
+### `provides_trim_material`
+
+**Status:** Specialized
+
+Marks the item as a smithing trim material.
+
+```yaml
+components:
+  provides_trim_material: gold
+```
+
+Accepts a trim material registry key. The `minecraft:` prefix is optional.
+
+### `rarity`
+
+**Status:** Specialized
+
+Sets the rarity of the item, which affects the item name color in the default resource pack.
+
+```yaml
+components:
+  rarity: RARE
+```
+
+Valid values: `COMMON`, `UNCOMMON`, `RARE`, `EPIC`.
+
+### `repairable`
+
+**Status:** Specialized
+
+Sets what items can repair this item in an anvil.
+
+Accepts a tag string or a list of item IDs:
+
+```yaml
+# Using a tag
+components:
+  repairable: "#minecraft:planks"
+```
+
+```yaml
+# Using a list of items
+components:
+  repairable:
+    - minecraft:diamond
+    - minecraft:netherite_ingot
+```
+
+### `stored_enchantments`
+
+**Status:** Specialized
+
+Sets the enchantments stored in an enchanted book. Uses a section of `enchantment_key: level` pairs.
+
+```yaml
+components:
+  stored_enchantments:
+    sharpness: 5
+    looting: 3
+    minecraft:mending: 1
+```
+
+Level range: 1 - 255. The `minecraft:` prefix is optional.
+
+### `suspicious_stew_effects`
+
+**Status:** Specialized
+
+Sets the effects given by a suspicious stew item.
+
+```yaml
+components:
+  suspicious_stew_effects:
+    - type: speed
+      duration: 200
+    - type: minecraft:night_vision
+      duration: 400
+```
+
+`duration` is in ticks. Default is 160. The `minecraft:` prefix on effect types is optional.
+
+### `swing_animation`
+
+**Status:** Specialized | **Minimum version:** 1.21.5
+
+Sets the swing animation type and duration for melee attacks.
+
+| Property | Type | Values |
+|----------|------|--------|
+| `type` | String | `NONE`, `WHACK`, `STAB` |
+| `duration` | Integer | >= 1 |
+
+```yaml
+components:
+  swing_animation:
+    type: WHACK
+    duration: 6
+```
+
+### `tool`
+
+**Status:** Specialized
+
+Configures the item as a tool with mining speed rules.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `default_mining_speed` | Float | `1.0` |
+| `damage_per_block` | Integer | `1` |
+| `can_destroy_in_creative` | Boolean | `true` |
+| `rules` | List of sections | `[]` |
+
+Rule section:
+
+| Property | Type | Default |
+|----------|------|---------|
+| `blocks` | String, tag, or List | Required |
+| `speed` | Float | `null` (no override) |
+| `correct_for_drops` | Boolean or omitted | `null` (NOT_SET) |
+
+```yaml
+components:
+  tool:
+    default_mining_speed: 1.0
+    damage_per_block: 1
+    can_destroy_in_creative: true
+    rules:
+      - blocks: "#minecraft:mineable/pickaxe"
+        speed: 6.0
+        correct_for_drops: true
+      - blocks:
+          - minecraft:obsidian
+          - minecraft:crying_obsidian
+        speed: 12.0
+        correct_for_drops: true
+```
+
+`blocks` accepts a tag string (`#minecraft:logs`), a single block ID (`minecraft:stone`), or a list of block IDs.
+
+`correct_for_drops`: `true` means this tool produces correct drops; `false` means it does not; omitting the key means NOT_SET (inherits vanilla defaults).
+
+### `tooltip_display`
+
+**Status:** Specialized
+
+Controls which components are shown in the item tooltip.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `hide_tooltip` | Boolean | `false` |
+| `hidden_components` | List of component keys | `[]` |
+
+```yaml
+components:
+  tooltip_display:
+    hide_tooltip: false
+    hidden_components:
+      - enchantments
+      - attribute_modifiers
+      - stored_enchantments
+```
+
+`hidden_components` accepts `DataComponentTypes` field names (case-insensitive). Use the Minecraft component key without the `minecraft:` prefix and in UPPER_SNAKE_CASE (e.g. `ATTRIBUTE_MODIFIERS`). The lookup is case-insensitive.
+
+### `use_cooldown`
+
+**Status:** Specialized
+
+Sets a use cooldown on the item.
+
+| Property | Type | Required |
+|----------|------|---------|
+| `cooldown` | Float (seconds) | Yes |
+| `group` | String (namespaced key) | No |
+
+```yaml
+components:
+  use_cooldown:
+    cooldown: 2.0
+```
+
+If `group` is omitted, the cooldown group defaults to `itemsadder:<item_id>`, making the cooldown item-specific. Set `group` to share a cooldown with other items:
+
+```yaml
+components:
+  use_cooldown:
+    cooldown: 5.0
+    group: my_pack:special_items
+```
+
+### `use_remainder`
+
+**Status:** Specialized
+
+Sets what item remains in the slot after this item is fully consumed.
+
+```yaml
+components:
+  use_remainder: minecraft:glass_bottle
+```
+
+Accepts vanilla IDs, ItemsAdder IDs, and `mmoitems:TYPE:ID` format.
+
+### `weapon`
+
+**Status:** Specialized | **Minimum version:** 1.21.5
+
+Configures the item as a weapon with custom damage and blocking interaction.
+
+| Property | Type | Default |
+|----------|------|---------|
+| `item_damage_per_attack` | Integer | `1` |
+| `disable_blocking_for_seconds` | Float | `0.0` |
+
+```yaml
+components:
+  weapon:
+    item_damage_per_attack: 2
+    disable_blocking_for_seconds: 0.6
+```
+
+`disable_blocking_for_seconds`: when this weapon hits a blocking entity, blocking is disabled for this duration.
+
+### `writable_book_content`
+
+**Status:** Specialized
+
+Sets the pages of a writable book (book and quill).
+
+```yaml
+components:
+  writable_book_content:
+    - "Page 1 content here."
+    - "Page 2 content here."
+```
+
+## Version summary
+
+| Component | Minimum version |
+|-----------|----------------|
+| `minimum_attack_charge` | 1.21.1 |
+| `kinetic_weapon` | 1.21.5 |
+| `piercing_weapon` | 1.21.5 |
+| `swing_animation` | 1.21.5 |
+| `weapon` | 1.21.5 |
+| `attack_range` | 1.21.11 |
+| Generic NMS components | 1.21.3 |
+| All other components | 1.20.6+ |
+
+Components that require a newer version than the running server are silently skipped with a warning in the console.

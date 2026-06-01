@@ -1,0 +1,24 @@
+---
+title: Componenten
+icon: Package
+description: Ondersteuning voor item-datacomponenten in ItemsAdderAdditions. Pas Minecraft-datacomponenten toe op aangepaste items bij het laden.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+<Callout type="info">
+  Deze pagina wordt vertaald. Zie de [Engelse versie](/en/docs/components) voor de volledige documentatie.
+</Callout>
+
+ItemsAdderAdditions past Minecraft-datacomponenten toe op aangepaste items bij het laden via de ItemsAdder item-modifier hook. Voeg een `components`-sectie toe onder je itemdefinitie en voer `/iareload` uit.
+
+```yaml
+items:
+  my_item:
+    components:
+      rarity: RARE
+      use_cooldown:
+        cooldown: 1.5
+      tool:
+        default_mining_speed: 2.0
+```
