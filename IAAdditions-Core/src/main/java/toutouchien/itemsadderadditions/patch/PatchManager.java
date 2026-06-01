@@ -52,8 +52,7 @@ public final class PatchManager {
             new CooldownCapturePatch_IA_4_0_17(),
             new CraftingRecipeBypassPatch_IA_4_0_17(),
             new StatRequirementsCapturePatch_IA_4_0_17(),
-            new StonecutterSelectiveBypassPatch_IA_4_0_17(),
-            new TradeMachineCapturePatch_IA_4_0_17()
+            new StonecutterSelectiveBypassPatch_IA_4_0_17()
     );
 
     private PatchManager() {

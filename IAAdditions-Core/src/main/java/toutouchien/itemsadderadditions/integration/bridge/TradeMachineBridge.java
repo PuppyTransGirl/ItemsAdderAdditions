@@ -9,6 +9,17 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+/**
+ * Opens ItemsAdder trade-machine menus.
+ *
+ * <p>ItemsAdder 4.0.17 exposes a public trade-machine API, so that version is
+ * opened through {@link CustomStack#openTradeMenu(String, Player)} instead of
+ * relying on obfuscated internals.</p>
+ *
+ * <p>Older ItemsAdder 4.0.x builds do not expose that API. For those versions
+ * the bridge keeps using the captured internal handler provided by the versioned
+ * bytecode patches.</p>
+ */
 public final class TradeMachineBridge {
     private static Object handlerInstance;
 
@@ -19,11 +30,13 @@ public final class TradeMachineBridge {
     private static Method behaviorLookupMethod;
     private static Method openMerchantMethod;
 
+    private static Boolean publicTradeMenuApiAvailable;
+
     private TradeMachineBridge() {
     }
 
     public static void capture(Object handler) {
-        if (handlerInstance != null) return;
+        if (handlerInstance != null || handler == null) return;
         handlerInstance = handler;
         Log.debug(
                 "TradeMachineBridge",
@@ -32,11 +45,22 @@ public final class TradeMachineBridge {
     }
 
     public static boolean isReady() {
-        return handlerInstance != null;
+        return hasPublicTradeMenuApi() || handlerInstance != null;
     }
 
     @SuppressWarnings("unchecked")
     public static boolean openTradeMachine(Player player, String namespacedId) {
+        if (player == null) {
+            throw new IllegalArgumentException("player cannot be null");
+        }
+        if (namespacedId == null || namespacedId.isBlank()) {
+            return false;
+        }
+
+        if (hasPublicTradeMenuApi()) {
+            return openTradeMachineViaApi(player, namespacedId);
+        }
+
         Object handler = handlerInstance;
         if (handler == null) {
             throw new IllegalStateException(
@@ -77,11 +101,39 @@ public final class TradeMachineBridge {
             return true;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(
-                    "Failed to open trade machine via reflection: "
+                    "Failed to open trade machine via legacy ItemsAdder internals: "
                             + e.getMessage(),
                     e
             );
         }
+    }
+
+    private static boolean openTradeMachineViaApi(Player player, String namespacedId) {
+        CustomStack customStack = CustomStack.getInstance(namespacedId);
+        if (customStack == null) {
+            return false;
+        }
+
+        ItemStack itemStack = customStack.getItemStack();
+        if (!CustomStack.isFurnitureTradeMachine(itemStack)) {
+            return false;
+        }
+
+        return CustomStack.openTradeMenu(namespacedId, player);
+    }
+
+    private static boolean hasPublicTradeMenuApi() {
+        Boolean cached = publicTradeMenuApiAvailable;
+        if (cached != null) return cached;
+
+        try {
+            CustomStack.class.getMethod("isFurnitureTradeMachine", ItemStack.class);
+            CustomStack.class.getMethod("openTradeMenu", String.class, Player.class);
+            publicTradeMenuApiAvailable = true;
+        } catch (NoSuchMethodException | LinkageError ignored) {
+            publicTradeMenuApiAvailable = false;
+        }
+        return publicTradeMenuApiAvailable;
     }
 
     private static Field ensureRegistryField(Object handler)
