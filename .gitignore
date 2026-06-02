@@ -135,3 +135,7 @@ node_modules/
 next-env.d.ts
 tsconfig.tsbuildinfo
 .env.local
+
+# Python tooling
+__pycache__/
+*.py[cod]
