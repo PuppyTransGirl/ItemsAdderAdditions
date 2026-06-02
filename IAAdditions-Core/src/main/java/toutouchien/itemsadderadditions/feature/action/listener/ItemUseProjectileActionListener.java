@@ -1,7 +1,9 @@
 package toutouchien.itemsadderadditions.feature.action.listener;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Consumable;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,6 +14,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionDispatcher;
@@ -36,7 +39,8 @@ public final class ItemUseProjectileActionListener implements Listener {
         String itemId = NamespaceUtils.itemID(item);
         if (itemId == null) return;
 
-        TriggerType type = item.getData(DataComponentTypes.CONSUMABLE).animation() == ItemUseAnimation.DRINK
+        Consumable consumable = item.getData(DataComponentTypes.CONSUMABLE);
+        TriggerType type = isDrink(item, consumable)
                 ? TriggerType.ITEM_DRINK
                 : TriggerType.ITEM_EAT;
 
@@ -47,6 +51,17 @@ public final class ItemUseProjectileActionListener implements Listener {
                         .heldItem(item)
                         .build()
         );
+    }
+
+    private static boolean isDrink(ItemStack item, @Nullable Consumable consumable) {
+        if (consumable != null) {
+            return consumable.animation() == ItemUseAnimation.DRINK;
+        }
+
+        Material type = item.getType();
+        return type == Material.POTION
+                || type == Material.MILK_BUCKET
+                || type == Material.HONEY_BOTTLE;
     }
 
     @EventHandler(ignoreCancelled = true)

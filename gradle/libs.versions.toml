@@ -25,6 +25,7 @@ junit-jupiter = "5.11.4"
 junit-platform = "1.11.4"
 paper-api-test = "26.1.2.build.+"
 mockbukkit = "4.113.1"
+mockito = "5.20.0"
 
 # Gradle plugins
 paperweight-userdev = "2.0.0-beta.21"
@@ -52,6 +53,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 paper-api-test = { module = "io.papermc.paper:paper-api", version.ref = "paper-api-test" }
 mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v26.1.2", version.ref = "mockbukkit" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 [plugins]
 paperweight-userdev = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight-userdev" }

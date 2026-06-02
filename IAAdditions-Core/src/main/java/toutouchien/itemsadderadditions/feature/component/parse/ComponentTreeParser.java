@@ -23,15 +23,10 @@ public final class ComponentTreeParser {
     public static ComponentValue parse(@Nullable Object configValue) {
         switch (configValue) {
             case null -> new ComponentValue.NullNode();
-
             case Boolean b -> new ComponentValue.BooleanNode(b);
-
             case Integer i -> new ComponentValue.IntNode(i);
-
             case Long l -> new ComponentValue.LongNode(l);
-
             case Float f -> new ComponentValue.DoubleNode(f.doubleValue());
-
             case Double d -> new ComponentValue.DoubleNode(d);
 
             // Covers Byte, Short, etc.
