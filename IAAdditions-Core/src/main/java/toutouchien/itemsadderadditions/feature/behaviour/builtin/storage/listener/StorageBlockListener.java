@@ -88,7 +88,8 @@ public final class StorageBlockListener implements Listener {
         Player breaker = event.getPlayer();
         boolean creative = breaker != null && breaker.getGameMode() == GameMode.CREATIVE;
         if (creative) {
-            Log.debug("StorageBlockBreak", "Breaker in creative - skipping drops.");
+            Log.debug("StorageBlockBreak", "Breaker in creative - using creative storage transfer.");
+            runtime.handleCreativeContainerBreak(block.getLocation(), contents);
         } else {
             runtime.handleContainerBreak(block.getLocation(), contents);
         }

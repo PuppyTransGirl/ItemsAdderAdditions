@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageRuntime;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantPlacement;
 
 @NullMarked
@@ -32,6 +33,7 @@ public final class StorageOpenVariantFurnitureListener implements Listener {
         if (event.getPlayer().isSneaking()) return;
 
         Entity entity = event.getBukkitEntity();
+        if (entity == null) return;
         if (!runtime.openVariantTransformer().isTransformed(entity.getLocation())) return;
 
         event.setCancelled(true);
@@ -63,6 +65,7 @@ public final class StorageOpenVariantFurnitureListener implements Listener {
         }
 
         Entity entity = event.getBukkitEntity();
+        if (entity == null) return;
         if (!runtime.openVariantTransformer().isTransformed(entity.getLocation())) {
             Log.debug("StorageOpenVariantBreak", "Ignoring: location {} is not in transformed state.",
                     entity.getLocation());
@@ -78,10 +81,12 @@ public final class StorageOpenVariantFurnitureListener implements Listener {
         Player breaker = event.getPlayer();
         boolean creative = breaker != null && breaker.getGameMode() == GameMode.CREATIVE;
         if (creative) {
-            Log.debug("StorageOpenVariantBreak", "Breaker in creative - skipping drops.");
+            Log.debug("StorageOpenVariantBreak", "Breaker in creative - using creative storage transfer.");
+            runtime.handleCreativeOpenVariantBreakDrops(entity.getLocation(), contents);
         } else {
             runtime.handleOpenVariantBreakDrops(entity.getLocation(), contents);
         }
+        StorageInventoryManager.clearEntity(entity, runtime.contentsKey());
 
         Log.debug("StorageOpenVariantBreak", "Calling removeFurnitureEntity on {} (valid={}, type={})",
                 entity, entity.isValid(), entity.getType());

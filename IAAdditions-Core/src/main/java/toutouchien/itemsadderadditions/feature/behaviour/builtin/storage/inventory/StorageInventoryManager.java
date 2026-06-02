@@ -78,6 +78,11 @@ public final class StorageInventoryManager {
         return contents;
     }
 
+    public static void clearEntity(Entity entity, NamespacedKey key) {
+        entity.getPersistentDataContainer().remove(key);
+        Log.debug("StorageManager", "Cleared storage contents from Entity PDC (UUID: " + entity.getUniqueId() + ")");
+    }
+
     public static void injectIntoItem(ItemStack item, ItemStack[] contents, NamespacedKey key) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) {

@@ -31,7 +31,9 @@ public final class StorageFurnitureListener implements Listener {
         if (event.getPlayer().isSneaking()) return;
 
         event.setCancelled(true);
-        runtime.sessionManager().openForEntity(event.getPlayer(), event.getBukkitEntity());
+        Entity entity = event.getBukkitEntity();
+        if (entity == null) return;
+        runtime.sessionManager().openForEntity(event.getPlayer(), entity);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -44,16 +46,19 @@ public final class StorageFurnitureListener implements Listener {
         // Flush any open session to the entity PDC, then read the live contents.
         runtime.sessionManager().closeSessionsAt(entity.getLocation(), null);
 
-        // Stage the live contents so they can be written into IA's own dropped item once it
-        // spawns (handled by ShulkerDropTracker). Creative breaks drop nothing, so skip staging.
+        // Survival can patch IA's normal dropped item. Creative usually has no IA drop, so the
+        // storage runtime creates a content-bearing fallback for portable storage instead.
         Player breaker = event.getPlayer();
         boolean creative = breaker != null && breaker.getGameMode() == GameMode.CREATIVE;
         if (creative) {
-            Log.debug("StorageFurnitureBreak", "Breaker in creative - skipping drops.");
+            Log.debug("StorageFurnitureBreak", "Breaker in creative - using creative storage transfer.");
+            ItemStack[] contents = StorageInventoryManager.loadFromEntity(entity, runtime.contentsKey());
+            runtime.handleCreativeContainerBreak(entity.getLocation(), contents);
         } else {
             ItemStack[] contents = StorageInventoryManager.loadFromEntity(entity, runtime.contentsKey());
             runtime.handleContainerBreak(entity.getLocation(), contents);
         }
+        StorageInventoryManager.clearEntity(entity, runtime.contentsKey());
 
         // IA's own barrier cleanup on furniture break is incomplete, so clear any orphaned
         // hitbox blocks ourselves a tick later.

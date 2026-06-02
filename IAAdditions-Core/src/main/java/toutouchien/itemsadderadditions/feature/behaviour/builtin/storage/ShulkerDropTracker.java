@@ -41,6 +41,7 @@ public final class ShulkerDropTracker implements Listener {
      * solid blocks, so the item rarely spawns in the exact furniture block.
      */
     private static final int MATCH_RADIUS = 2;
+    private static final int CREATIVE_FALLBACK_MAX_TICKS_LIVED = 2;
 
     /**
      * Contents waiting to be injected into a dropping item after a block/furniture break.
@@ -78,13 +79,23 @@ public final class ShulkerDropTracker implements Listener {
     }
 
     public void stageDrop(Location loc, ItemStack[] contents) {
+        stageDrop(loc, contents, false);
+    }
+
+    public void stageCreativeDrop(Location loc, ItemStack[] contents) {
+        stageDrop(loc, contents, true);
+    }
+
+    private void stageDrop(Location loc, ItemStack[] contents, boolean createPortableItemFallback) {
         BlockCoord key = BlockCoord.of(loc);
         pendingShulkerDrops.put(key, contents);
         Log.debug("ShulkerDropTracker", "Staged shulker drop at " + loc);
 
         // Fallback: if no spawn/drop event claimed the staged contents within a couple of ticks,
-        // search for IA's dropped item nearby and write the contents into it, or scatter them as
-        // a last resort so they are never lost.
+        // search for IA's dropped item nearby and write the contents into it. Survival scatters
+        // contents as a last resort; creative creates the portable item because IA usually drops
+        // nothing there.
+        long fallbackDelay = createPortableItemFallback ? 1L : 3L;
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             ItemStack[] unconsumed = pendingShulkerDrops.remove(key);
             if (unconsumed == null) return; // already consumed by a spawn/drop event
@@ -95,6 +106,8 @@ public final class ShulkerDropTracker implements Listener {
             Log.debug("ShulkerDropTracker", "No spawn event claimed staged drop - searching nearby.");
             for (Entity e : world.getNearbyEntities(loc, MATCH_RADIUS, MATCH_RADIUS, MATCH_RADIUS)) {
                 if (!(e instanceof Item droppedItem)) continue;
+                if (createPortableItemFallback
+                        && droppedItem.getTicksLived() > CREATIVE_FALLBACK_MAX_TICKS_LIVED) continue;
                 CustomStack cs = CustomStack.byItemStack(droppedItem.getItemStack());
                 if (cs == null || !matchesId(cs.getNamespacedID())) continue;
 
@@ -103,13 +116,55 @@ public final class ShulkerDropTracker implements Listener {
                 return;
             }
 
-            if (hasAnyContent(unconsumed)) {
-                Log.debug("ShulkerDropTracker", "No dropped item found - scattering contents.");
-                for (ItemStack item : unconsumed)
-                    if (item != null && item.getType() != org.bukkit.Material.AIR)
-                        world.dropItemNaturally(loc, item);
+            if (createPortableItemFallback) {
+                dropPortableItem(loc, unconsumed);
+                return;
             }
-        }, 3L);
+
+            scatterContents(world, loc, unconsumed);
+        }, fallbackDelay);
+    }
+
+    public void dropPortableItem(Location loc, @Nullable ItemStack[] contents) {
+        if (!hasAnyContent(contents)) {
+            Log.debug("ShulkerDropTracker", "Creative shulker break had no live contents - no portable item fallback needed.");
+            return;
+        }
+
+        World world = loc.getWorld();
+        if (world == null) return;
+
+        CustomStack original;
+        try {
+            original = CustomStack.getInstance(namespacedID);
+        } catch (RuntimeException e) {
+            Log.warn("ShulkerDropTracker", "Could not resolve portable storage item '{}' after creative break. Scattering contents instead. Cause: {}",
+                    namespacedID, e.getMessage());
+            scatterContents(world, loc, contents);
+            return;
+        }
+
+        if (original == null) {
+            Log.warn("ShulkerDropTracker", "Could not resolve portable storage item '{}' after creative break. Scattering contents instead.",
+                    namespacedID);
+            scatterContents(world, loc, contents);
+            return;
+        }
+
+        ItemStack drop = original.getItemStack();
+        StorageInventoryManager.injectIntoItem(drop, contents, contentsNamespacedKey);
+        StorageInventoryManager.stampUniqueId(drop, uniqueIdKey);
+        world.dropItemNaturally(loc, drop);
+        Log.debug("ShulkerDropTracker", "Dropped portable storage item with live contents for creative break.");
+    }
+
+    private void scatterContents(World world, Location loc, @Nullable ItemStack[] contents) {
+        if (hasAnyContent(contents)) {
+            Log.debug("ShulkerDropTracker", "No dropped item found - scattering contents.");
+            for (ItemStack item : contents)
+                if (item != null && item.getType() != org.bukkit.Material.AIR)
+                    world.dropItemNaturally(loc, item);
+        }
     }
 
     @Nullable

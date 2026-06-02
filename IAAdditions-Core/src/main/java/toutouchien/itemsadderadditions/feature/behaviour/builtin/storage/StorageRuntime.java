@@ -176,6 +176,21 @@ public final class StorageRuntime {
         }
     }
 
+    public void handleCreativeContainerBreak(Location location, @Nullable ItemStack[] contents) {
+        Log.debug("StorageBreak", "handleCreativeContainerBreak: loc={}, storageType={}, hasContents={}",
+                location, storageType, contents != null);
+
+        if (storageType == StorageType.STORAGE) {
+            Log.debug("StorageBreak", "Creative STORAGE: dropping contents directly.");
+            dropContents(location, contents);
+        } else if (storageType == StorageType.SHULKER && contents != null) {
+            Log.debug("StorageBreak", "Creative SHULKER: staging drop with portable item fallback.");
+            shulkerDropTracker.stageCreativeDrop(location, contents);
+        } else {
+            Log.debug("StorageBreak", "Creative DISPOSAL or empty SHULKER: no drops handled.");
+        }
+    }
+
     /**
      * Drops the original closed item after an open-variant holder was broken.
      */
@@ -214,6 +229,24 @@ public final class StorageRuntime {
 
         Log.debug("StorageBreak", "Dropping original closed item '{}' at {}.", namespacedId, loc);
         loc.getWorld().dropItemNaturally(loc, drop);
+    }
+
+    public void handleCreativeOpenVariantBreakDrops(
+            Location loc,
+            @Nullable ItemStack[] contents
+    ) {
+        Log.debug("StorageBreak", "handleCreativeOpenVariantBreakDrops: loc={}, storageType={}, hasContents={}",
+                loc, storageType, contents != null);
+
+        if (storageType == StorageType.STORAGE) {
+            Log.debug("StorageBreak", "Creative STORAGE open-variant: scattering contents.");
+            dropContents(loc, contents);
+        } else if (storageType == StorageType.SHULKER) {
+            Log.debug("StorageBreak", "Creative SHULKER open-variant: dropping original item with contents.");
+            shulkerDropTracker.dropPortableItem(loc, contents);
+        } else {
+            Log.debug("StorageBreak", "Creative DISPOSAL open-variant: skipping drops.");
+        }
     }
 
     /**

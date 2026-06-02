@@ -2,7 +2,9 @@ package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.listen
 
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.Events.CustomBlockBreakEvent;
+import org.bukkit.GameMode;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -92,7 +94,13 @@ public final class StorageOpenVariantBlockListener implements Listener {
         runtime.sessionManager().closeSessionsAt(block.getLocation(), null);
         runtime.openVariantTransformer().forceRemove(block.getLocation());
 
-        runtime.handleOpenVariantBreakDrops(block.getLocation(), contents);
+        Player breaker = event.getPlayer();
+        boolean creative = breaker != null && breaker.getGameMode() == GameMode.CREATIVE;
+        if (creative) {
+            runtime.handleCreativeOpenVariantBreakDrops(block.getLocation(), contents);
+        } else {
+            runtime.handleOpenVariantBreakDrops(block.getLocation(), contents);
+        }
         StorageInventoryManager.clearBlock(block, runtime.plugin());
     }
 }

@@ -70,7 +70,16 @@ public final class OpenVariantPlacement {
         Log.debug(LOG_TAG, "removeFurnitureEntity: entity={}, type={}, valid={}, loc={}",
                 entity, entity.getType(), entity.isValid(), entity.getLocation());
 
-        CustomFurniture furniture = CustomFurniture.byAlreadySpawned(entity);
+        CustomFurniture furniture;
+        try {
+            furniture = CustomFurniture.byAlreadySpawned(entity);
+        } catch (RuntimeException e) {
+            Log.debug(LOG_TAG, "removeFurnitureEntity: CustomFurniture lookup failed for {}. Falling back to entity.remove(). Cause: {}",
+                    entity, e.getMessage());
+            entity.remove();
+            return;
+        }
+
         if (furniture != null) {
             Log.debug(LOG_TAG, "removeFurnitureEntity: resolved CustomFurniture - calling remove(false) to clean barriers.");
             furniture.remove(false);
