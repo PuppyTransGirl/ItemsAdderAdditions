@@ -48,9 +48,9 @@ public final class StorageSessionPersister {
         }
 
         ItemStack[] contents = session.inventory().getContents();
-        Location location = session.holderLocation();
 
         if (session.isBlock()) {
+            Location location = session.holderLocation();
             StorageInventoryManager.saveToBlock(session.block(), contents, contentsKey, plugin);
             if (lastAtLocation && openVariantTransformer != null) {
                 openVariantTransformer.onLastClose(location, originalNamespacedId, true);
@@ -60,6 +60,7 @@ public final class StorageSessionPersister {
 
         if (session.isFurniture()) {
             if (lastAtLocation) {
+                Location location = session.holderLocation();
                 Entity saveTarget = restoredFurnitureTarget(location, session.entity());
                 StorageInventoryManager.saveToEntity(saveTarget, contents, contentsKey);
             }

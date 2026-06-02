@@ -361,6 +361,7 @@ final class AdvancementPredicateSupport {
     @Nullable
     static EntityType entityType(String normalizedId) {
         for (EntityType type : EntityType.values()) {
+            if (type == EntityType.UNKNOWN) continue;
             if (type.getKey().toString().equals(normalizedId)) return type;
         }
         return null;
