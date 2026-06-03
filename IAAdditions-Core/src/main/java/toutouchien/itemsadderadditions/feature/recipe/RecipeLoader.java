@@ -7,6 +7,7 @@ import toutouchien.itemsadderadditions.common.loading.CategorizedConfigFile;
 import toutouchien.itemsadderadditions.common.loading.ConfigFileCategory;
 import toutouchien.itemsadderadditions.common.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.feature.recipe.brewing.BrewingRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.campfire.CampfireRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.CraftingRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.stonecutter.StonecutterRecipeHandler;
@@ -21,6 +22,7 @@ import java.util.List;
  * <ul>
  *   <li>{@code campfire_cooking}    -> {@link CampfireRecipeHandler}</li>
  *   <li>{@code stonecutter}         -> {@link StonecutterRecipeHandler}</li>
+ *   <li>{@code brewing}             -> {@link BrewingRecipeHandler}</li>
  *   <li>{@code iaa_crafting_table}  -> {@link CraftingRecipeHandler} (shaped, 3*3)</li>
  *   <li>{@code iaa_crafting}        -> {@link CraftingRecipeHandler} (shaped or shapeless, 2*2)</li>
  * </ul>
@@ -44,15 +46,18 @@ public final class RecipeLoader {
 
     private final CampfireRecipeHandler campfireHandler;
     private final StonecutterRecipeHandler stonecutterHandler;
+    private final BrewingRecipeHandler brewingHandler;
     private final CraftingRecipeHandler craftingHandler;
 
     public RecipeLoader(
             CampfireRecipeHandler campfireHandler,
             StonecutterRecipeHandler stonecutterHandler,
+            BrewingRecipeHandler brewingHandler,
             CraftingRecipeHandler craftingHandler
     ) {
         this.campfireHandler = campfireHandler;
         this.stonecutterHandler = stonecutterHandler;
+        this.brewingHandler = brewingHandler;
         this.craftingHandler = craftingHandler;
     }
 
@@ -75,6 +80,7 @@ public final class RecipeLoader {
         List<CategorizedConfigFile> files = registry.getFiles(
                 ConfigFileCategory.CAMPFIRE_RECIPES,
                 ConfigFileCategory.STONECUTTER_RECIPES,
+                ConfigFileCategory.BREWING_RECIPES,
                 ConfigFileCategory.CRAFTING_RECIPES
         );
 
@@ -93,6 +99,7 @@ public final class RecipeLoader {
     public int totalLoadedCount() {
         return campfireHandler.loadedCount()
                 + stonecutterHandler.loadedCount()
+                + brewingHandler.loadedCount()
                 + craftingHandler.loadedCount();
     }
 
@@ -120,6 +127,9 @@ public final class RecipeLoader {
             if (ccf.hasCategory(ConfigFileCategory.STONECUTTER_RECIPES)) {
                 stonecutterHandler.load(namespace, recipes.getConfigurationSection("stonecutter"));
             }
+            if (ccf.hasCategory(ConfigFileCategory.BREWING_RECIPES)) {
+                brewingHandler.load(namespace, recipes.getConfigurationSection("brewing"));
+            }
             if (ccf.hasCategory(ConfigFileCategory.CRAFTING_RECIPES)) {
                 for (String craftingKey : CRAFTING_SECTION_KEYS) {
                     craftingHandler.load(namespace, recipes.getConfigurationSection(craftingKey));
@@ -133,12 +143,14 @@ public final class RecipeLoader {
     private void resetCounters() {
         campfireHandler.resetCount();
         stonecutterHandler.resetCount();
+        brewingHandler.resetCount();
         craftingHandler.resetCount();
     }
 
     private void logCounters() {
         Log.debug(LOG_TAG, "Campfire recipes loaded: {}", campfireHandler.loadedCount());
         Log.debug(LOG_TAG, "Stonecutter recipes loaded: {}", stonecutterHandler.loadedCount());
+        Log.debug(LOG_TAG, "Brewing recipes loaded: {}", brewingHandler.loadedCount());
         Log.debug(LOG_TAG, "Crafting recipes loaded: {}", craftingHandler.loadedCount());
     }
 }

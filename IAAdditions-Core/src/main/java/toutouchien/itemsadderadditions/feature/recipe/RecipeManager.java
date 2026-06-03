@@ -5,6 +5,8 @@ import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.feature.recipe.brewing.BrewingRecipeHandler;
+import toutouchien.itemsadderadditions.feature.recipe.brewing.BrewingRecipeListener;
 import toutouchien.itemsadderadditions.feature.recipe.campfire.CampfireRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.CraftingRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.CraftingRecipeListener;
@@ -22,14 +24,18 @@ public final class RecipeManager implements ReloadableContentSystem {
 
     private final CampfireRecipeHandler campfireHandler = new CampfireRecipeHandler();
     private final StonecutterRecipeHandler stonecutterHandler = new StonecutterRecipeHandler();
+    private final BrewingRecipeHandler brewingHandler = new BrewingRecipeHandler();
     private final CraftingRecipeHandler craftingHandler =
             new CraftingRecipeHandler(NmsManager.instance().handler().craftingRecipes());
+    private final BrewingRecipeListener brewingListener;
     private final RecipeLoader loader;
 
     public RecipeManager(Plugin plugin) {
-        this.loader = new RecipeLoader(campfireHandler, stonecutterHandler, craftingHandler);
+        this.brewingListener = new BrewingRecipeListener(brewingHandler);
+        this.loader = new RecipeLoader(campfireHandler, stonecutterHandler, brewingHandler, craftingHandler);
         Bukkit.getPluginManager().registerEvents(new CraftingRecipeListener(craftingHandler, plugin), plugin);
         Bukkit.getPluginManager().registerEvents(new StonecutterRecipeListener(stonecutterHandler), plugin);
+        Bukkit.getPluginManager().registerEvents(brewingListener, plugin);
     }
 
     public int reload(ConfigFileRegistry registry) {
@@ -45,10 +51,11 @@ public final class RecipeManager implements ReloadableContentSystem {
 
         int total = loader.totalLoadedCount();
         Log.info(LOG_TAG,
-                "Loaded {} recipe(s) in {}ms (campfire={}, stonecutter={}, crafting={}).",
+                "Loaded {} recipe(s) in {}ms (campfire={}, stonecutter={}, brewing={}, crafting={}).",
                 total, System.currentTimeMillis() - startMs,
                 campfireHandler.loadedCount(),
                 stonecutterHandler.loadedCount(),
+                brewingHandler.loadedCount(),
                 craftingHandler.loadedCount());
         Log.debug(LOG_TAG, "Recipe finalization complete.");
         return total;
@@ -74,8 +81,10 @@ public final class RecipeManager implements ReloadableContentSystem {
     }
 
     private void unregisterAll() {
+        brewingListener.clear();
         campfireHandler.unregisterAll();
         stonecutterHandler.unregisterAll();
+        brewingHandler.unregisterAll();
         craftingHandler.unregisterAll();
         NmsManager.instance().handler().finalizeRecipes();
     }

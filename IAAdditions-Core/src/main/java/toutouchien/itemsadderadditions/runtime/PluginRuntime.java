@@ -174,6 +174,7 @@ public final class PluginRuntime {
         advancementManager.shutdown();
 
         NamespaceUtils.setMMOItemsProvider(null);
+        NamespaceUtils.clearCustomTagRegistry();
         plugin.getServer().getScheduler().cancelTasks(plugin);
         NmsManager.shutdown();
     }

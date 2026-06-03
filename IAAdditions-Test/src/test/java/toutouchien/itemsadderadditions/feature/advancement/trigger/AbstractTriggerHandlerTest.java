@@ -1,7 +1,12 @@
 package toutouchien.itemsadderadditions.feature.advancement.trigger;
 
 import org.bukkit.NamespacedKey;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagDefinition;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagRegistry;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagType;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementConditions;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementCriterionDefinition;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementDefinition;
@@ -12,6 +17,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AbstractTriggerHandlerTest {
+    @AfterEach
+    void clearTags() {
+        NamespaceUtils.clearCustomTagRegistry();
+    }
+
     @Test
     void advancementKeyForFindsOwningAdvancementByCriterionIdentity() {
         AdvancementCriterionDefinition criterion = new AdvancementCriterionDefinition(
@@ -39,6 +49,19 @@ class AbstractTriggerHandlerTest {
         assertTrue(error.getMessage().contains("missing"));
     }
 
+    @Test
+    void matchesRecipeAcceptsCustomRecipeTagsAndBareDirectKeys() {
+        NamespaceUtils.setCustomTagRegistry(CustomTagRegistry.resolve(List.of(new CustomTagDefinition(
+                "test", "sword_recipes", CustomTagType.RECIPE,
+                List.of("ruby_sword_recipe", "minecraft:diamond_sword"), "test.yml"))));
+        TestHandler handler = new TestHandler(new AdvancementRegistry());
+
+        assertTrue(handler.recipeMatches("test:ruby_sword_recipe", "#test:sword_recipes"));
+        assertTrue(handler.recipeMatches("minecraft:diamond_sword", "#test:sword_recipes"));
+        assertTrue(handler.recipeMatches("minecraft:iron_sword", "iron_sword"));
+        assertFalse(handler.recipeMatches("minecraft:stick", "#test:sword_recipes"));
+    }
+
     private static final class TestHandler extends AbstractTriggerHandler {
         TestHandler(AdvancementRegistry registry) {
             super(registry);
@@ -46,6 +69,10 @@ class AbstractTriggerHandlerTest {
 
         NamespacedKey keyFor(AdvancementCriterionDefinition criterion) {
             return advancementKeyFor(criterion);
+        }
+
+        boolean recipeMatches(String actualRecipeKey, String expected) {
+            return matchesRecipe(actualRecipeKey, expected);
         }
     }
 }

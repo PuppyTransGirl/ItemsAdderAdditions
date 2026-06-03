@@ -2,10 +2,15 @@ package toutouchien.itemsadderadditions.feature.advancement;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagDefinition;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagRegistry;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagType;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 import java.util.List;
 
@@ -22,6 +27,11 @@ class AdvancementLoaderTest {
     @AfterAll
     static void teardown() {
         MockBukkit.unmock();
+    }
+
+    @AfterEach
+    void clearTags() {
+        NamespaceUtils.clearCustomTagRegistry();
     }
 
     private static YamlConfiguration yamlOf(String yaml) {
@@ -192,6 +202,21 @@ class AdvancementLoaderTest {
                 """);
         assertEquals(1, result.size());
         assertEquals(1, result.getFirst().criteria().size());
+    }
+
+    @Test
+    void localItemTagReference_normalizesAgainstAdvancementNamespace() {
+        NamespaceUtils.setCustomTagRegistry(CustomTagRegistry.resolve(List.of(new CustomTagDefinition(
+                "testns", "ruby_trigger_items", CustomTagType.ITEM,
+                List.of("minecraft:diamond_sword"), "test.yml"))));
+
+        AdvancementConditions conditions = loadSingleCriterion("using_item", """
+                item: "#ruby_trigger_items"
+                """);
+
+        assertInstanceOf(AdvancementConditions.UsingItem.class, conditions);
+        assertEquals("#testns:ruby_trigger_items",
+                ((AdvancementConditions.UsingItem) conditions).itemId());
     }
 
     @Test

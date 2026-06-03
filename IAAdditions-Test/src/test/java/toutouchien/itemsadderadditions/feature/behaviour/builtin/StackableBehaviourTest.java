@@ -1,7 +1,12 @@
 package toutouchien.itemsadderadditions.feature.behaviour.builtin;
 
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagDefinition;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagRegistry;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagType;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -9,6 +14,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StackableBehaviourTest {
+    @AfterEach
+    void clearTags() {
+        NamespaceUtils.clearCustomTagRegistry();
+    }
+
     private static YamlConfiguration yamlOf(String yaml) {
         YamlConfiguration cfg = new YamlConfiguration();
         try {
@@ -62,8 +72,25 @@ class StackableBehaviourTest {
 
         List<Object> steps = steps(behaviour);
         assertEquals(2, steps.size());
-        assertEquals(List.of("ns:bone_meal", "minecraft:stick"), field(steps.getFirst(), "items"));
+        assertEquals(List.of("minecraft:bone_meal", "minecraft:stick"), field(steps.getFirst(), "items"));
         assertEquals(256, field(steps.getFirst(), "decrementAmount"));
+    }
+
+    @Test
+    void configureSharedItemsSectionPreservesCustomTagReference() throws Exception {
+        NamespaceUtils.setCustomTagRegistry(CustomTagRegistry.resolve(List.of(new CustomTagDefinition(
+                "ns", "fertilizers", CustomTagType.ITEM,
+                List.of("minecraft:bone_meal"), "test.yml"))));
+        StackableBehaviour behaviour = new StackableBehaviour();
+        YamlConfiguration cfg = yamlOf("""
+                blocks: [flower_2]
+                items:
+                  - "#fertilizers"
+                """);
+
+        assertTrue(behaviour.configure(cfg, "ns:flower_1"));
+
+        assertEquals(List.of("#ns:fertilizers"), field(steps(behaviour).getFirst(), "items"));
     }
 
     @Test
@@ -96,7 +123,7 @@ class StackableBehaviourTest {
         List<Object> steps = steps(behaviour);
         assertEquals(1, steps.size());
         assertEquals("ns:flower_2", field(steps.getFirst(), "resultBlock"));
-        assertEquals(List.of("ns:stick"), field(steps.getFirst(), "items"));
+        assertEquals(List.of("minecraft:stick"), field(steps.getFirst(), "items"));
     }
 
     @Test

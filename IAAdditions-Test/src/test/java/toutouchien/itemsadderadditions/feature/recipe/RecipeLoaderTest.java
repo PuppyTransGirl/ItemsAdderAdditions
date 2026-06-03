@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import toutouchien.itemsadderadditions.common.loading.ConfigFileRegistry;
+import toutouchien.itemsadderadditions.feature.recipe.brewing.BrewingRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.campfire.CampfireRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.CraftingRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.stonecutter.StonecutterRecipeHandler;
@@ -28,6 +29,7 @@ class RecipeLoaderTest {
     private INmsHandler nms;
     private CampfireRecipeHandler campfire;
     private StonecutterRecipeHandler stonecutter;
+    private BrewingRecipeHandler brewing;
     private CraftingRecipeHandler crafting;
     private RecipeLoader loader;
 
@@ -38,8 +40,9 @@ class RecipeLoaderTest {
         nms = FakeNms.install();
         campfire = new CampfireRecipeHandler();
         stonecutter = new StonecutterRecipeHandler();
+        brewing = new BrewingRecipeHandler(new NoopBrewingMixRegistry());
         crafting = new CraftingRecipeHandler(nms.craftingRecipes());
-        loader = new RecipeLoader(campfire, stonecutter, crafting);
+        loader = new RecipeLoader(campfire, stonecutter, brewing, crafting);
     }
 
     @AfterEach
@@ -150,5 +153,40 @@ class RecipeLoaderTest {
         ConfigFileRegistry registry = ConfigFileRegistry.scan(contents.toFile());
         loader.loadAll(registry);
         assertEquals(0, loader.totalLoadedCount());
+    }
+
+    @Test
+    void loadsBrewingRecipes() throws IOException {
+        writeRecipeFile("brewing.yml", """
+                info:
+                  namespace: testpack
+                recipes:
+                  brewing:
+                    night_vision_goggles:
+                      base:
+                        item: POTION
+                      ingredient:
+                        item: NETHER_WART
+                      result:
+                        item: GLASS_BOTTLE
+                      brew_time: 120
+                      fuel_cost: 1
+                """);
+
+        ConfigFileRegistry registry = ConfigFileRegistry.scan(contents.toFile());
+        loader.loadAll(registry);
+
+        assertEquals(1, brewing.loadedCount());
+        assertEquals(1, loader.totalLoadedCount());
+    }
+
+    private static final class NoopBrewingMixRegistry implements BrewingRecipeHandler.BrewingMixRegistry {
+        @Override
+        public void add(io.papermc.paper.potion.PotionMix mix) {
+        }
+
+        @Override
+        public void remove(org.bukkit.NamespacedKey key) {
+        }
     }
 }

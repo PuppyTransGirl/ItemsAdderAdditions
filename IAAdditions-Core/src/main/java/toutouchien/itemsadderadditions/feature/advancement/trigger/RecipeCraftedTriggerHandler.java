@@ -23,7 +23,7 @@ public final class RecipeCraftedTriggerHandler extends AbstractTriggerHandler {
         String recipeKey = keyed.getKey().toString();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.RECIPE_CRAFTED)) {
             if (!(c.conditions() instanceof AdvancementConditions.RecipeCrafted(String condRecipeId))) continue;
-            if (!condRecipeId.isBlank() && !condRecipeId.equals(recipeKey)) continue;
+            if (!matchesRecipe(recipeKey, condRecipeId)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

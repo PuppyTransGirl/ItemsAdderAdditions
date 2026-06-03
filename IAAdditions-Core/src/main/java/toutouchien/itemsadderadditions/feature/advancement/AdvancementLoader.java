@@ -189,13 +189,13 @@ public final class AdvancementLoader {
                     normalizeBlockIdOrTag(namespace, sec != null ? sec.getString("block", "") : "")
             );
             case PLACE_FURNITURE -> new AdvancementConditions.PlaceFurniture(
-                    normalizeCustomContentId(namespace, sec != null ? sec.getString("furniture", "") : "")
+                    normalizeFurnitureIdOrTag(namespace, sec != null ? sec.getString("furniture", "") : "")
             );
             case BREAK_FURNITURE -> new AdvancementConditions.BreakFurniture(
-                    normalizeCustomContentId(namespace, sec != null ? sec.getString("furniture", "") : "")
+                    normalizeFurnitureIdOrTag(namespace, sec != null ? sec.getString("furniture", "") : "")
             );
             case INTERACT_FURNITURE -> new AdvancementConditions.InteractFurniture(
-                    normalizeCustomContentId(namespace, sec != null ? sec.getString("furniture", "") : "")
+                    normalizeFurnitureIdOrTag(namespace, sec != null ? sec.getString("furniture", "") : "")
             );
             case CRAFT_RECIPE -> new AdvancementConditions.CraftRecipe(
                     normalizeRecipeId(namespace, sec != null ? sec.getString("recipe", "") : "")
@@ -348,16 +348,13 @@ public final class AdvancementLoader {
         return NamespaceUtils.normalizeBlockIDOrTag(namespace, raw);
     }
 
-    private static String normalizeCustomContentId(String namespace, String raw) {
+    private static String normalizeFurnitureIdOrTag(String namespace, String raw) {
         if (raw.isBlank()) return "";
-        return NamespaceUtils.normalizeID(namespace, raw);
+        return NamespaceUtils.normalizeFurnitureIDOrTag(namespace, raw);
     }
 
     private static String normalizeRecipeId(String namespace, String raw) {
-        if (raw.isBlank()) return raw;
-        String lower = raw.trim().toLowerCase(Locale.ROOT);
-        if (!lower.contains(":")) return lower;
-        return NamespaceUtils.normalizeID(namespace, lower);
+        return NamespaceUtils.normalizeRecipeIDOrTag(namespace, raw);
     }
 
     private static AdvancementRewardDefinition parseRewards(

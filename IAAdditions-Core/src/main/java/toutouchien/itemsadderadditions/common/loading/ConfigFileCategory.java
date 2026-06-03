@@ -46,6 +46,11 @@ public enum ConfigFileCategory {
         return r != null && r.contains("stonecutter");
     }),
 
+    BREWING_RECIPES(yaml -> {
+        ConfigurationSection r = yaml.getConfigurationSection("recipes");
+        return r != null && r.contains("brewing");
+    }),
+
     /**
      * Matches files that have either {@code iaa_crafting_table}
      * {@code iaa_crafting} sections under {@code recipes:}.
@@ -71,6 +76,8 @@ public enum ConfigFileCategory {
      * Matches files with a {@code paintings} section.
      */
     PAINTINGS(yaml -> yaml.contains("paintings")),
+
+    TAGS(yaml -> yaml.contains("tags")),
 
     ADVANCEMENTS(yaml -> yaml.contains("advancements")),
 

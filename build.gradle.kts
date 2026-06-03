@@ -1,2 +1,2 @@
 group = "toutouchien.itemsadderadditions"
-version = "1.0.10-beta-14"
+version = "1.0.10-beta-15"

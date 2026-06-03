@@ -14,6 +14,7 @@ import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeRegistryReloader;
 import toutouchien.itemsadderadditions.feature.painting.CustomPaintingManager;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeManager;
+import toutouchien.itemsadderadditions.feature.tag.CustomTagReloadSystem;
 import toutouchien.itemsadderadditions.feature.worldgen.WorldgenReloadSystem;
 import toutouchien.itemsadderadditions.integration.valhalla.ValhallaManager;
 
@@ -44,6 +45,7 @@ public final class ReloadCoordinator {
             AdvancementManager advancements
     ) {
         this.reloadPlan = new ReloadPlan(List.of(
+                new CustomTagReloadSystem(),
                 paintings,
                 actions,
                 behaviours,

@@ -35,7 +35,7 @@ public final class CraftRecipeTriggerHandler extends AbstractTriggerHandler {
         String keyStr = key.getNamespace() + ":" + key.getKey();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.CRAFT_RECIPE)) {
             if (!(c.conditions() instanceof AdvancementConditions.CraftRecipe(String recipeId))) continue;
-            if (!recipeId.equals(keyStr) && !recipeId.equals(key.getKey())) continue;
+            if (!matchesRecipe(keyStr, recipeId)) continue;
             award(player, advancementKeyFor(c), c.name());
         }
     }

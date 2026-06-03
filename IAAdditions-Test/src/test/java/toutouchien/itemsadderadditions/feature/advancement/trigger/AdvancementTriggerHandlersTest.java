@@ -21,6 +21,10 @@ import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 import org.mockbukkit.mockbukkit.world.WorldMock;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagDefinition;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagRegistry;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagType;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.advancement.*;
 import toutouchien.itemsadderadditions.nms.api.INmsAdvancementHandler;
 import toutouchien.itemsadderadditions.nms.api.INmsHandler;
@@ -62,6 +66,7 @@ class AdvancementTriggerHandlersTest {
     @AfterEach
     void tearDown() {
         FakeNms.uninstall();
+        NamespaceUtils.clearCustomTagRegistry();
     }
 
     private NamespacedKey register(RuntimeTrigger trigger, AdvancementConditions conditions) {
@@ -82,6 +87,10 @@ class AdvancementTriggerHandlersTest {
 
     private void verifyNotAwarded() {
         verify(advancements, never()).award(any(), any(), any());
+    }
+
+    private void installTags(CustomTagDefinition... definitions) {
+        NamespaceUtils.setCustomTagRegistry(CustomTagRegistry.resolve(List.of(definitions)));
     }
 
     @Test
@@ -136,6 +145,20 @@ class AdvancementTriggerHandlersTest {
     }
 
     @Test
+    void heldItemAwardsOnCustomItemTag() {
+        installTags(new CustomTagDefinition(
+                "test", "ruby_items", CustomTagType.ITEM,
+                List.of("minecraft:diamond_sword", "minecraft:iron_sword"), "test.yml"));
+        NamespacedKey key = register(RuntimeTrigger.HELD_ITEM,
+                new AdvancementConditions.HeldItem("#test:ruby_items"));
+        player.getInventory().setItem(3, new ItemStack(Material.IRON_SWORD));
+
+        new HeldItemTriggerHandler(registry).onItemHeld(new PlayerItemHeldEvent(player, 0, 3));
+
+        verifyAwarded(key);
+    }
+
+    @Test
     void consumeItemAwardsOnMatch() {
         NamespacedKey key = register(RuntimeTrigger.CONSUME_ITEM,
                 new AdvancementConditions.ConsumeItem("minecraft:apple"));
@@ -181,6 +204,21 @@ class AdvancementTriggerHandlersTest {
         new BreakBlockTriggerHandler(registry).onVanillaBreak(new BlockBreakEvent(block, player));
 
         verifyNotAwarded();
+    }
+
+    @Test
+    void breakBlockAwardsOnCustomBlockTag() {
+        installTags(new CustomTagDefinition(
+                "test", "soft_blocks", CustomTagType.BLOCK,
+                List.of("minecraft:dirt", "minecraft:sand"), "test.yml"));
+        NamespacedKey key = register(RuntimeTrigger.BREAK_BLOCK,
+                new AdvancementConditions.BreakBlock("#test:soft_blocks"));
+        Block block = world.getBlockAt(3, 64, 0);
+        block.setType(Material.SAND);
+
+        new BreakBlockTriggerHandler(registry).onVanillaBreak(new BlockBreakEvent(block, player));
+
+        verifyAwarded(key);
     }
 
     @Test

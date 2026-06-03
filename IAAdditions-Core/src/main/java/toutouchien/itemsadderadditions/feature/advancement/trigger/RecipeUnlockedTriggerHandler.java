@@ -19,7 +19,7 @@ public final class RecipeUnlockedTriggerHandler extends AbstractTriggerHandler {
         String recipeKey = event.getRecipe().toString();
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.RECIPE_UNLOCKED)) {
             if (!(c.conditions() instanceof AdvancementConditions.RecipeUnlocked(String recipe))) continue;
-            if (!recipe.isEmpty() && !recipe.equals(recipeKey)) continue;
+            if (!matchesRecipe(recipeKey, recipe)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());
         }
     }

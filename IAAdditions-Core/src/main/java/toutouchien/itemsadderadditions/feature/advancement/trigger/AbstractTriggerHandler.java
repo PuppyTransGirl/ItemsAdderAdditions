@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagType;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementCriterionDefinition;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementDefinition;
@@ -44,7 +45,15 @@ public abstract class AbstractTriggerHandler implements Listener {
     }
 
     protected static boolean matchesContentId(String actualId, String expectedId) {
-        return expectedId.startsWith("#") ? false : NamespaceUtils.matchesContentID(actualId, expectedId);
+        return NamespaceUtils.matchesContentIDOrTag(actualId, expectedId, CustomTagType.BLOCK);
+    }
+
+    protected static boolean matchesFurniture(String actualId, String expectedIdOrTag) {
+        return NamespaceUtils.matchesFurnitureIDOrTag(actualId, expectedIdOrTag);
+    }
+
+    protected static boolean matchesRecipe(String actualRecipeKey, String expectedIdOrTag) {
+        return NamespaceUtils.matchesRecipeIDOrTag(actualRecipeKey, expectedIdOrTag);
     }
 
     protected NamespacedKey advancementKeyFor(AdvancementCriterionDefinition criterion) {

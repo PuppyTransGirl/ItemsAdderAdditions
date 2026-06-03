@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.feature.action.loading;
 
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagType;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionExecutor;
 import toutouchien.itemsadderadditions.feature.action.TriggerKey;
@@ -82,7 +83,7 @@ public final class ActionBindings {
         for (Map.Entry<String, Map<TriggerKey, List<ActionExecutor>>> entry : bindings.entrySet()) {
             String bindingId = entry.getKey();
             if (!bindingId.startsWith("#")) continue;
-            if (!NamespaceUtils.matchesMinecraftIDOrTag(id, bindingId)) continue;
+            if (!matchesTagBinding(id, bindingId)) continue;
             collectFromMap(entry.getValue(), type, argument, result);
         }
 
@@ -131,5 +132,11 @@ public final class ActionBindings {
      */
     public static boolean has(String id, TriggerType type) {
         return has(id, type, null);
+    }
+
+    private static boolean matchesTagBinding(String id, String bindingId) {
+        return NamespaceUtils.matchesContentIDOrTag(id, bindingId, CustomTagType.ITEM)
+                || NamespaceUtils.matchesContentIDOrTag(id, bindingId, CustomTagType.BLOCK)
+                || NamespaceUtils.matchesContentIDOrTag(id, bindingId, CustomTagType.FURNITURE);
     }
 }

@@ -12,14 +12,15 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
 public final class NamespaceUtils {
     private static final String LOG_TAG = "NamespaceUtils";
+
+    private static volatile CustomTagRegistry customTagRegistry = CustomTagRegistry.empty();
+    private static final Set<String> warnedAmbiguousTagReferences = ConcurrentHashMap.newKeySet();
 
     /**
      * Provider for {@code mmoitems:TYPE:ID} resolution; {@code null} when MMOItems is absent.
@@ -34,6 +35,19 @@ public final class NamespaceUtils {
      */
     public static void setMMOItemsProvider(@Nullable ItemProvider provider) {
         mmoitemsProvider = provider;
+    }
+
+    public static void setCustomTagRegistry(CustomTagRegistry registry) {
+        customTagRegistry = registry;
+        warnedAmbiguousTagReferences.clear();
+    }
+
+    public static void clearCustomTagRegistry() {
+        setCustomTagRegistry(CustomTagRegistry.empty());
+    }
+
+    public static CustomTagRegistry customTagRegistry() {
+        return customTagRegistry;
     }
 
     private static final String[] ROTATION_SUFFIXES = {
@@ -297,6 +311,52 @@ public final class NamespaceUtils {
         return currentNamespace.toLowerCase(Locale.ROOT) + ":" + lowerId;
     }
 
+    public static String normalizeNamespacedId(@Nullable String currentNamespace, String id) {
+        return normalizeID(currentNamespace, id);
+    }
+
+    public static boolean isTagReference(String value) {
+        return value.trim().startsWith("#");
+    }
+
+    public static String stripTagPrefix(String value) {
+        String trimmed = value.trim();
+        return trimmed.startsWith("#") ? trimmed.substring(1) : trimmed;
+    }
+
+    public static boolean isCustomTagReference(String value) {
+        if (!isTagReference(value)) return false;
+        String id = stripTagPrefix(value).toLowerCase(Locale.ROOT);
+        if (!id.contains(":")) return false;
+        for (CustomTagType type : CustomTagType.values()) {
+            if (customTagRegistry.hasTag(id, type)) return true;
+        }
+        return false;
+    }
+
+    public static boolean isCustomTagReference(String value, CustomTagType expectedType) {
+        if (!isTagReference(value)) return false;
+        String id = stripTagPrefix(value).toLowerCase(Locale.ROOT);
+        return id.contains(":") && customTagRegistry.hasTag(id, expectedType);
+    }
+
+    public static boolean isVanillaTagReference(String value) {
+        if (!isTagReference(value)) return false;
+        return stripTagPrefix(value).toLowerCase(Locale.ROOT).startsWith("minecraft:");
+    }
+
+    public static String normalizeCustomTagId(@Nullable String currentNamespace, String rawIdOrReference) {
+        return normalizeID(currentNamespace, stripTagPrefix(rawIdOrReference));
+    }
+
+    public static String normalizeCustomTagReference(
+            @Nullable String currentNamespace,
+            String rawReference,
+            CustomTagType expectedType
+    ) {
+        return "#" + normalizeCustomTagId(currentNamespace, rawReference);
+    }
+
     /**
      * Normalizes an item ID exactly once at config-load time.
      *
@@ -330,14 +390,13 @@ public final class NamespaceUtils {
     }
 
     /**
-     * Normalizes an item ID or vanilla item tag. Tags are always resolved in the
-     * Minecraft registry because Bukkit recipe/advancement tags only apply to
-     * vanilla registry entries.
+     * Normalizes an item ID or tag reference. Loaded custom IAA tags win; item
+     * references that are not custom tags keep the existing vanilla-tag fallback.
      */
     public static String normalizeItemIDOrTag(@Nullable String currentNamespace, String id) {
         String trimmed = id.trim().toLowerCase(Locale.ROOT);
         if (trimmed.startsWith("#")) {
-            return "#" + normalizeMinecraftID(trimmed.substring(1));
+            return normalizeReferenceOrVanillaTag(currentNamespace, trimmed, CustomTagType.ITEM);
         }
         return normalizeItemID(currentNamespace, trimmed);
     }
@@ -350,12 +409,13 @@ public final class NamespaceUtils {
     /**
      * Normalizes a block reference for predicates/triggers. Bare vanilla block
      * material names resolve to {@code minecraft:*}; other bare IDs resolve under
-     * the current ItemsAdder namespace. Prefix vanilla tags with {@code #}.
+     * the current ItemsAdder namespace. Loaded custom IAA tags win; block
+     * references that are not custom tags keep the existing vanilla-tag fallback.
      */
     public static String normalizeBlockIDOrTag(@Nullable String currentNamespace, String id) {
         String trimmed = id.trim().toLowerCase(Locale.ROOT);
         if (trimmed.startsWith("#")) {
-            return "#" + normalizeMinecraftID(trimmed.substring(1));
+            return normalizeReferenceOrVanillaTag(currentNamespace, trimmed, CustomTagType.BLOCK);
         }
         return normalizeBlockID(currentNamespace, trimmed);
     }
@@ -363,6 +423,37 @@ public final class NamespaceUtils {
     @Nullable
     public static String normalizeBlockIDOrTagNullable(@Nullable String currentNamespace, @Nullable String id) {
         return id == null ? null : normalizeBlockIDOrTag(currentNamespace, id);
+    }
+
+    public static String normalizeFurnitureIDOrTag(@Nullable String currentNamespace, String id) {
+        String trimmed = id.trim().toLowerCase(Locale.ROOT);
+        if (trimmed.startsWith("#")) {
+            return normalizeCustomTagReference(currentNamespace, trimmed, CustomTagType.FURNITURE);
+        }
+        return normalizeID(currentNamespace, trimmed);
+    }
+
+    @Nullable
+    public static String normalizeFurnitureIDOrTagNullable(@Nullable String currentNamespace, @Nullable String id) {
+        return id == null ? null : normalizeFurnitureIDOrTag(currentNamespace, id);
+    }
+
+    public static String normalizeRecipeIDOrTag(@Nullable String currentNamespace, String id) {
+        String trimmed = id.trim().toLowerCase(Locale.ROOT);
+        if (trimmed.startsWith("#")) {
+            return normalizeCustomTagReference(currentNamespace, trimmed, CustomTagType.RECIPE);
+        }
+        if (trimmed.isBlank()) return trimmed;
+        if (trimmed.contains(":")) return normalizeID(currentNamespace, trimmed);
+
+        // Preserve legacy direct recipe semantics: bare recipe conditions compare
+        // against Bukkit's key path as well as full namespaced keys at runtime.
+        return trimmed;
+    }
+
+    @Nullable
+    public static String normalizeRecipeIDOrTagNullable(@Nullable String currentNamespace, @Nullable String id) {
+        return id == null ? null : normalizeRecipeIDOrTag(currentNamespace, id);
     }
 
     /**
@@ -399,6 +490,118 @@ public final class NamespaceUtils {
     @Nullable
     public static String normalizeMinecraftIDNullable(@Nullable String id) {
         return id == null ? null : normalizeMinecraftID(id);
+    }
+
+    @Nullable
+    public static String normalizeContentIdForCustomTagValue(
+            @Nullable String currentNamespace,
+            String raw,
+            CustomTagType type
+    ) {
+        String lower = raw.trim().toLowerCase(Locale.ROOT);
+        if (lower.isBlank() || lower.startsWith("#")) return null;
+
+        return switch (type) {
+            case ITEM -> normalizeItemTagValue(currentNamespace, lower);
+            case BLOCK -> normalizeBlockTagValue(currentNamespace, lower);
+            case FURNITURE -> validNamespacedOrNull(normalizeID(currentNamespace, lower));
+            case RECIPE -> normalizeRecipeTagValue(currentNamespace, lower);
+        };
+    }
+
+    private static String normalizeReferenceOrVanillaTag(
+            @Nullable String currentNamespace,
+            String rawReference,
+            CustomTagType type
+    ) {
+        String customReference = normalizeCustomTagReference(currentNamespace, rawReference, type);
+        String customId = stripTagPrefix(customReference);
+        if (customTagRegistry.hasTag(customId, type)) {
+            warnAmbiguousCustomVanillaTag(customId, type);
+            return customReference;
+        }
+
+        return "#" + normalizeMinecraftID(stripTagPrefix(rawReference));
+    }
+
+    @Nullable
+    private static String normalizeItemTagValue(@Nullable String currentNamespace, String lower) {
+        if (lower.startsWith("mmoitems:")) {
+            return isValidMMOItemsId(lower) ? lower : null;
+        }
+
+        if (lower.contains(":")) {
+            return isValidNamespacedId(lower) ? lower : null;
+        }
+
+        CustomStack customStack = customItemByID(currentNamespace, lower);
+        if (customStack != null) return customStack.getNamespacedID();
+
+        Material material = vanillaMaterial(lower);
+        if (material != null && material.isItem()) {
+            return material.getKey().toString();
+        }
+
+        return validNamespacedOrNull(normalizeID(currentNamespace, lower));
+    }
+
+    @Nullable
+    private static String normalizeBlockTagValue(@Nullable String currentNamespace, String lower) {
+        if (lower.contains(":")) {
+            return isValidNamespacedId(lower) ? lower : null;
+        }
+
+        Material material = vanillaMaterial(lower);
+        if (material != null && material.isBlock()) {
+            return material.getKey().toString();
+        }
+
+        return validNamespacedOrNull(normalizeID(currentNamespace, lower));
+    }
+
+    @Nullable
+    private static String normalizeRecipeTagValue(@Nullable String currentNamespace, String lower) {
+        if (lower.contains(":")) {
+            return isValidNamespacedId(lower) ? lower : null;
+        }
+        return validNamespacedOrNull(normalizeID(currentNamespace, lower));
+    }
+
+    @Nullable
+    private static String validNamespacedOrNull(String id) {
+        return isValidNamespacedId(id) ? id : null;
+    }
+
+    public static boolean isValidNamespacedId(String id) {
+        String lower = id.trim().toLowerCase(Locale.ROOT);
+        if (lower.isBlank()) return false;
+        if (!lower.contains(":")) return false;
+        if (lower.indexOf(':') != lower.lastIndexOf(':')) return false;
+        return NamespacedKey.fromString(lower) != null;
+    }
+
+    private static boolean isValidMMOItemsId(String id) {
+        String rest = id.substring("mmoitems:".length());
+        int colon = rest.indexOf(':');
+        return colon > 0
+                && colon < rest.length() - 1
+                && rest.indexOf(':', colon + 1) < 0
+                && isValidPathSegment(rest.substring(0, colon))
+                && isValidPathSegment(rest.substring(colon + 1));
+    }
+
+    private static boolean isValidPathSegment(String value) {
+        if (value.isBlank()) return false;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if ((c >= 'a' && c <= 'z')
+                    || (c >= '0' && c <= '9')
+                    || c == '_' || c == '-' || c == '.' || c == '/') {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -463,6 +666,11 @@ public final class NamespaceUtils {
 
         String expected = normalizedIdOrTag.trim().toLowerCase(Locale.ROOT);
         if (expected.startsWith("#")) {
+            String tagId = stripTagPrefix(expected);
+            if (customTagRegistry.hasTag(tagId, CustomTagType.ITEM)) {
+                String itemId = itemID(item);
+                return itemId != null && customTagContainsContent(tagId, CustomTagType.ITEM, itemId);
+            }
             return matchesMaterialTag(item.getType(), expected.substring(1), Tag.REGISTRY_ITEMS);
         }
 
@@ -491,10 +699,35 @@ public final class NamespaceUtils {
     public static boolean matchesBlockIDOrTag(Block block, String normalizedIdOrTag) {
         String expected = normalizedIdOrTag.trim().toLowerCase(Locale.ROOT);
         if (expected.startsWith("#")) {
+            String tagId = stripTagPrefix(expected);
+            if (customTagRegistry.hasTag(tagId, CustomTagType.BLOCK)) {
+                return customTagContainsContent(tagId, CustomTagType.BLOCK, blockID(block));
+            }
             return matchesMaterialTag(block.getType(), expected.substring(1), Tag.REGISTRY_BLOCKS);
         }
 
         return matchesContentID(blockID(block), expected);
+    }
+
+    public static boolean matchesFurnitureIDOrTag(String actualFurnitureId, String normalizedIdOrTag) {
+        return matchesContentIDOrTag(actualFurnitureId, normalizedIdOrTag, CustomTagType.FURNITURE);
+    }
+
+    public static boolean matchesRecipeIDOrTag(String actualRecipeKey, String normalizedIdOrTag) {
+        String actual = actualRecipeKey.trim().toLowerCase(Locale.ROOT);
+        String expected = normalizedIdOrTag.trim().toLowerCase(Locale.ROOT);
+        if (expected.isBlank()) return true;
+
+        if (expected.startsWith("#")) {
+            String tagId = stripTagPrefix(expected);
+            return customTagRegistry.hasTag(tagId, CustomTagType.RECIPE)
+                    && customTagRegistry.contains(tagId, CustomTagType.RECIPE, actual);
+        }
+
+        if (actual.equals(expected)) return true;
+
+        int colon = actual.indexOf(':');
+        return colon >= 0 && expected.indexOf(':') < 0 && actual.substring(colon + 1).equals(expected);
     }
 
     /**
@@ -508,6 +741,28 @@ public final class NamespaceUtils {
             return lowerActual.equals(lowerExpected);
         }
         return matchesWithRotation(lowerActual, lowerExpected);
+    }
+
+    public static boolean matchesContentIDOrTag(String actualId, String expectedIdOrTag, CustomTagType expectedType) {
+        String actual = actualId.trim().toLowerCase(Locale.ROOT);
+        String expected = expectedIdOrTag.trim().toLowerCase(Locale.ROOT);
+
+        if (!expected.startsWith("#")) {
+            return expectedType == CustomTagType.RECIPE
+                    ? matchesRecipeIDOrTag(actual, expected)
+                    : matchesContentID(actual, expected);
+        }
+
+        String tagId = stripTagPrefix(expected);
+        if (customTagRegistry.hasTag(tagId, expectedType)) {
+            return customTagContainsContent(tagId, expectedType, actual);
+        }
+
+        if (expectedType == CustomTagType.ITEM || expectedType == CustomTagType.BLOCK) {
+            return matchesMinecraftIDOrTag(actual, expected);
+        }
+
+        return false;
     }
 
 
@@ -528,6 +783,18 @@ public final class NamespaceUtils {
         String tag = expected.substring(1);
         return (material.isItem() && matchesMaterialTag(material, tag, Tag.REGISTRY_ITEMS))
                 || (material.isBlock() && matchesMaterialTag(material, tag, Tag.REGISTRY_BLOCKS));
+    }
+
+    private static boolean customTagContainsContent(String tagId, CustomTagType type, String actualId) {
+        String actual = actualId.trim().toLowerCase(Locale.ROOT);
+        if (customTagRegistry.contains(tagId, type, actual)) return true;
+
+        if (type == CustomTagType.BLOCK || type == CustomTagType.FURNITURE) {
+            String base = stripRotationSuffix(actual);
+            return !base.equals(actual) && customTagRegistry.contains(tagId, type, base);
+        }
+
+        return false;
     }
 
     /**
@@ -552,6 +819,31 @@ public final class NamespaceUtils {
 
         Tag<Material> tag = Bukkit.getTag(registry, key, Material.class);
         return tag != null && tag.isTagged(material);
+    }
+
+    private static void warnAmbiguousCustomVanillaTag(String tagId, CustomTagType type) {
+        if ((type != CustomTagType.ITEM && type != CustomTagType.BLOCK) || !tagId.startsWith("minecraft:")) {
+            return;
+        }
+
+        String warningKey = type + ":" + tagId;
+        if (!warnedAmbiguousTagReferences.add(warningKey)) {
+            return;
+        }
+
+        try {
+            NamespacedKey key = minecraftKey(tagId);
+            if (key == null) return;
+            String registry = type == CustomTagType.ITEM ? Tag.REGISTRY_ITEMS : Tag.REGISTRY_BLOCKS;
+            Tag<Material> tag = Bukkit.getTag(registry, key, Material.class);
+            if (tag == null) return;
+
+            Log.warn(LOG_TAG,
+                    "Custom {} tag '#{}' also exists as a vanilla Bukkit tag; using the ItemsAdderAdditions custom tag in this context.",
+                    type, tagId);
+        } catch (RuntimeException ignored) {
+            // Bukkit may be unavailable in isolated unit tests.
+        }
     }
 
     @Nullable

@@ -1,7 +1,6 @@
 package toutouchien.itemsadderadditions.feature.behaviour.builtin;
 
 import dev.lone.itemsadder.api.CustomBlock;
-import dev.lone.itemsadder.api.CustomStack;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -25,7 +24,6 @@ import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Implements a progressive stacking mechanic similar to vanilla Candles or Pink Petals.
@@ -96,7 +94,7 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
 
     private static List<String> normalizeIds(List<String> ids, String namespacedID) {
         return ids.stream()
-                .map(id -> NamespaceUtils.normalizeID(
+                .map(id -> NamespaceUtils.normalizeItemIDOrTag(
                         NamespaceUtils.namespace(namespacedID), id))
                 .toList();
     }
@@ -198,12 +196,6 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
             return;
 
         Player player = event.getPlayer();
-        CustomStack customStack = CustomStack.byItemStack(item);
-
-        String heldId = customStack != null
-                ? customStack.getNamespacedID()
-                : item.getType().name().toLowerCase(Locale.ROOT);
-
         String lastAcceptedBlock = namespacedID;
         for (StackStep step : steps) {
             String clickedId = customBlock.getNamespacedID();
@@ -214,7 +206,7 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
                 continue;
             }
 
-            if (step.items.contains(heldId)) {
+            if (step.items.stream().anyMatch(expected -> NamespaceUtils.matchesItemIDOrTag(item, expected))) {
                 applyStep(event, step, player, item, block);
                 return;
             }
