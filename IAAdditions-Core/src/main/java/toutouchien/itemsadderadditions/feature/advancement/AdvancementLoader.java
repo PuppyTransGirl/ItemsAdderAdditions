@@ -197,6 +197,15 @@ public final class AdvancementLoader {
             case INTERACT_FURNITURE -> new AdvancementConditions.InteractFurniture(
                     normalizeFurnitureIdOrTag(namespace, sec != null ? sec.getString("furniture", "") : "")
             );
+            case SIT_FURNITURE -> new AdvancementConditions.SitFurniture(
+                    normalizeFurnitureIdOrTag(namespace, sec != null ? sec.getString("furniture", "") : "")
+            );
+            case UNSIT_FURNITURE -> new AdvancementConditions.UnsitFurniture(
+                    normalizeFurnitureIdOrTag(namespace, sec != null ? sec.getString("furniture", "") : "")
+            );
+            case OPEN_TRADE_MACHINE -> new AdvancementConditions.OpenTradeMachine(
+                    normalizeFurnitureIdOrTag(namespace, sec != null ? sec.getString("trade_machine", "") : "")
+            );
             case CRAFT_RECIPE -> new AdvancementConditions.CraftRecipe(
                     normalizeRecipeId(namespace, sec != null ? sec.getString("recipe", "") : "")
             );

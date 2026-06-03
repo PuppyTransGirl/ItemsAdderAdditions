@@ -6,6 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.feature.advancement.trigger.*;
+import toutouchien.itemsadderadditions.patch.Version;
+import toutouchien.itemsadderadditions.patch.VersionRange;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ public final class AdvancementRuntimeService {
     }
 
     public void register(Plugin plugin) {
-        List<Listener> listeners = List.of(
+        List<Listener> listeners = new ArrayList<>(List.of(
                 new ObtainItemTriggerHandler(registry),
                 new ConsumeItemTriggerHandler(registry),
                 new PlaceBlockTriggerHandler(registry),
@@ -66,11 +68,33 @@ public final class AdvancementRuntimeService {
                 new TickTriggerHandler(registry),
                 new AdvancementCompletionListener(registry),
                 new AdvancementPlayerJoinListener(registry, plugin)
-        );
+        ));
+
+        // Sit/unsit and trade-machine events only exist in ItemsAdder 4.0.17+.
+        // Instantiating these handlers references those event classes, so guard
+        // them behind a version check to avoid NoClassDefFoundError on 4.0.16 and
+        // older.
+        if (itemsAdderAtLeast4017()) {
+            listeners.add(new SitFurnitureTriggerHandler(registry));
+            listeners.add(new UnsitFurnitureTriggerHandler(registry));
+            listeners.add(new OpenTradeMachineTriggerHandler(registry));
+        }
+
         for (Listener l : listeners) {
             Bukkit.getPluginManager().registerEvents(l, plugin);
             activeListeners.add(l);
         }
+    }
+
+    private boolean itemsAdderAtLeast4017() {
+        Plugin itemsAdder = plugin.getServer().getPluginManager().getPlugin("ItemsAdder");
+        if (itemsAdder == null) return false;
+
+        Version version = Version.of(
+                Bukkit.getMinecraftVersion(),
+                itemsAdder.getPluginMeta().getVersion()
+        );
+        return VersionRange.ia("4.0.17", null).test(version);
     }
 
     public void unregister() {

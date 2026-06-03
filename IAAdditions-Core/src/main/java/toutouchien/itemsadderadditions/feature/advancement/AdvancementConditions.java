@@ -14,6 +14,9 @@ public sealed interface AdvancementConditions permits
         AdvancementConditions.PlaceFurniture,
         AdvancementConditions.BreakFurniture,
         AdvancementConditions.InteractFurniture,
+        AdvancementConditions.SitFurniture,
+        AdvancementConditions.UnsitFurniture,
+        AdvancementConditions.OpenTradeMachine,
         AdvancementConditions.CraftRecipe,
         AdvancementConditions.KillEntityWithItem,
         AdvancementConditions.Permission,
@@ -59,6 +62,12 @@ public sealed interface AdvancementConditions permits
     record BreakFurniture(String furnitureId) implements AdvancementConditions {}
 
     record InteractFurniture(String furnitureId) implements AdvancementConditions {}
+
+    record SitFurniture(String furnitureId) implements AdvancementConditions {}
+
+    record UnsitFurniture(String furnitureId) implements AdvancementConditions {}
+
+    record OpenTradeMachine(String tradeMachineId) implements AdvancementConditions {}
 
     record CraftRecipe(String recipeId) implements AdvancementConditions {}
 
