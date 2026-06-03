@@ -17,7 +17,7 @@ final class BuiltInBehaviours {
         return List.of(
                 new BedBehaviour(),
                 new ConnectableBehaviour(),
-                new ContactDamageBehaviour(),
+                new ContactEffectBehaviour(),
                 new StackableBehaviour(),
                 new StorageBehaviour(),
                 new TextDisplayBehaviour()
