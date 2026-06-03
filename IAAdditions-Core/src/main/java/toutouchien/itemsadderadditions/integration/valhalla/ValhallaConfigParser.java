@@ -79,9 +79,19 @@ public final class ValhallaConfigParser {
 
         String equipmentClass = parseEquipmentClass(section, namespacedId);
         List<String> itemFlags = parseFlags(section, namespacedId);
+        List<ValhallaPermanentEffect> permanentEffects = parsePermanentEffects(section, namespacedId);
+        ValhallaPermanentEffectCooldown permanentEffectCooldown = parsePermanentEffectCooldown(section, namespacedId);
         ValhallaTrinketData trinkets = parseTrinkets(section.getConfigurationSection("trinkets"), namespacedId);
 
-        ValhallaItemData data = new ValhallaItemData(actualStats, defaultStats, equipmentClass, itemFlags, trinkets);
+        ValhallaItemData data = new ValhallaItemData(
+                actualStats,
+                defaultStats,
+                equipmentClass,
+                itemFlags,
+                permanentEffects,
+                permanentEffectCooldown,
+                trinkets
+        );
         return data.isEmpty() ? null : data;
     }
 
@@ -112,6 +122,11 @@ public final class ValhallaConfigParser {
 
             if (stat.indexOf(':') >= 0 || stat.indexOf(';') >= 0) {
                 Log.itemWarn(LOG_TAG, namespacedId, "{}[{}]: stat '{}' contains ':' or ';' - skipping.", fieldName, i, stat);
+                continue;
+            }
+
+            if (!ValhallaKnownValues.STATS.contains(stat)) {
+                Log.itemWarn(LOG_TAG, namespacedId, "{}[{}]: unknown stat '{}' - skipping.", fieldName, i, stat);
                 continue;
             }
 
@@ -210,6 +225,120 @@ public final class ValhallaConfigParser {
         return List.copyOf(flags);
     }
 
+    private static List<ValhallaPermanentEffect> parsePermanentEffects(ConfigurationSection section, String namespacedId) {
+        List<ValhallaPermanentEffect> effects = new ArrayList<>();
+
+        ConfigurationSection permanentEffectsSection = section.getConfigurationSection("permanent_effects");
+        if (permanentEffectsSection != null) {
+            effects.addAll(parsePermanentEffectList(permanentEffectsSection.getList("effects"),
+                    "permanent_effects.effects", namespacedId));
+        }
+
+        if (section.contains("permanent_potion_effects")) {
+            effects.addAll(parsePermanentEffectList(section.getList("permanent_potion_effects"),
+                    "permanent_potion_effects", namespacedId));
+        }
+
+        return effects.isEmpty() ? List.of() : List.copyOf(effects);
+    }
+
+    static List<ValhallaPermanentEffect> parsePermanentEffectList(
+            @Nullable List<?> rawList,
+            String fieldName,
+            String namespacedId
+    ) {
+        if (rawList == null || rawList.isEmpty()) return List.of();
+
+        List<ValhallaPermanentEffect> effects = new ArrayList<>(rawList.size());
+        for (int i = 0; i < rawList.size(); i++) {
+            Object raw = rawList.get(i);
+            if (!(raw instanceof Map<?, ?> map)) {
+                Log.itemWarn(LOG_TAG, namespacedId,
+                        "{}[{}]: expected a section with type/amplifier/duration/condition - skipping.",
+                        fieldName, i);
+                continue;
+            }
+
+            String effect = readString(map, "type");
+            if (effect == null || effect.isBlank()) {
+                effect = readString(map, "effect");
+            }
+            if (effect == null || effect.isBlank()) {
+                Log.itemWarn(LOG_TAG, namespacedId, "{}[{}]: missing or blank 'type' - skipping.", fieldName, i);
+                continue;
+            }
+            effect = effect.toUpperCase(Locale.ROOT);
+
+            if (effect.indexOf(':') >= 0 || effect.indexOf(';') >= 0) {
+                Log.itemWarn(LOG_TAG, namespacedId, "{}[{}]: type '{}' contains ':' or ';' - skipping.", fieldName, i, effect);
+                continue;
+            }
+
+            if (!ValhallaKnownValues.PERMANENT_EFFECTS.contains(effect)
+                    && !ValhallaKnownValues.STATS.contains(effect)) {
+                Log.itemWarn(LOG_TAG, namespacedId, "{}[{}]: unknown permanent effect type '{}' - skipping.", fieldName, i, effect);
+                continue;
+            }
+
+            Double amplifier = readDouble(map.get("amplifier"), fieldName + "[" + i + "] type '" + effect + "'", "amplifier", namespacedId);
+            if (amplifier == null) continue;
+
+            Integer duration = readInt(map.get("duration"), fieldName + "[" + i + "] type '" + effect + "'", "duration", namespacedId);
+            if (duration == null) continue;
+            if (duration <= 0) {
+                Log.itemWarn(LOG_TAG, namespacedId, "{}[{}] type '{}': 'duration' must be greater than 0 - skipping.",
+                        fieldName, i, effect);
+                continue;
+            }
+
+            String condition = readString(map, "condition");
+            if (condition == null || condition.isBlank()) condition = "constant";
+            condition = condition.trim();
+            if (condition.indexOf(':') >= 0 || condition.indexOf(';') >= 0) {
+                Log.itemWarn(LOG_TAG, namespacedId, "{}[{}] type '{}': 'condition' contains ':' or ';' - skipping.",
+                        fieldName, i, effect);
+                continue;
+            }
+
+            effects.add(new ValhallaPermanentEffect(effect, amplifier, duration, condition));
+        }
+
+        return List.copyOf(effects);
+    }
+
+    @Nullable
+    private static ValhallaPermanentEffectCooldown parsePermanentEffectCooldown(
+            ConfigurationSection section,
+            String namespacedId
+    ) {
+        ConfigurationSection cooldownSection = null;
+
+        ConfigurationSection permanentEffects = section.getConfigurationSection("permanent_effects");
+        if (permanentEffects != null) {
+            cooldownSection = permanentEffects.getConfigurationSection("cooldown_properties");
+        }
+
+        ConfigurationSection aliasSection = section.getConfigurationSection("permanent_effects_cooldown_properties");
+        if (aliasSection != null) cooldownSection = aliasSection;
+
+        if (cooldownSection == null) return null;
+
+        Boolean cdrAffected = readBoolean(cooldownSection.get("cdr_affected"));
+        if (cdrAffected == null) cdrAffected = readBoolean(cooldownSection.get("cdrAffected"));
+        if (cdrAffected == null) cdrAffected = false;
+
+        Integer cooldown = readInt(cooldownSection.get("cooldown"),
+                "permanent_effects_cooldown_properties", "cooldown", namespacedId);
+        if (cooldown == null) return null;
+        if (cooldown < 0) {
+            Log.itemWarn(LOG_TAG, namespacedId,
+                    "permanent_effects_cooldown_properties.cooldown must be non-negative - skipping.");
+            return null;
+        }
+
+        return new ValhallaPermanentEffectCooldown(cdrAffected, cooldown);
+    }
+
     @Nullable
     private static ValhallaTrinketData parseTrinkets(
             @Nullable ConfigurationSection section,
@@ -220,6 +349,7 @@ public final class ValhallaConfigParser {
         Integer trinketId = null;
         Integer trinketUniqueId = null;
         Boolean unique = null;
+        Boolean unstackable = null;
 
         if (section.contains("trinket_id")) {
             trinketId = readStrictInt(section, "trinket_id", namespacedId);
@@ -233,7 +363,14 @@ public final class ValhallaConfigParser {
             unique = readUnique(section.get("unique"), namespacedId);
         }
 
-        ValhallaTrinketData data = new ValhallaTrinketData(trinketId, trinketUniqueId, unique);
+        if (section.contains("unstackable")) {
+            unstackable = readBoolean(section.get("unstackable"));
+            if (unstackable == null) {
+                Log.itemWarn(LOG_TAG, namespacedId, "trinkets.unstackable must be true/false - skipping.");
+            }
+        }
+
+        ValhallaTrinketData data = new ValhallaTrinketData(trinketId, trinketUniqueId, unique, unstackable);
         return data.isEmpty() ? null : data;
     }
 
@@ -293,6 +430,51 @@ public final class ValhallaConfigParser {
         }
 
         Log.itemWarn(LOG_TAG, namespacedId, "trinkets.unique must be true/false, 1/0, or '1b'/'0b' - skipping.");
+        return null;
+    }
+
+    @Nullable
+    private static Double readDouble(@Nullable Object raw, String fieldLabel, String key, String namespacedId) {
+        if (!(raw instanceof Number n)) {
+            Log.itemWarn(LOG_TAG, namespacedId, "{}: '{}' must be a number - skipping.", fieldLabel, key);
+            return null;
+        }
+
+        double value = n.doubleValue();
+        if (!Double.isFinite(value)) {
+            Log.itemWarn(LOG_TAG, namespacedId, "{}: '{}' must be finite - skipping.", fieldLabel, key);
+            return null;
+        }
+
+        return value;
+    }
+
+    @Nullable
+    private static Integer readInt(@Nullable Object raw, String fieldLabel, String key, String namespacedId) {
+        if (!(raw instanceof Number n)) {
+            Log.itemWarn(LOG_TAG, namespacedId, "{}: '{}' must be an integer - skipping.", fieldLabel, key);
+            return null;
+        }
+
+        double d = n.doubleValue();
+        if (!Double.isFinite(d) || d % 1.0 != 0.0 || d < Integer.MIN_VALUE || d > Integer.MAX_VALUE) {
+            Log.itemWarn(LOG_TAG, namespacedId, "{}: '{}' must be a whole 32-bit integer - skipping.", fieldLabel, key);
+            return null;
+        }
+
+        return n.intValue();
+    }
+
+    @Nullable
+    private static Boolean readBoolean(@Nullable Object raw) {
+        if (raw instanceof Boolean b) return b;
+        if (raw instanceof String s) {
+            return switch (s.trim().toLowerCase(Locale.ROOT)) {
+                case "true" -> true;
+                case "false" -> false;
+                default -> null;
+            };
+        }
         return null;
     }
 

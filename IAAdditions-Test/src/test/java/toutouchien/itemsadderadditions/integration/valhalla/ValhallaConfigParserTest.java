@@ -488,6 +488,173 @@ class ValhallaConfigParserTest {
     }
 
     @Test
+    void parseTrinketUnstackable() {
+        var cfg = yaml("""
+                trinkets:
+                  unstackable: true
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:item");
+        assertNotNull(data);
+        assertNotNull(data.trinkets());
+        assertEquals(Boolean.TRUE, data.trinkets().unstackable());
+    }
+
+    @Test
+    void parsePermanentEffectsNightVisionExample() {
+        var cfg = yaml("""
+                permanent_effects:
+                  cooldown_properties:
+                    cdr_affected: false
+                    cooldown: 1000
+                  effects:
+                    - type: NIGHT_VISION
+                      amplifier: 0.0
+                      duration: 2
+                      condition: constant
+                    - type: NIGHT_VISION
+                      amplifier: 0.0
+                      duration: 240
+                      condition: constant
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:nightvision");
+        assertNotNull(data);
+        assertEquals(2, data.permanentEffects().size());
+        assertEquals("NIGHT_VISION", data.permanentEffects().get(0).effect());
+        assertEquals(0.0, data.permanentEffects().get(0).amplifier());
+        assertEquals(2, data.permanentEffects().get(0).duration());
+        assertEquals("constant", data.permanentEffects().get(0).condition());
+        assertNotNull(data.permanentEffectCooldown());
+        assertFalse(data.permanentEffectCooldown().cdrAffected());
+        assertEquals(1000, data.permanentEffectCooldown().cooldown());
+    }
+
+    @Test
+    void parsePermanentEffectsAliases() {
+        var cfg = yaml("""
+                permanent_potion_effects:
+                  - type: night_vision
+                    amplifier: 0.0
+                    duration: 240
+                    condition: constant
+                permanent_effects_cooldown_properties:
+                  cdrAffected: true
+                  cooldown: 500
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:nightvision");
+        assertNotNull(data);
+        assertEquals(1, data.permanentEffects().size());
+        assertEquals("NIGHT_VISION", data.permanentEffects().get(0).effect());
+        assertNotNull(data.permanentEffectCooldown());
+        assertTrue(data.permanentEffectCooldown().cdrAffected());
+        assertEquals(500, data.permanentEffectCooldown().cooldown());
+    }
+
+    @Test
+    void parsePermanentEffectsLegacyEffectAlias() {
+        var cfg = yaml("""
+                permanent_potion_effects:
+                  - effect: night_vision
+                    amplifier: 0.0
+                    duration: 240
+                    condition: constant
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:nightvision");
+        assertNotNull(data);
+        assertEquals(1, data.permanentEffects().size());
+        assertEquals("NIGHT_VISION", data.permanentEffects().get(0).effect());
+    }
+
+    @Test
+    void permanentEffectMissingTypeIsRejected() {
+        var cfg = yaml("""
+                permanent_potion_effects:
+                  - amplifier: 0.0
+                    duration: 240
+                    condition: constant
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:item");
+        assertNull(data);
+    }
+
+    @Test
+    void permanentEffectInvalidTypeIsRejected() {
+        var cfg = yaml("""
+                permanent_potion_effects:
+                  - type: NOT_A_REAL_EFFECT
+                    amplifier: 0.0
+                    duration: 240
+                    condition: constant
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:item");
+        assertNull(data);
+    }
+
+    @Test
+    void permanentEffectInvalidDurationIsRejected() {
+        var cfg = yaml("""
+                permanent_potion_effects:
+                  - type: NIGHT_VISION
+                    amplifier: 0.0
+                    duration: -1
+                    condition: constant
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:item");
+        assertNull(data);
+    }
+
+    @Test
+    void permanentEffectInvalidCooldownIsRejected() {
+        var cfg = yaml("""
+                permanent_effects:
+                  cooldown_properties:
+                    cdr_affected: false
+                    cooldown: -1
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:item");
+        assertNull(data);
+    }
+
+    @Test
+    void invalidStatNameIsRejected() {
+        var cfg = yaml("""
+                stats:
+                  - stat: NOT_A_REAL_STAT
+                    amount: 1.0
+                    operation: ADD_NUMBER
+                    hidden: false
+                """);
+        var section = cfg.getConfigurationSection("");
+        assertNotNull(section);
+
+        ValhallaItemData data = ValhallaConfigParser.parse(section, "test:item");
+        assertNull(data);
+    }
+
+    @Test
     void emptyValhallaSection_returnsNull() {
         var cfg = yaml("");
         var section = cfg.getConfigurationSection("");
@@ -516,6 +683,7 @@ class ValhallaConfigParserTest {
                   trinket_id: 7
                   trinket_unique_id: 529
                   unique: true
+                  unstackable: true
                 """);
         var section = cfg.getConfigurationSection("");
         assertNotNull(section);
@@ -528,5 +696,6 @@ class ValhallaConfigParserTest {
         assertEquals(List.of("DISPLAY_ATTRIBUTES"), data.itemFlags());
         assertNotNull(data.trinkets());
         assertEquals(7, data.trinkets().trinketId());
+        assertEquals(Boolean.TRUE, data.trinkets().unstackable());
     }
 }

@@ -8,6 +8,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Writes {@link ValhallaItemData} to an {@link ItemStack} via Bukkit PDC.
@@ -26,12 +27,18 @@ public final class ValhallaItemApplier {
             NamespacedKey.fromString("valhallammo:equipment_class");
     private static final NamespacedKey KEY_ITEM_FLAGS =
             NamespacedKey.fromString("valhallammo:item_flags");
+    private static final NamespacedKey KEY_PERMANENT_POTION_EFFECTS =
+            NamespacedKey.fromString("valhallammo:permanent_potion_effects");
+    private static final NamespacedKey KEY_PERMANENT_EFFECTS_COOLDOWN_PROPERTIES =
+            NamespacedKey.fromString("valhallammo:permanent_effects_cooldown_properties");
     private static final NamespacedKey KEY_TRINKET_ID =
             NamespacedKey.fromString("valhallatrinkets:trinket_id");
     private static final NamespacedKey KEY_TRINKET_UNIQUE_ID =
             NamespacedKey.fromString("valhallatrinkets:trinket_unique_id");
     private static final NamespacedKey KEY_TRINKET_UNIQUE =
             NamespacedKey.fromString("valhallatrinkets:unique");
+    private static final NamespacedKey KEY_TRINKET_UNSTACKABLE =
+            NamespacedKey.fromString("valhallatrinkets:trinket_unstackable");
 
     private ValhallaItemApplier() {
     }
@@ -65,6 +72,16 @@ public final class ValhallaItemApplier {
             pdc.set(KEY_ITEM_FLAGS, PersistentDataType.STRING, String.join(";", data.itemFlags()));
         }
 
+        if (!data.permanentEffects().isEmpty()) {
+            pdc.set(KEY_PERMANENT_POTION_EFFECTS, PersistentDataType.STRING,
+                    serializePermanentEffects(data.permanentEffects()));
+        }
+
+        if (data.permanentEffectCooldown() != null) {
+            pdc.set(KEY_PERMANENT_EFFECTS_COOLDOWN_PROPERTIES, PersistentDataType.STRING,
+                    data.permanentEffectCooldown().serialize());
+        }
+
         if (data.trinkets() != null) {
             applyTrinkets(pdc, data.trinkets());
         }
@@ -78,6 +95,16 @@ public final class ValhallaItemApplier {
         for (ValhallaStatEntry entry : stats) {
             if (!sb.isEmpty()) sb.append(';');
             sb.append(entry.serialize());
+        }
+
+        return sb.toString();
+    }
+
+    static String serializePermanentEffects(List<ValhallaPermanentEffect> effects) {
+        StringBuilder sb = new StringBuilder();
+        for (ValhallaPermanentEffect effect : effects) {
+            if (!sb.isEmpty()) sb.append(';');
+            sb.append(effect.serialize());
         }
 
         return sb.toString();
@@ -97,6 +124,14 @@ public final class ValhallaItemApplier {
                 pdc.set(KEY_TRINKET_UNIQUE, PersistentDataType.BYTE, (byte) 1);
             } else {
                 pdc.remove(KEY_TRINKET_UNIQUE);
+            }
+        }
+
+        if (trinkets.unstackable() != null) {
+            if (trinkets.unstackable()) {
+                pdc.set(KEY_TRINKET_UNSTACKABLE, PersistentDataType.STRING, UUID.randomUUID().toString());
+            } else {
+                pdc.remove(KEY_TRINKET_UNSTACKABLE);
             }
         }
     }

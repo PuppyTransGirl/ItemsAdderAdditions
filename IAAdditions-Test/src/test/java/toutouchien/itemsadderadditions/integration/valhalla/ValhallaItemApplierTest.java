@@ -25,12 +25,18 @@ class ValhallaItemApplierTest {
             NamespacedKey.fromString("valhallammo:equipment_class");
     private static final NamespacedKey KEY_ITEM_FLAGS =
             NamespacedKey.fromString("valhallammo:item_flags");
+    private static final NamespacedKey KEY_PERMANENT_POTION_EFFECTS =
+            NamespacedKey.fromString("valhallammo:permanent_potion_effects");
+    private static final NamespacedKey KEY_PERMANENT_EFFECTS_COOLDOWN_PROPERTIES =
+            NamespacedKey.fromString("valhallammo:permanent_effects_cooldown_properties");
     private static final NamespacedKey KEY_TRINKET_ID =
             NamespacedKey.fromString("valhallatrinkets:trinket_id");
     private static final NamespacedKey KEY_TRINKET_UNIQUE_ID =
             NamespacedKey.fromString("valhallatrinkets:trinket_unique_id");
     private static final NamespacedKey KEY_TRINKET_UNIQUE =
             NamespacedKey.fromString("valhallatrinkets:unique");
+    private static final NamespacedKey KEY_TRINKET_UNSTACKABLE =
+            NamespacedKey.fromString("valhallatrinkets:trinket_unstackable");
 
     @BeforeAll
     static void setup() {
@@ -196,6 +202,53 @@ class ValhallaItemApplierTest {
     }
 
     @Test
+    void appliesTrinketUnstackable() {
+        ValhallaTrinketData trinkets = new ValhallaTrinketData(null, null, null, true);
+        ValhallaItemData data = new ValhallaItemData(List.of(), List.of(), null, List.of(), trinkets);
+
+        ItemStack result = ValhallaItemApplier.apply(sword(), data);
+        String pdc = meta(result).getPersistentDataContainer()
+                .get(KEY_TRINKET_UNSTACKABLE, PersistentDataType.STRING);
+
+        java.util.UUID.fromString(Objects.requireNonNull(pdc));
+    }
+
+    @Test
+    void trinketUnstackableFalseRemovesKey() {
+        ItemStack stack = sword();
+        ItemMeta prepareMeta = Objects.requireNonNull(stack.getItemMeta());
+        prepareMeta.getPersistentDataContainer()
+                .set(KEY_TRINKET_UNSTACKABLE, PersistentDataType.STRING, "existing");
+        stack.setItemMeta(prepareMeta);
+
+        ValhallaTrinketData trinkets = new ValhallaTrinketData(null, null, null, false);
+        ValhallaItemData data = new ValhallaItemData(List.of(), List.of(), null, List.of(), trinkets);
+
+        ItemStack result = ValhallaItemApplier.apply(stack, data);
+        assertFalse(meta(result).getPersistentDataContainer()
+                .has(KEY_TRINKET_UNSTACKABLE, PersistentDataType.STRING));
+    }
+
+    @Test
+    void appliesPermanentPotionEffects() {
+        List<ValhallaPermanentEffect> effects = List.of(
+                new ValhallaPermanentEffect("NIGHT_VISION", 0.0, 2, "constant"),
+                new ValhallaPermanentEffect("NIGHT_VISION", 0.0, 240, "constant")
+        );
+        ValhallaItemData data = new ValhallaItemData(
+                List.of(), List.of(), null, List.of(), effects,
+                new ValhallaPermanentEffectCooldown(false, 1000), null);
+
+        ItemStack result = ValhallaItemApplier.apply(sword(), data);
+        var pdc = meta(result).getPersistentDataContainer();
+
+        assertEquals("NIGHT_VISION:0.0:2:constant;NIGHT_VISION:0.0:240:constant",
+                pdc.get(KEY_PERMANENT_POTION_EFFECTS, PersistentDataType.STRING));
+        assertEquals("false;1000",
+                pdc.get(KEY_PERMANENT_EFFECTS_COOLDOWN_PROPERTIES, PersistentDataType.STRING));
+    }
+
+    @Test
     void pdcKeysUseCorrectNamespaces() {
         assertEquals("valhallammo", KEY_ACTUAL_STATS.namespace());
         assertEquals("actual_stats", KEY_ACTUAL_STATS.value());
@@ -205,12 +258,18 @@ class ValhallaItemApplierTest {
         assertEquals("equipment_class", KEY_EQUIPMENT_CLASS.value());
         assertEquals("valhallammo", KEY_ITEM_FLAGS.namespace());
         assertEquals("item_flags", KEY_ITEM_FLAGS.value());
+        assertEquals("valhallammo", KEY_PERMANENT_POTION_EFFECTS.namespace());
+        assertEquals("permanent_potion_effects", KEY_PERMANENT_POTION_EFFECTS.value());
+        assertEquals("valhallammo", KEY_PERMANENT_EFFECTS_COOLDOWN_PROPERTIES.namespace());
+        assertEquals("permanent_effects_cooldown_properties", KEY_PERMANENT_EFFECTS_COOLDOWN_PROPERTIES.value());
         assertEquals("valhallatrinkets", KEY_TRINKET_ID.namespace());
         assertEquals("trinket_id", KEY_TRINKET_ID.value());
         assertEquals("valhallatrinkets", KEY_TRINKET_UNIQUE_ID.namespace());
         assertEquals("trinket_unique_id", KEY_TRINKET_UNIQUE_ID.value());
         assertEquals("valhallatrinkets", KEY_TRINKET_UNIQUE.namespace());
         assertEquals("unique", KEY_TRINKET_UNIQUE.value());
+        assertEquals("valhallatrinkets", KEY_TRINKET_UNSTACKABLE.namespace());
+        assertEquals("trinket_unstackable", KEY_TRINKET_UNSTACKABLE.value());
     }
 
     @Test

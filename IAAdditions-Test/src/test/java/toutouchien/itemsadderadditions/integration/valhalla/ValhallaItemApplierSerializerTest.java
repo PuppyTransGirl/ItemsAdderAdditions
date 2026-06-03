@@ -32,4 +32,16 @@ class ValhallaItemApplierSerializerTest {
                 ValhallaItemApplier.serializeStats(stats)
         );
     }
+
+    @Test
+    void serializePermanentEffectsJoinedBySemicolon() {
+        List<ValhallaPermanentEffect> effects = List.of(
+                new ValhallaPermanentEffect("NIGHT_VISION", 0.0, 2, "constant"),
+                new ValhallaPermanentEffect("NIGHT_VISION", 0.0, 240, "constant")
+        );
+        assertEquals(
+                "NIGHT_VISION:0.0:2:constant;NIGHT_VISION:0.0:240:constant",
+                ValhallaItemApplier.serializePermanentEffects(effects)
+        );
+    }
 }
