@@ -206,6 +206,12 @@ public final class AdvancementLoader {
             case OPEN_TRADE_MACHINE -> new AdvancementConditions.OpenTradeMachine(
                     normalizeFurnitureIdOrTag(namespace, sec != null ? sec.getString("trade_machine", "") : "")
             );
+            case START_EMOTE -> new AdvancementConditions.StartEmote(
+                    sec != null ? sec.getString("emote") : null
+            );
+            case STOP_EMOTE -> new AdvancementConditions.StopEmote(
+                    sec != null ? sec.getString("emote") : null
+            );
             case CRAFT_RECIPE -> new AdvancementConditions.CraftRecipe(
                     normalizeRecipeId(namespace, sec != null ? sec.getString("recipe", "") : "")
             );
@@ -306,7 +312,8 @@ public final class AdvancementLoader {
                     normalizeItemIdOrTagNullable(namespace, sec != null ? sec.getString("item") : null)
             );
             case FALL_FROM_HEIGHT -> parseFallFromHeight(sec);
-            case SLEPT_IN_BED, USED_TOTEM, USED_ENDER_EYE, TICK, IMPOSSIBLE -> AdvancementConditions.None.INSTANCE;
+            case SLEPT_IN_BED, USED_TOTEM, USED_ENDER_EYE, JOIN_SERVER, FIRST_JOIN, TICK, IMPOSSIBLE ->
+                    AdvancementConditions.None.INSTANCE;
         };
     }
 

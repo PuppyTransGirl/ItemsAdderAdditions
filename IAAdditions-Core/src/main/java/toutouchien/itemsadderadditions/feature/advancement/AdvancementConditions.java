@@ -17,6 +17,8 @@ public sealed interface AdvancementConditions permits
         AdvancementConditions.SitFurniture,
         AdvancementConditions.UnsitFurniture,
         AdvancementConditions.OpenTradeMachine,
+        AdvancementConditions.StartEmote,
+        AdvancementConditions.StopEmote,
         AdvancementConditions.CraftRecipe,
         AdvancementConditions.KillEntityWithItem,
         AdvancementConditions.Permission,
@@ -68,6 +70,10 @@ public sealed interface AdvancementConditions permits
     record UnsitFurniture(String furnitureId) implements AdvancementConditions {}
 
     record OpenTradeMachine(String tradeMachineId) implements AdvancementConditions {}
+
+    record StartEmote(@Nullable String emote) implements AdvancementConditions {}
+
+    record StopEmote(@Nullable String emote) implements AdvancementConditions {}
 
     record CraftRecipe(String recipeId) implements AdvancementConditions {}
 

@@ -16,6 +16,8 @@ public enum RuntimeTrigger {
     SIT_FURNITURE,
     UNSIT_FURNITURE,
     OPEN_TRADE_MACHINE,
+    START_EMOTE,
+    STOP_EMOTE,
     CRAFT_RECIPE,
     KILL_ENTITY_WITH_ITEM,
     PERMISSION,
@@ -49,6 +51,8 @@ public enum RuntimeTrigger {
     SHOT_CROSSBOW,
     STARTED_RIDING,
     HELD_ITEM,
+    JOIN_SERVER,
+    FIRST_JOIN,
     TICK,
     IMPOSSIBLE;
 

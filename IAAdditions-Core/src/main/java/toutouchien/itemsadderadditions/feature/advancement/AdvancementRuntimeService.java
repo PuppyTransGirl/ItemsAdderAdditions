@@ -25,7 +25,7 @@ public final class AdvancementRuntimeService {
 
     public void register(Plugin plugin) {
         List<Listener> listeners = new ArrayList<>(List.of(
-                new ObtainItemTriggerHandler(registry),
+                new ObtainItemTriggerHandler(registry, plugin),
                 new ConsumeItemTriggerHandler(registry),
                 new PlaceBlockTriggerHandler(registry),
                 new BreakBlockTriggerHandler(registry),
@@ -65,6 +65,10 @@ public final class AdvancementRuntimeService {
                 new ShotCrossbowTriggerHandler(registry),
                 new StartedRidingTriggerHandler(registry),
                 new HeldItemTriggerHandler(registry),
+                new StartEmoteTriggerHandler(registry),
+                new StopEmoteTriggerHandler(registry),
+                new JoinServerTriggerHandler(registry),
+                new FirstJoinTriggerHandler(registry),
                 new TickTriggerHandler(registry),
                 new AdvancementCompletionListener(registry),
                 new AdvancementPlayerJoinListener(registry, plugin)
@@ -74,7 +78,7 @@ public final class AdvancementRuntimeService {
         // Instantiating these handlers references those event classes, so guard
         // them behind a version check to avoid NoClassDefFoundError on 4.0.16 and
         // older.
-        if (itemsAdderAtLeast4017()) {
+        if (itemsAdderAtLeast("4.0.17")) {
             listeners.add(new SitFurnitureTriggerHandler(registry));
             listeners.add(new UnsitFurnitureTriggerHandler(registry));
             listeners.add(new OpenTradeMachineTriggerHandler(registry));
@@ -86,7 +90,7 @@ public final class AdvancementRuntimeService {
         }
     }
 
-    private boolean itemsAdderAtLeast4017() {
+    private boolean itemsAdderAtLeast(String iaVersion) {
         Plugin itemsAdder = plugin.getServer().getPluginManager().getPlugin("ItemsAdder");
         if (itemsAdder == null) return false;
 
@@ -94,7 +98,7 @@ public final class AdvancementRuntimeService {
                 Bukkit.getMinecraftVersion(),
                 itemsAdder.getPluginMeta().getVersion()
         );
-        return VersionRange.ia("4.0.17", null).test(version);
+        return VersionRange.ia(iaVersion, null).test(version);
     }
 
     public void unregister() {
