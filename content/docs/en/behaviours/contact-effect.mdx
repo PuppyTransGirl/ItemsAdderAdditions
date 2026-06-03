@@ -1,0 +1,169 @@
+---
+title: Contact Effect
+description: Apply effects to players touching an ItemsAdder custom block or furniture. Supports damage, healing, potion effects, and temporary attribute modifiers, each with its own interval.
+version: "1.0.10"
+---
+
+Applies effects to players while they touch or stand on a custom block, furniture, or complex furniture.
+
+Four effect groups are available, all optional. Combine any of them on the same item.
+
+| Group            | Effect                                                              |
+|------------------|--------------------------------------------------------------------|
+| `damage`         | Hurt the player on an interval (negative amount heals)             |
+| `heal`           | Heal the player on an interval (negative amount hurts)             |
+| `potion_effects` | Re-apply a list of potion effects while in contact                 |
+| `attributes`     | Apply temporary attribute modifiers while in contact               |
+
+## Configuration
+
+<Tabs items={['Damage', 'Heal', 'Potion effects', 'Attributes', 'Full']}>
+    <Tab value="Damage">
+        ```yaml
+        behaviours:
+          contact_effect:
+            damage:
+              amount: 1.0
+              interval: 20 # optional, default: 20 ticks
+              cause: CACTUS # optional, default: CACTUS
+              fire_duration: 0 # optional, default: 0 ticks
+        ```
+    </Tab>
+    <Tab value="Heal">
+        ```yaml
+        behaviours:
+          contact_effect:
+            heal:
+              amount: 1.0
+              interval: 20 # optional, default: 20 ticks
+        ```
+    </Tab>
+    <Tab value="Potion effects">
+        ```yaml
+        behaviours:
+          contact_effect:
+            potion_effects:
+              - type: POISON
+                duration: 80 # optional, default: 40 ticks
+                amplifier: 0 # optional, default: 0 (0 = level 1)
+                ambient: false # optional, default: false
+                particles: true # optional, default: true
+                icon: true # optional, default: true
+                interval: 20 # optional, default: 20 ticks
+              - type: SLOWNESS
+                duration: 80
+        ```
+    </Tab>
+    <Tab value="Attributes">
+        ```yaml
+        behaviours:
+          contact_effect:
+            attributes:
+              - attribute: MOVEMENT_SPEED
+                amount: 0.05
+                operation: ADD_NUMBER # optional, default: ADD_NUMBER
+              - attribute: STEP_HEIGHT
+                amount: 0.5
+        ```
+    </Tab>
+    <Tab value="Full">
+        ```yaml
+        behaviours:
+          contact_effect:
+            apply_when_sneaking: true # optional, default: true
+            block_faces: # optional
+              top: true # optional, default: true
+              north: true # optional, default: true
+              south: true # optional, default: true
+              west: true # optional, default: true
+              east: true # optional, default: true
+            damage:
+              amount: 1.0
+              interval: 40
+              cause: CACTUS
+            heal:
+              amount: 0.5
+              interval: 20
+            potion_effects:
+              - type: SPEED
+                amplifier: 1
+                duration: 60
+                interval: 10
+            attributes:
+              - attribute: STEP_HEIGHT
+                amount: 0.5
+                operation: ADD_NUMBER
+        ```
+    </Tab>
+</Tabs>
+
+## Damage
+
+| Key             | Type   | Default  | Description                                                      |
+|-----------------|--------|----------|------------------------------------------------------------------|
+| `amount`        | Double | -        | Half-hearts of damage. Negative values heal instead.            |
+| `interval`      | Int    | `20`     | Ticks between each application.                                  |
+| `cause`         | String | `CACTUS` | The damage type, so other plugins can detect the reason.        |
+| `fire_duration` | Int    | `0`      | Ticks the player is set on fire when damaged.                   |
+
+For `cause`, use a value from [DamageType](https://jd.papermc.io/paper/org/bukkit/damage/DamageType.html#field-summary) (case-insensitive, for example `CACTUS`, `LAVA`, `MAGIC`). An unknown value logs a warning and falls back to `CACTUS`.
+
+<Callout type="info">
+A negative `amount` heals the player instead of hurting them, clamped to the player's maximum health.
+</Callout>
+
+## Heal
+
+| Key        | Type   | Default | Description                                            |
+|------------|--------|---------|--------------------------------------------------------|
+| `amount`   | Double | -       | Half-hearts to heal. Negative values deal damage.     |
+| `interval` | Int    | `20`    | Ticks between each application.                        |
+
+Healing never exceeds the player's maximum health. A negative `amount` deals damage using the `CACTUS` damage type.
+
+## Potion effects
+
+`potion_effects` is a list. Each entry is re-applied while the player stays in contact.
+
+| Key         | Type    | Default | Description                                   |
+|-------------|---------|---------|-----------------------------------------------|
+| `type`      | String  | -       | Required. The potion effect type.            |
+| `duration`  | Int     | `40`    | Effect duration in ticks.                    |
+| `amplifier` | Int     | `0`     | Effect level (0 = level 1).                  |
+| `ambient`   | Boolean | `false` | Whether the effect is ambient.               |
+| `particles` | Boolean | `true`  | Whether particles are shown.                 |
+| `icon`      | Boolean | `true`  | Whether the HUD icon is shown.               |
+| `interval`  | Int     | `20`    | Ticks between each re-application.            |
+
+For `type`, use a value from [PotionEffectType](https://jd.papermc.io/paper/org/bukkit/potion/PotionEffectType.html#field-summary). An unknown type logs a warning and only that entry is skipped.
+
+## Attributes
+
+`attributes` is a list of temporary attribute modifiers applied while the player is in contact and removed the moment they leave.
+
+| Key         | Type   | Default      | Description                          |
+|-------------|--------|--------------|--------------------------------------|
+| `attribute` | String | -            | Required. The attribute to modify.   |
+| `amount`    | Double | -            | Required. The modifier amount.       |
+| `operation` | String | `ADD_NUMBER` | How the amount is applied.            |
+
+For `attribute`, use a value from [Attribute](https://jd.papermc.io/paper/org/bukkit/attribute/Attribute.html#field-summary). The old `GENERIC_` and `PLAYER_` prefixes are accepted too (for example `GENERIC_MOVEMENT_SPEED` resolves to `MOVEMENT_SPEED`).
+
+Valid `operation` values from [AttributeModifier.Operation](https://jd.papermc.io/paper/org/bukkit/attribute/AttributeModifier.Operation.html): `ADD_NUMBER`, `ADD_SCALAR`, `MULTIPLY_SCALAR_1`.
+
+<Callout type="info">
+Attribute modifiers are temporary. They are removed automatically when the player leaves the block, quits, or when the plugin reloads or shuts down. Unknown attributes, amounts, or operations log a warning and skip only that entry.
+</Callout>
+
+## Contact checking
+
+Contact is checked at the lowest interval needed by any interval-based effect (`damage`, `heal`, and each `potion_effects` entry). Each effect keeps its own cooldown, so different intervals stay independent.
+
+If any `attributes` are configured, contact is checked every tick so modifiers are removed promptly when the player steps off the block.
+
+## Shared options
+
+| Key                   | Type    | Default | Description                                           |
+|-----------------------|---------|---------|-------------------------------------------------------|
+| `apply_when_sneaking` | Boolean | `true`  | Whether effects apply while the player is sneaking.   |
+| `block_faces`         | Section | all on  | Which faces count as contact (`top`, `north`, `south`, `west`, `east`). |

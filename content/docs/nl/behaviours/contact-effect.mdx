@@ -1,0 +1,169 @@
+---
+title: Contacteffect
+description: Pas effecten toe op spelers die een aangepast ItemsAdder-blok of -meubel aanraken. Ondersteunt schade, genezing, drankeffecten en tijdelijke attribuutmodificaties, elk met een eigen interval.
+version: "1.0.10"
+---
+
+Past effecten toe op spelers terwijl ze een aangepast blok, meubel of complex meubel aanraken of erop staan.
+
+Er zijn vier effectgroepen beschikbaar, allemaal optioneel. Combineer er zoveel je wilt op hetzelfde item.
+
+| Groep            | Effect                                                                |
+|------------------|----------------------------------------------------------------------|
+| `damage`         | Verwondt de speler op een interval (een negatief bedrag geneest)     |
+| `heal`           | Geneest de speler op een interval (een negatief bedrag verwondt)     |
+| `potion_effects` | Herhaalt een lijst van drankeffecten tijdens het contact             |
+| `attributes`     | Past tijdelijke attribuutmodificaties toe tijdens het contact        |
+
+## Configuratie
+
+<Tabs items={['Schade', 'Genezing', 'Drankeffecten', 'Attributen', 'Volledig']}>
+    <Tab value="Schade">
+        ```yaml
+        behaviours:
+          contact_effect:
+            damage:
+              amount: 1.0
+              interval: 20 # optioneel, standaard: 20 ticks
+              cause: CACTUS # optioneel, standaard: CACTUS
+              fire_duration: 0 # optioneel, standaard: 0 ticks
+        ```
+    </Tab>
+    <Tab value="Genezing">
+        ```yaml
+        behaviours:
+          contact_effect:
+            heal:
+              amount: 1.0
+              interval: 20 # optioneel, standaard: 20 ticks
+        ```
+    </Tab>
+    <Tab value="Drankeffecten">
+        ```yaml
+        behaviours:
+          contact_effect:
+            potion_effects:
+              - type: POISON
+                duration: 80 # optioneel, standaard: 40 ticks
+                amplifier: 0 # optioneel, standaard: 0 (0 = niveau 1)
+                ambient: false # optioneel, standaard: false
+                particles: true # optioneel, standaard: true
+                icon: true # optioneel, standaard: true
+                interval: 20 # optioneel, standaard: 20 ticks
+              - type: SLOWNESS
+                duration: 80
+        ```
+    </Tab>
+    <Tab value="Attributen">
+        ```yaml
+        behaviours:
+          contact_effect:
+            attributes:
+              - attribute: MOVEMENT_SPEED
+                amount: 0.05
+                operation: ADD_NUMBER # optioneel, standaard: ADD_NUMBER
+              - attribute: STEP_HEIGHT
+                amount: 0.5
+        ```
+    </Tab>
+    <Tab value="Volledig">
+        ```yaml
+        behaviours:
+          contact_effect:
+            apply_when_sneaking: true # optioneel, standaard: true
+            block_faces: # optioneel
+              top: true # optioneel, standaard: true
+              north: true # optioneel, standaard: true
+              south: true # optioneel, standaard: true
+              west: true # optioneel, standaard: true
+              east: true # optioneel, standaard: true
+            damage:
+              amount: 1.0
+              interval: 40
+              cause: CACTUS
+            heal:
+              amount: 0.5
+              interval: 20
+            potion_effects:
+              - type: SPEED
+                amplifier: 1
+                duration: 60
+                interval: 10
+            attributes:
+              - attribute: STEP_HEIGHT
+                amount: 0.5
+                operation: ADD_NUMBER
+        ```
+    </Tab>
+</Tabs>
+
+## Schade
+
+| Sleutel         | Type   | Standaard | Beschrijving                                                      |
+|-----------------|--------|-----------|------------------------------------------------------------------|
+| `amount`        | Double | -         | Halve harten schade. Een negatieve waarde geneest in plaats daarvan. |
+| `interval`      | Int    | `20`      | Ticks tussen elke toepassing.                                    |
+| `cause`         | String | `CACTUS`  | Het schadetype, zodat andere plugins de reden kunnen detecteren. |
+| `fire_duration` | Int    | `0`       | Ticks dat de speler in brand staat bij schade.                  |
+
+Gebruik voor `cause` een waarde uit [DamageType](https://jd.papermc.io/paper/org/bukkit/damage/DamageType.html#field-summary) (hoofdletterongevoelig, bijvoorbeeld `CACTUS`, `LAVA`, `MAGIC`). Een onbekende waarde geeft een waarschuwing en valt terug op `CACTUS`.
+
+<Callout type="info">
+Een negatieve `amount` geneest de speler in plaats van te verwonden, begrensd tot de maximale gezondheid van de speler.
+</Callout>
+
+## Genezing
+
+| Sleutel    | Type   | Standaard | Beschrijving                                            |
+|------------|--------|-----------|---------------------------------------------------------|
+| `amount`   | Double | -         | Halve harten om te genezen. Een negatieve waarde geeft schade. |
+| `interval` | Int    | `20`      | Ticks tussen elke toepassing.                           |
+
+Genezing overschrijdt nooit de maximale gezondheid van de speler. Een negatieve `amount` geeft schade via het schadetype `CACTUS`.
+
+## Drankeffecten
+
+`potion_effects` is een lijst. Elke vermelding wordt herhaald zolang de speler in contact blijft.
+
+| Sleutel     | Type    | Standaard | Beschrijving                                |
+|-------------|---------|-----------|---------------------------------------------|
+| `type`      | String  | -         | Vereist. Het type drankeffect.             |
+| `duration`  | Int     | `40`      | Duur van het effect in ticks.              |
+| `amplifier` | Int     | `0`       | Niveau van het effect (0 = niveau 1).      |
+| `ambient`   | Boolean | `false`   | Of het effect omgevend is.                 |
+| `particles` | Boolean | `true`    | Of er deeltjes worden getoond.             |
+| `icon`      | Boolean | `true`    | Of het HUD-pictogram wordt getoond.        |
+| `interval`  | Int     | `20`      | Ticks tussen elke herhaling.               |
+
+Gebruik voor `type` een waarde uit [PotionEffectType](https://jd.papermc.io/paper/org/bukkit/potion/PotionEffectType.html#field-summary). Een onbekend type geeft een waarschuwing en alleen die vermelding wordt overgeslagen.
+
+## Attributen
+
+`attributes` is een lijst van tijdelijke attribuutmodificaties die worden toegepast terwijl de speler in contact is en worden verwijderd zodra hij vertrekt.
+
+| Sleutel     | Type   | Standaard    | Beschrijving                           |
+|-------------|--------|--------------|----------------------------------------|
+| `attribute` | String | -            | Vereist. Het te wijzigen attribuut.    |
+| `amount`    | Double | -            | Vereist. Het bedrag van de modificatie. |
+| `operation` | String | `ADD_NUMBER` | Hoe het bedrag wordt toegepast.        |
+
+Gebruik voor `attribute` een waarde uit [Attribute](https://jd.papermc.io/paper/org/bukkit/attribute/Attribute.html#field-summary). De oude `GENERIC_`- en `PLAYER_`-voorvoegsels worden ook geaccepteerd (bijvoorbeeld `GENERIC_MOVEMENT_SPEED` verwijst naar `MOVEMENT_SPEED`).
+
+Geldige `operation`-waarden uit [AttributeModifier.Operation](https://jd.papermc.io/paper/org/bukkit/attribute/AttributeModifier.Operation.html): `ADD_NUMBER`, `ADD_SCALAR`, `MULTIPLY_SCALAR_1`.
+
+<Callout type="info">
+Attribuutmodificaties zijn tijdelijk. Ze worden automatisch verwijderd wanneer de speler het blok verlaat, de server verlaat, of wanneer de plugin herlaadt of afsluit. Een onbekend attribuut, bedrag of operatie geeft een waarschuwing en alleen die vermelding wordt overgeslagen.
+</Callout>
+
+## Contactcontrole
+
+Het contact wordt gecontroleerd op het kleinste interval dat nodig is voor een interval-gebaseerd effect (`damage`, `heal`, en elke `potion_effects`-vermelding). Elk effect houdt zijn eigen cooldown bij, dus verschillende intervallen blijven onafhankelijk.
+
+Als er `attributes` zijn geconfigureerd, wordt het contact elke tick gecontroleerd zodat modificaties snel worden verwijderd wanneer de speler van het blok stapt.
+
+## Gedeelde opties
+
+| Sleutel               | Type    | Standaard | Beschrijving                                            |
+|-----------------------|---------|-----------|---------------------------------------------------------|
+| `apply_when_sneaking` | Boolean | `true`    | Of effecten van toepassing zijn terwijl de speler sluipt. |
+| `block_faces`         | Section | alle aan  | Welke vlakken als contact tellen (`top`, `north`, `south`, `west`, `east`). |

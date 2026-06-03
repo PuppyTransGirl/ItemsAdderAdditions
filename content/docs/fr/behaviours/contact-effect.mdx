@@ -1,0 +1,169 @@
+---
+title: Effet au contact
+description: Appliquer des effets aux joueurs qui touchent un bloc ou meuble personnalisé ItemsAdder. Prend en charge les dégâts, les soins, les effets de potion et les modificateurs d'attributs temporaires, chacun avec son propre intervalle.
+version: "1.0.10"
+---
+
+Applique des effets aux joueurs pendant qu'ils touchent ou se tiennent sur un bloc, un meuble ou un meuble complexe personnalisé.
+
+Quatre groupes d'effets sont disponibles, tous optionnels. Combinez-en autant que vous voulez sur le même objet.
+
+| Groupe           | Effet                                                                 |
+|------------------|-----------------------------------------------------------------------|
+| `damage`         | Blesse le joueur sur un intervalle (un montant négatif soigne)        |
+| `heal`           | Soigne le joueur sur un intervalle (un montant négatif blesse)        |
+| `potion_effects` | Réapplique une liste d'effets de potion pendant le contact            |
+| `attributes`     | Applique des modificateurs d'attributs temporaires pendant le contact |
+
+## Configuration
+
+<Tabs items={['Dégâts', 'Soin', 'Effets de potion', 'Attributs', 'Complet']}>
+    <Tab value="Dégâts">
+        ```yaml
+        behaviours:
+          contact_effect:
+            damage:
+              amount: 1.0
+              interval: 20 # optionnel, défaut : 20 ticks
+              cause: CACTUS # optionnel, défaut : CACTUS
+              fire_duration: 0 # optionnel, défaut : 0 ticks
+        ```
+    </Tab>
+    <Tab value="Soin">
+        ```yaml
+        behaviours:
+          contact_effect:
+            heal:
+              amount: 1.0
+              interval: 20 # optionnel, défaut : 20 ticks
+        ```
+    </Tab>
+    <Tab value="Effets de potion">
+        ```yaml
+        behaviours:
+          contact_effect:
+            potion_effects:
+              - type: POISON
+                duration: 80 # optionnel, défaut : 40 ticks
+                amplifier: 0 # optionnel, défaut : 0 (0 = niveau 1)
+                ambient: false # optionnel, défaut : false
+                particles: true # optionnel, défaut : true
+                icon: true # optionnel, défaut : true
+                interval: 20 # optionnel, défaut : 20 ticks
+              - type: SLOWNESS
+                duration: 80
+        ```
+    </Tab>
+    <Tab value="Attributs">
+        ```yaml
+        behaviours:
+          contact_effect:
+            attributes:
+              - attribute: MOVEMENT_SPEED
+                amount: 0.05
+                operation: ADD_NUMBER # optionnel, défaut : ADD_NUMBER
+              - attribute: STEP_HEIGHT
+                amount: 0.5
+        ```
+    </Tab>
+    <Tab value="Complet">
+        ```yaml
+        behaviours:
+          contact_effect:
+            apply_when_sneaking: true # optionnel, défaut : true
+            block_faces: # optionnel
+              top: true # optionnel, défaut : true
+              north: true # optionnel, défaut : true
+              south: true # optionnel, défaut : true
+              west: true # optionnel, défaut : true
+              east: true # optionnel, défaut : true
+            damage:
+              amount: 1.0
+              interval: 40
+              cause: CACTUS
+            heal:
+              amount: 0.5
+              interval: 20
+            potion_effects:
+              - type: SPEED
+                amplifier: 1
+                duration: 60
+                interval: 10
+            attributes:
+              - attribute: STEP_HEIGHT
+                amount: 0.5
+                operation: ADD_NUMBER
+        ```
+    </Tab>
+</Tabs>
+
+## Dégâts
+
+| Clé             | Type   | Défaut   | Description                                                        |
+|-----------------|--------|----------|--------------------------------------------------------------------|
+| `amount`        | Double | -        | Demi-cœurs de dégâts. Une valeur négative soigne à la place.       |
+| `interval`      | Int    | `20`     | Ticks entre chaque application.                                    |
+| `cause`         | String | `CACTUS` | Le type de dégâts, pour que d'autres plugins détectent la raison.  |
+| `fire_duration` | Int    | `0`      | Ticks pendant lesquels le joueur prend feu lorsqu'il est blessé.   |
+
+Pour `cause`, utilisez une valeur depuis [DamageType](https://jd.papermc.io/paper/org/bukkit/damage/DamageType.html#field-summary) (insensible à la casse, par exemple `CACTUS`, `LAVA`, `MAGIC`). Une valeur inconnue affiche un avertissement et retombe sur `CACTUS`.
+
+<Callout type="info">
+Un `amount` négatif soigne le joueur au lieu de le blesser, sans dépasser sa santé maximale.
+</Callout>
+
+## Soin
+
+| Clé        | Type   | Défaut | Description                                              |
+|------------|--------|--------|---------------------------------------------------------|
+| `amount`   | Double | -      | Demi-cœurs à soigner. Une valeur négative inflige des dégâts. |
+| `interval` | Int    | `20`   | Ticks entre chaque application.                         |
+
+Le soin ne dépasse jamais la santé maximale du joueur. Un `amount` négatif inflige des dégâts via le type de dégâts `CACTUS`.
+
+## Effets de potion
+
+`potion_effects` est une liste. Chaque entrée est réappliquée tant que le joueur reste en contact.
+
+| Clé         | Type    | Défaut  | Description                                  |
+|-------------|---------|---------|----------------------------------------------|
+| `type`      | String  | -       | Requis. Le type d'effet de potion.          |
+| `duration`  | Int     | `40`    | Durée de l'effet en ticks.                  |
+| `amplifier` | Int     | `0`     | Niveau de l'effet (0 = niveau 1).           |
+| `ambient`   | Boolean | `false` | Si l'effet est ambiant.                     |
+| `particles` | Boolean | `true`  | Si les particules sont affichées.           |
+| `icon`      | Boolean | `true`  | Si l'icône de l'ATH est affichée.           |
+| `interval`  | Int     | `20`    | Ticks entre chaque réapplication.           |
+
+Pour `type`, utilisez une valeur depuis [PotionEffectType](https://jd.papermc.io/paper/org/bukkit/potion/PotionEffectType.html#field-summary). Un type inconnu affiche un avertissement et seule cette entrée est ignorée.
+
+## Attributs
+
+`attributes` est une liste de modificateurs d'attributs temporaires appliqués pendant que le joueur est en contact et retirés dès qu'il s'en va.
+
+| Clé         | Type   | Défaut       | Description                            |
+|-------------|--------|--------------|----------------------------------------|
+| `attribute` | String | -            | Requis. L'attribut à modifier.         |
+| `amount`    | Double | -            | Requis. Le montant du modificateur.    |
+| `operation` | String | `ADD_NUMBER` | Comment le montant est appliqué.       |
+
+Pour `attribute`, utilisez une valeur depuis [Attribute](https://jd.papermc.io/paper/org/bukkit/attribute/Attribute.html#field-summary). Les anciens préfixes `GENERIC_` et `PLAYER_` sont aussi acceptés (par exemple `GENERIC_MOVEMENT_SPEED` correspond à `MOVEMENT_SPEED`).
+
+Valeurs `operation` valides depuis [AttributeModifier.Operation](https://jd.papermc.io/paper/org/bukkit/attribute/AttributeModifier.Operation.html) : `ADD_NUMBER`, `ADD_SCALAR`, `MULTIPLY_SCALAR_1`.
+
+<Callout type="info">
+Les modificateurs d'attributs sont temporaires. Ils sont retirés automatiquement quand le joueur quitte le bloc, se déconnecte, ou quand le plugin se recharge ou s'arrête. Un attribut, un montant ou une opération inconnu affiche un avertissement et seule cette entrée est ignorée.
+</Callout>
+
+## Vérification du contact
+
+Le contact est vérifié au plus petit intervalle requis par un effet basé sur un intervalle (`damage`, `heal`, et chaque entrée `potion_effects`). Chaque effet conserve son propre délai de recharge, donc les différents intervalles restent indépendants.
+
+Si des `attributes` sont configurés, le contact est vérifié à chaque tick afin que les modificateurs soient retirés rapidement lorsque le joueur quitte le bloc.
+
+## Options partagées
+
+| Clé                   | Type    | Défaut    | Description                                              |
+|-----------------------|---------|-----------|---------------------------------------------------------|
+| `apply_when_sneaking` | Boolean | `true`    | Si les effets s'appliquent quand le joueur est accroupi. |
+| `block_faces`         | Section | toutes on | Quelles faces comptent comme contact (`top`, `north`, `south`, `west`, `east`). |
