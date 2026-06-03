@@ -1,0 +1,96 @@
+---
+title: 酿造
+description: 使用 ItemsAdder、MMOItems 和原版物品添加自定义酿造台配方
+version: "1.0.10"
+---
+
+ItemsAdderAdditions 为酿造台添加了 `brewing` 配方类型。它会注册 Paper 药水混合配方，并支持精确匹配 ItemsAdder、MMOItems 和原版物品。
+
+## 基础配方
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  brewing:
+    ruby_elixir:
+      base:
+        item: minecraft:awkward_potion
+      ingredient:
+        item: my_pack:ruby_dust
+        consume: 1
+      result:
+        item: my_pack:ruby_elixir
+      brew_time: 400
+      fuel_cost: 1
+```
+
+`base` 是输入物品的推荐键。旧别名 `input` 仍然可用。
+
+## 选项
+
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `enabled` | 布尔值 | `true` | 设为 `false` 可跳过此配方。 |
+| `base.item` | 字符串 | *（必填）* | 必需的输入物品。也接受 `input.item`。 |
+| `ingredient.item` | 字符串 | *（必填）* | 必需的酿造原料。 |
+| `ingredient.consume` | 整数 | `1` | 消耗的原料数量，必须大于 `0`。 |
+| `result.item` | 字符串 | *（必填）* | 输出物品。 |
+| `result.amount` | 整数 | `1` | 酿造输出会被限制为每个瓶槽一个物品。 |
+| `brew_time` | 整数 | `400` | 酿造时间，单位为 tick，必须大于 `0`。 |
+| `fuel_cost` | 整数 | `1` | 消耗的烈焰粉燃料单位，必须大于 `0`。 |
+| `on_complete` | 配置节 | *（无）* | 酿造完成后的可选音效和命令动作。 |
+
+## 物品引用
+
+`base.item`、`ingredient.item` 和 `result.item` 可使用原版材质、ItemsAdder 物品和 MMOItems 物品。这里不能使用标签，因为酿造必须比较具体物品堆叠。
+
+## 完成动作
+
+`on_complete` 会在酿造台完成且至少有一名玩家正在查看该酿造台时执行。
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:block.brewing_stand.brew
+    source: master
+  commands:
+    reward:
+      command: "say {player} 酿造了红宝石药剂"
+      as_console: true
+```
+
+`{player}` 会替换为查看玩家的名称。
+
+## 完整示例
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  brewing:
+    ruby_elixir:
+      enabled: true
+      base:
+        item: minecraft:awkward_potion
+      ingredient:
+        item: my_pack:ruby_dust
+        consume: 2
+      result:
+        item: my_pack:ruby_elixir
+        amount: 1
+      brew_time: 600
+      fuel_cost: 2
+```
+
+## 常见错误
+
+- 将 `result.amount` 设为大于 `1`。该值会被限制为 `1`。
+- 使用 `#minecraft:*` 标签。酿造配方匹配具体物品堆叠。
+- `fuel_cost` 高于酿造台当前可用燃料。
+
+## 重载
+
+修改酿造配方后执行 `/iareload`。

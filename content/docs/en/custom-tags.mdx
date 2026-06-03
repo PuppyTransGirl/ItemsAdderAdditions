@@ -1,0 +1,139 @@
+---
+title: Custom Tags
+icon: Tags
+description: Define reusable item, block, furniture, and recipe tag groups in ItemsAdder content YAML.
+version: "1.0.10"
+---
+
+Custom tags let you group content IDs once and reuse the group in supported ItemsAdderAdditions features. They are loaded from a top-level `tags` section in any ItemsAdder content YAML file.
+
+## Basic structure
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+      - mmoitems:tool:ruby_hammer
+
+  decorative_blocks:
+    type: block
+    values:
+      - ruby_lamp
+      - minecraft:amethyst_block
+
+  trading_stations:
+    type: furniture
+    values:
+      - alchemy_table
+      - forge_table
+
+  ruby_recipes:
+    type: recipe
+    values:
+      - ruby_sword
+      - ruby_pickaxe
+```
+
+Reference a tag with `#tag_id` in the same namespace or `#namespace:tag_id` across namespaces.
+
+## Tag types
+
+| Type | Aliases | Values can contain |
+|------|---------|--------------------|
+| `item` | `items` | ItemsAdder items, vanilla items, MMOItems items, and nested item tags. |
+| `block` | `blocks` | ItemsAdder blocks, vanilla blocks, and nested block tags. |
+| `furniture` | `furnitures` | ItemsAdder furniture IDs and nested furniture tags. |
+| `recipe` | `recipes` | Recipe IDs and nested recipe tags. |
+
+If `type` is omitted, the tag is treated as an item tag.
+
+## Nested tags
+
+Tags can include other tags of the same type.
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+
+  mining_tools:
+    type: item
+    values:
+      - "#ruby_tools"
+      - minecraft:iron_pickaxe
+      - minecraft:diamond_pickaxe
+```
+
+Nested tags are resolved during reload. Circular references are detected and ignored instead of hanging the server.
+
+## Where custom tags work
+
+Custom tags are supported by runtime ID matching paths, including:
+
+- advancement item, block, furniture, and recipe conditions
+- player predicate item, equipment, slot, and block checks
+- stackable behaviour `items`
+
+Crafting recipe ingredients are different: `iaa_crafting_table` tag ingredients use Bukkit's vanilla item/block tags only. They do not resolve ItemsAdderAdditions custom tags.
+
+## Complete example
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+
+items:
+  charged_ruby:
+    display_name: "<red>Charged Ruby"
+    behaviours:
+      stackable:
+        blocks:
+          - charged_ruby_block
+        items:
+          - "#my_pack:ruby_tools"
+```
+
+```yaml
+advancements:
+  collect_any_ruby_tool:
+    display:
+      title: "Ruby Tools"
+      description: "Obtain any ruby tool."
+      icon: my_pack:ruby_pickaxe
+    criteria:
+      collect:
+        trigger: obtain_item
+        conditions:
+          items:
+            - "#my_pack:ruby_tools"
+```
+
+## Reload behavior
+
+Custom tags are prepared before actions, behaviours, recipes, advancements, and world generation are reloaded. Run `/iareload` after changing tags.
+
+## Common mistakes
+
+- Mixing tag types. A furniture tag cannot include an item tag.
+- Defining the same `type` and tag ID twice. The first declaration wins.
+- Expecting custom tags to create item stacks. Use concrete item IDs for outputs such as recipe results, `toast.icon`, `clear_item.item`, and `replace_item.item`.
+- Overriding a vanilla-looking tag such as `#minecraft:planks`. Custom tags are resolved first when a custom tag with that ID exists.

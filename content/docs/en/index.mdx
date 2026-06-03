@@ -4,8 +4,8 @@ icon: House
 description: Download ItemsAdderAdditions, a free ItemsAdder addon for Minecraft servers. Adds custom behaviours, actions, and extra features directly in your YML files. No restart needed.
 ---
 
-**ItemsAdderAdditions** extends [ItemsAdder](https://itemsadder.com/) with extra actions, behaviours, and
-features - configured directly inside your existing YML files. It now resolves ItemsAdder content, MMOItems items, vanilla Minecraft items/blocks, and vanilla tags through the same compatibility layer. No restart needed, just `/iareload`.
+**ItemsAdderAdditions** extends [ItemsAdder](https://itemsadder.com/) with extra actions, behaviours, recipes, tags, and
+features - configured directly inside your existing YML files. It resolves ItemsAdder content, MMOItems items, vanilla Minecraft items/blocks, vanilla tags, and ItemsAdderAdditions custom tags through the same compatibility layer. Most YAML-only ItemsAdderAdditions changes reload with `/iareload`; components need `/iazip`.
 
 ## Download
 
@@ -19,12 +19,12 @@ features - configured directly inside your existing YML files. It now resolves I
 ## Requirements
 
 - **ItemsAdder** (latest recommended)
-- **Paper** 1.20.6+
+- **Paper** with a supported ItemsAdderAdditions NMS adapter
 - **MMOItems** *(optional, only required for `mmoitems:type:id` references)*
 
 ## Compatibility
 
-See [Compatibility and IDs](/en/docs/compatibility) for the accepted formats for ItemsAdder IDs, MMOItems IDs, vanilla item/block IDs, and vanilla tags.
+See [Compatibility and IDs](/en/docs/compatibility) for supported Minecraft versions and the accepted formats for ItemsAdder IDs, MMOItems IDs, vanilla item/block IDs, recipe IDs, vanilla tags, and custom tags.
 
 ## Optional example pack
 

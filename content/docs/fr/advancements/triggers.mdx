@@ -1,7 +1,7 @@
 ---
 title: Déclencheurs
-description: Référence de tous les types de déclencheurs intégrés disponibles pour les progrès ItemsAdder personnalisés, avec les conditions et les exemples YAML de chacun.
-version: "1.0.9"
+description: Référence des déclencheurs de progrès ItemsAdder personnalisés, avec conditions et exemples YAML.
+version: "1.0.10"
 ---
 
 Les déclencheurs définissent ce que le joueur doit faire pour terminer un critère. Chaque critère a un déclencheur et un bloc `conditions` optionnel.
@@ -14,9 +14,7 @@ criteria:
       # options spécifiques au déclencheur
 ```
 
-Un progrès peut avoir plusieurs critères. Tous doivent être terminés avant que le progrès soit accordé. Chaque déclencheur d’exécution prend aussi en charge un prédicat `conditions.player` optionnel pour ajouter des exigences liées à l’état du joueur ; voir [Prédicats de joueur](/fr/docs/advancements/player-predicates). Les conditions d’objets acceptent les IDs ItemsAdder, MMOItems, vanilla et les tags d’objets vanilla. Les conditions de blocs acceptent les IDs de blocs ItemsAdder, les IDs de blocs vanilla et les tags de blocs vanilla.
-
----
+Un progrès peut avoir plusieurs critères. Tous doivent être terminés avant que le progrès soit accordé. Chaque déclencheur d’exécution prend aussi en charge un prédicat `conditions.player` optionnel pour ajouter des exigences liées à l’état du joueur ; voir [Prédicats de joueur](/fr/docs/advancements/player-predicates). Les conditions d’objets acceptent les IDs ItemsAdder, MMOItems, vanilla, les tags vanilla et les tags personnalisés pris en charge. Les conditions de blocs, meubles et recettes peuvent aussi utiliser les tags personnalisés lorsque le déclencheur les accepte.
 
 ## obtain_item
 
@@ -742,9 +740,147 @@ criteria:
 
 ---
 
+## sit_furniture
+
+Se déclenche lorsque le joueur s'assoit sur un meuble ItemsAdder.
+
+<Callout type="warn">
+    **Version requise :** Nécessite **ItemsAdder 4.0.17 ou supérieur**.
+</Callout>
+
+```yaml
+criteria:
+  sit_on_chair:
+    trigger: sit_furniture
+    conditions:
+      furniture: my_pack:ruby_chair
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|--------|-------------|
+| `furniture` | chaîne | oui | ID de meuble ItemsAdder ou tag personnalisé de meuble pris en charge. |
+
+---
+
+## unsit_furniture
+
+Se déclenche lorsque le joueur arrête d'être assis sur un meuble ItemsAdder.
+
+<Callout type="warn">
+    **Version requise :** Nécessite **ItemsAdder 4.0.17 ou supérieur**.
+</Callout>
+
+```yaml
+criteria:
+  leave_chair:
+    trigger: unsit_furniture
+    conditions:
+      furniture: my_pack:ruby_chair
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|--------|-------------|
+| `furniture` | chaîne | oui | ID de meuble ItemsAdder ou tag personnalisé de meuble pris en charge. |
+
+---
+
+## open_trade_machine
+
+Se déclenche lorsque le joueur ouvre une interface ItemsAdder `trade_machine` ou `block_trade_machine`.
+
+```yaml
+criteria:
+  open_alchemy_station:
+    trigger: open_trade_machine
+    conditions:
+      trade_machine: stations:alchemy_table
+```
+
+| Clé | Type | Requis | Description |
+|-----|------|--------|-------------|
+| `trade_machine` | chaîne | oui | ID de machine d'échange ou tag personnalisé de meuble pris en charge. |
+
+---
+
+## start_emote
+
+Se déclenche lorsque le joueur démarre une emote ItemsAdder.
+
+```yaml
+criteria:
+  start_wave:
+    trigger: start_emote
+    conditions:
+      emote: my_pack:wave
+```
+
+| Clé | Type | Par défaut | Description |
+|-----|------|------------|-------------|
+| `emote` | chaîne | *(n'importe laquelle)* | ID d'emote. Si absent, n'importe quelle emote correspond. |
+
+---
+
+## stop_emote
+
+Se déclenche lorsque le joueur arrête une emote ItemsAdder.
+
+```yaml
+criteria:
+  stop_wave:
+    trigger: stop_emote
+    conditions:
+      emote: my_pack:wave
+```
+
+| Clé | Type | Par défaut | Description |
+|-----|------|------------|-------------|
+| `emote` | chaîne | *(n'importe laquelle)* | ID d'emote. Si absent, n'importe quel arrêt d'emote correspond. |
+
+---
+
+## join_server
+
+Se déclenche à chaque connexion du joueur. Aucune condition.
+
+```yaml
+criteria:
+  joined:
+    trigger: join_server
+```
+
+---
+
+## first_join
+
+Se déclenche à la première connexion du joueur selon le contrôle Bukkit `hasPlayedBefore`. Aucune condition.
+
+```yaml
+criteria:
+  first_join:
+    trigger: first_join
+```
+
+---
+
+## tick
+
+Se déclenche une fois par tick serveur pour chaque joueur connecté. Utilisez `conditions.player` pour limiter le critère.
+
+```yaml
+criteria:
+  sneaking_tick:
+    trigger: tick
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+```
+
+---
+
 ## impossible
 
-Ne se déclenche jamais d'elle-même. Le critère ne peut être accordé que via l'API IAA ou les commandes d'administrateur.
+Ne se déclenche jamais d'elle-même.
 
 ```yaml
 criteria:

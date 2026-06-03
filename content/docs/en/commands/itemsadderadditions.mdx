@@ -8,6 +8,13 @@ version: "1.0.7"
 
 Main administrative command for ItemsAdderAdditions.
 
+Aliases:
+
+```text
+/iaadditions
+/iaa
+```
+
 ## Permissions
 
 Base permission:
@@ -20,7 +27,7 @@ itemsadderadditions.command.itemsadderadditions
 
 ### `/itemsadderadditions reload`
 
-Reloads ItemsAdderAdditions.
+Reloads ItemsAdderAdditions `config.yml` and refreshes plugin-level feature, action, behaviour, and component toggles.
 
 ```text
 /itemsadderadditions reload
@@ -31,6 +38,12 @@ Permission:
 ```text
 itemsadderadditions.command.itemsadderadditions.reload
 ```
+
+This command does **not** reload ItemsAdder content YAML files.
+
+Use `/iareload` after changing ItemsAdderAdditions content YAML sections such as actions, behaviours, custom tags, recipes, advancements, custom paintings, Valhalla metadata, or world generation entries.
+
+Use `/iazip` after changing `components` sections or resource-pack assets.
 
 ### `/itemsadderadditions debug`
 

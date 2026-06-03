@@ -1,0 +1,68 @@
+---
+title: Open Trade Machine
+description: Open an ItemsAdder trade_machine or block_trade_machine GUI from an action.
+version: "1.0.10"
+---
+
+`open_trade_machine` opens the ItemsAdder trade machine GUI for the target player without requiring the machine block or furniture to be placed in the world.
+
+Use it for menu items, NPC interaction flows, custom stations, or any other action trigger that should open a specific ItemsAdder trade machine.
+
+## Requirements
+
+- The target must be a player. Non-player targets are skipped.
+- The referenced ItemsAdder content must have a `trade_machine` or `block_trade_machine` behaviour.
+
+## Configuration
+
+```yaml
+info:
+  namespace: stations
+
+items:
+  alchemy_token:
+    display_name: "<green>Alchemy Station"
+    events:
+      interact:
+        right:
+          open_trade_machine:
+            trade_machine: stations:alchemy_table
+```
+
+## Options
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `trade_machine` | string | yes | ItemsAdder item, block, or furniture ID that provides a trade machine GUI. Bare IDs use the current `info.namespace`. |
+
+## With targeting
+
+The action uses the shared action parameters. For example, this opens the GUI for the entity the player is looking at if that target is a player:
+
+```yaml
+open_trade_machine:
+  trade_machine: stations:alchemy_table
+  target: in_sight
+  target_in_sight_distance: 8
+```
+
+## Plugin config
+
+This action can be disabled in `config.yml`:
+
+```yaml
+actions:
+  open_trade_machine: false
+```
+
+The key is optional. Missing action toggle keys default to enabled.
+
+## Reload behavior
+
+Run `/iareload` after editing the ItemsAdder content YAML. The referenced trade machine must already be registered by ItemsAdder.
+
+## Common mistakes
+
+- Using an ID for a normal item that does not have a `trade_machine` or `block_trade_machine` behaviour.
+- Running the action against `target: other` when the event target is not a player.
+- Omitting the namespace when the trade machine is defined in a different `info.namespace`.

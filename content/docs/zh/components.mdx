@@ -1,0 +1,932 @@
+---
+title: 组件
+icon: Package
+description: ItemsAdderAdditions 中的物品数据组件支持。在加载时为自定义物品应用 Minecraft 数据组件。
+version: "1.0.10"
+---
+
+ItemsAdderAdditions 通过 ItemsAdder 的物品修改器钩子，在生成资源包时为自定义物品应用 Minecraft 数据组件。在物品定义下添加 `components` 节，然后运行 `/iazip`。
+
+```yaml
+items:
+  my_item:
+    components:
+      rarity: RARE
+      use_cooldown:
+        cooldown: 1.5
+      tool:
+        default_mining_speed: 2.0
+        rules:
+          - blocks: "#minecraft:logs"
+            speed: 4.0
+            correct_for_drops: true
+```
+
+组件会在 ItemsAdder 重建资源包/物品数据时应用。修改组件 YAML 后请运行 `/iazip`。`/iareload` 会重新加载其他 ItemsAdderAdditions 内容，但不会重新加载组件。
+
+## 状态图例
+
+| 状态 | 含义 |
+|--------|---------|
+| **专用** | 专门的 IAA 处理器，带有 IAA 专属的 YAML 语法 |
+| **通用** | 无专门处理器；回退到通用 NMS 编解码器流程 |
+| **由 IA 处理** | 由 ItemsAdder 自身设置；IAA 跳过该项 |
+| **不支持** | 没有 Paper/NMS API；无法应用 |
+
+## 通用 NMS 组件
+
+对于没有专用 IAA 处理器的组件键，IAA 回退到通用 NMS 流程。键会被规范化（`custom_data` 变为 `minecraft:custom_data`），值树从 YAML 解析，结果通过 Minecraft 的 Mojang 编解码器系统经由 NMS 应用。
+
+**通用组件所需的最低服务端版本：1.21.3。**
+
+在 1.20.6 和 1.21.1 上，通用 NMS 流程不可用。专用处理器在这些版本上仍然有效。
+
+### 用法
+
+使用完整的带命名空间键或简写形式（`minecraft:` 前缀会自动添加）：
+
+```yaml
+items:
+  my_item:
+    components:
+      minecraft:custom_data:
+        my_plugin:
+          id: my_item
+          tier: 3
+          enabled: true
+```
+
+简写形式（等效）：
+
+```yaml
+items:
+  my_item:
+    components:
+      custom_data:
+        my_plugin:
+          id: my_item
+```
+
+YAML 结构必须匹配该组件的原版编解码器。IAA 不会重新解释其结构。如果编解码器拒绝该值，IAA 会记录一条警告并跳过该组件。
+
+**注意：** `minecraft:custom_data` 是真正的原版 NBT 复合组件。不要将其与 Bukkit 的 `PersistentDataContainer`（PDC）混淆。这两套系统相互独立。PDC 数据由 Bukkit 内部存储，并不是 `custom_data`。
+
+## 组件参考
+
+### `attack_range`
+
+**状态：** 专用 | **最低版本：** 1.21.11
+
+覆盖物品在近战和弹射攻击时的攻击范围。
+
+| 属性 | 类型 | 默认值 | 范围 |
+|----------|------|---------|-------|
+| `min_reach` | Float | `0.0` | 0.0 - 64.0 |
+| `max_reach` | Float | `3.0` | 0.0 - 64.0 |
+| `min_creative_reach` | Float | `0.0` | 0.0 - 64.0 |
+| `max_creative_reach` | Float | `5.0` | 0.0 - 64.0 |
+| `hitbox_margin` | Float | `0.3` | 0.0 - 1.0 |
+| `mob_factor` | Float | `1.0` | 0.0 - 2.0 |
+
+```yaml
+components:
+  attack_range:
+    max_reach: 5.0
+    max_creative_reach: 7.0
+    hitbox_margin: 0.5
+```
+
+### `banner_patterns`
+
+**状态：** 专用
+
+设置旗帜物品上的旗帜图案层。
+
+| 属性 | 类型 | 格式 |
+|----------|------|--------|
+| `type` | String | 图案类型键（如 `stripe_top`、`square_bottom_left`） |
+| `color` | String | 染料颜色名（`WHITE`、`RED`、`BLUE` 等） |
+
+```yaml
+components:
+  banner_patterns:
+    - type: stripe_top
+      color: RED
+    - type: square_bottom_left
+      color: BLUE
+```
+
+有效染料颜色：`WHITE`、`ORANGE`、`MAGENTA`、`LIGHT_BLUE`、`YELLOW`、`LIME`、`PINK`、`GRAY`、`LIGHT_GRAY`、`CYAN`、`PURPLE`、`BLUE`、`BROWN`、`GREEN`、`RED`、`BLACK`。
+
+图案类型键是 Minecraft 注册表键。`minecraft:` 前缀可选（如 `stripe_top` 和 `minecraft:stripe_top` 等效）。
+
+### `base_color`
+
+**状态：** 专用
+
+设置盾牌物品的基础颜色。
+
+| 属性 | 类型 | 取值 |
+|----------|------|--------|
+| （值） | String | 染料颜色名 |
+
+```yaml
+components:
+  base_color: RED
+```
+
+### `blocks_attacks`
+
+**状态：** 专用
+
+使物品能像盾牌一样格挡来袭的攻击。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `block_delay_seconds` | Float | `0.0` |
+| `disable_cooldown_scale` | Float | `1.0` |
+| `bypassed_by` | String | `null`（伤害类型标签，如 `#minecraft:bypasses_shield`） |
+| `block_sound` | String | `null`（音效键） |
+| `disable_sound` | String | `null`（音效键） |
+| `damage_reductions` | 节列表 | `[]` |
+| `item_damage` | 节 | `null` |
+
+`damage_reductions` 条目：
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `type` | String 或 List | `null`（伤害类型标签或 ID；省略表示所有类型） |
+| `horizontal_blocking_angle` | Float | `90.0` |
+| `base` | Float | `0.0` |
+| `factor` | Float | `1.0` |
+
+`item_damage` 节：
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `threshold` | Float | `0.0` |
+| `base` | Float | `0.0` |
+| `factor` | Float | `1.0` |
+
+```yaml
+components:
+  blocks_attacks:
+    block_delay_seconds: 0.25
+    disable_cooldown_scale: 1.0
+    bypassed_by: "#minecraft:bypasses_shield"
+    block_sound: minecraft:item.shield.block
+    disable_sound: minecraft:item.shield.break
+    damage_reductions:
+      - type: "#minecraft:is_projectile"
+        horizontal_blocking_angle: 90.0
+        base: 0.0
+        factor: 0.5
+      - type: minecraft:player_attack
+        base: 1.0
+        factor: 1.0
+    item_damage:
+      threshold: 3.0
+      base: 1.0
+      factor: 1.0
+```
+
+`damage_reductions` 中的 `type` 字段接受标签字符串（`#minecraft:is_fire`）、单个伤害类型键（`minecraft:fire`）或伤害类型键列表。
+
+### `bundle_contents`
+
+**状态：** 专用
+
+设置收纳袋物品的初始内容。接受原版 ID、ItemsAdder ID 和 `mmoitems:TYPE:ID` 格式。完整格式详情见[兼容性](/zh/docs/compatibility)。
+
+```yaml
+components:
+  bundle_contents:
+    - minecraft:arrow
+    - my_pack:special_arrow
+```
+
+### `can_break`
+
+**状态：** 专用
+
+限制该物品在冒险模式下可以破坏的方块。
+
+```yaml
+components:
+  can_break:
+    - minecraft:stone
+    - "#minecraft:logs"
+```
+
+接受方块 ID（`minecraft:stone`）和方块标签（`#minecraft:logs`）。`minecraft:` 前缀可选。
+
+### `can_place_on`
+
+**状态：** 专用
+
+限制该物品在冒险模式下可以放置到的方块上。
+
+```yaml
+components:
+  can_place_on:
+    - minecraft:grass_block
+    - "#minecraft:dirt"
+```
+
+格式与 `can_break` 相同。
+
+### `charged_projectiles`
+
+**状态：** 专用
+
+设置弩中预装的弹射物。接受原版 ID、ItemsAdder ID 和 `mmoitems:TYPE:ID` 格式。
+
+```yaml
+components:
+  charged_projectiles:
+    - minecraft:arrow
+    - my_pack:special_bolt
+```
+
+### `damage_resistant`
+
+**状态：** 专用
+
+使物品实体免疫某一类伤害（如下界合金无视火焰）。
+
+```yaml
+components:
+  damage_resistant: minecraft:is_fire
+```
+
+接受伤害类型标签键。`#` 前缀和 `minecraft:` 前缀均可选（`is_fire`、`#is_fire`、`minecraft:is_fire`、`#minecraft:is_fire` 全部等效）。
+
+### `damage_type`
+
+**状态：** 专用
+
+设置物品实体造成伤害时所用的伤害类型。
+
+```yaml
+components:
+  damage_type: minecraft:magic
+```
+
+必须是有效的伤害类型注册表键。
+
+### `death_protection`
+
+**状态：** 专用
+
+防止死亡，并在触发时可选地施加效果（如不死图腾）。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `death_effects` | 节列表 | `[]`（省略表示纯保护） |
+
+`death_effects` 中的效果类型：
+
+| 类型 | 属性 |
+|------|-----------|
+| `apply_effects` | `effects`（药水效果列表）、`probability`（float，默认 1.0） |
+| `remove_effects` | `effects`（效果类型键列表） |
+| `clear_all_effects` | _（无属性）_ |
+| `teleport_randomly` | `diameter`（float，默认 16.0） |
+| `play_sound` | `sound`（带命名空间的音效键） |
+
+药水效果条目（用于 `apply_effects`）：
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `type` | String | 效果类型键（如 `regeneration`） |
+| `duration` | Integer | 持续时间（刻） |
+| `amplifier` | Integer | 等级 - 1（0 = 等级 I） |
+
+```yaml
+components:
+  death_protection:
+    death_effects:
+      - type: apply_effects
+        probability: 1.0
+        effects:
+          - type: regeneration
+            duration: 900
+            amplifier: 1
+          - type: absorption
+            duration: 100
+            amplifier: 1
+      - type: remove_effects
+        effects:
+          - wither
+          - poison
+      - type: play_sound
+        sound: minecraft:item.totem.use
+```
+
+完全省略 `death_effects` 即为纯图腾效果（防止死亡，无额外效果）：
+
+```yaml
+components:
+  death_protection: {}
+```
+
+### `dyed_color`
+
+**状态：** 专用
+
+设置皮革盔甲或其他可染色物品的染料颜色。
+
+```yaml
+components:
+  dyed_color: "#FF4400"
+```
+
+接受 `#RRGGBB` 十六进制颜色字符串。
+
+### `enchantable`
+
+**状态：** 专用
+
+设置物品的可附魔值（影响附魔台中的附魔品质）。
+
+```yaml
+components:
+  enchantable: 15
+```
+
+范围：1 - 255。值越高，附魔品质越好。
+
+### `firework_explosion`
+
+**状态：** 专用
+
+设置烟花星物品上的烟花爆炸效果。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `type` | String | `BALL` |
+| `colors` | `#RRGGBB` 字符串列表 | `[]` |
+| `fade_colors` | `#RRGGBB` 字符串列表 | `[]` |
+| `trail` | Boolean | `false` |
+| `flicker` | Boolean | `false` |
+
+有效类型：`BALL`、`BALL_LARGE`、`STAR`、`BURST`、`CREEPER`。
+
+```yaml
+components:
+  firework_explosion:
+    type: STAR
+    colors:
+      - "#FF0000"
+      - "#0000FF"
+    fade_colors:
+      - "#FFFFFF"
+    trail: true
+    flicker: false
+```
+
+### `fireworks`
+
+**状态：** 专用
+
+设置烟花火箭物品上的烟花属性。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `flight_duration` | Integer | `1`（0 - 255） |
+| `explosions` | 节列表 | `[]` |
+
+`explosions` 中的每个条目使用与 `firework_explosion` 相同的结构。
+
+```yaml
+components:
+  fireworks:
+    flight_duration: 2
+    explosions:
+      - type: BURST
+        colors:
+          - "#FFAA00"
+        trail: true
+```
+
+### `intangible_projectile`
+
+**状态：** 专用
+
+将该物品标记为无形弹射物（射出后无法被拾取）。
+
+```yaml
+components:
+  intangible_projectile: true
+```
+
+设为 `true` 或任意非 null 值即可启用。这是一个无属性的标记组件。
+
+### `kinetic_weapon`
+
+**状态：** 专用 | **最低版本：** 1.21.5
+
+使物品根据玩家移动速度造成伤害（如重锤）。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `contact_cooldown_ticks` | Integer | `0` |
+| `delay_ticks` | Integer | `0` |
+| `forward_movement` | Float | `1.0` |
+| `damage_multiplier` | Float | `1.0` |
+| `sound` | String（带命名空间键） | `null` |
+| `hit_sound` | String（带命名空间键） | `null` |
+| `dismount_conditions` | 节 | `null` |
+| `knockback_conditions` | 节 | `null` |
+| `damage_conditions` | 节 | `null` |
+
+条件节（`dismount_conditions`、`knockback_conditions`、`damage_conditions`）：
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `max_duration_ticks` | Integer | `0` |
+| `min_speed` | Float | `0.0` |
+| `min_relative_speed` | Float | `0.0` |
+
+```yaml
+components:
+  kinetic_weapon:
+    damage_multiplier: 2.0
+    forward_movement: 1.5
+    sound: minecraft:entity.player.attack.sweep
+    damage_conditions:
+      min_speed: 0.1
+```
+
+### `lodestone_tracker`
+
+**状态：** 专用
+
+使指南针指向磁石位置。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `tracked` | Boolean | `true` |
+| `world` | String | `null`（世界名；省略表示未链接的追踪器） |
+| `x` | Integer | `0` |
+| `y` | Integer | `0` |
+| `z` | Integer | `0` |
+
+```yaml
+components:
+  lodestone_tracker:
+    world: world
+    x: 100
+    y: 64
+    z: -200
+    tracked: true
+```
+
+如果省略 `world`，指南针未链接（显示旋转的指针）。如果设置了 `world` 但在重载时该世界未加载，IAA 会记录一条警告并应用该组件但不带位置。
+
+### `map_color`
+
+**状态：** 专用
+
+设置已填充地图物品的边框颜色。
+
+```yaml
+components:
+  map_color: "#2A6DB5"
+```
+
+接受 `#RRGGBB` 十六进制颜色字符串。
+
+### `map_decorations`
+
+**状态：** 专用
+
+设置已填充地图上的固定装饰（标记）。
+
+```yaml
+components:
+  map_decorations:
+    my_marker:
+      type: RED_MARKER
+      x: 100.0
+      z: 200.0
+      rotation: 0.0
+    another_marker:
+      type: player
+      x: -50.0
+      z: 75.0
+      rotation: 90.0
+```
+
+`map_decorations` 下的每个键是唯一的装饰 ID。`type` 是 `MapCursor.Type` 键（不区分大小写；`minecraft:` 前缀可选）。`x` 和 `z` 是世界坐标。`rotation` 以度为单位。
+
+### `map_id`
+
+**状态：** 专用
+
+通过整数 ID 将物品链接到特定地图。
+
+```yaml
+components:
+  map_id: 42
+```
+
+### `minimum_attack_charge`
+
+**状态：** 专用 | **最低版本：** 1.21.1
+
+设置触发满蓄力效果所需的最低攻击蓄力比例。
+
+```yaml
+components:
+  minimum_attack_charge: 0.9
+```
+
+范围：0.0 - 1.0。
+
+### `ominous_bottle_amplifier`
+
+**状态：** 专用
+
+设置不祥之瓶的等级（影响饮用时不祥之兆的强度）。
+
+```yaml
+components:
+  ominous_bottle_amplifier: 3
+```
+
+范围：0 - 4。
+
+### `piercing_weapon`
+
+**状态：** 专用 | **最低版本：** 1.21.5
+
+使物品穿透实体（如带穿透附魔的箭）。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `deals_knockback` | Boolean | `true` |
+| `dismounts` | Boolean | `true` |
+| `sound` | String（带命名空间键） | `null` |
+| `hit_sound` | String（带命名空间键） | `null` |
+
+```yaml
+components:
+  piercing_weapon:
+    deals_knockback: true
+    dismounts: false
+    hit_sound: minecraft:entity.arrow.hit
+```
+
+### `pot_decorations`
+
+**状态：** 专用
+
+设置饰纹陶罐上的陶片装饰。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `back` | String | `null`（原版物品 ID，如 `arms_up_pottery_sherd`） |
+| `left` | String | `null` |
+| `right` | String | `null` |
+| `front` | String | `null` |
+
+```yaml
+components:
+  pot_decorations:
+    back: arms_up_pottery_sherd
+    left: archer_pottery_sherd
+    right: blade_pottery_sherd
+    front: burn_pottery_sherd
+```
+
+接受原版物品 ID。`minecraft:` 前缀可选。
+
+### `potion_contents`
+
+**状态：** 专用
+
+设置药水、喷溅药水或滞留药水物品的药水效果。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `potion` | String | `null`（PotionType 键，如 `minecraft:strength`） |
+| `color` | String | `null`（#RRGGBB 十六进制覆盖值） |
+| `custom_name` | String | `null` |
+| `effects` | 节列表 | `[]` |
+
+`potion`、`color`、`custom_name`、`effects` 中至少需存在一个。
+
+```yaml
+components:
+  potion_contents:
+    potion: minecraft:strength
+    color: "#FF0000"
+    custom_name: "Super Strength"
+    effects:
+      - type: strength
+        duration: 600
+        amplifier: 2
+```
+
+### `potion_duration_scale`
+
+**状态：** 专用
+
+将该物品施加的所有药水效果的持续时间相乘。
+
+```yaml
+components:
+  potion_duration_scale: 2.0
+```
+
+范围：0.0 - 255.0。
+
+### `profile`
+
+**状态：** 专用
+
+设置玩家头颅物品上的玩家皮肤档案。接受玩家名（由客户端解析）或带有显式档案数据的节。
+
+简单形式（玩家名）：
+
+```yaml
+components:
+  profile: Notch
+```
+
+节形式（显式 UUID、名称或纹理）：
+
+```yaml
+components:
+  profile:
+    name: Notch
+    uuid: 069a79f4-44e9-4726-a5be-fca90e38aaf5
+    texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvLi4uIn19fQ==
+```
+
+节形式中 `name`、`uuid`、`texture` 至少需提供一个。
+
+### `provides_banner_patterns`
+
+**状态：** 专用
+
+将物品标记为放入织布机时可解锁旗帜图案的材料。
+
+```yaml
+components:
+  provides_banner_patterns: minecraft:no_item_required
+```
+
+接受旗帜图案标签键。`#` 前缀可选。
+
+### `provides_trim_material`
+
+**状态：** 专用
+
+将物品标记为锻造纹饰材料。
+
+```yaml
+components:
+  provides_trim_material: gold
+```
+
+接受纹饰材料注册表键。`minecraft:` 前缀可选。
+
+### `rarity`
+
+**状态：** 专用
+
+设置物品的稀有度，影响默认资源包中物品名称的颜色。
+
+```yaml
+components:
+  rarity: RARE
+```
+
+有效值：`COMMON`、`UNCOMMON`、`RARE`、`EPIC`。
+
+### `repairable`
+
+**状态：** 专用
+
+设置可在铁砧上修复该物品的物品。
+
+接受标签字符串或物品 ID 列表：
+
+```yaml
+# 使用标签
+components:
+  repairable: "#minecraft:planks"
+```
+
+```yaml
+# 使用物品列表
+components:
+  repairable:
+    - minecraft:diamond
+    - minecraft:netherite_ingot
+```
+
+### `stored_enchantments`
+
+**状态：** 专用
+
+设置附魔书中存储的附魔。使用 `enchantment_key: level` 键值对的节。
+
+```yaml
+components:
+  stored_enchantments:
+    sharpness: 5
+    looting: 3
+    minecraft:mending: 1
+```
+
+等级范围：1 - 255。`minecraft:` 前缀可选。
+
+### `suspicious_stew_effects`
+
+**状态：** 专用
+
+设置谜之炖菜物品给予的效果。
+
+```yaml
+components:
+  suspicious_stew_effects:
+    - type: speed
+      duration: 200
+    - type: minecraft:night_vision
+      duration: 400
+```
+
+`duration` 以刻为单位。默认值为 160。效果类型上的 `minecraft:` 前缀可选。
+
+### `swing_animation`
+
+**状态：** 专用 | **最低版本：** 1.21.5
+
+设置近战攻击的挥动动画类型和持续时间。
+
+| 属性 | 类型 | 取值 |
+|----------|------|--------|
+| `type` | String | `NONE`、`WHACK`、`STAB` |
+| `duration` | Integer | >= 1 |
+
+```yaml
+components:
+  swing_animation:
+    type: WHACK
+    duration: 6
+```
+
+### `tool`
+
+**状态：** 专用
+
+将物品配置为带挖掘速度规则的工具。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `default_mining_speed` | Float | `1.0` |
+| `damage_per_block` | Integer | `1` |
+| `can_destroy_in_creative` | Boolean | `true` |
+| `rules` | 节列表 | `[]` |
+
+规则节：
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `blocks` | String、标签或 List | 必填 |
+| `speed` | Float | `null`（不覆盖） |
+| `correct_for_drops` | Boolean 或省略 | `null`（NOT_SET） |
+
+```yaml
+components:
+  tool:
+    default_mining_speed: 1.0
+    damage_per_block: 1
+    can_destroy_in_creative: true
+    rules:
+      - blocks: "#minecraft:mineable/pickaxe"
+        speed: 6.0
+        correct_for_drops: true
+      - blocks:
+          - minecraft:obsidian
+          - minecraft:crying_obsidian
+        speed: 12.0
+        correct_for_drops: true
+```
+
+`blocks` 接受标签字符串（`#minecraft:logs`）、单个方块 ID（`minecraft:stone`）或方块 ID 列表。
+
+`correct_for_drops`：`true` 表示该工具产出正确掉落物；`false` 表示不产出；省略该键表示 NOT_SET（继承原版默认值）。
+
+### `tooltip_display`
+
+**状态：** 专用
+
+控制哪些组件显示在物品提示框中。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `hide_tooltip` | Boolean | `false` |
+| `hidden_components` | 组件键列表 | `[]` |
+
+```yaml
+components:
+  tooltip_display:
+    hide_tooltip: false
+    hidden_components:
+      - enchantments
+      - attribute_modifiers
+      - stored_enchantments
+```
+
+`hidden_components` 接受 `DataComponentTypes` 字段名（不区分大小写）。使用不带 `minecraft:` 前缀且为 UPPER_SNAKE_CASE 的 Minecraft 组件键（如 `ATTRIBUTE_MODIFIERS`）。查找不区分大小写。
+
+### `use_cooldown`
+
+**状态：** 专用
+
+为物品设置使用冷却时间。
+
+| 属性 | 类型 | 必填 |
+|----------|------|---------|
+| `cooldown` | Float（秒） | 是 |
+| `group` | String（带命名空间键） | 否 |
+
+```yaml
+components:
+  use_cooldown:
+    cooldown: 2.0
+```
+
+如果省略 `group`，冷却分组默认为 `itemsadder:<item_id>`，使冷却为物品专属。设置 `group` 可与其他物品共享冷却：
+
+```yaml
+components:
+  use_cooldown:
+    cooldown: 5.0
+    group: my_pack:special_items
+```
+
+### `use_remainder`
+
+**状态：** 专用
+
+设置该物品被完全消耗后槽位中保留的物品。
+
+```yaml
+components:
+  use_remainder: minecraft:glass_bottle
+```
+
+接受原版 ID、ItemsAdder ID 和 `mmoitems:TYPE:ID` 格式。
+
+### `weapon`
+
+**状态：** 专用 | **最低版本：** 1.21.5
+
+将物品配置为带自定义伤害和格挡交互的武器。
+
+| 属性 | 类型 | 默认值 |
+|----------|------|---------|
+| `item_damage_per_attack` | Integer | `1` |
+| `disable_blocking_for_seconds` | Float | `0.0` |
+
+```yaml
+components:
+  weapon:
+    item_damage_per_attack: 2
+    disable_blocking_for_seconds: 0.6
+```
+
+`disable_blocking_for_seconds`：当该武器命中正在格挡的实体时，格挡会被禁用此段时长。
+
+### `writable_book_content`
+
+**状态：** 专用
+
+设置可写书（书与笔）的页面。
+
+```yaml
+components:
+  writable_book_content:
+    - "Page 1 content here."
+    - "Page 2 content here."
+```
+
+## 版本汇总
+
+| 组件 | 最低版本 |
+|-----------|----------------|
+| `minimum_attack_charge` | 1.21.1 |
+| `kinetic_weapon` | 1.21.5 |
+| `piercing_weapon` | 1.21.5 |
+| `swing_animation` | 1.21.5 |
+| `weapon` | 1.21.5 |
+| `attack_range` | 1.21.11 |
+| 通用 NMS 组件 | 1.21.3 |
+| 所有其他组件 | 1.20.6+ |
+
+需要比运行中服务端更新版本的组件会被静默跳过，并在控制台记录一条警告。

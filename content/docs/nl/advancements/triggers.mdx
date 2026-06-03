@@ -1,7 +1,7 @@
 ---
 title: Triggers
-description: Referentie voor alle ingebouwde triggertypen voor aangepaste ItemsAdder-voortgangen, inclusief voorwaarden en YAML-voorbeelden voor elk type.
-version: "1.0.9"
+description: Triggerreferentie voor aangepaste ItemsAdder-advancements, inclusief voorwaarden en YAML-voorbeelden.
+version: "1.0.10"
 ---
 
 Triggers bepalen wat de speler moet doen om een criterium te voltooien. Elk criterium heeft één trigger en een optioneel `conditions`-blok.
@@ -14,9 +14,7 @@ criteria:
       # triggerspecifieke opties
 ```
 
-Een voortgang kan meerdere criteria hebben. Alle moeten worden voltooid voordat de voortgang wordt toegekend. Elke runtime-trigger ondersteunt ook een optioneel `conditions.player`-predicaat voor extra vereisten rond spelerstatus; zie [Spelerspredicaten](/nl/docs/advancements/player-predicates). Itemvoorwaarden accepteren ItemsAdder-ID's, MMOItems-ID's, vanilla ID's en vanilla itemtags. Blokvoorwaarden accepteren ItemsAdder-blok-ID's, vanilla blok-ID's en vanilla bloktags.
-
----
+Een voortgang kan meerdere criteria hebben. Alle moeten worden voltooid voordat de voortgang wordt toegekend. Elke runtime-trigger ondersteunt ook een optioneel `conditions.player`-predicaat voor extra vereisten rond spelerstatus; zie [Spelerspredicaten](/nl/docs/advancements/player-predicates). Itemvoorwaarden accepteren ItemsAdder-ID's, MMOItems-ID's, vanilla ID's, vanilla tags en ondersteunde custom tags. Blok-, furniture- en receptvoorwaarden kunnen ook custom tags gebruiken waar de trigger dat ondersteunt.
 
 ## obtain_item
 
@@ -742,9 +740,147 @@ criteria:
 
 ---
 
+## sit_furniture
+
+Wordt geactiveerd wanneer de speler op ItemsAdder furniture gaat zitten.
+
+<Callout type="warn">
+    **Versievereiste:** Vereist **ItemsAdder 4.0.17 of hoger**.
+</Callout>
+
+```yaml
+criteria:
+  sit_on_chair:
+    trigger: sit_furniture
+    conditions:
+      furniture: my_pack:ruby_chair
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|---------|------|---------|--------------|
+| `furniture` | string | ja | ItemsAdder furniture-ID of ondersteunde custom furniture-tag. |
+
+---
+
+## unsit_furniture
+
+Wordt geactiveerd wanneer de speler stopt met zitten op ItemsAdder furniture.
+
+<Callout type="warn">
+    **Versievereiste:** Vereist **ItemsAdder 4.0.17 of hoger**.
+</Callout>
+
+```yaml
+criteria:
+  leave_chair:
+    trigger: unsit_furniture
+    conditions:
+      furniture: my_pack:ruby_chair
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|---------|------|---------|--------------|
+| `furniture` | string | ja | ItemsAdder furniture-ID of ondersteunde custom furniture-tag. |
+
+---
+
+## open_trade_machine
+
+Wordt geactiveerd wanneer de speler een ItemsAdder `trade_machine` of `block_trade_machine` GUI opent.
+
+```yaml
+criteria:
+  open_alchemy_station:
+    trigger: open_trade_machine
+    conditions:
+      trade_machine: stations:alchemy_table
+```
+
+| Sleutel | Type | Vereist | Beschrijving |
+|---------|------|---------|--------------|
+| `trade_machine` | string | ja | Trade-machine content-ID of ondersteunde custom furniture-tag. |
+
+---
+
+## start_emote
+
+Wordt geactiveerd wanneer de speler een ItemsAdder emote start.
+
+```yaml
+criteria:
+  start_wave:
+    trigger: start_emote
+    conditions:
+      emote: my_pack:wave
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `emote` | string | *(elke)* | Emote-ID. Als dit ontbreekt, matcht elke gestarte emote. |
+
+---
+
+## stop_emote
+
+Wordt geactiveerd wanneer de speler een ItemsAdder emote stopt.
+
+```yaml
+criteria:
+  stop_wave:
+    trigger: stop_emote
+    conditions:
+      emote: my_pack:wave
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `emote` | string | *(elke)* | Emote-ID. Als dit ontbreekt, matcht elke gestopte emote. |
+
+---
+
+## join_server
+
+Wordt geactiveerd wanneer de speler de server joint. Geen voorwaarden.
+
+```yaml
+criteria:
+  joined:
+    trigger: join_server
+```
+
+---
+
+## first_join
+
+Wordt geactiveerd wanneer de speler voor het eerst joint volgens Bukkit's `hasPlayedBefore` controle. Geen voorwaarden.
+
+```yaml
+criteria:
+  first_join:
+    trigger: first_join
+```
+
+---
+
+## tick
+
+Wordt eenmaal per servertick geactiveerd voor elke online speler. Gebruik `conditions.player` om het criterium beperkt te houden.
+
+```yaml
+criteria:
+  sneaking_tick:
+    trigger: tick
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+```
+
+---
+
 ## impossible
 
-Wordt nooit op zichzelf geactiveerd. Het criterium kan alleen worden verleend via de IAA API of beheerderscommando's.
+Wordt nooit op zichzelf geactiveerd.
 
 ```yaml
 criteria:

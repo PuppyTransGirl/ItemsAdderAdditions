@@ -1,7 +1,7 @@
 ---
 title: 触发器
-description: 适用于自定义 ItemsAdder 进度的所有内置触发器类型参考，包含每个触发器的准则和 YAML 示例
-version: "1.0.9"
+description: 自定义 ItemsAdder 进度触发器参考，包含条件和 YAML 示例
+version: "1.0.10"
 ---
 
 触发器定义了玩家必须执行的操作才能完成一个准则。每个准则都有一个触发器和一个可选的 `conditions` 块
@@ -14,9 +14,7 @@ criteria:
       # 触发器特定选项
 ```
 
-一个进度可以有多个准则。所有准则都必须完成，进度才会被授予。每个运行时触发器还支持可选的 `conditions.player` 谓词，用于额外的玩家状态要求；参见[玩家谓词](/zh/docs/advancements/player-predicates)。物品准则支持 ItemsAdder ID、MMOItems ID、原版物品 ID 和原版物品标签。方块准则支持 ItemsAdder 方块 ID、原版方块 ID 和原版方块标签
-
----
+一个进度可以有多个准则。所有准则都必须完成，进度才会被授予。每个运行时触发器还支持可选的 `conditions.player` 谓词，用于额外的玩家状态要求；参见[玩家谓词](/zh/docs/advancements/player-predicates)。物品准则支持 ItemsAdder ID、MMOItems ID、原版物品 ID、原版标签以及受支持的自定义标签。方块、家具和配方准则在对应触发器支持时也可以使用自定义标签
 
 ## obtain_item
 
@@ -766,9 +764,147 @@ criteria:
 
 ---
 
+## sit_furniture
+
+当玩家坐在 ItemsAdder 家具上时触发。
+
+<Callout type="warn">
+    **版本要求：** 需要 **ItemsAdder 4.0.17 或更高版本**。
+</Callout>
+
+```yaml
+criteria:
+  sit_on_chair:
+    trigger: sit_furniture
+    conditions:
+      furniture: my_pack:ruby_chair
+```
+
+| 键 | 类型 | 必填 | 描述 |
+|----|------|------|------|
+| `furniture` | 字符串 | 是 | ItemsAdder 家具 ID 或受支持的自定义家具标签。 |
+
+---
+
+## unsit_furniture
+
+当玩家停止坐在 ItemsAdder 家具上时触发。
+
+<Callout type="warn">
+    **版本要求：** 需要 **ItemsAdder 4.0.17 或更高版本**。
+</Callout>
+
+```yaml
+criteria:
+  leave_chair:
+    trigger: unsit_furniture
+    conditions:
+      furniture: my_pack:ruby_chair
+```
+
+| 键 | 类型 | 必填 | 描述 |
+|----|------|------|------|
+| `furniture` | 字符串 | 是 | ItemsAdder 家具 ID 或受支持的自定义家具标签。 |
+
+---
+
+## open_trade_machine
+
+当玩家打开 ItemsAdder `trade_machine` 或 `block_trade_machine` 界面时触发。
+
+```yaml
+criteria:
+  open_alchemy_station:
+    trigger: open_trade_machine
+    conditions:
+      trade_machine: stations:alchemy_table
+```
+
+| 键 | 类型 | 必填 | 描述 |
+|----|------|------|------|
+| `trade_machine` | 字符串 | 是 | 交易机器内容 ID 或受支持的自定义家具标签。 |
+
+---
+
+## start_emote
+
+当玩家开始 ItemsAdder 表情时触发。
+
+```yaml
+criteria:
+  start_wave:
+    trigger: start_emote
+    conditions:
+      emote: my_pack:wave
+```
+
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `emote` | 字符串 | *（任意）* | 表情 ID。省略时任意开始的表情都匹配。 |
+
+---
+
+## stop_emote
+
+当玩家停止 ItemsAdder 表情时触发。
+
+```yaml
+criteria:
+  stop_wave:
+    trigger: stop_emote
+    conditions:
+      emote: my_pack:wave
+```
+
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `emote` | 字符串 | *（任意）* | 表情 ID。省略时任意停止的表情都匹配。 |
+
+---
+
+## join_server
+
+玩家每次加入服务器时触发。无条件。
+
+```yaml
+criteria:
+  joined:
+    trigger: join_server
+```
+
+---
+
+## first_join
+
+根据 Bukkit 的 `hasPlayedBefore` 检查，在玩家第一次加入服务器时触发。无条件。
+
+```yaml
+criteria:
+  first_join:
+    trigger: first_join
+```
+
+---
+
+## tick
+
+每个服务器 tick 对每个在线玩家触发一次。请使用 `conditions.player` 缩小条件范围。
+
+```yaml
+criteria:
+  sneaking_tick:
+    trigger: tick
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+```
+
+---
+
 ## impossible
 
-自身永远不会触发。该准则只能通过 IAA API 或管理员命令授予
+自身永远不会触发。
 
 ```yaml
 criteria:

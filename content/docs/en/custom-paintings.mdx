@@ -1,5 +1,6 @@
 ---
 title: Custom Paintings
+icon: Image
 description: Register custom painting variants from your ItemsAdder YML files. Requires Paper 1.21.5+.
 version: "1.0.8"
 ---
@@ -72,6 +73,6 @@ features:
 
 ## Notes
 
-- This feature is only available on Minecraft **1.21.5** and newer. On older versions, the `paintings` section is silently ignored.
+- This feature is only available on Minecraft **1.21.5** and newer. On older supported versions, the plugin logs a warning and skips the `paintings` section.
 - No `/iazip` or manual resource pack step is needed for the painting variants themselves, but your texture file must be included in your resource pack as usual.
 - The linked `item` must be an existing ItemsAdder item. If it is missing, the painting variant is still registered, but no placement item will work.

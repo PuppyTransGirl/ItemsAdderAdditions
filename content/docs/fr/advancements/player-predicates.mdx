@@ -188,11 +188,11 @@ conditions:
 | `blocks` / `id` | chaîne ou liste | IDs de blocs à faire correspondre. |
 | `state.<name>` | chaîne ou plage | Correspond exactement à une valeur d’état de bloc, ou avec `min`/`max`. |
 
-La syntaxe de tag de bloc comme `#minecraft:logs` est résolue avec les tags de blocs vanilla. Les tags correspondent uniquement aux blocs vanilla ; utilisez des IDs de blocs ItemsAdder explicites pour les blocs personnalisés.
+Les tags de blocs personnalisés ItemsAdderAdditions sont résolus en premier. Si aucun tag personnalisé ne correspond, la syntaxe comme `#minecraft:logs` est résolue avec les tags de blocs vanilla. Les tags vanilla correspondent uniquement aux blocs vanilla.
 
 ## Prédicats d’objets et d’équipement
 
-Les prédicats d’objets peuvent être utilisés dans `equipment`, `slots` et les prédicats d’entité imbriqués. Ils acceptent les IDs ItemsAdder, les IDs MMOItems, les IDs d’objets vanilla et les tags d’objets vanilla comme `#minecraft:planks`.
+Les prédicats d’objets peuvent être utilisés dans `equipment`, `slots` et les prédicats d’entité imbriqués. Ils acceptent les IDs ItemsAdder, les IDs MMOItems, les IDs d’objets vanilla, les tags d’objets vanilla comme `#minecraft:planks`, et les tags personnalisés pris en charge.
 
 ```yaml
 conditions:
@@ -222,7 +222,7 @@ conditions:
 | `enchantments[].enchantment` / `id` | chaîne | Clé de l’enchantement. |
 | `enchantments[].levels` | nombre ou plage | Niveau d’enchantement requis. |
 
-Les tags d’objets vanilla sont résolus avec le registre d’objets vanilla. Les sections `predicates` des objets ne sont pas encore prises en charge et font échouer le prédicat d’objet de manière fermée au lieu de correspondre accidentellement.
+Les tags d’objets personnalisés ItemsAdderAdditions sont résolus en premier. Si aucun tag personnalisé ne correspond, les tags d’objets vanilla sont résolus avec le registre d’objets vanilla. Les sections `predicates` des objets ne sont pas encore prises en charge et font échouer le prédicat d’objet de manière fermée au lieu de correspondre accidentellement.
 
 ## Emplacements
 

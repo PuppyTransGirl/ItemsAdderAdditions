@@ -2,6 +2,7 @@
   "title": "Recipes",
   "icon": "Menu",
   "pages": [
+    "brewing",
     "campfire-cooking",
     "...",
     "stonecutter"

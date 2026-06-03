@@ -37,7 +37,7 @@ Controls who the action is applied to. Defaults to `self`.
 | `self`             | The player who triggered the event *(default)*                                              |
 | `other`            | The entity the player is interacting with (e.g. the one being attacked)                     |
 | `all`              | Both the triggering player **and** the target entity                                        |
-| `radius`           | All entities within a sphere around the interaction point - requires `target_radius`        |
+| `radius`           | All entities within the configured X/Y/Z radius around the interaction point - requires `target_radius` |
 | `in_sight`         | The entity the player is currently looking at - requires `target_in_sight_distance`         |
 
 ```yaml
@@ -48,7 +48,7 @@ message:
 
 ### `target_radius`
 
-Only used when `target: radius`. Defines the diameter of the sphere (in blocks) centred on the interaction point.
+Only used when `target: radius`. Defines the X/Y/Z radius in blocks around the event target, event block, or triggering player.
 
 ```yaml
 actionbar:
@@ -67,6 +67,53 @@ ignite:
   target: in_sight
   target_in_sight_distance: 10
 ```
+
+## Trigger placement
+
+Actions are declared inside ItemsAdder item, block, furniture, or complex furniture `events` sections.
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_staff:
+    events:
+      interact:
+        right:
+          message:
+            text: "<green>Right-clicked"
+
+  ruby_lamp:
+    events:
+      placed_furniture:
+        interact:
+          message:
+            text: "<yellow>Furniture clicked"
+```
+
+`placed_block` actions can be nested under `events.placed_block`. Furniture and complex furniture actions are loaded from `events.placed_furniture`.
+
+## Supported trigger names
+
+Common item triggers include:
+
+```text
+interact, interact_mainhand, interact_offhand, block_break, attack, kill,
+drop, pickup, held, held_offhand, unheld, unheld_offhand, item_break,
+eat, drink, bow_shot, gun_shot, gun_no_ammo, gun_reload, item_throw,
+item_hit_ground, item_hit_entity, book_write, book_read, fishing_start,
+fishing_caught, fishing_failed, fishing_cancel, fishing_bite,
+fishing_in_ground, bucket_empty, bucket_fill
+```
+
+Block triggers include `interact`, `break`, and nested `placed_block` triggers. Furniture triggers use the same item-style trigger names under `placed_furniture`. Complex furniture currently supports `placed_furniture.interact`.
+
+`interact`, `interact_mainhand`, and `interact_offhand` can use argument sections such as `right`, `left`, `right_shift`, and `left_shift`. Wildcard actions under the trigger are also executed after the exact argument match.
+
+## Cooldowns and stat requirements
+
+When an action is triggered from a held ItemsAdder item, ItemsAdderAdditions checks ItemsAdder's configured cooldowns and stat requirements for that item before executing the action. If the player does not meet those requirements, the action is skipped.
 
 ## Full example
 

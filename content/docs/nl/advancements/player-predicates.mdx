@@ -188,11 +188,11 @@ conditions:
 | `blocks` / `id` | string of lijst | Blok-ID's om mee te vergelijken. |
 | `state.<name>` | string of bereik | Komt exact overeen met een blokstatuswaarde, of met `min`/`max`. |
 
-Bloktagsyntaxis zoals `#minecraft:logs` wordt opgelost met vanilla-bloktags. Tags komen alleen overeen met vanilla-blokken; gebruik expliciete ItemsAdder-blok-ID's voor aangepaste blokken.
+ItemsAdderAdditions custom bloktags worden eerst opgelost. Als er geen custom tag bestaat, wordt bloktagsyntaxis zoals `#minecraft:logs` opgelost met vanilla-bloktags. Vanilla tags komen alleen overeen met vanilla-blokken.
 
 ## Item- en uitrustingspredicaten
 
-Itempredicaten kunnen worden gebruikt in `equipment`, `slots` en geneste entiteitspredicaten. Ze accepteren ItemsAdder-ID's, MMOItems-ID's, vanilla item-ID's en vanilla itemtags zoals `#minecraft:planks`.
+Itempredicaten kunnen worden gebruikt in `equipment`, `slots` en geneste entiteitspredicaten. Ze accepteren ItemsAdder-ID's, MMOItems-ID's, vanilla item-ID's, vanilla itemtags zoals `#minecraft:planks` en ondersteunde custom tags.
 
 ```yaml
 conditions:
@@ -222,7 +222,7 @@ conditions:
 | `enchantments[].enchantment` / `id` | string | Enchantmentsleutel. |
 | `enchantments[].levels` | getal of bereik | Vereist enchantmentlevel. |
 
-Vanilla itemtags worden opgelost met het vanilla-itemregister. Itemsecties `predicates` worden nog niet ondersteund en laten het itempredicaat gesloten falen in plaats van per ongeluk te matchen.
+ItemsAdderAdditions custom itemtags worden eerst opgelost. Als er geen custom tag bestaat, worden vanilla itemtags opgelost met het vanilla-itemregister. Itemsecties `predicates` worden nog niet ondersteund en laten het itempredicaat gesloten falen in plaats van per ongeluk te matchen.
 
 ## Slots
 

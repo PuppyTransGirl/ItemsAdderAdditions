@@ -1,0 +1,96 @@
+---
+title: Brewing
+description: Voeg custom brewing stand recepten toe met ItemsAdder-, MMOItems- en vanilla items.
+version: "1.0.10"
+---
+
+ItemsAdderAdditions voegt het recepttype `brewing` toe voor brewing stands. Het registreert een Paper potion mix en ondersteunt exacte matching voor ItemsAdder-, MMOItems- en vanilla items.
+
+## Basisrecept
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  brewing:
+    ruby_elixir:
+      base:
+        item: minecraft:awkward_potion
+      ingredient:
+        item: my_pack:ruby_dust
+        consume: 1
+      result:
+        item: my_pack:ruby_elixir
+      brew_time: 400
+      fuel_cost: 1
+```
+
+`base` is de aanbevolen sleutel voor het invoeritem. De oudere alias `input` wordt nog geaccepteerd.
+
+## Opties
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `enabled` | boolean | `true` | Zet op `false` om het recept over te slaan. |
+| `base.item` | string | *(vereist)* | Vereist invoeritem. `input.item` wordt ook geaccepteerd. |
+| `ingredient.item` | string | *(vereist)* | Vereist brewing-ingredient. |
+| `ingredient.consume` | integer | `1` | Aantal ingredientitems dat wordt verbruikt. Moet groter zijn dan `0`. |
+| `result.item` | string | *(vereist)* | Uitvoeritem. |
+| `result.amount` | integer | `1` | Brewing-uitvoer wordt beperkt tot één item per flessenslot. |
+| `brew_time` | integer | `400` | Brewingtijd in ticks. Moet groter zijn dan `0`. |
+| `fuel_cost` | integer | `1` | Blaze-powder brandstofeenheden die worden verbruikt. Moet groter zijn dan `0`. |
+| `on_complete` | sectie | *(geen)* | Optionele sound- en commandacties nadat brewing klaar is. |
+
+## Itemreferenties
+
+`base.item`, `ingredient.item` en `result.item` accepteren vanilla materialen, ItemsAdder-items en MMOItems-items. Tags zijn hier niet geldig omdat brewing concrete itemstacks vergelijkt.
+
+## Voltooiingsacties
+
+`on_complete` wordt uitgevoerd wanneer de brewing stand klaar is en minstens één speler de stand bekijkt.
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:block.brewing_stand.brew
+    source: master
+  commands:
+    reward:
+      command: "say {player} brouwde een elixir"
+      as_console: true
+```
+
+`{player}` wordt vervangen door de naam van de kijkende speler.
+
+## Compleet voorbeeld
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  brewing:
+    ruby_elixir:
+      enabled: true
+      base:
+        item: minecraft:awkward_potion
+      ingredient:
+        item: my_pack:ruby_dust
+        consume: 2
+      result:
+        item: my_pack:ruby_elixir
+        amount: 1
+      brew_time: 600
+      fuel_cost: 2
+```
+
+## Veelgemaakte fouten
+
+- `result.amount` hoger dan `1` zetten. De waarde wordt beperkt tot `1`.
+- Tags zoals `#minecraft:*` gebruiken. Brewing recepten matchen concrete itemstacks.
+- `fuel_cost` hoger zetten dan de beschikbare brandstof in de stand.
+
+## Herladen
+
+Voer `/iareload` uit nadat je brewing recepten hebt aangepast.

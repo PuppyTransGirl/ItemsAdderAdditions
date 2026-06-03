@@ -1,0 +1,76 @@
+---
+title: Configuration
+icon: Settings
+description: Clés config.yml du plugin, toggles de fonctionnalités, actions, comportements et rechargement.
+---
+
+ItemsAdderAdditions utilise `config.yml` pour les toggles globaux du plugin. Les fichiers YAML de contenu ItemsAdder définissent les actions, comportements, recettes, progrès, peintures, tags et entrées de génération.
+
+## Configuration par défaut
+
+```yaml
+features:
+  creative_inventory_integration: true
+  custom_paintings: true
+
+behaviours:
+  bed: true
+  connectable: true
+  contact_damage: true
+  stackable: true
+  storage: true
+  text_display: true
+
+actions:
+  actionbar: true
+  clear_item: true
+  ignite: true
+  message: true
+  mythic_mobs_skill: true
+  open_inventory: true
+  play_animation: true
+  play_emote: true
+  replace_biome: true
+  replace_item: true
+  shoot_fireball: true
+  swing_hand: true
+  teleport: true
+  title: true
+  toast: true
+  veinminer: true
+
+update-checker:
+  enabled: true
+  on-join: true
+```
+
+## Fonctionnement des toggles
+
+Les clés absentes sont activées par défaut. Cela vaut aussi pour les sections optionnelles absentes de la configuration générée.
+
+```yaml
+actions:
+  open_trade_machine: false
+
+components:
+  rarity: false
+```
+
+## Rechargement
+
+```text
+/itemsadderadditions reload
+/iaa reload
+```
+
+Cette commande recharge `config.yml` et réapplique les toggles globaux. Elle ne recharge pas les fichiers YAML de contenu ItemsAdder.
+
+Utilisez `/iareload` après avoir modifié les sections YAML ItemsAdderAdditions comme les actions, comportements, tags personnalisés, recettes, progrès, peintures personnalisées, métadonnées Valhalla ou génération du monde.
+
+Utilisez `/iazip` après avoir modifié les sections `components` ou des assets du pack de ressources. `/iareload` recharge le contenu ItemsAdderAdditions sauf les composants.
+
+## Erreurs courantes
+
+- Mettre un toggle à `false` puis attendre que le contenu correspondant continue à fonctionner après rechargement.
+- Ajouter une faute de frappe sous `actions`, `behaviours`, `features` ou `components`.
+- Utiliser `/itemsadderadditions reload` pour recharger du contenu YAML ou reconstruire le pack. Utilisez `/iareload` pour le contenu YAML et `/iazip` pour les composants ou assets.

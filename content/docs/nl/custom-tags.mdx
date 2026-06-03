@@ -1,0 +1,118 @@
+---
+title: Custom Tags
+icon: Tags
+description: Definieer herbruikbare item-, blok-, furniture- en receptgroepen in ItemsAdder content-YAML.
+version: "1.0.10"
+---
+
+Custom tags groeperen content-ID's zodat je dezelfde groep kunt hergebruiken in ondersteunde ItemsAdderAdditions-functies. Ze worden geladen uit een top-level `tags` sectie in ItemsAdder content-YAML.
+
+## Basisstructuur
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+      - mmoitems:tool:ruby_hammer
+
+  decorative_blocks:
+    type: block
+    values:
+      - ruby_lamp
+      - minecraft:amethyst_block
+
+  trading_stations:
+    type: furniture
+    values:
+      - alchemy_table
+      - forge_table
+
+  ruby_recipes:
+    type: recipe
+    values:
+      - ruby_sword
+      - ruby_pickaxe
+```
+
+Gebruik `#tag_id` binnen dezelfde namespace of `#namespace:tag_id` vanuit een andere namespace.
+
+## Typen
+
+| Type | Aliassen | Waarden |
+|------|----------|---------|
+| `item` | `items` | ItemsAdder-items, vanilla items, MMOItems-items en geneste itemtags. |
+| `block` | `blocks` | ItemsAdder-blokken, vanilla blokken en geneste bloktags. |
+| `furniture` | `furnitures` | ItemsAdder furniture-ID's en geneste furniture-tags. |
+| `recipe` | `recipes` | Recept-ID's en geneste recepttags. |
+
+Als `type` ontbreekt, wordt de tag als itemtag behandeld.
+
+## Geneste tags
+
+```yaml
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+
+  mining_tools:
+    type: item
+    values:
+      - "#ruby_tools"
+      - minecraft:iron_pickaxe
+      - minecraft:diamond_pickaxe
+```
+
+Geneste tags moeten hetzelfde type hebben. Circulaire verwijzingen worden gedetecteerd en genegeerd.
+
+## Waar ze werken
+
+Custom tags werken in runtime matching, waaronder:
+
+- advancementvoorwaarden voor items, blokken, furniture en recepten
+- spelerpredicaten voor items, equipment, slots en blokken
+- `items` van het `stackable` behaviour
+
+Ingrediënten van `iaa_crafting_table` zijn anders: ingredienttags gebruiken alleen Bukkit vanilla item-/bloktags, niet ItemsAdderAdditions custom tags.
+
+## Compleet voorbeeld
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+
+items:
+  charged_ruby:
+    display_name: "<red>Charged Ruby"
+    behaviours:
+      stackable:
+        blocks:
+          - charged_ruby_block
+        items:
+          - "#my_pack:ruby_tools"
+```
+
+## Herladen
+
+Custom tags worden voorbereid voordat acties, gedragingen, recepten, advancements en worldgen worden herladen. Voer `/iareload` uit na wijzigingen.
+
+## Veelgemaakte fouten
+
+- Tagtypen mengen. Een furniture-tag kan geen itemtag bevatten.
+- Dezelfde combinatie van `type` en tag-ID twee keer definiëren. De eerste definitie wint.
+- Een tag gebruiken waar een optie een concreet item moet maken, zoals receptresultaten, `toast.icon`, `clear_item.item` of `replace_item.item`.

@@ -37,7 +37,7 @@ message:
 | `self`     | 触发事件的玩家 *(默认)*                            |
 | `other`    | 玩家正在交互的实体（例如正在攻击的实体）                      |
 | `all`      | 触发玩家**和**目标实体                             |
-| `radius`   | 交互点周围球形范围内的所有实体 - 需要 `target_radius`      |
+| `radius`   | 事件目标、事件方块或触发玩家周围指定 X/Y/Z 半径内的所有实体 - 需要 `target_radius` |
 | `in_sight` | 玩家当前注视的实体 - 需要 `target_in_sight_distance` |
 
 ```yaml
@@ -48,7 +48,7 @@ message:
 
 ### `target_radius`
 
-仅当 `target: radius` 时使用。定义以交互点为中心的球体直径（以方块计）
+仅当 `target: radius` 时使用。定义围绕事件目标、事件方块或触发玩家的 X/Y/Z 半径（以方块计）
 
 ```yaml
 actionbar:

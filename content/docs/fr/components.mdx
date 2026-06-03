@@ -1,16 +1,11 @@
 ---
 title: Composants
 icon: Package
-description: Support des composants de données d'objets dans ItemsAdderAdditions. Appliquez des composants Minecraft aux objets personnalisés au chargement.
+description: Support des composants de données d'objets dans ItemsAdderAdditions. Appliquez des composants Minecraft aux objets personnalisés lors de la génération du pack.
+version: "1.0.10"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-
-<Callout type="info">
-  Cette page est en cours de traduction. Consultez la [version anglaise](/en/docs/components) pour la documentation complète.
-</Callout>
-
-ItemsAdderAdditions applique des composants de données Minecraft aux objets personnalisés au chargement via le hook de modificateur d'objets d'ItemsAdder. Ajoutez une section `components` sous la définition de votre objet et exécutez `/iareload`.
+ItemsAdderAdditions applique des composants de données Minecraft aux objets personnalisés lors de la génération du pack via le hook de modificateur d'objets d'ItemsAdder. Ajoutez une section `components` sous la définition de votre objet et exécutez `/iazip`.
 
 ```yaml
 items:
@@ -21,4 +16,917 @@ items:
         cooldown: 1.5
       tool:
         default_mining_speed: 2.0
+        rules:
+          - blocks: "#minecraft:logs"
+            speed: 4.0
+            correct_for_drops: true
 ```
+
+Les composants sont appliqués quand ItemsAdder reconstruit les données du pack et des objets. Exécutez `/iazip` après avoir modifié le YAML des composants. `/iareload` recharge les autres contenus ItemsAdderAdditions, mais pas les composants.
+
+## Légende des statuts
+
+| Statut | Signification |
+|--------|---------|
+| **Spécialisé** | Handler IAA dédié avec une syntaxe YAML spécifique à IAA |
+| **Générique** | Aucun handler dédié ; bascule vers le pipeline générique du codec NMS |
+| **Géré par IA** | Défini par ItemsAdder lui-même ; IAA l'ignore |
+| **Non pris en charge** | Aucune API Paper/NMS ; ne peut pas être appliqué |
+
+## Composants NMS génériques
+
+Pour les clés de composant qui n'ont pas de handler IAA spécialisé, IAA bascule vers un pipeline NMS générique. La clé est normalisée (`custom_data` devient `minecraft:custom_data`), l'arbre de valeurs est analysé depuis le YAML, et le résultat est appliqué via le système de codec Mojang de Minecraft via NMS.
+
+**Version serveur minimale pour les composants génériques : 1.21.3.**
+
+Sur 1.20.6 et 1.21.1, le pipeline NMS générique n'est pas disponible. Les handlers spécialisés fonctionnent toujours sur ces versions.
+
+### Utilisation
+
+Utilisez la clé complète avec espace de noms ou la forme courte (le préfixe `minecraft:` est ajouté automatiquement) :
+
+```yaml
+items:
+  my_item:
+    components:
+      minecraft:custom_data:
+        my_plugin:
+          id: my_item
+          tier: 3
+          enabled: true
+```
+
+Forme courte (équivalente) :
+
+```yaml
+items:
+  my_item:
+    components:
+      custom_data:
+        my_plugin:
+          id: my_item
+```
+
+La structure YAML doit correspondre au codec vanilla de ce composant. IAA ne réinterprète pas la forme. Si le codec rejette la valeur, IAA enregistre un avertissement et ignore ce composant.
+
+**Note :** `minecraft:custom_data` est un véritable composant NBT compound vanilla. Ne le confondez pas avec le `PersistentDataContainer` (PDC) de Bukkit. Les deux systèmes sont indépendants. Les données PDC sont stockées en interne par Bukkit et ne sont pas du `custom_data`.
+
+## Référence des composants
+
+### `attack_range`
+
+**Statut :** Spécialisé | **Version minimale :** 1.21.11
+
+Remplace la portée d'attaque de l'objet pour les attaques de mêlée et de projectile.
+
+| Propriété | Type | Défaut | Plage |
+|----------|------|---------|-------|
+| `min_reach` | Float | `0.0` | 0.0 - 64.0 |
+| `max_reach` | Float | `3.0` | 0.0 - 64.0 |
+| `min_creative_reach` | Float | `0.0` | 0.0 - 64.0 |
+| `max_creative_reach` | Float | `5.0` | 0.0 - 64.0 |
+| `hitbox_margin` | Float | `0.3` | 0.0 - 1.0 |
+| `mob_factor` | Float | `1.0` | 0.0 - 2.0 |
+
+```yaml
+components:
+  attack_range:
+    max_reach: 5.0
+    max_creative_reach: 7.0
+    hitbox_margin: 0.5
+```
+
+### `banner_patterns`
+
+**Statut :** Spécialisé
+
+Définit les couches de motif de bannière sur un objet bannière.
+
+| Propriété | Type | Format |
+|----------|------|--------|
+| `type` | String | Clé de type de motif (ex. `stripe_top`, `square_bottom_left`) |
+| `color` | String | Nom de couleur de teinture (`WHITE`, `RED`, `BLUE`, etc.) |
+
+```yaml
+components:
+  banner_patterns:
+    - type: stripe_top
+      color: RED
+    - type: square_bottom_left
+      color: BLUE
+```
+
+Couleurs de teinture valides : `WHITE`, `ORANGE`, `MAGENTA`, `LIGHT_BLUE`, `YELLOW`, `LIME`, `PINK`, `GRAY`, `LIGHT_GRAY`, `CYAN`, `PURPLE`, `BLUE`, `BROWN`, `GREEN`, `RED`, `BLACK`.
+
+Les clés de type de motif sont des clés de registre Minecraft. Le préfixe `minecraft:` est optionnel (ex. `stripe_top` et `minecraft:stripe_top` sont équivalents).
+
+### `base_color`
+
+**Statut :** Spécialisé
+
+Définit la couleur de base d'un objet bouclier.
+
+| Propriété | Type | Valeurs |
+|----------|------|--------|
+| (valeur) | String | Nom de couleur de teinture |
+
+```yaml
+components:
+  base_color: RED
+```
+
+### `blocks_attacks`
+
+**Statut :** Spécialisé
+
+Fait que l'objet bloque les attaques entrantes comme un bouclier.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `block_delay_seconds` | Float | `0.0` |
+| `disable_cooldown_scale` | Float | `1.0` |
+| `bypassed_by` | String | `null` (tag de type de dégâts, ex. `#minecraft:bypasses_shield`) |
+| `block_sound` | String | `null` (clé de son) |
+| `disable_sound` | String | `null` (clé de son) |
+| `damage_reductions` | Liste de sections | `[]` |
+| `item_damage` | Section | `null` |
+
+Entrée `damage_reductions` :
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `type` | String ou Liste | `null` (tag de type de dégâts ou IDs ; omettre pour tous les types) |
+| `horizontal_blocking_angle` | Float | `90.0` |
+| `base` | Float | `0.0` |
+| `factor` | Float | `1.0` |
+
+Section `item_damage` :
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `threshold` | Float | `0.0` |
+| `base` | Float | `0.0` |
+| `factor` | Float | `1.0` |
+
+```yaml
+components:
+  blocks_attacks:
+    block_delay_seconds: 0.25
+    disable_cooldown_scale: 1.0
+    bypassed_by: "#minecraft:bypasses_shield"
+    block_sound: minecraft:item.shield.block
+    disable_sound: minecraft:item.shield.break
+    damage_reductions:
+      - type: "#minecraft:is_projectile"
+        horizontal_blocking_angle: 90.0
+        base: 0.0
+        factor: 0.5
+      - type: minecraft:player_attack
+        base: 1.0
+        factor: 1.0
+    item_damage:
+      threshold: 3.0
+      base: 1.0
+      factor: 1.0
+```
+
+Le champ `type` dans `damage_reductions` accepte une chaîne de tag (`#minecraft:is_fire`), une seule clé de type de dégâts (`minecraft:fire`), ou une liste de clés de type de dégâts.
+
+### `bundle_contents`
+
+**Statut :** Spécialisé
+
+Définit le contenu initial d'un objet bourse. Accepte les IDs vanilla, les IDs ItemsAdder, et le format `mmoitems:TYPE:ID`. Voir [compatibilité](/fr/docs/compatibility) pour les détails complets du format.
+
+```yaml
+components:
+  bundle_contents:
+    - minecraft:arrow
+    - my_pack:special_arrow
+```
+
+### `can_break`
+
+**Statut :** Spécialisé
+
+Restreint les blocs que cet objet peut casser en mode Aventure.
+
+```yaml
+components:
+  can_break:
+    - minecraft:stone
+    - "#minecraft:logs"
+```
+
+Accepte les IDs de bloc (`minecraft:stone`) et les tags de bloc (`#minecraft:logs`). Le préfixe `minecraft:` est optionnel.
+
+### `can_place_on`
+
+**Statut :** Spécialisé
+
+Restreint les blocs sur lesquels cet objet peut être placé en mode Aventure.
+
+```yaml
+components:
+  can_place_on:
+    - minecraft:grass_block
+    - "#minecraft:dirt"
+```
+
+Même format que `can_break`.
+
+### `charged_projectiles`
+
+**Statut :** Spécialisé
+
+Définit les projectiles préchargés dans une arbalète. Accepte les IDs vanilla, les IDs ItemsAdder, et le format `mmoitems:TYPE:ID`.
+
+```yaml
+components:
+  charged_projectiles:
+    - minecraft:arrow
+    - my_pack:special_bolt
+```
+
+### `damage_resistant`
+
+**Statut :** Spécialisé
+
+Rend l'entité objet immunisée contre une catégorie de dégâts (comme la netherite qui ignore le feu).
+
+```yaml
+components:
+  damage_resistant: minecraft:is_fire
+```
+
+Accepte une clé de tag de type de dégâts. Le préfixe `#` et le préfixe `minecraft:` sont tous deux optionnels (`is_fire`, `#is_fire`, `minecraft:is_fire`, `#minecraft:is_fire` sont tous équivalents).
+
+### `damage_type`
+
+**Statut :** Spécialisé
+
+Définit le type de dégâts utilisé quand l'entité objet inflige des dégâts.
+
+```yaml
+components:
+  damage_type: minecraft:magic
+```
+
+Doit être une clé de registre de type de dégâts valide.
+
+### `death_protection`
+
+**Statut :** Spécialisé
+
+Empêche la mort et applique optionnellement des effets quand déclenché (comme un totem d'immortalité).
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `death_effects` | Liste de sections | `[]` (omettre pour une protection nue) |
+
+Types d'effets dans `death_effects` :
+
+| Type | Propriétés |
+|------|-----------|
+| `apply_effects` | `effects` (liste d'effets de potion), `probability` (float, défaut 1.0) |
+| `remove_effects` | `effects` (liste de clés de type d'effet) |
+| `clear_all_effects` | _(aucune propriété)_ |
+| `teleport_randomly` | `diameter` (float, défaut 16.0) |
+| `play_sound` | `sound` (clé de son avec espace de noms) |
+
+Entrée d'effet de potion (utilisée dans `apply_effects`) :
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `type` | String | Clé de type d'effet (ex. `regeneration`) |
+| `duration` | Integer | Durée en ticks |
+| `amplifier` | Integer | Niveau - 1 (0 = niveau I) |
+
+```yaml
+components:
+  death_protection:
+    death_effects:
+      - type: apply_effects
+        probability: 1.0
+        effects:
+          - type: regeneration
+            duration: 900
+            amplifier: 1
+          - type: absorption
+            duration: 100
+            amplifier: 1
+      - type: remove_effects
+        effects:
+          - wither
+          - poison
+      - type: play_sound
+        sound: minecraft:item.totem.use
+```
+
+Omettez entièrement `death_effects` pour un effet de totem nu (empêche la mort, sans effets supplémentaires) :
+
+```yaml
+components:
+  death_protection: {}
+```
+
+### `dyed_color`
+
+**Statut :** Spécialisé
+
+Définit la couleur de teinture d'une armure en cuir ou d'autres objets teignables.
+
+```yaml
+components:
+  dyed_color: "#FF4400"
+```
+
+Accepte les chaînes de couleur hexadécimale `#RRGGBB`.
+
+### `enchantable`
+
+**Statut :** Spécialisé
+
+Définit la valeur d'enchantabilité de l'objet (affecte la qualité d'enchantement dans la table d'enchantement).
+
+```yaml
+components:
+  enchantable: 15
+```
+
+Plage : 1 - 255. Des valeurs plus élevées améliorent la qualité d'enchantement.
+
+### `firework_explosion`
+
+**Statut :** Spécialisé
+
+Définit l'effet d'explosion de feu d'artifice sur un objet étoile de feu d'artifice.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `type` | String | `BALL` |
+| `colors` | Liste de chaînes `#RRGGBB` | `[]` |
+| `fade_colors` | Liste de chaînes `#RRGGBB` | `[]` |
+| `trail` | Boolean | `false` |
+| `flicker` | Boolean | `false` |
+
+Types valides : `BALL`, `BALL_LARGE`, `STAR`, `BURST`, `CREEPER`.
+
+```yaml
+components:
+  firework_explosion:
+    type: STAR
+    colors:
+      - "#FF0000"
+      - "#0000FF"
+    fade_colors:
+      - "#FFFFFF"
+    trail: true
+    flicker: false
+```
+
+### `fireworks`
+
+**Statut :** Spécialisé
+
+Définit les propriétés de feu d'artifice sur un objet fusée de feu d'artifice.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `flight_duration` | Integer | `1` (0 - 255) |
+| `explosions` | Liste de sections | `[]` |
+
+Chaque entrée dans `explosions` utilise le même schéma que `firework_explosion`.
+
+```yaml
+components:
+  fireworks:
+    flight_duration: 2
+    explosions:
+      - type: BURST
+        colors:
+          - "#FFAA00"
+        trail: true
+```
+
+### `intangible_projectile`
+
+**Statut :** Spécialisé
+
+Marque cet objet comme un projectile intangible (ne peut pas être ramassé après avoir été tiré).
+
+```yaml
+components:
+  intangible_projectile: true
+```
+
+Mettez à `true` ou toute valeur non nulle pour activer. C'est un composant marqueur sans propriétés.
+
+### `kinetic_weapon`
+
+**Statut :** Spécialisé | **Version minimale :** 1.21.5
+
+Fait que l'objet inflige des dégâts en fonction de la vitesse de déplacement du joueur (comme une masse).
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `contact_cooldown_ticks` | Integer | `0` |
+| `delay_ticks` | Integer | `0` |
+| `forward_movement` | Float | `1.0` |
+| `damage_multiplier` | Float | `1.0` |
+| `sound` | String (clé avec espace de noms) | `null` |
+| `hit_sound` | String (clé avec espace de noms) | `null` |
+| `dismount_conditions` | Section | `null` |
+| `knockback_conditions` | Section | `null` |
+| `damage_conditions` | Section | `null` |
+
+Sections de condition (`dismount_conditions`, `knockback_conditions`, `damage_conditions`) :
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `max_duration_ticks` | Integer | `0` |
+| `min_speed` | Float | `0.0` |
+| `min_relative_speed` | Float | `0.0` |
+
+```yaml
+components:
+  kinetic_weapon:
+    damage_multiplier: 2.0
+    forward_movement: 1.5
+    sound: minecraft:entity.player.attack.sweep
+    damage_conditions:
+      min_speed: 0.1
+```
+
+### `lodestone_tracker`
+
+**Statut :** Spécialisé
+
+Fait qu'une boussole pointe vers un emplacement de magnétite.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `tracked` | Boolean | `true` |
+| `world` | String | `null` (nom de monde ; omettre pour un traqueur non lié) |
+| `x` | Integer | `0` |
+| `y` | Integer | `0` |
+| `z` | Integer | `0` |
+
+```yaml
+components:
+  lodestone_tracker:
+    world: world
+    x: 100
+    y: 64
+    z: -200
+    tracked: true
+```
+
+Si `world` est omis, la boussole n'est pas liée (affiche une aiguille tournante). Si `world` est défini mais que le monde n'est pas chargé au moment du rechargement, IAA enregistre un avertissement et applique le composant sans emplacement.
+
+### `map_color`
+
+**Statut :** Spécialisé
+
+Définit la couleur de bordure d'un objet carte remplie.
+
+```yaml
+components:
+  map_color: "#2A6DB5"
+```
+
+Accepte les chaînes de couleur hexadécimale `#RRGGBB`.
+
+### `map_decorations`
+
+**Statut :** Spécialisé
+
+Définit des décorations fixes (marqueurs) sur une carte remplie.
+
+```yaml
+components:
+  map_decorations:
+    my_marker:
+      type: RED_MARKER
+      x: 100.0
+      z: 200.0
+      rotation: 0.0
+    another_marker:
+      type: player
+      x: -50.0
+      z: 75.0
+      rotation: 90.0
+```
+
+Chaque clé sous `map_decorations` est un ID de décoration unique. `type` est une clé `MapCursor.Type` (insensible à la casse ; préfixe `minecraft:` optionnel). `x` et `z` sont des coordonnées du monde. `rotation` est en degrés.
+
+### `map_id`
+
+**Statut :** Spécialisé
+
+Lie l'objet à une carte spécifique par son ID entier.
+
+```yaml
+components:
+  map_id: 42
+```
+
+### `minimum_attack_charge`
+
+**Statut :** Spécialisé | **Version minimale :** 1.21.1
+
+Définit la fraction de charge d'attaque minimale requise pour déclencher les effets de pleine charge.
+
+```yaml
+components:
+  minimum_attack_charge: 0.9
+```
+
+Plage : 0.0 - 1.0.
+
+### `ominous_bottle_amplifier`
+
+**Statut :** Spécialisé
+
+Définit le niveau d'amplificateur d'une fiole inquiétante (affecte la force du Mauvais Présage quand consommée).
+
+```yaml
+components:
+  ominous_bottle_amplifier: 3
+```
+
+Plage : 0 - 4.
+
+### `piercing_weapon`
+
+**Statut :** Spécialisé | **Version minimale :** 1.21.5
+
+Fait que l'objet transperce les entités (comme une flèche avec Perforation).
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `deals_knockback` | Boolean | `true` |
+| `dismounts` | Boolean | `true` |
+| `sound` | String (clé avec espace de noms) | `null` |
+| `hit_sound` | String (clé avec espace de noms) | `null` |
+
+```yaml
+components:
+  piercing_weapon:
+    deals_knockback: true
+    dismounts: false
+    hit_sound: minecraft:entity.arrow.hit
+```
+
+### `pot_decorations`
+
+**Statut :** Spécialisé
+
+Définit les décorations d'éclats de poterie sur un pot décoré.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `back` | String | `null` (ID d'objet vanilla, ex. `arms_up_pottery_sherd`) |
+| `left` | String | `null` |
+| `right` | String | `null` |
+| `front` | String | `null` |
+
+```yaml
+components:
+  pot_decorations:
+    back: arms_up_pottery_sherd
+    left: archer_pottery_sherd
+    right: blade_pottery_sherd
+    front: burn_pottery_sherd
+```
+
+Accepte les IDs d'objet vanilla. Le préfixe `minecraft:` est optionnel.
+
+### `potion_contents`
+
+**Statut :** Spécialisé
+
+Définit les effets de potion d'un objet potion, potion jetable ou potion persistante.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `potion` | String | `null` (clé PotionType, ex. `minecraft:strength`) |
+| `color` | String | `null` (override hexadécimal #RRGGBB) |
+| `custom_name` | String | `null` |
+| `effects` | Liste de sections | `[]` |
+
+Au moins un de `potion`, `color`, `custom_name`, ou `effects` doit être présent.
+
+```yaml
+components:
+  potion_contents:
+    potion: minecraft:strength
+    color: "#FF0000"
+    custom_name: "Super Strength"
+    effects:
+      - type: strength
+        duration: 600
+        amplifier: 2
+```
+
+### `potion_duration_scale`
+
+**Statut :** Spécialisé
+
+Multiplie la durée de tous les effets de potion appliqués par cet objet.
+
+```yaml
+components:
+  potion_duration_scale: 2.0
+```
+
+Plage : 0.0 - 255.0.
+
+### `profile`
+
+**Statut :** Spécialisé
+
+Définit le profil de skin de joueur sur un objet tête de joueur. Accepte un nom de joueur (résolu par le client) ou une section avec des données de profil explicites.
+
+Forme simple (nom de joueur) :
+
+```yaml
+components:
+  profile: Notch
+```
+
+Forme section (UUID, nom ou texture explicites) :
+
+```yaml
+components:
+  profile:
+    name: Notch
+    uuid: 069a79f4-44e9-4726-a5be-fca90e38aaf5
+    texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvLi4uIn19fQ==
+```
+
+Au moins un de `name`, `uuid`, ou `texture` est requis dans la forme section.
+
+### `provides_banner_patterns`
+
+**Statut :** Spécialisé
+
+Marque l'objet comme un ingrédient qui débloque des motifs de bannière quand placé dans un métier à tisser.
+
+```yaml
+components:
+  provides_banner_patterns: minecraft:no_item_required
+```
+
+Accepte une clé de tag de motif de bannière. Le préfixe `#` est optionnel.
+
+### `provides_trim_material`
+
+**Statut :** Spécialisé
+
+Marque l'objet comme un matériau de garniture de forge.
+
+```yaml
+components:
+  provides_trim_material: gold
+```
+
+Accepte une clé de registre de matériau de garniture. Le préfixe `minecraft:` est optionnel.
+
+### `rarity`
+
+**Statut :** Spécialisé
+
+Définit la rareté de l'objet, qui affecte la couleur du nom de l'objet dans le pack de ressources par défaut.
+
+```yaml
+components:
+  rarity: RARE
+```
+
+Valeurs valides : `COMMON`, `UNCOMMON`, `RARE`, `EPIC`.
+
+### `repairable`
+
+**Statut :** Spécialisé
+
+Définit les objets qui peuvent réparer cet objet dans une enclume.
+
+Accepte une chaîne de tag ou une liste d'IDs d'objet :
+
+```yaml
+# Avec un tag
+components:
+  repairable: "#minecraft:planks"
+```
+
+```yaml
+# Avec une liste d'objets
+components:
+  repairable:
+    - minecraft:diamond
+    - minecraft:netherite_ingot
+```
+
+### `stored_enchantments`
+
+**Statut :** Spécialisé
+
+Définit les enchantements stockés dans un livre enchanté. Utilise une section de paires `clé_enchantement: niveau`.
+
+```yaml
+components:
+  stored_enchantments:
+    sharpness: 5
+    looting: 3
+    minecraft:mending: 1
+```
+
+Plage de niveau : 1 - 255. Le préfixe `minecraft:` est optionnel.
+
+### `suspicious_stew_effects`
+
+**Statut :** Spécialisé
+
+Définit les effets donnés par un objet ragoût suspect.
+
+```yaml
+components:
+  suspicious_stew_effects:
+    - type: speed
+      duration: 200
+    - type: minecraft:night_vision
+      duration: 400
+```
+
+`duration` est en ticks. La valeur par défaut est 160. Le préfixe `minecraft:` sur les types d'effet est optionnel.
+
+### `swing_animation`
+
+**Statut :** Spécialisé | **Version minimale :** 1.21.5
+
+Définit le type et la durée de l'animation de balancement pour les attaques de mêlée.
+
+| Propriété | Type | Valeurs |
+|----------|------|--------|
+| `type` | String | `NONE`, `WHACK`, `STAB` |
+| `duration` | Integer | >= 1 |
+
+```yaml
+components:
+  swing_animation:
+    type: WHACK
+    duration: 6
+```
+
+### `tool`
+
+**Statut :** Spécialisé
+
+Configure l'objet comme un outil avec des règles de vitesse de minage.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `default_mining_speed` | Float | `1.0` |
+| `damage_per_block` | Integer | `1` |
+| `can_destroy_in_creative` | Boolean | `true` |
+| `rules` | Liste de sections | `[]` |
+
+Section de règle :
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `blocks` | String, tag ou Liste | Requis |
+| `speed` | Float | `null` (aucun override) |
+| `correct_for_drops` | Boolean ou omis | `null` (NOT_SET) |
+
+```yaml
+components:
+  tool:
+    default_mining_speed: 1.0
+    damage_per_block: 1
+    can_destroy_in_creative: true
+    rules:
+      - blocks: "#minecraft:mineable/pickaxe"
+        speed: 6.0
+        correct_for_drops: true
+      - blocks:
+          - minecraft:obsidian
+          - minecraft:crying_obsidian
+        speed: 12.0
+        correct_for_drops: true
+```
+
+`blocks` accepte une chaîne de tag (`#minecraft:logs`), un seul ID de bloc (`minecraft:stone`), ou une liste d'IDs de bloc.
+
+`correct_for_drops` : `true` signifie que cet outil produit les bons drops ; `false` signifie qu'il ne le fait pas ; omettre la clé signifie NOT_SET (hérite des valeurs par défaut vanilla).
+
+### `tooltip_display`
+
+**Statut :** Spécialisé
+
+Contrôle quels composants sont affichés dans l'infobulle de l'objet.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `hide_tooltip` | Boolean | `false` |
+| `hidden_components` | Liste de clés de composant | `[]` |
+
+```yaml
+components:
+  tooltip_display:
+    hide_tooltip: false
+    hidden_components:
+      - enchantments
+      - attribute_modifiers
+      - stored_enchantments
+```
+
+`hidden_components` accepte les noms de champ `DataComponentTypes` (insensible à la casse). Utilisez la clé de composant Minecraft sans le préfixe `minecraft:` et en UPPER_SNAKE_CASE (ex. `ATTRIBUTE_MODIFIERS`). La recherche est insensible à la casse.
+
+### `use_cooldown`
+
+**Statut :** Spécialisé
+
+Définit un temps de recharge d'utilisation sur l'objet.
+
+| Propriété | Type | Requis |
+|----------|------|---------|
+| `cooldown` | Float (secondes) | Oui |
+| `group` | String (clé avec espace de noms) | Non |
+
+```yaml
+components:
+  use_cooldown:
+    cooldown: 2.0
+```
+
+Si `group` est omis, le groupe de temps de recharge prend par défaut `itemsadder:<item_id>`, rendant le temps de recharge spécifique à l'objet. Définissez `group` pour partager un temps de recharge avec d'autres objets :
+
+```yaml
+components:
+  use_cooldown:
+    cooldown: 5.0
+    group: my_pack:special_items
+```
+
+### `use_remainder`
+
+**Statut :** Spécialisé
+
+Définit l'objet qui reste dans l'emplacement après que cet objet est entièrement consommé.
+
+```yaml
+components:
+  use_remainder: minecraft:glass_bottle
+```
+
+Accepte les IDs vanilla, les IDs ItemsAdder, et le format `mmoitems:TYPE:ID`.
+
+### `weapon`
+
+**Statut :** Spécialisé | **Version minimale :** 1.21.5
+
+Configure l'objet comme une arme avec des dégâts personnalisés et une interaction de blocage.
+
+| Propriété | Type | Défaut |
+|----------|------|---------|
+| `item_damage_per_attack` | Integer | `1` |
+| `disable_blocking_for_seconds` | Float | `0.0` |
+
+```yaml
+components:
+  weapon:
+    item_damage_per_attack: 2
+    disable_blocking_for_seconds: 0.6
+```
+
+`disable_blocking_for_seconds` : quand cette arme frappe une entité qui bloque, le blocage est désactivé pendant cette durée.
+
+### `writable_book_content`
+
+**Statut :** Spécialisé
+
+Définit les pages d'un livre inscriptible (livre et plume).
+
+```yaml
+components:
+  writable_book_content:
+    - "Page 1 content here."
+    - "Page 2 content here."
+```
+
+## Récapitulatif des versions
+
+| Composant | Version minimale |
+|-----------|----------------|
+| `minimum_attack_charge` | 1.21.1 |
+| `kinetic_weapon` | 1.21.5 |
+| `piercing_weapon` | 1.21.5 |
+| `swing_animation` | 1.21.5 |
+| `weapon` | 1.21.5 |
+| `attack_range` | 1.21.11 |
+| Composants NMS génériques | 1.21.3 |
+| Tous les autres composants | 1.20.6+ |
+
+Les composants qui nécessitent une version plus récente que le serveur en cours d'exécution sont silencieusement ignorés avec un avertissement dans la console.

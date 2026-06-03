@@ -14,7 +14,7 @@ criteria:
       # trigger-specific options
 ```
 
-An advancement can have multiple criteria. All of them must be completed before the advancement is awarded. Every runtime trigger also supports an optional `conditions.player` predicate for extra player-state requirements; see [Player predicates](/en/docs/advancements/player-predicates). Item conditions support ItemsAdder IDs, MMOItems IDs, vanilla item IDs, and vanilla item tags. Block conditions support ItemsAdder block IDs, vanilla block IDs, and vanilla block tags.
+An advancement can have multiple criteria. All of them must be completed before the advancement is awarded. Every runtime trigger also supports an optional `conditions.player` predicate for extra player-state requirements; see [Player predicates](/en/docs/advancements/player-predicates). Item conditions support ItemsAdder IDs, MMOItems IDs, vanilla item IDs, vanilla item tags, and supported ItemsAdderAdditions custom item tags. Block, furniture, and recipe conditions support custom tags where the matching path accepts tags.
 
 ---
 
@@ -35,7 +35,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `items` | list of strings | `[]` | Item IDs or vanilla item tags (IA, MMOItems, vanilla, or `#minecraft:tag`). Any match triggers the criterion. |
+| `item` / `items` | string or list of strings | `[]` | Item IDs or supported item tags (IA, MMOItems, vanilla, `#minecraft:tag`, or custom tags). Any match triggers the criterion. |
 | `amount` | integer | `1` | Minimum stack size the player must pick up at once. |
 
 ---
@@ -54,7 +54,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `item` | string | yes | Item ID or vanilla item tag (IA, MMOItems, vanilla, or `#minecraft:tag`). |
+| `item` | string | yes | Item ID or supported item tag (IA, MMOItems, vanilla, `#minecraft:tag`, or custom tags). |
 
 ---
 
@@ -72,7 +72,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `item` | string | yes | Item ID or vanilla item tag (IA, MMOItems, vanilla, or `#minecraft:tag`). |
+| `item` | string | yes | Item ID or supported item tag (IA, MMOItems, vanilla, `#minecraft:tag`, or custom tags). |
 
 ---
 
@@ -90,7 +90,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `block` | string | yes | ItemsAdder block ID, vanilla block ID, or vanilla block tag such as `#minecraft:logs`. |
+| `block` | string | yes | ItemsAdder block ID, vanilla block ID, vanilla block tag such as `#minecraft:logs`, or supported custom block tag. |
 
 ---
 
@@ -108,7 +108,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `block` | string | yes | ItemsAdder block ID, vanilla block ID, or vanilla block tag such as `#minecraft:logs`. |
+| `block` | string | yes | ItemsAdder block ID, vanilla block ID, vanilla block tag such as `#minecraft:logs`, or supported custom block tag. |
 
 ---
 
@@ -126,7 +126,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`). |
+| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`) or supported custom furniture tag. |
 
 ---
 
@@ -144,7 +144,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`). |
+| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`) or supported custom furniture tag. |
 
 ---
 
@@ -162,7 +162,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`). |
+| `furniture` | string | yes | ItemsAdder furniture ID (`namespace:id`) or supported custom furniture tag. |
 
 ---
 
@@ -180,7 +180,7 @@ criteria:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `recipe` | string | yes | Recipe key as `namespace:id` or a bare `id` (uses the file namespace). |
+| `recipe` | string | yes | Recipe key as `namespace:id`, a bare `id` using the file namespace, or a supported custom recipe tag. |
 
 ---
 
@@ -199,7 +199,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(required)* | Item ID or vanilla item tag the player must be holding. |
+| `item` | string | *(required)* | Item ID or supported item tag the player must be holding. |
 | `entity_type` | string | *(any)* | Vanilla entity type key (e.g. `minecraft:zombie`). If omitted, any entity matches. |
 
 ---
@@ -219,7 +219,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID or vanilla item tag the player must be holding. If omitted, any item (or bare hands) matches. |
+| `item` | string | *(any)* | Item ID or supported item tag the player must be holding. If omitted, any item (or bare hands) matches. |
 | `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
 
 ---
@@ -258,7 +258,7 @@ criteria:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
-| `item` | string | *(any)* | Item ID the player must be holding. If omitted, any item matches. |
+| `item` | string | *(any)* | Item ID or supported item tag the player must be holding. If omitted, any item matches. |
 
 ---
 
@@ -352,7 +352,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID of the trade result. If omitted, any trade matches. |
+| `item` | string | *(any)* | Item ID or supported item tag of the trade result. If omitted, any trade matches. |
 
 ---
 
@@ -372,7 +372,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID. If omitted, any item being enchanted matches. |
+| `item` | string | *(any)* | Item ID or supported item tag. If omitted, any item being enchanted matches. |
 | `min_levels` | integer | `0` | Minimum XP level cost of the enchantment. |
 | `max_levels` | integer | *(unlimited)* | Maximum XP level cost of the enchantment. |
 
@@ -392,7 +392,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID of the bow. If omitted, any bow matches. |
+| `item` | string | *(any)* | Item ID or supported item tag of the bow. If omitted, any bow matches. |
 
 ---
 
@@ -410,7 +410,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID of the crossbow. If omitted, any crossbow matches. |
+| `item` | string | *(any)* | Item ID or supported item tag of the crossbow. If omitted, any crossbow matches. |
 
 ---
 
@@ -429,7 +429,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `rod` | string | *(any)* | Item ID of the fishing rod. If omitted, any rod matches. |
+| `rod` | string | *(any)* | Item ID or supported item tag of the fishing rod. If omitted, any rod matches. |
 | `caught_entity_type` | string | *(any)* | Entity type of what was hooked. If omitted, any catch matches. |
 
 ---
@@ -448,7 +448,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID or vanilla item tag of the resulting bucket. If omitted, any filled bucket matches. |
+| `item` | string | *(any)* | Item ID or supported item tag of the resulting bucket. If omitted, any filled bucket matches. |
 
 ---
 
@@ -466,7 +466,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID or vanilla item tag of the damaged item. If omitted, any item matches. |
+| `item` | string | *(any)* | Item ID or supported item tag of the damaged item. If omitted, any item matches. |
 
 ---
 
@@ -485,7 +485,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID or vanilla item tag the player must be holding. |
+| `item` | string | *(any)* | Item ID or supported item tag the player must be holding. |
 | `block` | string | *(any)* | ItemsAdder block ID, vanilla block ID, or vanilla block tag. |
 
 ---
@@ -504,7 +504,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `recipe` | string | *(any)* | Recipe key as `namespace:id`. If omitted, any crafting action matches. |
+| `recipe` | string | *(any)* | Recipe key as `namespace:id` or a supported custom recipe tag. If omitted, any crafting action matches. |
 
 ---
 
@@ -522,7 +522,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `recipe` | string | *(any)* | Recipe key as `namespace:id`. If omitted, any discovered recipe matches. |
+| `recipe` | string | *(any)* | Recipe key as `namespace:id` or a supported custom recipe tag. If omitted, any discovered recipe matches. |
 
 ---
 
@@ -542,7 +542,7 @@ criteria:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `entity_type` | string | *(any)* | Vanilla entity type key. If omitted, any entity matches. |
-| `item` | string | *(any)* | Item ID or vanilla item tag the player must be holding. If omitted, any item (or empty hand) matches. |
+| `item` | string | *(any)* | Item ID or supported item tag the player must be holding. If omitted, any item (or empty hand) matches. |
 
 ---
 
@@ -578,7 +578,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `block` | string | *(any)* | Block ID or vanilla block tag (`minecraft:beehive`, `minecraft:bee_nest`, or a tag). If omitted, either hive block matches. |
+| `block` | string | *(any)* | Block ID or supported block tag (`minecraft:beehive`, `minecraft:bee_nest`, or a tag). If omitted, either hive block matches. |
 
 ---
 
@@ -724,7 +724,7 @@ criteria:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `item` | string | *(any)* | Item ID. If omitted, any item scrolled to matches. |
+| `item` | string | *(any)* | Item ID or supported item tag. If omitted, any item scrolled to matches. |
 
 ---
 
@@ -766,9 +766,147 @@ criteria:
 
 ---
 
+## sit_furniture
+
+Fires when the player sits on an ItemsAdder furniture item.
+
+<Callout type="warn">
+    **Version Requirement:** Requires **ItemsAdder 4.0.17 or higher**.
+</Callout>
+
+```yaml
+criteria:
+  sit_on_chair:
+    trigger: sit_furniture
+    conditions:
+      furniture: my_pack:ruby_chair
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `furniture` | string | yes | ItemsAdder furniture ID or supported custom furniture tag. |
+
+---
+
+## unsit_furniture
+
+Fires when the player stops sitting on an ItemsAdder furniture item.
+
+<Callout type="warn">
+    **Version Requirement:** Requires **ItemsAdder 4.0.17 or higher**.
+</Callout>
+
+```yaml
+criteria:
+  leave_chair:
+    trigger: unsit_furniture
+    conditions:
+      furniture: my_pack:ruby_chair
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `furniture` | string | yes | ItemsAdder furniture ID or supported custom furniture tag. |
+
+---
+
+## open_trade_machine
+
+Fires when the player opens an ItemsAdder `trade_machine` or `block_trade_machine` GUI.
+
+```yaml
+criteria:
+  open_alchemy_station:
+    trigger: open_trade_machine
+    conditions:
+      trade_machine: stations:alchemy_table
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `trade_machine` | string | yes | Trade machine content ID or supported custom furniture tag. |
+
+---
+
+## start_emote
+
+Fires when the player starts an ItemsAdder emote.
+
+```yaml
+criteria:
+  start_wave:
+    trigger: start_emote
+    conditions:
+      emote: my_pack:wave
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `emote` | string | *(any)* | Emote ID. If omitted, any emote start matches. |
+
+---
+
+## stop_emote
+
+Fires when the player stops an ItemsAdder emote.
+
+```yaml
+criteria:
+  stop_wave:
+    trigger: stop_emote
+    conditions:
+      emote: my_pack:wave
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `emote` | string | *(any)* | Emote ID. If omitted, any emote stop matches. |
+
+---
+
+## join_server
+
+Fires whenever the player joins the server. No conditions.
+
+```yaml
+criteria:
+  joined:
+    trigger: join_server
+```
+
+---
+
+## first_join
+
+Fires when the player joins for the first time according to Bukkit's `hasPlayedBefore` check. No conditions.
+
+```yaml
+criteria:
+  first_join:
+    trigger: first_join
+```
+
+---
+
+## tick
+
+Fires once per server tick for every online player. Use `conditions.player` to keep tick criteria narrow.
+
+```yaml
+criteria:
+  sneaking_tick:
+    trigger: tick
+    conditions:
+      player:
+        flags:
+          is_sneaking: true
+```
+
+---
+
 ## impossible
 
-Never fires on its own. The criterion can only be granted via the IAA API or admin commands.
+Never fires on its own.
 
 ```yaml
 criteria:

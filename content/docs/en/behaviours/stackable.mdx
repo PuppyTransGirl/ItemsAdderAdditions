@@ -29,7 +29,7 @@ version: "1.0.0"
               name: entity.villager.ambient # or a custom sound
               volume: 1.0 # optional, default: 1.0
               pitch: 1.0 # optional, default: 1.0
-              category: MASTER # optional, default: MASTER
+              source: master # optional, default: master
             decrement_amount: 2 # optional, default: 1
         ```
 
@@ -49,7 +49,7 @@ version: "1.0.0"
                 name: entity.villager.ambient # or a custom sound
                 volume: 1.0 # optional, default: 1.0
                 pitch: 1.0 # optional, default: 1.0
-                category: MASTER # optional, default: MASTER
+                source: master # optional, default: master
               decrement_amount: 2 # optional, default: 1
             another_step:
               ...
@@ -60,6 +60,6 @@ version: "1.0.0"
     </Tab>
 </Tabs>
 
-The IDs must be custom blocks. Supported types: `REAL`, `REAL_NOTE`, `REAL_TRANSPARENT`, and `REAL_WIRE`. You can add as many steps as needed.
+The block IDs must be custom blocks. Supported types: `REAL`, `REAL_NOTE`, `REAL_TRANSPARENT`, and `REAL_WIRE`. `items` can contain concrete item IDs or supported item tags. You can add as many steps as needed.
 
 <VideoGif src="/assets/behaviours_stackable_example"/>

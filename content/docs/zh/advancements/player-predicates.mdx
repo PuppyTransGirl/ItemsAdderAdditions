@@ -187,11 +187,11 @@ conditions:
 | `blocks` / `id` | 字符串或列表  | 要匹配的方块 ID                 |
 | `state.<name>`  | 字符串或范围  | 精确匹配方块状态值，或使用 `min`/`max` |
 
-方块标签语法（如 `#minecraft:logs`）会根据原版方块标签进行解析。标签仅匹配原版方块；自定义方块请使用显式的 ItemsAdder 方块 ID
+ItemsAdderAdditions 自定义方块标签会优先解析。如果没有对应自定义标签，`#minecraft:logs` 等方块标签语法会根据原版方块标签解析。原版标签仅匹配原版方块
 
 ## 物品和装备谓词
 
-物品谓词可用于 `equipment`、`slots` 和嵌套实体谓词。它们接受 ItemsAdder ID、MMOItems ID、原版物品 ID 和原版物品标签，如 `#minecraft:planks`
+物品谓词可用于 `equipment`、`slots` 和嵌套实体谓词。它们接受 ItemsAdder ID、MMOItems ID、原版物品 ID、原版物品标签（如 `#minecraft:planks`）以及受支持的自定义标签
 
 ```yaml
 conditions:
@@ -221,7 +221,7 @@ conditions:
 | `enchantments[].enchantment` / `id`      | 字符串    | 附魔键                         |
 | `enchantments[].levels`                  | 数字或范围  | 所需的附魔等级                     |
 
-原版物品标签根据原版物品注册表进行解析。物品 `predicates` 部分仍然不受支持，并且会使物品谓词匹配失败，而不是意外匹配
+ItemsAdderAdditions 自定义物品标签会优先解析。如果没有对应自定义标签，原版物品标签会根据原版物品注册表解析。物品 `predicates` 部分仍然不受支持，并且会使物品谓词匹配失败，而不是意外匹配
 
 ## 槽位
 

@@ -1,0 +1,116 @@
+---
+title: Valhalla 元数据
+icon: Gem
+description: 将 ValhallaMMO 和 ValhallaTrinkets 元数据写入 ItemsAdder 物品堆叠
+version: "1.0.10"
+---
+
+ItemsAdderAdditions 可以在 ItemsAdder 物品创建时写入 ValhallaMMO 和 ValhallaTrinkets 持久数据。请在物品的 `valhalla` 节中配置。
+
+即使未安装 Valhalla，元数据也会被写入；但实际游戏效果需要对应的 Valhalla 插件。
+
+## 基础结构
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_sword:
+    display_name: "<red>红宝石剑"
+    valhalla:
+      equipment_class: SWORD
+      item_flags:
+        - DISPLAY_ATTRIBUTES
+      stats:
+        - stat: DAMAGE_BASE
+          amount: 4.0
+          operation: ADD_NUMBER
+```
+
+## 属性
+
+`stats` 会把相同条目写入 Valhalla 的实际属性和默认属性。
+
+```yaml
+valhalla:
+  stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+      hidden: false
+```
+
+也可以分别使用 `actual_stats` 和 `default_stats`。
+
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `stat` | 字符串 | *（必填）* | Valhalla 属性键。未知属性会被跳过。 |
+| `amount` | 数字 | *（必填）* | 属性值。 |
+| `operation` | 字符串 | *（必填）* | `ADD_NUMBER`、`ADD_SCALAR` 或 `MULTIPLY_SCALAR_1`。 |
+| `hidden` | 布尔值 | `false` | 是否隐藏 Valhalla 属性行。 |
+
+## 装备类型和标记
+
+```yaml
+valhalla:
+  equipment_class: SWORD
+  item_flags:
+    - DISPLAY_ATTRIBUTES
+    - HIDE_QUALITY
+```
+
+常见装备类型包括 `SWORD`、`BOW`、`CROSSBOW`、`TRIDENT`、`MACE`、`HELMET`、`CHESTPLATE`、`LEGGINGS`、`BOOTS`、`PICKAXE`、`AXE`、`SHOVEL`、`HOE`、`SHIELD`、`TRINKET` 和 `OTHER`。
+
+支持的标记：
+
+```text
+HIDE_TAGS, HIDE_QUALITY, DISPLAY_ATTRIBUTES, HIDE_DURABILITY,
+ATTRIBUTE_FOR_BOTH_HANDS, ATTRIBUTE_FOR_HELMET, INFINITY_EXPLOITABLE,
+UNCRAFTABLE, TEMPORARY_POTION_DISPLAY, UNENCHANTABLE, UNMENDABLE
+```
+
+## 永久效果
+
+```yaml
+valhalla:
+  permanent_effects:
+    effects:
+      - type: minecraft:strength
+        amplifier: 1
+        duration: 200
+        condition: constant
+    cooldown_properties:
+      cooldown: 1200
+      cdr_affected: true
+```
+
+`effect` 可以替代 `type`。旧别名 `permanent_potion_effects` 也可用于效果列表。`cdrAffected` 是 `cdr_affected` 的别名。
+
+## ValhallaTrinkets
+
+```yaml
+valhalla:
+  trinkets:
+    trinket_id: 1001
+    trinket_unique_id: 1001
+    unique: true
+    unstackable: true
+```
+
+| 键 | 类型 | 描述 |
+|----|------|------|
+| `trinket_id` | 整数 | ValhallaTrinkets ID。必须是非负 32 位整数。 |
+| `trinket_unique_id` | 整数 | 唯一饰品 ID。必须是非负 32 位整数。 |
+| `unique` | 布尔值 | 写入或移除 unique 标记。 |
+| `unstackable` | 布尔值 | 为 `true` 时，每个生成的物品堆叠都会获得随机 UUID。 |
+
+## 重载
+
+修改 `valhalla` 节后执行 `/iareload`。玩家背包中已存在的物品不会自动重写。
+
+## 常见错误
+
+- 使用未知的 Valhalla 属性名。
+- 对 `operation`、`equipment_class` 或 `item_flags` 使用小写值。
+- 期望已存在的物品自动更新。

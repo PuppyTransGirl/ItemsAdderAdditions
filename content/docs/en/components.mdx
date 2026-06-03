@@ -2,9 +2,10 @@
 title: Components
 icon: Package
 description: Item data component support in ItemsAdderAdditions. Apply Minecraft data components to custom items at load time.
+version: "1.0.10"
 ---
 
-ItemsAdderAdditions applies Minecraft data components to custom items at load time via the ItemsAdder item modifier hook. Add a `components` section under your item definition and run `/iareload`.
+ItemsAdderAdditions applies Minecraft data components to custom items at pack-generation time via the ItemsAdder item modifier hook. Add a `components` section under your item definition and run `/iazip`.
 
 ```yaml
 items:
@@ -21,7 +22,7 @@ items:
             correct_for_drops: true
 ```
 
-Components are applied once per reload. Every item stack built after a reload carries the configured components.
+Components are applied when ItemsAdder rebuilds the pack/item data. Run `/iazip` after changing component YAML. `/iareload` reloads other ItemsAdderAdditions content, but not components.
 
 ## Status legend
 

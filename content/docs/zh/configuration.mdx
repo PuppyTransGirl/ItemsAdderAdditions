@@ -1,0 +1,76 @@
+---
+title: 配置
+icon: Settings
+description: 插件 config.yml 键、功能开关、动作开关、行为开关和重载行为
+---
+
+ItemsAdderAdditions 使用 `config.yml` 管理插件级功能开关。实际的动作、行为、配方、进度、画、标签和世界生成条目仍然定义在 ItemsAdder 内容 YAML 中。
+
+## 默认配置
+
+```yaml
+features:
+  creative_inventory_integration: true
+  custom_paintings: true
+
+behaviours:
+  bed: true
+  connectable: true
+  contact_damage: true
+  stackable: true
+  storage: true
+  text_display: true
+
+actions:
+  actionbar: true
+  clear_item: true
+  ignite: true
+  message: true
+  mythic_mobs_skill: true
+  open_inventory: true
+  play_animation: true
+  play_emote: true
+  replace_biome: true
+  replace_item: true
+  shoot_fireball: true
+  swing_hand: true
+  teleport: true
+  title: true
+  toast: true
+  veinminer: true
+
+update-checker:
+  enabled: true
+  on-join: true
+```
+
+## 开关行为
+
+缺失的开关键默认启用。未出现在默认配置中的可选节也遵循此规则。
+
+```yaml
+actions:
+  open_trade_machine: false
+
+components:
+  rarity: false
+```
+
+## 重载
+
+```text
+/itemsadderadditions reload
+/iaa reload
+```
+
+此命令会重载 `config.yml` 并重新应用插件级开关。它不会重载 ItemsAdder 内容 YAML 文件。
+
+修改 ItemsAdderAdditions 内容 YAML（如动作、行为、自定义标签、配方、进度、自定义画、Valhalla 元数据或世界生成条目）后请使用 `/iareload`。
+
+修改 `components` 节或资源包资源后请使用 `/iazip`。`/iareload` 会重载除组件外的 ItemsAdderAdditions 内容。
+
+## 常见错误
+
+- 将开关设为 `false` 后仍期望对应内容在重载后继续工作。
+- 在 `actions`、`behaviours`、`features` 或 `components` 下写错键名。
+- 使用 `/itemsadderadditions reload` 重载内容 YAML 或构建资源包。内容 YAML 使用 `/iareload`，组件或资源使用 `/iazip`。

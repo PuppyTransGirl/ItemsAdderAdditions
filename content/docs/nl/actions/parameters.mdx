@@ -37,7 +37,7 @@ Bepaalt op wie de actie van toepassing is. Standaard: `self`.
 | `self`             | De speler die de gebeurtenis heeft geactiveerd *(standaard)*                                      |
 | `other`            | De entiteit waarmee de speler interageert (bijv. degene die wordt aangevallen)                    |
 | `all`              | Zowel de activerende speler **als** de doelentiteit                                               |
-| `radius`           | Alle entiteiten binnen een bol rond het interactiepunt - vereist `target_radius`                  |
+| `radius`           | Alle entiteiten binnen de ingestelde X/Y/Z-radius rond het interactiepunt - vereist `target_radius` |
 | `in_sight`         | De entiteit waar de speler naar kijkt - vereist `target_in_sight_distance`                        |
 
 ```yaml
@@ -48,7 +48,7 @@ message:
 
 ### `target_radius`
 
-Alleen gebruikt bij `target: radius`. Bepaalt de diameter van de bol (in blokken) gecentreerd op het interactiepunt.
+Alleen gebruikt bij `target: radius`. Bepaalt de X/Y/Z-radius in blokken rond het eventdoel, eventblok of de activerende speler.
 
 ```yaml
 actionbar:

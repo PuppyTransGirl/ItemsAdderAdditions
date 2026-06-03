@@ -2,6 +2,7 @@
   "title": "配方",
   "icon": "Menu",
   "pages": [
+    "brewing",
     "campfire-cooking",
     "...",
     "stonecutter"

@@ -1,0 +1,89 @@
+---
+title: Configuration
+icon: Settings
+description: Plugin config.yml keys, feature toggles, action toggles, behaviour toggles, and reload behavior.
+---
+
+ItemsAdderAdditions uses `config.yml` for plugin-level feature toggles. ItemsAdder content YAML still defines the actual actions, behaviours, recipes, advancements, paintings, tags, and world generation entries.
+
+## Default config
+
+```yaml
+features:
+  creative_inventory_integration: true
+  custom_paintings: true
+
+behaviours:
+  bed: true
+  connectable: true
+  contact_damage: true
+  stackable: true
+  storage: true
+  text_display: true
+
+actions:
+  actionbar: true
+  clear_item: true
+  ignite: true
+  message: true
+  mythic_mobs_skill: true
+  open_inventory: true
+  play_animation: true
+  play_emote: true
+  replace_biome: true
+  replace_item: true
+  shoot_fireball: true
+  swing_hand: true
+  teleport: true
+  title: true
+  toast: true
+  veinminer: true
+
+update-checker:
+  enabled: true
+  on-join: true
+```
+
+## Toggle behavior
+
+Missing toggle keys default to enabled. This also applies to optional sections that are not present in the default config.
+
+For example, `open_trade_machine` can be disabled even though the generated default config does not include it:
+
+```yaml
+actions:
+  open_trade_machine: false
+```
+
+Components can be disabled the same way:
+
+```yaml
+components:
+  rarity: false
+```
+
+## Reload behavior
+
+Run:
+
+```text
+/itemsadderadditions reload
+```
+
+or:
+
+```text
+/iaa reload
+```
+
+This command reloads `config.yml` and reapplies plugin-level feature, action, behaviour, and component toggles. It does **not** reload ItemsAdder content YAML files.
+
+Use `/iareload` after changing ItemsAdderAdditions content YAML sections such as actions, behaviours, custom tags, recipes, advancements, custom paintings, Valhalla metadata, or world generation entries.
+
+Use `/iazip` after changing `components` sections or resource-pack assets. `/iareload` reloads ItemsAdderAdditions content except components.
+
+## Common mistakes
+
+- Setting a toggle to `false` and expecting existing content to keep working after reload.
+- Adding a typo under `actions`, `behaviours`, `features`, or `components`; unknown toggle keys do not disable the intended feature.
+- Expecting `/itemsadderadditions reload` to reload ItemsAdder content YAML or rebuild the resource pack. Use `/iareload` for content YAML and `/iazip` for components or assets.

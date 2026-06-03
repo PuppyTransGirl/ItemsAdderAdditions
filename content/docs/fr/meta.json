@@ -5,15 +5,19 @@
     "---",
     "builder",
     "compatibility",
-    "components",
+    "configuration",
     "---",
     "commands",
     "recipes",
     "---",
-    "features",
+    "actions",
     "advancements",
     "behaviours",
-    "actions",
-    "worldgen"
+    "worldgen",
+    "components",
+    "creative-inventory-integration",
+    "custom-paintings",
+    "custom-tags",
+    "valhalla"
   ]
 }

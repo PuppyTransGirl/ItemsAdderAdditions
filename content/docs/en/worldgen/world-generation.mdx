@@ -45,7 +45,7 @@ blocks_populators:
 |-----|------|---------|-------------|
 | `enabled` | boolean | `true` | Set to `false` to skip without removing. |
 | `furniture` | `namespace:id` | *(required)* | The ItemsAdder furniture to spawn. |
-| `worlds` | list | *(all)* | World names to restrict to. Supports `*` wildcard. |
+| `worlds` | list | *(all)* | World names to restrict to. Supports wildcard patterns such as `world_*`. |
 | `biomes` | list | *(all)* | Biome IDs (e.g. `minecraft:forest`). All must be valid or the entry is skipped. |
 | `replaceable_blocks` | list | *(any)* | Allowed materials for the block directly below the spawn point. |
 | `vein_blocks` | integer | `1` | Furniture pieces per vein attempt. |
@@ -54,6 +54,8 @@ blocks_populators:
 | `min_height` | integer | `60` | Minimum Y level. Must be less than `max_height`. |
 | `max_height` | integer | `80` | Maximum Y level. |
 | `allow_liquid_placement` | boolean | `false` | Allow spawning inside water or lava. |
+
+Legacy aliases are still accepted: `worlds_populators` for `blocks_populators`, `amount` for `vein_blocks`, `iterations` for `chunk_veins`, and `chance` for `chunk_chance`.
 
 ## Surface Decorator
 
@@ -84,7 +86,7 @@ surface_decorators:
 |-----|------|---------|-------------|
 | `enabled` | boolean | `true` | Set to `false` to skip without removing. |
 | `furniture` | `namespace:id` | *(required)* | The ItemsAdder furniture to spawn. |
-| `worlds` | list | *(all)* | World names to restrict to. Supports `*` wildcard. |
+| `worlds` | list | *(all)* | World names to restrict to. Supports wildcard patterns such as `world_*`. |
 | `biomes` | list | *(all)* | Biome IDs (e.g. `minecraft:plains`). All must be valid or the entry is skipped. |
 | `bottom_blocks` | list | *(any)* | Allowed materials for the block directly below the spawn point. |
 | `amount` | integer | `4` | Placement attempts per chunk. |
@@ -94,8 +96,12 @@ surface_decorators:
 | `allow_liquid_surface` | boolean | `false` | Allow a liquid block below the spawn point as a valid surface. |
 | `allow_liquid_placement` | boolean | `false` | Allow spawning inside water or lava. |
 
+The legacy alias `chance` is accepted for `chunk_chance`.
+
 ## Notes
 
 - Only newly generated chunks trigger spawning. Existing chunks are unaffected.
 - The furniture must be registered by ItemsAdder before the entry is loaded.
 - Invalid biome IDs cause the entire entry to be skipped.
+- Surface decorators in the Nether scan downward from `max_height` to `min_height`.
+- When `allow_liquid_placement` is enabled, normal-dimension surface decoration uses the ocean-floor heightmap so underwater surfaces can be found.

@@ -1,6 +1,6 @@
 ---
 title: /itemsadderadditions
-description: ItemsAdderAdditions 插件的主要管理命令。在你的 Minecraft 服务器上重载所有内容并切换调试模式
+description: ItemsAdderAdditions 插件的主要管理命令。重载 config.yml 并切换调试模式
 version: "1.0.7"
 ---
 
@@ -20,7 +20,7 @@ itemsadderadditions.command.itemsadderadditions
 
 ### `/itemsadderadditions reload`
 
-重载 ItemsAdderAdditions
+重载 ItemsAdderAdditions 的 `config.yml`，并重新应用功能、动作、行为和组件开关
 
 ```text
 /itemsadderadditions reload
@@ -31,6 +31,12 @@ itemsadderadditions.command.itemsadderadditions
 ```text
 itemsadderadditions.command.itemsadderadditions.reload
 ```
+
+此命令不会重载 ItemsAdder 内容 YAML 文件。
+
+修改 ItemsAdderAdditions 内容 YAML（例如动作、行为、自定义标签、配方、进度、自定义画、Valhalla 元数据或世界生成条目）后请使用 `/iareload`。
+
+修改 `components` 节或资源包资源后请使用 `/iazip`。
 
 ### `/itemsadderadditions debug`
 

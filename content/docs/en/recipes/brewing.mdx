@@ -1,0 +1,108 @@
+---
+title: Brewing
+description: Add custom brewing stand recipes with ItemsAdder, MMOItems, and vanilla items.
+version: "1.0.10"
+---
+
+ItemsAdderAdditions adds a `brewing` recipe type for brewing stands. It registers a Paper potion mix and adds support for exact ItemsAdder, MMOItems, and vanilla item matching.
+
+## Basic recipe
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  brewing:
+    ruby_elixir:
+      base:
+        item: minecraft:awkward_potion
+      ingredient:
+        item: my_pack:ruby_dust
+        consume: 1
+      result:
+        item: my_pack:ruby_elixir
+      brew_time: 400
+      fuel_cost: 1
+```
+
+`base` is the preferred key for the input bottle. The legacy key `input` is still accepted.
+
+## Options
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `enabled` | boolean | `true` | Set to `false` to skip this recipe. |
+| `base.item` | string | *(required)* | Required input bottle/item. The legacy path `input.item` is also accepted. |
+| `ingredient.item` | string | *(required)* | Required brewing ingredient. |
+| `ingredient.consume` | integer | `1` | How many ingredient items to consume. Must be greater than `0`. |
+| `result.item` | string | *(required)* | Output item. |
+| `result.amount` | integer | `1` | Brewing outputs are clamped to one item per bottle slot. |
+| `brew_time` | integer | `400` | Brewing time in ticks. Must be greater than `0`. |
+| `fuel_cost` | integer | `1` | Blaze-powder fuel units to consume. Must be greater than `0`. |
+| `on_complete` | section | *(none)* | Optional sound and command actions after brewing completes. |
+
+## Item references
+
+`base.item`, `ingredient.item`, and `result.item` can use:
+
+- vanilla materials like `POTION` or `minecraft:awkward_potion`
+- ItemsAdder items like `my_pack:ruby_dust`
+- MMOItems items like `mmoitems:material:ruby_dust`
+
+Tags are not valid here because brewing must compare concrete item stacks.
+
+## Completion actions
+
+`on_complete` runs when the brewing stand finishes and at least one player is viewing the stand.
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:block.brewing_stand.brew
+    source: master
+    volume: 1.0
+    pitch: 1.0
+  commands:
+    reward:
+      command: "say {player} brewed a ruby elixir"
+      as_console: true
+```
+
+`{player}` is replaced with the viewer player's name. Commands run as the player unless `as_console: true` is set.
+
+## Complete example
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  brewing:
+    ruby_elixir:
+      enabled: true
+      base:
+        item: minecraft:awkward_potion
+      ingredient:
+        item: my_pack:ruby_dust
+        consume: 2
+      result:
+        item: my_pack:ruby_elixir
+        amount: 1
+      brew_time: 600
+      fuel_cost: 2
+      on_complete:
+        sound:
+          name: minecraft:entity.player.levelup
+          source: master
+```
+
+## Common mistakes
+
+- Setting `result.amount` above `1`. Brewing stands only hold one result item per bottle slot, so the amount is clamped to `1`.
+- Using `#minecraft:*` tags. Brewing recipes match exact item stacks, not tags.
+- Setting `fuel_cost` higher than the fuel currently in the stand. The recipe will not finish until enough fuel is available.
+
+## Reload behavior
+
+Run `/iareload` after editing brewing recipes.

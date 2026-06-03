@@ -37,7 +37,7 @@ Contrôle à qui l’action s'applique. Par défaut : `self`.
 | `self`             | Le joueur qui a déclenché l'événement *(par défaut)*                                                |
 | `other`            | L'entité avec laquelle le joueur interagit (ex. celle qui est attaquée)                             |
 | `all`              | Le joueur déclencheur **et** l'entité cible                                                         |
-| `radius`           | Toutes les entités dans une sphère autour du point d'interaction - nécessite `target_radius`        |
+| `radius`           | Toutes les entités dans le rayon X/Y/Z configuré autour du point d'interaction - nécessite `target_radius` |
 | `in_sight`         | L'entité que le joueur regarde - nécessite `target_in_sight_distance`                               |
 
 ```yaml
@@ -48,7 +48,7 @@ message:
 
 ### `target_radius`
 
-Utilisé uniquement avec `target: radius`. Définit le diamètre de la sphère (en blocs) centrée sur le point d'interaction.
+Utilisé uniquement avec `target: radius`. Définit le rayon X/Y/Z en blocs autour de la cible, du bloc d'événement ou du joueur déclencheur.
 
 ```yaml
 actionbar:

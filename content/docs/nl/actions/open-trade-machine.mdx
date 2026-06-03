@@ -1,0 +1,68 @@
+---
+title: Trade Machine openen
+description: Open een ItemsAdder trade_machine of block_trade_machine GUI vanuit een actie.
+version: "1.0.10"
+---
+
+`open_trade_machine` opent de ItemsAdder trade-machine GUI voor de doelspeler zonder dat het blok of furniture in de wereld geplaatst hoeft te zijn.
+
+Gebruik dit voor menu-items, NPC-flows, custom stations of andere triggers die een specifieke ItemsAdder trade machine moeten openen.
+
+## Vereisten
+
+- Het doel moet een speler zijn. Niet-spelerdoelen worden overgeslagen.
+- De gerefereerde ItemsAdder-content moet een `trade_machine` of `block_trade_machine` behaviour hebben.
+
+## Configuratie
+
+```yaml
+info:
+  namespace: stations
+
+items:
+  alchemy_token:
+    display_name: "<green>Alchemy Station"
+    events:
+      interact:
+        right:
+          open_trade_machine:
+            trade_machine: stations:alchemy_table
+```
+
+## Opties
+
+| Sleutel | Type | Vereist | Beschrijving |
+|---------|------|---------|--------------|
+| `trade_machine` | string | ja | ItemsAdder item-, blok- of furniture-ID dat een trade-machine GUI levert. Losse ID's gebruiken de huidige `info.namespace`. |
+
+## Met targeting
+
+De actie ondersteunt de gedeelde actieparameters:
+
+```yaml
+open_trade_machine:
+  trade_machine: stations:alchemy_table
+  target: in_sight
+  target_in_sight_distance: 8
+```
+
+## Pluginconfiguratie
+
+Deze actie kan worden uitgeschakeld in `config.yml`:
+
+```yaml
+actions:
+  open_trade_machine: false
+```
+
+De sleutel is optioneel. Ontbrekende actietoggles zijn standaard ingeschakeld.
+
+## Herladen
+
+Voer `/iareload` uit nadat je de ItemsAdder content-YAML hebt aangepast. De gerefereerde trade machine moet al door ItemsAdder geregistreerd zijn.
+
+## Veelgemaakte fouten
+
+- Een normaal item-ID gebruiken zonder `trade_machine` of `block_trade_machine` behaviour.
+- `target: other` gebruiken wanneer het eventdoel geen speler is.
+- De namespace weglaten terwijl de trade machine in een andere `info.namespace` staat.

@@ -1,16 +1,11 @@
 ---
 title: Componenten
 icon: Package
-description: Ondersteuning voor item-datacomponenten in ItemsAdderAdditions. Pas Minecraft-datacomponenten toe op aangepaste items bij het laden.
+description: Ondersteuning voor item-datacomponenten in ItemsAdderAdditions. Pas Minecraft-datacomponenten toe op aangepaste items tijdens packgeneratie.
+version: "1.0.10"
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-
-<Callout type="info">
-  Deze pagina wordt vertaald. Zie de [Engelse versie](/en/docs/components) voor de volledige documentatie.
-</Callout>
-
-ItemsAdderAdditions past Minecraft-datacomponenten toe op aangepaste items bij het laden via de ItemsAdder item-modifier hook. Voeg een `components`-sectie toe onder je itemdefinitie en voer `/iareload` uit.
+ItemsAdderAdditions past Minecraft-datacomponenten toe op aangepaste items tijdens packgeneratie via de ItemsAdder item-modifier hook. Voeg een `components`-sectie toe onder je itemdefinitie en voer `/iazip` uit.
 
 ```yaml
 items:
@@ -21,4 +16,917 @@ items:
         cooldown: 1.5
       tool:
         default_mining_speed: 2.0
+        rules:
+          - blocks: "#minecraft:logs"
+            speed: 4.0
+            correct_for_drops: true
 ```
+
+Componenten worden toegepast wanneer ItemsAdder de pack- en itemdata opnieuw bouwt. Voer `/iazip` uit na het wijzigen van component-YAML. `/iareload` herlaadt andere ItemsAdderAdditions-content, maar geen componenten.
+
+## Statuslegenda
+
+| Status | Betekenis |
+|--------|---------|
+| **Gespecialiseerd** | Toegewijde IAA-handler met een IAA-specifieke YAML-syntaxis |
+| **Generiek** | Geen toegewijde handler; valt terug op de generieke NMS-codecpijplijn |
+| **Afgehandeld door IA** | Ingesteld door ItemsAdder zelf; IAA slaat het over |
+| **Niet ondersteund** | Geen Paper/NMS API; kan niet worden toegepast |
+
+## Generieke NMS-componenten
+
+Voor componentsleutels die geen gespecialiseerde IAA-handler hebben, valt IAA terug op een generieke NMS-pijplijn. De sleutel wordt genormaliseerd (`custom_data` wordt `minecraft:custom_data`), de waardeboom wordt uit de YAML geparseerd en het resultaat wordt toegepast via het Mojang-codecsysteem van Minecraft via NMS.
+
+**Minimale serverversie voor generieke componenten: 1.21.3.**
+
+Op 1.20.6 en 1.21.1 is de generieke NMS-pijplijn niet beschikbaar. Gespecialiseerde handlers werken nog steeds op die versies.
+
+### Gebruik
+
+Gebruik de volledige naamruimtesleutel of de korte vorm (de `minecraft:`-prefix wordt automatisch toegevoegd):
+
+```yaml
+items:
+  my_item:
+    components:
+      minecraft:custom_data:
+        my_plugin:
+          id: my_item
+          tier: 3
+          enabled: true
+```
+
+Korte vorm (gelijkwaardig):
+
+```yaml
+items:
+  my_item:
+    components:
+      custom_data:
+        my_plugin:
+          id: my_item
+```
+
+De YAML-structuur moet overeenkomen met de vanilla-codec voor dat component. IAA herinterpreteert de vorm niet. Als de codec de waarde afwijst, logt IAA een waarschuwing en slaat dat component over.
+
+**Opmerking:** `minecraft:custom_data` is een echt vanilla NBT-compound-component. Verwar het niet met Bukkit's `PersistentDataContainer` (PDC). De twee systemen zijn onafhankelijk. PDC-data wordt intern door Bukkit opgeslagen en is geen `custom_data`.
+
+## Componentreferentie
+
+### `attack_range`
+
+**Status:** Gespecialiseerd | **Minimale versie:** 1.21.11
+
+Overschrijft het aanvalsbereik van het item voor melee- en projectielaanvallen.
+
+| Eigenschap | Type | Standaard | Bereik |
+|----------|------|---------|-------|
+| `min_reach` | Float | `0.0` | 0.0 - 64.0 |
+| `max_reach` | Float | `3.0` | 0.0 - 64.0 |
+| `min_creative_reach` | Float | `0.0` | 0.0 - 64.0 |
+| `max_creative_reach` | Float | `5.0` | 0.0 - 64.0 |
+| `hitbox_margin` | Float | `0.3` | 0.0 - 1.0 |
+| `mob_factor` | Float | `1.0` | 0.0 - 2.0 |
+
+```yaml
+components:
+  attack_range:
+    max_reach: 5.0
+    max_creative_reach: 7.0
+    hitbox_margin: 0.5
+```
+
+### `banner_patterns`
+
+**Status:** Gespecialiseerd
+
+Stelt de bannerpatroonlagen in op een banneritem.
+
+| Eigenschap | Type | Formaat |
+|----------|------|--------|
+| `type` | String | Patroontypesleutel (bijv. `stripe_top`, `square_bottom_left`) |
+| `color` | String | Verfkleurnaam (`WHITE`, `RED`, `BLUE`, enz.) |
+
+```yaml
+components:
+  banner_patterns:
+    - type: stripe_top
+      color: RED
+    - type: square_bottom_left
+      color: BLUE
+```
+
+Geldige verfkleuren: `WHITE`, `ORANGE`, `MAGENTA`, `LIGHT_BLUE`, `YELLOW`, `LIME`, `PINK`, `GRAY`, `LIGHT_GRAY`, `CYAN`, `PURPLE`, `BLUE`, `BROWN`, `GREEN`, `RED`, `BLACK`.
+
+Patroontypesleutels zijn Minecraft-registersleutels. De `minecraft:`-prefix is optioneel (bijv. `stripe_top` en `minecraft:stripe_top` zijn gelijkwaardig).
+
+### `base_color`
+
+**Status:** Gespecialiseerd
+
+Stelt de basiskleur van een schilditem in.
+
+| Eigenschap | Type | Waarden |
+|----------|------|--------|
+| (waarde) | String | Verfkleurnaam |
+
+```yaml
+components:
+  base_color: RED
+```
+
+### `blocks_attacks`
+
+**Status:** Gespecialiseerd
+
+Laat het item inkomende aanvallen blokkeren als een schild.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `block_delay_seconds` | Float | `0.0` |
+| `disable_cooldown_scale` | Float | `1.0` |
+| `bypassed_by` | String | `null` (schadetype-tag, bijv. `#minecraft:bypasses_shield`) |
+| `block_sound` | String | `null` (geluidssleutel) |
+| `disable_sound` | String | `null` (geluidssleutel) |
+| `damage_reductions` | Lijst van secties | `[]` |
+| `item_damage` | Sectie | `null` |
+
+`damage_reductions`-vermelding:
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `type` | String of Lijst | `null` (schadetype-tag of IDs; weglaten voor alle types) |
+| `horizontal_blocking_angle` | Float | `90.0` |
+| `base` | Float | `0.0` |
+| `factor` | Float | `1.0` |
+
+`item_damage`-sectie:
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `threshold` | Float | `0.0` |
+| `base` | Float | `0.0` |
+| `factor` | Float | `1.0` |
+
+```yaml
+components:
+  blocks_attacks:
+    block_delay_seconds: 0.25
+    disable_cooldown_scale: 1.0
+    bypassed_by: "#minecraft:bypasses_shield"
+    block_sound: minecraft:item.shield.block
+    disable_sound: minecraft:item.shield.break
+    damage_reductions:
+      - type: "#minecraft:is_projectile"
+        horizontal_blocking_angle: 90.0
+        base: 0.0
+        factor: 0.5
+      - type: minecraft:player_attack
+        base: 1.0
+        factor: 1.0
+    item_damage:
+      threshold: 3.0
+      base: 1.0
+      factor: 1.0
+```
+
+Het `type`-veld in `damage_reductions` accepteert een tagstring (`#minecraft:is_fire`), een enkele schadetypesleutel (`minecraft:fire`), of een lijst van schadetypesleutels.
+
+### `bundle_contents`
+
+**Status:** Gespecialiseerd
+
+Stelt de begininhoud van een bundelitem in. Accepteert vanilla-IDs, ItemsAdder-IDs, en het `mmoitems:TYPE:ID`-formaat. Zie [compatibiliteit](/nl/docs/compatibility) voor volledige formaatdetails.
+
+```yaml
+components:
+  bundle_contents:
+    - minecraft:arrow
+    - my_pack:special_arrow
+```
+
+### `can_break`
+
+**Status:** Gespecialiseerd
+
+Beperkt welke blokken dit item kan breken in Avontuurmodus.
+
+```yaml
+components:
+  can_break:
+    - minecraft:stone
+    - "#minecraft:logs"
+```
+
+Accepteert blok-IDs (`minecraft:stone`) en bloktags (`#minecraft:logs`). De `minecraft:`-prefix is optioneel.
+
+### `can_place_on`
+
+**Status:** Gespecialiseerd
+
+Beperkt op welke blokken dit item geplaatst kan worden in Avontuurmodus.
+
+```yaml
+components:
+  can_place_on:
+    - minecraft:grass_block
+    - "#minecraft:dirt"
+```
+
+Zelfde formaat als `can_break`.
+
+### `charged_projectiles`
+
+**Status:** Gespecialiseerd
+
+Stelt de voorgeladen projectielen in een kruisboog in. Accepteert vanilla-IDs, ItemsAdder-IDs, en het `mmoitems:TYPE:ID`-formaat.
+
+```yaml
+components:
+  charged_projectiles:
+    - minecraft:arrow
+    - my_pack:special_bolt
+```
+
+### `damage_resistant`
+
+**Status:** Gespecialiseerd
+
+Maakt de item-entiteit immuun voor een schadecategorie (zoals netheriet dat vuur negeert).
+
+```yaml
+components:
+  damage_resistant: minecraft:is_fire
+```
+
+Accepteert een schadetype-tagsleutel. De `#`-prefix en de `minecraft:`-prefix zijn beide optioneel (`is_fire`, `#is_fire`, `minecraft:is_fire`, `#minecraft:is_fire` zijn allemaal gelijkwaardig).
+
+### `damage_type`
+
+**Status:** Gespecialiseerd
+
+Stelt het schadetype in dat wordt gebruikt wanneer de item-entiteit schade toebrengt.
+
+```yaml
+components:
+  damage_type: minecraft:magic
+```
+
+Moet een geldige schadetype-registersleutel zijn.
+
+### `death_protection`
+
+**Status:** Gespecialiseerd
+
+Voorkomt de dood en past optioneel effecten toe wanneer geactiveerd (zoals een totem van onsterfelijkheid).
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `death_effects` | Lijst van secties | `[]` (weglaten voor kale bescherming) |
+
+Effecttypes in `death_effects`:
+
+| Type | Eigenschappen |
+|------|-----------|
+| `apply_effects` | `effects` (lijst van toverdrankeffecten), `probability` (float, standaard 1.0) |
+| `remove_effects` | `effects` (lijst van effecttypesleutels) |
+| `clear_all_effects` | _(geen eigenschappen)_ |
+| `teleport_randomly` | `diameter` (float, standaard 16.0) |
+| `play_sound` | `sound` (geluidssleutel met naamruimte) |
+
+Toverdrankeffect-vermelding (gebruikt in `apply_effects`):
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `type` | String | Effecttypesleutel (bijv. `regeneration`) |
+| `duration` | Integer | Duur in ticks |
+| `amplifier` | Integer | Niveau - 1 (0 = niveau I) |
+
+```yaml
+components:
+  death_protection:
+    death_effects:
+      - type: apply_effects
+        probability: 1.0
+        effects:
+          - type: regeneration
+            duration: 900
+            amplifier: 1
+          - type: absorption
+            duration: 100
+            amplifier: 1
+      - type: remove_effects
+        effects:
+          - wither
+          - poison
+      - type: play_sound
+        sound: minecraft:item.totem.use
+```
+
+Laat `death_effects` volledig weg voor een kaal totemeffect (voorkomt de dood, geen extra effecten):
+
+```yaml
+components:
+  death_protection: {}
+```
+
+### `dyed_color`
+
+**Status:** Gespecialiseerd
+
+Stelt de verfkleur van leren harnas of andere verfbare items in.
+
+```yaml
+components:
+  dyed_color: "#FF4400"
+```
+
+Accepteert `#RRGGBB`-hexkleurstrings.
+
+### `enchantable`
+
+**Status:** Gespecialiseerd
+
+Stelt de betoverbaarheidswaarde van het item in (beïnvloedt betoveringskwaliteit in de betoveringstafel).
+
+```yaml
+components:
+  enchantable: 15
+```
+
+Bereik: 1 - 255. Hogere waarden verbeteren de betoveringskwaliteit.
+
+### `firework_explosion`
+
+**Status:** Gespecialiseerd
+
+Stelt het vuurwerkexplosie-effect in op een vuurwerksteritem.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `type` | String | `BALL` |
+| `colors` | Lijst van `#RRGGBB`-strings | `[]` |
+| `fade_colors` | Lijst van `#RRGGBB`-strings | `[]` |
+| `trail` | Boolean | `false` |
+| `flicker` | Boolean | `false` |
+
+Geldige types: `BALL`, `BALL_LARGE`, `STAR`, `BURST`, `CREEPER`.
+
+```yaml
+components:
+  firework_explosion:
+    type: STAR
+    colors:
+      - "#FF0000"
+      - "#0000FF"
+    fade_colors:
+      - "#FFFFFF"
+    trail: true
+    flicker: false
+```
+
+### `fireworks`
+
+**Status:** Gespecialiseerd
+
+Stelt de vuurwerkeigenschappen in op een vuurwerkpijl-item.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `flight_duration` | Integer | `1` (0 - 255) |
+| `explosions` | Lijst van secties | `[]` |
+
+Elke vermelding in `explosions` gebruikt hetzelfde schema als `firework_explosion`.
+
+```yaml
+components:
+  fireworks:
+    flight_duration: 2
+    explosions:
+      - type: BURST
+        colors:
+          - "#FFAA00"
+        trail: true
+```
+
+### `intangible_projectile`
+
+**Status:** Gespecialiseerd
+
+Markeert dit item als een ongrijpbaar projectiel (kan niet worden opgepakt nadat het is afgeschoten).
+
+```yaml
+components:
+  intangible_projectile: true
+```
+
+Zet op `true` of een willekeurige niet-null waarde om in te schakelen. Dit is een markeringscomponent zonder eigenschappen.
+
+### `kinetic_weapon`
+
+**Status:** Gespecialiseerd | **Minimale versie:** 1.21.5
+
+Laat het item schade toebrengen op basis van de bewegingssnelheid van de speler (zoals een strijdknots).
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `contact_cooldown_ticks` | Integer | `0` |
+| `delay_ticks` | Integer | `0` |
+| `forward_movement` | Float | `1.0` |
+| `damage_multiplier` | Float | `1.0` |
+| `sound` | String (sleutel met naamruimte) | `null` |
+| `hit_sound` | String (sleutel met naamruimte) | `null` |
+| `dismount_conditions` | Sectie | `null` |
+| `knockback_conditions` | Sectie | `null` |
+| `damage_conditions` | Sectie | `null` |
+
+Conditiesecties (`dismount_conditions`, `knockback_conditions`, `damage_conditions`):
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `max_duration_ticks` | Integer | `0` |
+| `min_speed` | Float | `0.0` |
+| `min_relative_speed` | Float | `0.0` |
+
+```yaml
+components:
+  kinetic_weapon:
+    damage_multiplier: 2.0
+    forward_movement: 1.5
+    sound: minecraft:entity.player.attack.sweep
+    damage_conditions:
+      min_speed: 0.1
+```
+
+### `lodestone_tracker`
+
+**Status:** Gespecialiseerd
+
+Laat een kompas naar een hemelsteenlocatie wijzen.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `tracked` | Boolean | `true` |
+| `world` | String | `null` (wereldnaam; weglaten voor een niet-gekoppelde tracker) |
+| `x` | Integer | `0` |
+| `y` | Integer | `0` |
+| `z` | Integer | `0` |
+
+```yaml
+components:
+  lodestone_tracker:
+    world: world
+    x: 100
+    y: 64
+    z: -200
+    tracked: true
+```
+
+Als `world` wordt weggelaten, is het kompas niet gekoppeld (toont een draaiende naald). Als `world` is ingesteld maar de wereld niet is geladen tijdens het herladen, logt IAA een waarschuwing en past het component toe zonder locatie.
+
+### `map_color`
+
+**Status:** Gespecialiseerd
+
+Stelt de randkleur van een ingevuld kaartitem in.
+
+```yaml
+components:
+  map_color: "#2A6DB5"
+```
+
+Accepteert `#RRGGBB`-hexkleurstrings.
+
+### `map_decorations`
+
+**Status:** Gespecialiseerd
+
+Stelt vaste decoraties (markeringen) in op een ingevulde kaart.
+
+```yaml
+components:
+  map_decorations:
+    my_marker:
+      type: RED_MARKER
+      x: 100.0
+      z: 200.0
+      rotation: 0.0
+    another_marker:
+      type: player
+      x: -50.0
+      z: 75.0
+      rotation: 90.0
+```
+
+Elke sleutel onder `map_decorations` is een unieke decoratie-ID. `type` is een `MapCursor.Type`-sleutel (hoofdletterongevoelig; `minecraft:`-prefix optioneel). `x` en `z` zijn wereldcoördinaten. `rotation` is in graden.
+
+### `map_id`
+
+**Status:** Gespecialiseerd
+
+Koppelt het item aan een specifieke kaart via zijn integer-ID.
+
+```yaml
+components:
+  map_id: 42
+```
+
+### `minimum_attack_charge`
+
+**Status:** Gespecialiseerd | **Minimale versie:** 1.21.1
+
+Stelt de minimale aanvalslaadfractie in die nodig is om volledige-lading-effecten te activeren.
+
+```yaml
+components:
+  minimum_attack_charge: 0.9
+```
+
+Bereik: 0.0 - 1.0.
+
+### `ominous_bottle_amplifier`
+
+**Status:** Gespecialiseerd
+
+Stelt het versterkerniveau van een onheilspellende fles in (beïnvloedt de sterkte van Slecht Voorteken bij consumptie).
+
+```yaml
+components:
+  ominous_bottle_amplifier: 3
+```
+
+Bereik: 0 - 4.
+
+### `piercing_weapon`
+
+**Status:** Gespecialiseerd | **Minimale versie:** 1.21.5
+
+Laat het item door entiteiten heen prikken (zoals een pijl met Doorboring).
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `deals_knockback` | Boolean | `true` |
+| `dismounts` | Boolean | `true` |
+| `sound` | String (sleutel met naamruimte) | `null` |
+| `hit_sound` | String (sleutel met naamruimte) | `null` |
+
+```yaml
+components:
+  piercing_weapon:
+    deals_knockback: true
+    dismounts: false
+    hit_sound: minecraft:entity.arrow.hit
+```
+
+### `pot_decorations`
+
+**Status:** Gespecialiseerd
+
+Stelt de potscherfdecoraties in op een versierde pot.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `back` | String | `null` (vanilla item-ID, bijv. `arms_up_pottery_sherd`) |
+| `left` | String | `null` |
+| `right` | String | `null` |
+| `front` | String | `null` |
+
+```yaml
+components:
+  pot_decorations:
+    back: arms_up_pottery_sherd
+    left: archer_pottery_sherd
+    right: blade_pottery_sherd
+    front: burn_pottery_sherd
+```
+
+Accepteert vanilla item-IDs. De `minecraft:`-prefix is optioneel.
+
+### `potion_contents`
+
+**Status:** Gespecialiseerd
+
+Stelt de toverdrankeffecten in van een toverdrank-, werpdrank- of nawerkdrankitem.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `potion` | String | `null` (PotionType-sleutel, bijv. `minecraft:strength`) |
+| `color` | String | `null` (#RRGGBB hex-override) |
+| `custom_name` | String | `null` |
+| `effects` | Lijst van secties | `[]` |
+
+Ten minste een van `potion`, `color`, `custom_name`, of `effects` moet aanwezig zijn.
+
+```yaml
+components:
+  potion_contents:
+    potion: minecraft:strength
+    color: "#FF0000"
+    custom_name: "Super Strength"
+    effects:
+      - type: strength
+        duration: 600
+        amplifier: 2
+```
+
+### `potion_duration_scale`
+
+**Status:** Gespecialiseerd
+
+Vermenigvuldigt de duur van alle toverdrankeffecten die door dit item worden toegepast.
+
+```yaml
+components:
+  potion_duration_scale: 2.0
+```
+
+Bereik: 0.0 - 255.0.
+
+### `profile`
+
+**Status:** Gespecialiseerd
+
+Stelt het spelerskin-profiel in op een spelerhoofd-item. Accepteert een spelernaam (opgelost door de client) of een sectie met expliciete profieldata.
+
+Eenvoudige vorm (spelernaam):
+
+```yaml
+components:
+  profile: Notch
+```
+
+Sectievorm (expliciete UUID, naam of textuur):
+
+```yaml
+components:
+  profile:
+    name: Notch
+    uuid: 069a79f4-44e9-4726-a5be-fca90e38aaf5
+    texture: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvLi4uIn19fQ==
+```
+
+Ten minste een van `name`, `uuid`, of `texture` is vereist in de sectievorm.
+
+### `provides_banner_patterns`
+
+**Status:** Gespecialiseerd
+
+Markeert het item als een ingrediënt dat bannerpatronen ontgrendelt wanneer het in een weefgetouw wordt geplaatst.
+
+```yaml
+components:
+  provides_banner_patterns: minecraft:no_item_required
+```
+
+Accepteert een bannerpatroon-tagsleutel. De `#`-prefix is optioneel.
+
+### `provides_trim_material`
+
+**Status:** Gespecialiseerd
+
+Markeert het item als een smeed-randmateriaal.
+
+```yaml
+components:
+  provides_trim_material: gold
+```
+
+Accepteert een randmateriaal-registersleutel. De `minecraft:`-prefix is optioneel.
+
+### `rarity`
+
+**Status:** Gespecialiseerd
+
+Stelt de zeldzaamheid van het item in, wat de kleur van de itemnaam in het standaard resourcepack beïnvloedt.
+
+```yaml
+components:
+  rarity: RARE
+```
+
+Geldige waarden: `COMMON`, `UNCOMMON`, `RARE`, `EPIC`.
+
+### `repairable`
+
+**Status:** Gespecialiseerd
+
+Stelt in welke items dit item kunnen repareren in een aambeeld.
+
+Accepteert een tagstring of een lijst van item-IDs:
+
+```yaml
+# Met een tag
+components:
+  repairable: "#minecraft:planks"
+```
+
+```yaml
+# Met een lijst van items
+components:
+  repairable:
+    - minecraft:diamond
+    - minecraft:netherite_ingot
+```
+
+### `stored_enchantments`
+
+**Status:** Gespecialiseerd
+
+Stelt de betoveringen in die in een betoverd boek zijn opgeslagen. Gebruikt een sectie met `betoveringssleutel: niveau`-paren.
+
+```yaml
+components:
+  stored_enchantments:
+    sharpness: 5
+    looting: 3
+    minecraft:mending: 1
+```
+
+Niveaubereik: 1 - 255. De `minecraft:`-prefix is optioneel.
+
+### `suspicious_stew_effects`
+
+**Status:** Gespecialiseerd
+
+Stelt de effecten in die door een verdacht stoofpot-item worden gegeven.
+
+```yaml
+components:
+  suspicious_stew_effects:
+    - type: speed
+      duration: 200
+    - type: minecraft:night_vision
+      duration: 400
+```
+
+`duration` is in ticks. Standaard is 160. De `minecraft:`-prefix op effecttypes is optioneel.
+
+### `swing_animation`
+
+**Status:** Gespecialiseerd | **Minimale versie:** 1.21.5
+
+Stelt het zwaaianimatietype en de duur in voor melee-aanvallen.
+
+| Eigenschap | Type | Waarden |
+|----------|------|--------|
+| `type` | String | `NONE`, `WHACK`, `STAB` |
+| `duration` | Integer | >= 1 |
+
+```yaml
+components:
+  swing_animation:
+    type: WHACK
+    duration: 6
+```
+
+### `tool`
+
+**Status:** Gespecialiseerd
+
+Configureert het item als een gereedschap met mijnsnelheidsregels.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `default_mining_speed` | Float | `1.0` |
+| `damage_per_block` | Integer | `1` |
+| `can_destroy_in_creative` | Boolean | `true` |
+| `rules` | Lijst van secties | `[]` |
+
+Regelsectie:
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `blocks` | String, tag of Lijst | Vereist |
+| `speed` | Float | `null` (geen override) |
+| `correct_for_drops` | Boolean of weggelaten | `null` (NOT_SET) |
+
+```yaml
+components:
+  tool:
+    default_mining_speed: 1.0
+    damage_per_block: 1
+    can_destroy_in_creative: true
+    rules:
+      - blocks: "#minecraft:mineable/pickaxe"
+        speed: 6.0
+        correct_for_drops: true
+      - blocks:
+          - minecraft:obsidian
+          - minecraft:crying_obsidian
+        speed: 12.0
+        correct_for_drops: true
+```
+
+`blocks` accepteert een tagstring (`#minecraft:logs`), een enkele blok-ID (`minecraft:stone`), of een lijst van blok-IDs.
+
+`correct_for_drops`: `true` betekent dat dit gereedschap de juiste drops produceert; `false` betekent dat het dat niet doet; het weglaten van de sleutel betekent NOT_SET (erft vanilla-standaarden).
+
+### `tooltip_display`
+
+**Status:** Gespecialiseerd
+
+Bepaalt welke componenten worden weergegeven in de item-tooltip.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `hide_tooltip` | Boolean | `false` |
+| `hidden_components` | Lijst van componentsleutels | `[]` |
+
+```yaml
+components:
+  tooltip_display:
+    hide_tooltip: false
+    hidden_components:
+      - enchantments
+      - attribute_modifiers
+      - stored_enchantments
+```
+
+`hidden_components` accepteert `DataComponentTypes`-veldnamen (hoofdletterongevoelig). Gebruik de Minecraft-componentsleutel zonder de `minecraft:`-prefix en in UPPER_SNAKE_CASE (bijv. `ATTRIBUTE_MODIFIERS`). De opzoeking is hoofdletterongevoelig.
+
+### `use_cooldown`
+
+**Status:** Gespecialiseerd
+
+Stelt een gebruikscooldown in op het item.
+
+| Eigenschap | Type | Vereist |
+|----------|------|---------|
+| `cooldown` | Float (seconden) | Ja |
+| `group` | String (sleutel met naamruimte) | Nee |
+
+```yaml
+components:
+  use_cooldown:
+    cooldown: 2.0
+```
+
+Als `group` wordt weggelaten, is de cooldowngroep standaard `itemsadder:<item_id>`, waardoor de cooldown itemspecifiek wordt. Stel `group` in om een cooldown te delen met andere items:
+
+```yaml
+components:
+  use_cooldown:
+    cooldown: 5.0
+    group: my_pack:special_items
+```
+
+### `use_remainder`
+
+**Status:** Gespecialiseerd
+
+Stelt in welk item in het slot achterblijft nadat dit item volledig is geconsumeerd.
+
+```yaml
+components:
+  use_remainder: minecraft:glass_bottle
+```
+
+Accepteert vanilla-IDs, ItemsAdder-IDs, en het `mmoitems:TYPE:ID`-formaat.
+
+### `weapon`
+
+**Status:** Gespecialiseerd | **Minimale versie:** 1.21.5
+
+Configureert het item als een wapen met aangepaste schade en blokkeerinteractie.
+
+| Eigenschap | Type | Standaard |
+|----------|------|---------|
+| `item_damage_per_attack` | Integer | `1` |
+| `disable_blocking_for_seconds` | Float | `0.0` |
+
+```yaml
+components:
+  weapon:
+    item_damage_per_attack: 2
+    disable_blocking_for_seconds: 0.6
+```
+
+`disable_blocking_for_seconds`: wanneer dit wapen een blokkerende entiteit raakt, wordt blokkeren voor deze duur uitgeschakeld.
+
+### `writable_book_content`
+
+**Status:** Gespecialiseerd
+
+Stelt de pagina's van een beschrijfbaar boek in (boek en veer).
+
+```yaml
+components:
+  writable_book_content:
+    - "Page 1 content here."
+    - "Page 2 content here."
+```
+
+## Versieoverzicht
+
+| Component | Minimale versie |
+|-----------|----------------|
+| `minimum_attack_charge` | 1.21.1 |
+| `kinetic_weapon` | 1.21.5 |
+| `piercing_weapon` | 1.21.5 |
+| `swing_animation` | 1.21.5 |
+| `weapon` | 1.21.5 |
+| `attack_range` | 1.21.11 |
+| Generieke NMS-componenten | 1.21.3 |
+| Alle andere componenten | 1.20.6+ |
+
+Componenten die een nieuwere versie vereisen dan de draaiende server worden stilzwijgend overgeslagen met een waarschuwing in de console.

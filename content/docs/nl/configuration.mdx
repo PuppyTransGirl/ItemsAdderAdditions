@@ -1,0 +1,76 @@
+---
+title: Configuratie
+icon: Settings
+description: Plugin config.yml-sleutels, featuretoggles, actietoggles, behaviourtoggles en herlaadgedrag.
+---
+
+ItemsAdderAdditions gebruikt `config.yml` voor pluginbrede toggles. ItemsAdder content-YAML definieert de echte acties, gedragingen, recepten, advancements, paintings, tags en worldgen-items.
+
+## Standaardconfiguratie
+
+```yaml
+features:
+  creative_inventory_integration: true
+  custom_paintings: true
+
+behaviours:
+  bed: true
+  connectable: true
+  contact_damage: true
+  stackable: true
+  storage: true
+  text_display: true
+
+actions:
+  actionbar: true
+  clear_item: true
+  ignite: true
+  message: true
+  mythic_mobs_skill: true
+  open_inventory: true
+  play_animation: true
+  play_emote: true
+  replace_biome: true
+  replace_item: true
+  shoot_fireball: true
+  swing_hand: true
+  teleport: true
+  title: true
+  toast: true
+  veinminer: true
+
+update-checker:
+  enabled: true
+  on-join: true
+```
+
+## Toggle-gedrag
+
+Ontbrekende toggles zijn standaard ingeschakeld. Dit geldt ook voor optionele secties die niet in de gegenereerde config staan.
+
+```yaml
+actions:
+  open_trade_machine: false
+
+components:
+  rarity: false
+```
+
+## Herladen
+
+```text
+/itemsadderadditions reload
+/iaa reload
+```
+
+Dit commando herlaadt `config.yml` en past pluginbrede toggles opnieuw toe. Het herlaadt geen ItemsAdder content-YAML-bestanden.
+
+Gebruik `/iareload` na wijzigingen aan ItemsAdderAdditions content-YAML zoals acties, gedragingen, custom tags, recepten, advancements, custom paintings, Valhalla-metadata of worldgen.
+
+Gebruik `/iazip` na wijzigingen aan `components` secties of resourcepack-assets. `/iareload` herlaadt ItemsAdderAdditions-content behalve componenten.
+
+## Veelgemaakte fouten
+
+- Een toggle op `false` zetten en verwachten dat die content na herladen blijft werken.
+- Een typefout toevoegen onder `actions`, `behaviours`, `features` of `components`.
+- `/itemsadderadditions reload` gebruiken om content-YAML te herladen of het pack te bouwen. Gebruik `/iareload` voor content-YAML en `/iazip` voor componenten of assets.

@@ -188,7 +188,7 @@ conditions:
 | `blocks` / `id` | string or list | Block IDs to match. |
 | `state.<name>` | string or range | Match a block-state value exactly, or with `min`/`max`. |
 
-Block tag syntax such as `#minecraft:logs` is resolved against vanilla block tags. Tags match vanilla blocks only; use explicit ItemsAdder block IDs for custom blocks.
+ItemsAdderAdditions custom block tags are resolved first. If no custom tag exists, block tag syntax such as `#minecraft:logs` is resolved against vanilla block tags. Vanilla tags match vanilla blocks only.
 
 ## Item and equipment predicates
 
@@ -222,7 +222,7 @@ conditions:
 | `enchantments[].enchantment` / `id` | string | Enchantment key. |
 | `enchantments[].levels` | number or range | Required enchantment level. |
 
-Vanilla item tags are resolved against the vanilla item registry. Item `predicates` sections are still unsupported and make the item predicate fail closed instead of matching accidentally.
+ItemsAdderAdditions custom item tags are resolved first. If no custom tag exists, vanilla item tags are resolved against the vanilla item registry. Item `predicates` sections are still unsupported and make the item predicate fail closed instead of matching accidentally.
 
 ## Slots
 

@@ -1,6 +1,6 @@
 ---
 title: /itemsadderadditions
-description: Commande d’administration principale du plugin ItemsAdderAdditions. Rechargez tout le contenu et activez ou désactivez le mode debug sur votre serveur Minecraft.
+description: Commande d’administration principale du plugin ItemsAdderAdditions. Rechargez config.yml et activez ou désactivez le mode debug.
 version: "1.0.7"
 ---
 
@@ -20,7 +20,7 @@ itemsadderadditions.command.itemsadderadditions
 
 ### `/itemsadderadditions reload`
 
-Recharge ItemsAdderAdditions.
+Recharge le `config.yml` d'ItemsAdderAdditions et réapplique les toggles de fonctionnalités, actions, comportements et composants.
 
 ```text
 /itemsadderadditions reload
@@ -31,6 +31,12 @@ Permission :
 ```text
 itemsadderadditions.command.itemsadderadditions.reload
 ```
+
+Cette commande ne recharge pas les fichiers YAML de contenu ItemsAdder.
+
+Utilisez `/iareload` après avoir modifié les sections YAML ItemsAdderAdditions comme les actions, comportements, tags personnalisés, recettes, progrès, peintures personnalisées, métadonnées Valhalla ou entrées de génération du monde.
+
+Utilisez `/iazip` après avoir modifié les sections `components` ou les assets du pack de ressources.
 
 ### `/itemsadderadditions debug`
 

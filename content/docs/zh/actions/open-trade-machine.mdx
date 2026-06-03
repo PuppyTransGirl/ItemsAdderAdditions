@@ -1,0 +1,68 @@
+---
+title: 打开交易机器
+description: 通过动作打开 ItemsAdder trade_machine 或 block_trade_machine 界面
+version: "1.0.10"
+---
+
+`open_trade_machine` 会为目标玩家打开 ItemsAdder 交易机器界面，不需要把对应方块或家具实际放在世界中。
+
+可用于菜单物品、NPC 流程、自定义工作站，或任何需要打开指定 ItemsAdder 交易机器的动作触发器。
+
+## 要求
+
+- 目标必须是玩家。非玩家目标会被跳过。
+- 引用的 ItemsAdder 内容必须具有 `trade_machine` 或 `block_trade_machine` 行为。
+
+## 配置
+
+```yaml
+info:
+  namespace: stations
+
+items:
+  alchemy_token:
+    display_name: "<green>炼金工作站"
+    events:
+      interact:
+        right:
+          open_trade_machine:
+            trade_machine: stations:alchemy_table
+```
+
+## 选项
+
+| 键 | 类型 | 必填 | 描述 |
+|----|------|------|------|
+| `trade_machine` | 字符串 | 是 | 提供交易机器界面的 ItemsAdder 物品、方块或家具 ID。纯 ID 会使用当前 `info.namespace`。 |
+
+## 与目标参数一起使用
+
+此动作支持通用动作参数：
+
+```yaml
+open_trade_machine:
+  trade_machine: stations:alchemy_table
+  target: in_sight
+  target_in_sight_distance: 8
+```
+
+## 插件配置
+
+可在 `config.yml` 中禁用此动作：
+
+```yaml
+actions:
+  open_trade_machine: false
+```
+
+该键是可选的。缺失的动作开关默认启用。
+
+## 重载
+
+修改 ItemsAdder 内容 YAML 后执行 `/iareload`。引用的交易机器必须已经由 ItemsAdder 注册。
+
+## 常见错误
+
+- 使用没有 `trade_machine` 或 `block_trade_machine` 行为的普通物品 ID。
+- 在事件目标不是玩家时使用 `target: other`。
+- 交易机器定义在其他 `info.namespace` 中，但省略了 namespace。

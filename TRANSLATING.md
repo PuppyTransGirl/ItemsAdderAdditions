@@ -43,7 +43,7 @@ Open `lib/layout.shared.tsx` and add an entry to `langTabs`:
 // lib/layout.shared.tsx
 {
     title: 'Deutsch',
-        url: localizedDocsRoute('de'),
+    url: localizedDocsRoute('de'),
     icon: <span className="text-base leading-none">🇩🇪</span>
 },
 ```

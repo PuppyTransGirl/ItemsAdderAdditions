@@ -1,10 +1,10 @@
 ---
-title: Crafting Table
-description: Add advanced crafting table recipes with ItemsAdder items, MMOItems items, vanilla items, vanilla tags, exact amounts, durability requirements, shapeless support, and completion sounds/commands via iaa_crafting_table.
-version: "1.0.7"
+title: Crafting
+description: Add advanced crafting recipes with ItemsAdder items, MMOItems items, vanilla items, vanilla tags, exact amounts, durability requirements, shapeless support, and completion sounds/commands.
+version: "1.0.10"
 ---
 
-ItemsAdderAdditions adds an extra crafting-table recipe type called `iaa_crafting_table`.
+ItemsAdderAdditions adds an advanced crafting recipe type called `iaa_crafting_table`. It works for both 3x3 crafting-table recipes and 2x2 player-crafting-grid recipes. `iaa_crafting` is accepted as an alias.
 
 Use it when you need extra ingredient validation features not available in the standard `crafting_table` type:
 
@@ -20,12 +20,19 @@ Use it when you need extra ingredient validation features not available in the s
 
 ## Important
 
-Recipes using these extra features must be placed under:
+Recipes using these extra features should be placed under:
 
 ```yaml
 recipes:
   iaa_crafting_table:
 ```
+
+```yaml
+recipes:
+  iaa_crafting:
+```
+
+Prefer `iaa_crafting_table` in new files. `iaa_crafting` behaves the same way and exists as an alias.
 
 If you only need normal ItemsAdder crafting features, you can keep using the regular `crafting_table` recipe type.
 
@@ -106,7 +113,7 @@ recipes:
 
 ## Extra ItemsAdderAdditions features
 
-The main reason to use `iaa_crafting_table` is its additional ingredient predicate support:
+The main reason to use these recipe types is their additional ingredient predicate support:
 
 - vanilla tags with `#minecraft:tag`
 - MMOItems ingredients with `mmoitems:type:id`
@@ -395,10 +402,13 @@ Ingredient and result items can use:
 - ItemsAdder IDs like `namespace:item`
 - MMOItems IDs like `mmoitems:type:id`
 
-Ingredients can additionally use vanilla tags like `#minecraft:planks`. Tags are not valid as results or replacement items.
+Ingredients can additionally use vanilla tags like `#minecraft:planks`. These are Bukkit vanilla item/block tags only; ItemsAdderAdditions custom tags are not resolved in crafting ingredients. Tags are not valid as results or replacement items.
 
 ## Notes
 
 - `replacement` and `damage` are applied during crafting.
 - Shapeless recipes with advanced predicates should use the list format.
 - `iaa_crafting_table` is an additional advanced recipe type, not a replacement for ItemsAdder `crafting_table`.
+- `iaa_crafting` is an alias for `iaa_crafting_table`.
+- Every `pattern...` key is loaded as a shaped pattern variant. Examples: `pattern`, `pattern_2`, `pattern_alt`.
+- Anonymous shapeless ingredient lists support up to 26 entries.

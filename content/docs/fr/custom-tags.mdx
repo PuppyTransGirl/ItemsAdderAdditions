@@ -1,0 +1,118 @@
+---
+title: Tags personnalisés
+icon: Tags
+description: Définir des groupes réutilisables d'objets, blocs, meubles et recettes dans le YAML de contenu ItemsAdder.
+version: "1.0.10"
+---
+
+Les tags personnalisés permettent de regrouper des IDs de contenu et de réutiliser le groupe dans les fonctionnalités ItemsAdderAdditions compatibles. Ils sont chargés depuis une section `tags` au niveau racine d'un fichier YAML de contenu ItemsAdder.
+
+## Structure de base
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+      - mmoitems:tool:ruby_hammer
+
+  decorative_blocks:
+    type: block
+    values:
+      - ruby_lamp
+      - minecraft:amethyst_block
+
+  trading_stations:
+    type: furniture
+    values:
+      - alchemy_table
+      - forge_table
+
+  ruby_recipes:
+    type: recipe
+    values:
+      - ruby_sword
+      - ruby_pickaxe
+```
+
+Référencez un tag avec `#tag_id` dans le même namespace ou `#namespace:tag_id` depuis un autre namespace.
+
+## Types
+
+| Type | Alias | Valeurs acceptées |
+|------|-------|-------------------|
+| `item` | `items` | Objets ItemsAdder, objets vanilla, objets MMOItems et tags d'objets imbriqués. |
+| `block` | `blocks` | Blocs ItemsAdder, blocs vanilla et tags de blocs imbriqués. |
+| `furniture` | `furnitures` | IDs de meubles ItemsAdder et tags de meubles imbriqués. |
+| `recipe` | `recipes` | IDs de recettes et tags de recettes imbriqués. |
+
+Si `type` est absent, le tag est traité comme un tag d'objets.
+
+## Tags imbriqués
+
+```yaml
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+
+  mining_tools:
+    type: item
+    values:
+      - "#ruby_tools"
+      - minecraft:iron_pickaxe
+      - minecraft:diamond_pickaxe
+```
+
+Les tags imbriqués doivent avoir le même type. Les références circulaires sont détectées et ignorées.
+
+## Où ils fonctionnent
+
+Les tags personnalisés fonctionnent avec les chemins de correspondance runtime, notamment :
+
+- les conditions de progrès pour objets, blocs, meubles et recettes
+- les prédicats joueur d'objet, équipement, slot et bloc
+- `items` du comportement `stackable`
+
+Les ingrédients de `iaa_crafting_table` sont différents : les tags d'ingrédients utilisent uniquement les tags vanilla Bukkit d'objets/blocs, pas les tags personnalisés ItemsAdderAdditions.
+
+## Exemple complet
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+
+items:
+  charged_ruby:
+    display_name: "<red>Rubis chargé"
+    behaviours:
+      stackable:
+        blocks:
+          - charged_ruby_block
+        items:
+          - "#my_pack:ruby_tools"
+```
+
+## Rechargement
+
+Les tags personnalisés sont préparés avant les actions, comportements, recettes, progrès et entrées de génération du monde. Exécutez `/iareload` après les avoir modifiés.
+
+## Erreurs courantes
+
+- Mélanger les types de tags. Un tag de meuble ne peut pas inclure un tag d'objet.
+- Définir deux fois le même couple `type` + ID de tag. La première définition gagne.
+- Utiliser un tag là où une option doit créer un objet concret, comme un résultat de recette, `toast.icon`, `clear_item.item` ou `replace_item.item`.

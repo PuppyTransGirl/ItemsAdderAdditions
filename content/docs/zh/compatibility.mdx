@@ -1,10 +1,22 @@
 ---
 title: 兼容性与 ID 参考
 icon: Puzzle
-description: ItemsAdderAdditions 支持的引用格式，涵盖 ItemsAdder 内容、MMOItems、原版 Minecraft 物品、方块和标签
+description: ItemsAdderAdditions 支持的引用格式，涵盖 ItemsAdder 内容、MMOItems、原版 Minecraft 物品、方块、配方、家具和标签
 ---
 
-ItemsAdderAdditions 通过统一的兼容层解析物品和方块引用。高级配方、进度触发器、玩家谓词和产出物品的动作均使用相同的 ID 格式
+ItemsAdderAdditions 通过统一的兼容层解析物品、方块、家具、配方和标签引用。具体支持的格式取决于功能，因为某些选项必须生成具体的物品堆叠，而另一些只需匹配已有内容
+
+## 服务器与插件支持
+
+ItemsAdder 为必需依赖。可以使用任意 ItemsAdder v4 版本，但推荐最新版本。PlaceholderAPI、CoreProtect、MMOItems、ValhallaMMO 和 ValhallaTrinkets 是可选集成，仅由引用它们的功能使用
+
+依赖较新 Minecraft 注册表的功能受版本限制：
+
+- 创造物品栏集成需要兼容 1.21.5+ 的 NMS 适配器
+- 自定义画需要兼容 1.21.5+ 的 NMS 适配器
+- 通用组件需要兼容 1.21.3+ 的 NMS 适配器
+
+在不受支持的版本上，受版本限制的功能会被跳过，插件会记录一条警告
 
 ## 支持的 ID 格式
 
@@ -12,13 +24,61 @@ ItemsAdderAdditions 通过统一的兼容层解析物品和方块引用。高级
 |---------------|------------------------------------------------|-----------------------------------------|
 | ItemsAdder 物品 | `namespace:id`，或在当前 `info.namespace` 内使用纯 `id` | `my_pack:ruby_sword`                    |
 | ItemsAdder 方块 | `namespace:id`，或在当前 `info.namespace` 内使用纯 `id` | `my_pack:ruby_ore`                      |
-| ItemsAdder 家具 | `namespace:id`                                 | `my_pack:ruby_lamp`                     |
+| ItemsAdder 家具 | `namespace:id`，或在当前 `info.namespace` 内使用纯 `id` | `my_pack:ruby_lamp`                     |
 | MMOItems 物品   | `mmoitems:type:id`                             | `mmoitems:sword:flame_blade`            |
 | 原版物品          | `minecraft:id`、Bukkit 材质名或纯 Minecraft 键名       | `minecraft:diamond`、`DIAMOND`、`diamond` |
 | 原版方块          | `minecraft:id`、Bukkit 材质名或纯 Minecraft 键名       | `minecraft:oak_log`、`OAK_LOG`、`oak_log` |
 | 原版物品/方块标签     | `#minecraft:tag`                               | `#minecraft:planks`、`#minecraft:logs`   |
+| ItemsAdderAdditions 自定义标签 | `#namespace:tag`，或在当前命名空间内使用 `#tag` | `#my_pack:ruby_tools` |
 
 ID 内部会统一转换为小写。为便于阅读，建议使用完全限定 ID，如 `minecraft:diamond` 和 `my_pack:ruby_sword`
+
+## 自定义标签
+
+ItemsAdderAdditions 自定义标签在顶层 `tags` 节中定义，可对物品、方块、家具或配方 ID 进行分组
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+```
+
+自定义标签会在原版标签之前解析。完整格式、嵌套规则及支持的功能列表请参考[自定义标签](/zh/docs/custom-tags)
+
+## 原版标签
+
+原版标签仍可在功能使用 Bukkit 物品或方块标签匹配的地方使用
+
+```yaml
+# 任意原版木板物品
+item: "#minecraft:planks"
+
+# 任意原版原木方块
+block: "#minecraft:logs"
+```
+
+原版标签只匹配原版注册表条目。它们**不能**匹配 ItemsAdder 内容或 MMOItems 内容
+
+`iaa_crafting_table` 原料标签仅为原版 Bukkit 物品/方块标签。合成原料不会解析 ItemsAdderAdditions 自定义标签
+
+## 具体物品产出
+
+某些选项必须生成特定的物品堆叠。标签在这些场景下无效，因为一个标签可匹配多个值
+
+以下场景请使用具体 ID：
+
+- 配方结果
+- 营火、切石机和酿造结果
+- `toast.icon`
+- `clear_item.item`
+- `replace_item.item`
+- 需要生成单个物品堆叠的 storage 或 action 选项
 
 ## MMOItems
 
@@ -29,27 +89,6 @@ item: mmoitems:sword:flame_blade
 ```
 
 插件通过 MMOItems 类型和 ID 来识别 MMOItems 物品堆叠。如果未加载 MMOItems，则无法解析 `mmoitems:type:id` 引用，且不会匹配
-
-## 原版标签
-
-标签仅限原版注册表中的标签。它们可以匹配原版物品或原版方块，但**不能**匹配 ItemsAdder 内容或 MMOItems 内容
-
-```yaml
-# 任意原版木板物品
-item: "#minecraft:planks"
-
-# 任意原版原木方块
-block: "#minecraft:logs"
-```
-
-标签支持用于以下场景：
-
-- `iaa_crafting_table` 原料
-- 进度物品条件和物品谓词
-- 进度方块条件和方块谓词
-- 玩家谓词槽位/装备/位置方块检查
-
-标签不能用作配方结果、营火/切石机输入物品、家具 ID，或必须生成具体物品堆叠的动作参数，如 `toast.icon`、`clear_item.item` 和 `replace_item.item`
 
 ## 旋转的 ItemsAdder 方块和家具
 
@@ -68,6 +107,8 @@ my_pack:chair_down  -> my_pack:chair
 
 ## 配方示例
 
+合成原料可以使用原版标签、ItemsAdder 物品、MMOItems 物品和原版物品：
+
 ```yaml
 ingredients:
   P: "#minecraft:planks"
@@ -76,6 +117,8 @@ ingredients:
 result:
   item: "my_pack:ruby_handle"
 ```
+
+营火、切石机和酿造配方使用具体物品引用：
 
 ```yaml
 recipes:
@@ -99,11 +142,11 @@ criteria:
 
 ```yaml
 criteria:
-  obtain_custom_weapon:
+  obtain_custom_tool:
     trigger: obtain_item
     conditions:
       items:
-        - my_pack:ruby_sword
+        - "#my_pack:ruby_tools"
         - mmoitems:sword:flame_blade
         - minecraft:diamond_sword
 ```

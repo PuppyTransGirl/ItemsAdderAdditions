@@ -1,0 +1,68 @@
+---
+title: Ouvrir une machine d'échange
+description: Ouvrir une interface ItemsAdder trade_machine ou block_trade_machine depuis une action.
+version: "1.0.10"
+---
+
+`open_trade_machine` ouvre l'interface de machine d'échange ItemsAdder pour le joueur ciblé sans que le bloc ou meuble soit placé dans le monde.
+
+Utilisez cette action pour des menus, PNJ, stations personnalisées ou tout autre déclencheur qui doit ouvrir une machine d'échange précise.
+
+## Prérequis
+
+- La cible doit être un joueur. Les cibles non-joueurs sont ignorées.
+- Le contenu ItemsAdder référencé doit avoir un comportement `trade_machine` ou `block_trade_machine`.
+
+## Configuration
+
+```yaml
+info:
+  namespace: stations
+
+items:
+  alchemy_token:
+    display_name: "<green>Station d'alchimie"
+    events:
+      interact:
+        right:
+          open_trade_machine:
+            trade_machine: stations:alchemy_table
+```
+
+## Options
+
+| Clé | Type | Requis | Description |
+|-----|------|--------|-------------|
+| `trade_machine` | chaîne | oui | ID d'objet, bloc ou meuble ItemsAdder qui fournit l'interface d'échange. Un ID sans namespace utilise le `info.namespace` actuel. |
+
+## Avec le ciblage
+
+L'action prend en charge les paramètres d'action communs :
+
+```yaml
+open_trade_machine:
+  trade_machine: stations:alchemy_table
+  target: in_sight
+  target_in_sight_distance: 8
+```
+
+## Config du plugin
+
+Cette action peut être désactivée dans `config.yml` :
+
+```yaml
+actions:
+  open_trade_machine: false
+```
+
+La clé est optionnelle. Les toggles d'action absents sont activés par défaut.
+
+## Rechargement
+
+Exécutez `/iareload` après avoir modifié le YAML de contenu ItemsAdder. La machine d'échange référencée doit déjà être enregistrée par ItemsAdder.
+
+## Erreurs courantes
+
+- Utiliser l'ID d'un objet normal sans comportement `trade_machine` ou `block_trade_machine`.
+- Utiliser `target: other` alors que la cible de l'événement n'est pas un joueur.
+- Omettre le namespace lorsque la machine d'échange est définie dans un autre `info.namespace`.

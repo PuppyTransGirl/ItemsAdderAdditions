@@ -1,0 +1,96 @@
+---
+title: Alambic
+description: Ajouter des recettes d'alambic personnalisées avec des objets ItemsAdder, MMOItems et vanilla.
+version: "1.0.10"
+---
+
+ItemsAdderAdditions ajoute le type de recette `brewing` pour les alambics. Il enregistre un mélange de potion Paper et permet de faire correspondre précisément des objets ItemsAdder, MMOItems et vanilla.
+
+## Recette de base
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  brewing:
+    ruby_elixir:
+      base:
+        item: minecraft:awkward_potion
+      ingredient:
+        item: my_pack:ruby_dust
+        consume: 1
+      result:
+        item: my_pack:ruby_elixir
+      brew_time: 400
+      fuel_cost: 1
+```
+
+`base` est la clé recommandée pour l'objet d'entrée. L'ancien alias `input` est encore accepté.
+
+## Options
+
+| Clé | Type | Défaut | Description |
+|-----|------|--------|-------------|
+| `enabled` | booléen | `true` | Mettre à `false` pour ignorer la recette. |
+| `base.item` | chaîne | *(requis)* | Objet ou potion d'entrée. `input.item` est aussi accepté. |
+| `ingredient.item` | chaîne | *(requis)* | Ingrédient d'alambic requis. |
+| `ingredient.consume` | entier | `1` | Quantité d'ingrédient consommée. Doit être supérieure à `0`. |
+| `result.item` | chaîne | *(requis)* | Objet de sortie. |
+| `result.amount` | entier | `1` | Les sorties d'alambic sont limitées à un objet par emplacement de potion. |
+| `brew_time` | entier | `400` | Temps de préparation en ticks. Doit être supérieur à `0`. |
+| `fuel_cost` | entier | `1` | Unités de combustible de blaze consommées. Doit être supérieur à `0`. |
+| `on_complete` | section | *(aucun)* | Actions optionnelles de son et commandes après la fin de la préparation. |
+
+## Références d'objets
+
+`base.item`, `ingredient.item` et `result.item` acceptent les matériaux vanilla, les objets ItemsAdder et les objets MMOItems. Les tags ne sont pas valides ici, car la recette doit comparer des piles d'objets concrètes.
+
+## Actions de fin
+
+`on_complete` s'exécute quand l'alambic termine et qu'au moins un joueur regarde l'alambic.
+
+```yaml
+on_complete:
+  sound:
+    name: minecraft:block.brewing_stand.brew
+    source: master
+  commands:
+    reward:
+      command: "say {player} a préparé un élixir"
+      as_console: true
+```
+
+`{player}` est remplacé par le nom du joueur spectateur.
+
+## Exemple complet
+
+```yaml
+info:
+  namespace: my_pack
+
+recipes:
+  brewing:
+    ruby_elixir:
+      enabled: true
+      base:
+        item: minecraft:awkward_potion
+      ingredient:
+        item: my_pack:ruby_dust
+        consume: 2
+      result:
+        item: my_pack:ruby_elixir
+        amount: 1
+      brew_time: 600
+      fuel_cost: 2
+```
+
+## Erreurs courantes
+
+- Définir `result.amount` au-dessus de `1`. La valeur est limitée à `1`.
+- Utiliser des tags `#minecraft:*`. Les recettes d'alambic correspondent à des objets concrets.
+- Définir `fuel_cost` plus haut que le combustible disponible dans l'alambic.
+
+## Rechargement
+
+Exécutez `/iareload` après avoir modifié des recettes d'alambic.

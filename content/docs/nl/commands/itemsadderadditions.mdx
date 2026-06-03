@@ -1,6 +1,6 @@
 ---
 title: /itemsadderadditions
-description: Hoofdcommando voor het beheer van de ItemsAdderAdditions-plugin. Herlaad alle content en schakel debugmodus in of uit op je Minecraft-server.
+description: Hoofdcommando voor het beheer van de ItemsAdderAdditions-plugin. Herlaad config.yml en schakel debugmodus in of uit.
 version: "1.0.7"
 ---
 
@@ -20,7 +20,7 @@ itemsadderadditions.command.itemsadderadditions
 
 ### `/itemsadderadditions reload`
 
-Herlaadt ItemsAdderAdditions.
+Herlaadt ItemsAdderAdditions `config.yml` en past feature-, actie-, gedrag- en componenttoggles opnieuw toe.
 
 ```text
 /itemsadderadditions reload
@@ -31,6 +31,12 @@ Permissie:
 ```text
 itemsadderadditions.command.itemsadderadditions.reload
 ```
+
+Dit commando herlaadt geen ItemsAdder content-YAML-bestanden.
+
+Gebruik `/iareload` na wijzigingen aan ItemsAdderAdditions content-YAML zoals acties, gedragingen, custom tags, recepten, advancements, custom paintings, Valhalla-metadata of worldgen-items.
+
+Gebruik `/iazip` na wijzigingen aan `components` secties of resourcepack-assets.
 
 ### `/itemsadderadditions debug`
 
