@@ -152,9 +152,10 @@ features:
 behaviours:
   bed: true
   connectable: true
-  contact_damage: true
+  contact_effect: true
   stackable: true
   storage: true
+  text_display: true
 
 actions:
   actionbar: true
@@ -166,12 +167,17 @@ actions:
   play_animation: true
   play_emote: true
   replace_biome: true
+  replace_item: true
   shoot_fireball: true
   swing_hand: true
   teleport: true
   title: true
   toast: true
   veinminer: true
+
+update-checker:
+  enabled: true
+  on-join: true
 ```
 
 Reloading ItemsAdderAdditions uses one shared reload pipeline whether it is triggered by ItemsAdder finishing its

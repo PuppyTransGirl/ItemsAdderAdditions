@@ -5,7 +5,7 @@ features:
 behaviours:
   bed: true
   connectable: true
-  contact_damage: true
+  contact_effect: true
   stackable: true
   storage: true
   text_display: true
