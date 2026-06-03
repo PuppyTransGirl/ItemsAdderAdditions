@@ -21,6 +21,7 @@ final class BuiltInActions {
                 new MessageAction(),
                 new MythicMobsSkillAction(),
                 new OpenInventoryAction(),
+                new OpenTradeMachineAction(),
                 new PlayAnimationAction(),
                 new PlayEmoteAction(),
                 new ReplaceBiomeAction(),

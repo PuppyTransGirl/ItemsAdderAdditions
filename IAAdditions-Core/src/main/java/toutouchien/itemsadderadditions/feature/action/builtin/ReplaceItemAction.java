@@ -54,7 +54,7 @@ public final class ReplaceItemAction extends ActionExecutor {
         PlayerInventory inv = player.getInventory();
         ItemStack source = isOffHand ? inv.getItemInOffHand() : inv.getItemInMainHand();
 
-        ItemStack template = NamespaceUtils.itemByID(item, item);
+        ItemStack template = NamespaceUtils.itemByID(null, item);
         if (template == null)
             return;
 

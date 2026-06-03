@@ -4,6 +4,7 @@ import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -109,7 +110,7 @@ public final class TradeMachineBridge {
     }
 
     private static boolean openTradeMachineViaApi(Player player, String namespacedId) {
-        CustomStack customStack = CustomStack.getInstance(namespacedId);
+        CustomStack customStack = NamespaceUtils.customItemByID(null, namespacedId);
         if (customStack == null) {
             return false;
         }
