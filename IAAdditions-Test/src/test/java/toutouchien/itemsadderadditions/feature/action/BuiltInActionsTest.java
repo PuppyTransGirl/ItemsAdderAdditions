@@ -14,7 +14,7 @@ class BuiltInActionsTest {
         List<ActionExecutor> actions = BuiltInActions.create();
         Set<String> keys = actions.stream().map(ActionExecutor::key).collect(Collectors.toSet());
 
-        assertEquals(16, actions.size());
+        assertEquals(17, actions.size());
         assertEquals(Set.of(
                 "actionbar",
                 "clear_item",
@@ -22,6 +22,7 @@ class BuiltInActionsTest {
                 "message",
                 "mythic_mobs_skill",
                 "open_inventory",
+                "open_trade_machine",
                 "play_animation",
                 "play_emote",
                 "replace_biome",

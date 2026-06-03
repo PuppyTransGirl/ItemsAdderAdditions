@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -38,20 +39,22 @@ class TradeMachineBridgeTest {
     }
 
     @Test
-    void openViaPublicApiRequiresCustomStackAndTradeMachineItem() {
+    void openViaPublicApiRequiresCustomStackAndTradeMachineItem() throws Exception {
         Player player = mock(Player.class);
         CustomStack customStack = mock(CustomStack.class);
         ItemStack item = ItemStack.of(Material.CHEST);
         when(customStack.getItemStack()).thenReturn(item);
+        setNamespaceCache("pack:machine", customStack);
 
         try (MockedStatic<CustomStack> customStacks = mockStatic(CustomStack.class)) {
-            customStacks.when(() -> CustomStack.getInstance("pack:machine")).thenReturn(customStack);
             customStacks.when(() -> CustomStack.isFurnitureTradeMachine(item)).thenReturn(true);
             customStacks.when(() -> CustomStack.openTradeMenu("pack:machine", player)).thenReturn(true);
 
             assertTrue(TradeMachineBridge.openTradeMachine(player, "pack:machine"));
 
             customStacks.verify(() -> CustomStack.openTradeMenu("pack:machine", player));
+        } finally {
+            NamespaceUtils.invalidateCache();
         }
     }
 
@@ -180,6 +183,12 @@ class TradeMachineBridgeTest {
                     () -> TradeMachineBridge.openTradeMachine(player, "pack:machine"));
             assertTrue(thrown.getMessage().contains("Failed to open trade machine"));
         }
+    }
+
+    private static void setNamespaceCache(String namespacedId, CustomStack stack) throws Exception {
+        Field field = NamespaceUtils.class.getDeclaredField("cacheByNamespacedId");
+        field.setAccessible(true);
+        field.set(null, Map.of(namespacedId, stack));
     }
 
     private static void setStatic(String fieldName, Object value) throws Exception {

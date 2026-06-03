@@ -227,7 +227,7 @@ class AdvancementTriggerHandlersTest {
                 new AdvancementConditions.ObtainItem(List.of("minecraft:diamond"), 1));
         Item dropped = world.dropItem(world.getSpawnLocation(), new ItemStack(Material.DIAMOND, 5));
 
-        new ObtainItemTriggerHandler(registry).onPickup(new EntityPickupItemEvent(player, dropped, 0));
+        new ObtainItemTriggerHandler(registry, MockBukkit.createMockPlugin()).onPickup(new EntityPickupItemEvent(player, dropped, 0));
 
         verifyAwarded(key);
     }

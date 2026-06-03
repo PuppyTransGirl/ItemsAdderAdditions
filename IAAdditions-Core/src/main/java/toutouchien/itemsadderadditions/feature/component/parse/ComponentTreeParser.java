@@ -21,7 +21,7 @@ public final class ComponentTreeParser {
     }
 
     public static ComponentValue parse(@Nullable Object configValue) {
-        switch (configValue) {
+        return switch (configValue) {
             case null -> new ComponentValue.NullNode();
             case Boolean b -> new ComponentValue.BooleanNode(b);
             case Integer i -> new ComponentValue.IntNode(i);
@@ -39,7 +39,7 @@ public final class ComponentTreeParser {
                 for (Object entry : list) {
                     values.add(parse(entry));
                 }
-                return new ComponentValue.ListNode(List.copyOf(values));
+                yield new ComponentValue.ListNode(List.copyOf(values));
             }
 
             case ConfigurationSection section -> {
@@ -47,7 +47,7 @@ public final class ComponentTreeParser {
                 for (String key : section.getKeys(false)) {
                     entries.put(key, parse(section.get(key)));
                 }
-                return new ComponentValue.ObjectNode(Map.copyOf(entries));
+                yield new ComponentValue.ObjectNode(Map.copyOf(entries));
             }
 
             // Fallback: stringify anything else (Map from SnakeYAML, etc.)
@@ -56,12 +56,10 @@ public final class ComponentTreeParser {
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
                     entries.put(String.valueOf(entry.getKey()), parse(entry.getValue()));
                 }
-                return new ComponentValue.ObjectNode(Map.copyOf(entries));
+                yield new ComponentValue.ObjectNode(Map.copyOf(entries));
             }
 
-            default -> {
-            }
-        }
-        return new ComponentValue.StringNode(String.valueOf(configValue));
+            default -> new ComponentValue.StringNode(String.valueOf(configValue));
+        };
     }
 }
