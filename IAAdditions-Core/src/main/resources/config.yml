@@ -18,6 +18,7 @@ actions:
   message: true
   mythic_mobs_skill: true
   open_inventory: true
+  open_trade_machine: true
   play_animation: true
   play_emote: true
   replace_biome: true

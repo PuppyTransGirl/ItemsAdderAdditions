@@ -18,7 +18,7 @@ mythiclib = "1.7.1-SNAPSHOT"
 bstats = "3.1.0"
 custom-block-data = "2.2.4"
 more-persistent-data-types = "2.4.0"
-antigrieflib = "1.0.10"
+antigrieflib = "1.0.11"
 
 # Test dependencies
 junit-jupiter = "5.11.4"
