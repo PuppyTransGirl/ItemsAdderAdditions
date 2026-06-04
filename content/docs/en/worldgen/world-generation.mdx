@@ -1,6 +1,6 @@
 ---
 title: World Generation
-description: Spawn custom ItemsAdder furniture during Minecraft chunk generation. Supports world populator and surface decorator modes, configured in your content YML files.
+description: Spawn custom ItemsAdder furniture during chunk generation.
 version: "1.0.8"
 ---
 
@@ -44,7 +44,7 @@ blocks_populators:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `enabled` | boolean | `true` | Set to `false` to skip without removing. |
-| `furniture` | `namespace:id` | *(required)* | The ItemsAdder furniture to spawn. |
+| `furniture` | `namespace:id` | *(required)* | The ItemsAdder furniture to spawn. See [IDs](/en/docs/compatibility/ids). |
 | `worlds` | list | *(all)* | World names to restrict to. Supports wildcard patterns such as `world_*`. |
 | `biomes` | list | *(all)* | Biome IDs (e.g. `minecraft:forest`). All must be valid or the entry is skipped. |
 | `replaceable_blocks` | list | *(any)* | Allowed materials for the block directly below the spawn point. |
@@ -85,7 +85,7 @@ surface_decorators:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `enabled` | boolean | `true` | Set to `false` to skip without removing. |
-| `furniture` | `namespace:id` | *(required)* | The ItemsAdder furniture to spawn. |
+| `furniture` | `namespace:id` | *(required)* | The ItemsAdder furniture to spawn. See [IDs](/en/docs/compatibility/ids). |
 | `worlds` | list | *(all)* | World names to restrict to. Supports wildcard patterns such as `world_*`. |
 | `biomes` | list | *(all)* | Biome IDs (e.g. `minecraft:plains`). All must be valid or the entry is skipped. |
 | `bottom_blocks` | list | *(any)* | Allowed materials for the block directly below the spawn point. |

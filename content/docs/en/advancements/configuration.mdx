@@ -1,6 +1,6 @@
 ---
 title: Configuration Reference
-description: "Full YAML reference for custom ItemsAdder advancements: display properties, criteria, rewards, and completion actions all in one config file."
+description: YAML reference for custom advancement display, criteria, and rewards.
 version: "1.0.9"
 ---
 
@@ -53,7 +53,7 @@ display:
 |-----|------|---------|-------------|
 | `title` | string | *(required)* | Advancement title. Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/). |
 | `description` | string | `""` | Tooltip description. Supports MiniMessage. |
-| `icon` | `namespace:id` | `minecraft:barrier` | Item shown as the icon. Accepts ItemsAdder item IDs, MMOItems IDs, or vanilla material IDs. Tags are not supported because the icon must resolve to one concrete item. |
+| `icon` | `namespace:id` | `minecraft:barrier` | Item shown as the icon. Accepts ItemsAdder item IDs, MMOItems IDs, or vanilla material IDs. Tags are not supported because the icon must resolve to one concrete item. See [IDs](/en/docs/compatibility/ids). |
 | `frame` | string | `task` | Shape of the icon border: `task`, `goal`, or `challenge`. |
 | `background` | string | *(none)* | **Root advancements only.** Texture path for the tab background (e.g. `minecraft:gui/advancements/backgrounds/adventure`). |
 | `show_toast` | boolean | `true` | Show a toast notification when completed. |

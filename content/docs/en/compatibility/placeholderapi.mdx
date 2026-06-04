@@ -1,0 +1,57 @@
+---
+title: PlaceholderAPI
+description: Optional PlaceholderAPI parsing in supported ItemsAdderAdditions text fields.
+icon: Braces
+---
+
+PlaceholderAPI support is optional. When PlaceholderAPI is installed, ItemsAdderAdditions parses placeholders in supported text fields. When it is not installed, the original text is kept unchanged.
+
+## Supported features
+
+PlaceholderAPI is used by text rendering paths documented on feature pages, including:
+
+- message, actionbar, title, toast, and open inventory actions
+- advancement completion text actions
+- storage inventory titles
+- text display behaviour text
+
+## Examples
+
+```yaml
+message:
+  text: "Hello %player_name%!"
+```
+
+```yaml
+behaviours:
+  text_display:
+    text: "Coins: %vault_eco_balance%"
+    refresh_interval: 20
+```
+
+For text displays, set `refresh_interval` to a positive value when placeholders should update over time.
+
+## Optional dependency behavior
+
+If PlaceholderAPI is missing, placeholders are not resolved and remain in the rendered text.
+
+## Limitations
+
+- ItemsAdderAdditions does not provide PlaceholderAPI expansions by itself.
+- Placeholder support only applies to fields that use the shared text renderer or explicitly document PlaceholderAPI support.
+
+## Troubleshooting
+
+- Install the PlaceholderAPI expansion that provides the placeholder you use.
+- Use a positive refresh interval for changing text display placeholders.
+- If text appears literally as `%placeholder%`, verify PlaceholderAPI is installed and enabled.
+
+## Related pages
+
+- [Message action](/en/docs/actions/message)
+- [Actionbar action](/en/docs/actions/actionbar)
+- [Title action](/en/docs/actions/title)
+- [Toast action](/en/docs/actions/toast)
+- [Open Inventory action](/en/docs/actions/open-inventory)
+- [Text Display behaviour](/en/docs/behaviours/text-display)
+- [Storage behaviour](/en/docs/behaviours/storage)

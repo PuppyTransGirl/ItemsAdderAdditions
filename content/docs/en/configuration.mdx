@@ -12,6 +12,7 @@ ItemsAdderAdditions uses `config.yml` for plugin-level feature toggles. ItemsAdd
 features:
   creative_inventory_integration: true
   custom_paintings: true
+  item_model_definitions: true
 
 behaviours:
   bed: true
@@ -21,6 +22,16 @@ behaviours:
   storage: true
   text_display: true
 
+worldguard:
+  enabled: true
+  flags:
+    storage_open: true
+    contact_damage: true
+    stackable_place: true
+    bed_use: true
+    custom_painting_place: true
+    actions: true
+
 actions:
   actionbar: true
   clear_item: true
@@ -28,6 +39,7 @@ actions:
   message: true
   mythic_mobs_skill: true
   open_inventory: true
+  open_trade_machine: true
   play_animation: true
   play_emote: true
   replace_biome: true
@@ -48,12 +60,7 @@ update-checker:
 
 Missing toggle keys default to enabled. This also applies to optional sections that are not present in the default config.
 
-For example, `open_trade_machine` can be disabled even though the generated default config does not include it:
-
-```yaml
-actions:
-  open_trade_machine: false
-```
+WorldGuard region checks can be configured under `worldguard`; see [WorldGuard compatibility](/en/docs/compatibility/worldguard).
 
 Components can be disabled the same way:
 

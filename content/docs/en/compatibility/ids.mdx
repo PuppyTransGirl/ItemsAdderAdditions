@@ -1,0 +1,185 @@
+---
+title: IDs
+description: Supported ID formats for items, blocks, recipes, tags, and keys.
+icon: Hash
+---
+
+ItemsAdderAdditions normalizes IDs to lowercase before matching them. Prefer explicit IDs such as `minecraft:diamond` and `my_pack:ruby_sword` in examples and shared configs.
+
+Most fields are either **concrete outputs** or **runtime matches**:
+
+- Concrete outputs must resolve to one item stack. Tags are not valid there.
+- Runtime matches may accept tags because the plugin only needs to compare existing content.
+
+## Quick reference
+
+| Content | Supported format | Example |
+|---------|------------------|---------|
+| Vanilla item | `minecraft:id`, bare Minecraft key, or Bukkit material name | `minecraft:diamond`, `diamond`, `DIAMOND` |
+| Vanilla block | `minecraft:id`, bare Minecraft key, or Bukkit material name | `minecraft:oak_log`, `oak_log`, `OAK_LOG` |
+| ItemsAdder item | `namespace:id` or bare `id` | `my_pack:ruby_sword`, `ruby_sword` |
+| ItemsAdder block | `namespace:id` or bare `id` | `my_pack:ruby_ore`, `ruby_ore` |
+| ItemsAdder furniture | `namespace:id` or bare `id` | `my_pack:ruby_lamp`, `ruby_lamp` |
+| MMOItems item | `mmoitems:type:id` | `mmoitems:sword:flame_blade` |
+| Recipe ID | `namespace:id`, bare `id`, or custom recipe tag where supported | `my_pack:ruby_sword`, `ruby_sword` |
+| Vanilla item/block tag | `#minecraft:tag` or bare `#tag` where vanilla tags are accepted | `#minecraft:planks`, `#logs` |
+| ItemsAdderAdditions custom tag | `#namespace:tag`, or bare `#tag` inside the current namespace | `#my_pack:ruby_tools`, `#ruby_tools` |
+| Namespaced key | `namespace:path` | `minecraft:strength`, `custom_pack:my_key` |
+
+## Vanilla items and blocks
+
+Vanilla items and blocks can be written as namespaced IDs, bare Minecraft keys, or Bukkit material names.
+
+```yaml
+item: minecraft:diamond_sword
+item: diamond_sword
+item: DIAMOND_SWORD
+
+block: minecraft:oak_log
+block: oak_log
+block: OAK_LOG
+```
+
+For concrete item fields, a bare ID is checked against ItemsAdder content first, then vanilla Minecraft items.
+
+## ItemsAdder items, blocks, and furniture
+
+ItemsAdder content can use either `namespace:id` or the bare content ID.
+
+```yaml
+item: my_pack:ruby_sword
+block: my_pack:ruby_ore
+furniture: my_pack:ruby_lamp
+```
+
+Bare paths also work in many fields:
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_wand:
+    events:
+      interact:
+        right:
+          replace_item:
+            item: ruby_sword
+```
+
+Bare IDs work, but `namespace:id` is clearer when two packs use the same content ID.
+
+## MMOItems items
+
+MMOItems references use this exact shape:
+
+```yaml
+item: mmoitems:type:id
+```
+
+Example:
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+The type and ID are matched through MMOItems metadata. If MMOItems is not installed or enabled, these references do not resolve and do not match.
+
+## Recipes
+
+Recipe IDs can be namespaced or bare depending on the feature.
+
+```yaml
+recipe: my_pack:ruby_sword
+recipe: ruby_sword
+```
+
+For recipe matching, a bare recipe ID can match the path part of a namespaced recipe ID. Custom recipe tags are supported only in fields that explicitly accept custom tags.
+
+## Custom tags
+
+Custom tags are defined in a top-level `tags` section.
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+      - mmoitems:tool:ruby_hammer
+```
+
+Reference the tag with `#tag` in the same namespace or `#namespace:tag` from another namespace.
+
+```yaml
+items:
+  - "#ruby_tools"
+  - "#my_pack:ruby_tools"
+```
+
+Custom tag types are `item`, `block`, `furniture`, and `recipe`. See [Custom Tags](/en/docs/custom-tags) for nesting rules and feature support.
+
+## Vanilla tags
+
+Vanilla tags are supported where the matching path accepts Bukkit item or block tags.
+
+```yaml
+item: "#minecraft:planks"
+block: "#minecraft:logs"
+```
+
+For item and block tag matching, a bare vanilla tag such as `#logs` is normalized to `#minecraft:logs` unless a custom tag with that same ID exists in the current tag registry.
+
+Vanilla tags only match vanilla registry entries. They do not match ItemsAdder content or MMOItems content.
+
+`iaa_crafting_table` ingredients are a special case: tag ingredients use Bukkit vanilla item/block tags only. They do not resolve ItemsAdderAdditions custom tags.
+
+## Concrete item outputs
+
+Use concrete IDs for fields that must create one item stack, including:
+
+- recipe results
+- campfire, stonecutter, and brewing results
+- `toast.icon`
+- `clear_item.item`
+- `replace_item.item`
+- component fields that create stored item stacks, such as `bundle_contents` and `charged_projectiles`
+
+Tags are invalid in these fields because a tag can contain more than one value.
+
+## Rotated ItemsAdder blocks and furniture
+
+Runtime block and furniture matching treats directional suffixes as the same base content:
+
+```text
+my_pack:chair_north -> my_pack:chair
+my_pack:chair_south -> my_pack:chair
+my_pack:chair_east  -> my_pack:chair
+my_pack:chair_west  -> my_pack:chair
+my_pack:chair_up    -> my_pack:chair
+my_pack:chair_down  -> my_pack:chair
+```
+
+This applies to matching checks such as advancement triggers and custom tag membership. You do not need to list every rotated variant.
+
+## Common mistakes
+
+- Using tags in output fields such as `result.item`, `toast.icon`, `clear_item.item`, or `replace_item.item`.
+- Expecting vanilla tags to match ItemsAdder or MMOItems items.
+- Using `mmoitems:type:id` without MMOItems installed.
+- Forgetting the `#` prefix for tag references.
+- Writing an invalid namespaced ID with more than one colon, such as `namespace:path:extra`.
+- Reusing the same bare ID in multiple packs and not knowing which content will be matched.
+
+## Related pages
+
+- [Compatibility overview](/en/docs/compatibility)
+- [ItemsAdder](/en/docs/compatibility/itemsadder)
+- [MMOItems](/en/docs/compatibility/mmoitems)
+- [Custom Tags](/en/docs/custom-tags)
+- [Crafting recipes](/en/docs/recipes/crafting)
+- [Advancement triggers](/en/docs/advancements/triggers)

@@ -33,7 +33,7 @@ items:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `trade_machine` | string | yes | ItemsAdder item, block, or furniture ID that provides a trade machine GUI. Bare IDs use the current `info.namespace`. |
+| `trade_machine` | string | yes | ItemsAdder item, block, or furniture ID that provides a trade machine GUI. Bare IDs are supported. See [IDs](/en/docs/compatibility/ids). |
 
 ## With targeting
 
@@ -65,4 +65,9 @@ Run `/iareload` after editing the ItemsAdder content YAML. The referenced trade 
 
 - Using an ID for a normal item that does not have a `trade_machine` or `block_trade_machine` behaviour.
 - Running the action against `target: other` when the event target is not a player.
-- Omitting the namespace when the trade machine is defined in a different `info.namespace`.
+- Reusing the same bare ID for multiple trade machines in different packs.
+
+## Related pages
+
+- [IDs](/en/docs/compatibility/ids)
+- [ItemsAdder compatibility](/en/docs/compatibility/itemsadder)

@@ -1,0 +1,46 @@
+---
+title: AntiGriefLib
+description: Optional protection-plugin bridge used by the replace_biome action.
+icon: ShieldCheck
+---
+
+AntiGriefLib support is used by the `replace_biome` action. ItemsAdderAdditions checks whether the player has build permission at candidate locations and silently skips locations where building is not allowed.
+
+## Requirements
+
+- AntiGriefLib available on the server for protection checks.
+- A protection plugin supported by AntiGriefLib, such as WorldGuard, GriefPrevention, Towny, GriefDefender, RedProtect, or another AntiGriefLib-supported plugin.
+
+## Supported features
+
+| Feature | AntiGriefLib behavior |
+|---------|-----------------------|
+| [Replace Biome action](/en/docs/actions/replace-biome) | Filters biome replacement locations by build permission. |
+
+## Example
+
+```yaml
+replace_biome:
+  biome: "minecraft:cherry_grove"
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+If some locations in the shape are protected, those locations are skipped while allowed locations can still be changed.
+
+## Limitations
+
+- AntiGriefLib is used for build-permission checks, not for ItemsAdderAdditions WorldGuard flags.
+- Skipped locations are silent; the action does not send a message for every protected block.
+
+## Troubleshooting
+
+- Verify your protection plugin is supported by AntiGriefLib.
+- Test the player's build permission at the affected location.
+- If you specifically need region flags for actions, use [WorldGuard action flags](/en/docs/compatibility/worldguard) instead.
+
+## Related pages
+
+- [Replace Biome action](/en/docs/actions/replace-biome)
+- [WorldGuard](/en/docs/compatibility/worldguard)

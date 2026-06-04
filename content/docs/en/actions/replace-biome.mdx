@@ -1,6 +1,6 @@
 ---
 title: Replace Biome
-description: Change the Minecraft biome in a spherical or cubic area around a player using an ItemsAdder action. Supports any vanilla or datapack biome.
+description: Change vanilla or datapack biomes in a configured area.
 version: "1.0.7"
 ---
 
@@ -96,7 +96,7 @@ For these shapes, `x`, `y`, and `z` still control the final shape dimensions, ev
 
 ## Protection plugin compatibility
 
-Locations where the player does not have build permission (checked via [AntiGriefLib](https://github.com/Xiao-MoMi/AntiGriefLib)) are skipped silently. Supported plugins include WorldGuard, GriefPrevention, Towny, GriefDefender, RedProtect, and others supported by AntiGriefLib.
+Locations where the player does not have build permission (checked via [AntiGriefLib](/en/docs/compatibility/antigrieflib)) are skipped silently. Supported plugins include WorldGuard, GriefPrevention, Towny, GriefDefender, RedProtect, and others supported by AntiGriefLib.
 
 ## Important limitation
 
@@ -169,3 +169,8 @@ my_item:
           radius:
             blocks_from_center: 5
 ```
+
+## Related pages
+
+- [AntiGriefLib compatibility](/en/docs/compatibility/antigrieflib)
+- [WorldGuard compatibility](/en/docs/compatibility/worldguard)

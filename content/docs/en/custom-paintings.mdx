@@ -39,7 +39,7 @@ paintings:
 | `asset` | `namespace:key` | *(required)* | Texture asset key. See [Texture path](#texture-path) below. |
 | `title` | string | *(none)* | Optional display title shown in tooltips. Supports MiniMessage. |
 | `author` | string | *(none)* | Optional author name shown in tooltips. |
-| `item` | `namespace:item_id` | *(none)* | Optional linked ItemsAdder item. When right-clicked on a valid wall face, this item places the custom painting. |
+| `item` | `namespace:item_id` | *(none)* | Optional linked ItemsAdder item. When right-clicked on a valid wall face, this item places the custom painting. See [IDs](/en/docs/compatibility/ids). |
 | `include_in_random` | boolean | `false` | When `true`, vanilla painting items can randomly select this custom painting when the wall space fits. |
 
 ## Texture path
@@ -57,7 +57,7 @@ No datapack files are needed. The plugin injects the painting variants at runtim
 If you set an `item`, that ItemsAdder item behaves like a custom painting item:
 
 - Right-clicking a valid wall face places the custom painting.
-- Protection plugin checks are respected.
+- WorldGuard painting placement flags are respected when WorldGuard integration is enabled.
 - The off-hand duplicate-placement issue is handled automatically.
 
 If `include_in_random` is `false` (the default), the painting can only be placed through its linked item. Set it to `true` to also allow vanilla painting items to pick it randomly.
@@ -76,3 +76,8 @@ features:
 - This feature is only available on Minecraft **1.21.5** and newer. On older supported versions, the plugin logs a warning and skips the `paintings` section.
 - No `/iazip` or manual resource pack step is needed for the painting variants themselves, but your texture file must be included in your resource pack as usual.
 - The linked `item` must be an existing ItemsAdder item. If it is missing, the painting variant is still registered, but no placement item will work.
+
+## Related pages
+
+- [IDs](/en/docs/compatibility/ids)
+- [WorldGuard compatibility](/en/docs/compatibility/worldguard)

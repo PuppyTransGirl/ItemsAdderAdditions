@@ -1,6 +1,6 @@
 ---
 title: Clear Item
-description: Remove custom ItemsAdder, MMOItems, or vanilla Minecraft items from a player's inventory. Supports configurable amounts and exact item matching.
+description: Remove ItemsAdder, MMOItems, or vanilla items from a player inventory.
 version: "1.0.0"
 ---
 
@@ -14,7 +14,7 @@ clear_item:
 
 ### `item`
 
-Required. The item to remove. Use a vanilla material from [this list](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), a custom ItemsAdder item with `namespace:id` or just `id`, or an MMOItems item with `mmoitems:type:id`. Tags are not supported for this parameter.
+Required. The item to remove. Use a vanilla material, an ItemsAdder item with `namespace:id` or just `id`, or an MMOItems item with `mmoitems:type:id`. Tags are not supported for this parameter because the action needs one concrete item. See [IDs](/en/docs/compatibility/ids).
 
 ### `amount`
 

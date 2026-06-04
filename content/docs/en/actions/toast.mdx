@@ -1,6 +1,6 @@
 ---
 title: Toast
-description: Display an advancement-style toast notification with a custom icon and message to a player when an ItemsAdder item event fires.
+description: Display an advancement-style toast with a custom icon and message.
 version: "1.0.0"
 ---
 
@@ -17,11 +17,11 @@ toast:
 
 ### `icon`
 
-Required. The item shown as the toast icon. Use a vanilla material from [this list](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), a custom ItemsAdder item with `namespace:id` or just `id`, or an MMOItems item with `mmoitems:type:id`. Tags are not supported for toast icons.
+Required. The item shown as the toast icon. Use a vanilla material, an ItemsAdder item with `namespace:id` or just `id`, or an MMOItems item with `mmoitems:type:id`. Tags are not supported for toast icons because the icon must be one concrete item. See [IDs](/en/docs/compatibility/ids).
 
 ### `text`
 
-Required. The toast message. Can be a single string or a list (one entry per line). Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi), and font images.
+Required. The toast message. Can be a single string or a list (one entry per line). Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/), [PlaceholderAPI](/en/docs/compatibility/placeholderapi), and font images.
 
 ### `frame`
 

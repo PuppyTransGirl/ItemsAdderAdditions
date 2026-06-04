@@ -1,0 +1,134 @@
+---
+title: WorldGuard
+description: Optional WorldGuard region flags added by ItemsAdderAdditions.
+icon: Shield
+---
+
+WorldGuard support is optional. When WorldGuard is installed, ItemsAdderAdditions registers region flags that can allow or deny supported behaviours, custom painting placement, and built-in actions.
+
+If WorldGuard is not installed, or if a WorldGuard check is disabled in ItemsAdderAdditions config, the protected feature is allowed by ItemsAdderAdditions.
+
+## Requirements
+
+- WorldGuard installed before ItemsAdderAdditions registers flags.
+- Restart the server after adding WorldGuard or changing plugins that define conflicting flags.
+
+## Configuration
+
+WorldGuard checks are enabled by default.
+
+```yaml
+worldguard:
+  enabled: true
+  flags:
+    storage_open: true
+    contact_damage: true
+    stackable_place: true
+    bed_use: true
+    custom_painting_place: true
+    actions: true
+```
+
+Set `worldguard.enabled: false` to disable all ItemsAdderAdditions WorldGuard checks. Set an individual flag option to `false` to stop checking that flag while leaving other checks enabled.
+
+## Flags
+
+ItemsAdderAdditions registers WorldGuard `StateFlag`s with default value `allow`.
+
+| Flag | Controlled behavior |
+|------|---------------------|
+| `iaa-storage-open` | Opening storage behaviour inventories. |
+| `iaa-contact-damage` | Damage applied by the contact effect behaviour. |
+| `iaa-stackable-place` | Placement handled by the stackable behaviour. |
+| `iaa-bed-use` | Using the bed behaviour. |
+| `iaa-custom-painting-place` | Placing custom paintings. |
+
+## Action flags
+
+ItemsAdderAdditions also registers one flag per built-in action. The flag name is:
+
+```text
+iaa-action-<action-key-with-underscores-replaced-by-dashes>
+```
+
+Examples:
+
+| Action key | WorldGuard flag |
+|------------|-----------------|
+| `replace_biome` | `iaa-action-replace-biome` |
+| `open_trade_machine` | `iaa-action-open-trade-machine` |
+| `mythic_mobs_skill` | `iaa-action-mythic-mobs-skill` |
+
+Current built-in action flags:
+
+```text
+iaa-action-actionbar
+iaa-action-clear-item
+iaa-action-ignite
+iaa-action-message
+iaa-action-mythic-mobs-skill
+iaa-action-open-inventory
+iaa-action-open-trade-machine
+iaa-action-play-animation
+iaa-action-play-emote
+iaa-action-replace-biome
+iaa-action-replace-item
+iaa-action-shoot-fireball
+iaa-action-swing-hand
+iaa-action-teleport
+iaa-action-title
+iaa-action-toast
+iaa-action-veinminer
+```
+
+All action executors check their action flag before running. The checked location is chosen from the action context: target entity, block, furniture entity, or the player's location as a fallback.
+
+## Region examples
+
+Deny storage openings in a region:
+
+```text
+/rg flag spawn iaa-storage-open deny
+```
+
+Deny contact effect damage in a region:
+
+```text
+/rg flag spawn iaa-contact-damage deny
+```
+
+Deny only the `replace_biome` action in a region:
+
+```text
+/rg flag spawn iaa-action-replace-biome deny
+```
+
+Allow custom painting placement explicitly:
+
+```text
+/rg flag gallery iaa-custom-painting-place allow
+```
+
+## Default behavior
+
+- Flags default to `allow`.
+- Missing WorldGuard means ItemsAdderAdditions allows the feature.
+- Disabled ItemsAdderAdditions WorldGuard config means ItemsAdderAdditions allows the feature.
+- If a flag name conflicts with a non-`StateFlag`, that flag is disabled and a warning is logged.
+
+## Troubleshooting
+
+- If a flag command says the flag does not exist, restart with WorldGuard installed so ItemsAdderAdditions can register flags during startup.
+- If a feature still runs, check `config.yml` and confirm the related `worldguard.flags.*` option is `true`.
+- For actions, use the action flag name with dashes, not underscores.
+- Check server logs for flag conflict warnings.
+
+## Related pages
+
+- [Configuration](/en/docs/configuration)
+- [Storage behaviour](/en/docs/behaviours/storage)
+- [Contact effect behaviour](/en/docs/behaviours/contact-effect)
+- [Stackable behaviour](/en/docs/behaviours/stackable)
+- [Bed behaviour](/en/docs/behaviours/bed)
+- [Custom Paintings](/en/docs/custom-paintings)
+- [Actions](/en/docs/actions)

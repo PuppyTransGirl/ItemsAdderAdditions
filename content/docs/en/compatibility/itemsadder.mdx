@@ -1,0 +1,49 @@
+---
+title: ItemsAdder
+description: Required ItemsAdder integration behavior used by ItemsAdderAdditions.
+icon: Blocks
+---
+
+ItemsAdder is required. ItemsAdderAdditions loads configuration from ItemsAdder content YAML files and uses ItemsAdder APIs to resolve custom stacks, custom blocks, furniture, font images, and reload events.
+
+## Requirements
+
+- ItemsAdder v4 is supported; the latest version is recommended.
+- A supported Paper server version with a matching ItemsAdderAdditions NMS adapter.
+
+## Supported features
+
+ItemsAdderAdditions uses ItemsAdder for:
+
+- reading item, block, furniture, recipe, behaviour, action, component, custom tag, advancement, painting, and world-generation sections from content YAML
+- resolving ItemsAdder item IDs to `ItemStack`s
+- matching already placed custom blocks and furniture
+- applying item modifier hooks for components and Valhalla metadata
+- listening for ItemsAdder load/reload events
+- handling ItemsAdder font images in rendered text
+- runtime patches for ItemsAdder cooldowns, stat requirements, stonecutter behavior, trade machines, and crafting behavior where needed
+
+## Reload behavior
+
+Most YAML-only ItemsAdderAdditions sections reload through ItemsAdder reloads and `/iareload`.
+
+Components mutate generated item stacks through ItemsAdder's item modifier pipeline. After changing components, run `/iazip` so ItemsAdder regenerates the pack and item data.
+
+## ID syntax
+
+ItemsAdder content can usually be referenced as either `namespace:id` or bare `id`.
+
+See [IDs](/en/docs/compatibility/ids) for exact formats and common mistakes.
+
+## Troubleshooting
+
+- If a custom ID does not resolve, check that the content is loaded by ItemsAdder and that the namespace is correct.
+- Prefer `namespace:id` when different packs may use the same bare ID.
+- After changing generated item data, run `/iazip`; after changing runtime YAML sections, run `/iareload`.
+
+## Related pages
+
+- [IDs](/en/docs/compatibility/ids)
+- [Configuration](/en/docs/configuration)
+- [Components](/en/docs/components)
+- [Custom Tags](/en/docs/custom-tags)

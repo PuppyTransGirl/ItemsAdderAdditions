@@ -40,7 +40,7 @@ tags:
       - ruby_pickaxe
 ```
 
-Reference a tag with `#tag_id` in the same namespace or `#namespace:tag_id` across namespaces.
+Reference a tag with `#tag_id` in the same namespace or `#namespace:tag_id` across namespaces. See [IDs](/en/docs/compatibility/ids) for tag reference rules.
 
 ## Tag types
 
@@ -137,3 +137,8 @@ Custom tags are prepared before actions, behaviours, recipes, advancements, and 
 - Defining the same `type` and tag ID twice. The first declaration wins.
 - Expecting custom tags to create item stacks. Use concrete item IDs for outputs such as recipe results, `toast.icon`, `clear_item.item`, and `replace_item.item`.
 - Overriding a vanilla-looking tag such as `#minecraft:planks`. Custom tags are resolved first when a custom tag with that ID exists.
+
+## Related pages
+
+- [IDs](/en/docs/compatibility/ids)
+- [Compatibility](/en/docs/compatibility)

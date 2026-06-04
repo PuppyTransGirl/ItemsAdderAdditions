@@ -1,0 +1,16 @@
+{
+  "title": "Compatibility",
+  "icon": "Puzzle",
+  "pages": [
+    "index",
+    "ids",
+    "itemsadder",
+    "mmoitems",
+    "valhalla",
+    "worldguard",
+    "coreprotect",
+    "placeholderapi",
+    "mythicmobs",
+    "antigrieflib"
+  ]
+}

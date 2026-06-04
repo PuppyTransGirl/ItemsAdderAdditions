@@ -1,0 +1,61 @@
+---
+title: CoreProtect
+description: Optional CoreProtect logging behavior supported by ItemsAdderAdditions.
+icon: History
+---
+
+CoreProtect support is optional. ItemsAdderAdditions currently uses CoreProtect only to log storage behaviour openings as interactions.
+
+## Requirements
+
+- CoreProtect installed and enabled.
+- CoreProtect API enabled.
+- ItemsAdderAdditions storage behaviour in use.
+
+## What is logged
+
+When a player opens an ItemsAdderAdditions storage container, ItemsAdderAdditions calls CoreProtect's interaction logger with:
+
+- the player's name
+- the storage location
+
+This makes storage opens visible as CoreProtect interactions when CoreProtect is available.
+
+## What is not logged
+
+ItemsAdderAdditions does not currently log these through CoreProtect:
+
+- item movement inside the storage inventory
+- action execution
+- custom painting placement
+- stackable placement
+- contact effect damage
+- recipe crafting
+- advancement completion
+- world generation
+
+## Optional dependency behavior
+
+If CoreProtect is not installed, disabled, or its API is unavailable, ItemsAdderAdditions skips the log call. Storage still works normally.
+
+## Supported features
+
+| Feature | CoreProtect behavior |
+|---------|----------------------|
+| [Storage behaviour](/en/docs/behaviours/storage) | Logs an interaction when storage is opened. |
+
+## Limitations
+
+CoreProtect support is intentionally narrow. It records that storage was opened; it does not provide a full audit log of inventory contents or item transfers.
+
+## Troubleshooting
+
+- Confirm CoreProtect is installed and enabled.
+- Confirm the CoreProtect API is enabled and working.
+- Test with a storage behaviour block or furniture, not an unrelated action or recipe.
+- If no interaction appears, check that the player actually opened the storage successfully.
+
+## Related pages
+
+- [Storage behaviour](/en/docs/behaviours/storage)
+- [WorldGuard](/en/docs/compatibility/worldguard)

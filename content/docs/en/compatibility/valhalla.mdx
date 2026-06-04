@@ -1,0 +1,147 @@
+---
+title: ValhallaMMO & Trinkets
+description: Attach ValhallaMMO and ValhallaTrinkets metadata to ItemsAdder item stacks.
+icon: Gem
+version: "1.0.10"
+---
+
+ItemsAdderAdditions can write ValhallaMMO and ValhallaTrinkets persistent data to ItemsAdder item stacks when they are created. Configure the data under an ItemsAdder item's `valhalla` section.
+
+The metadata is written directly to the item stack. Gameplay effects require the matching Valhalla plugin to be installed on the server.
+
+## Requirements
+
+- ItemsAdder item content loaded by ItemsAdder.
+- ValhallaMMO for ValhallaMMO stats, equipment class, item flags, and permanent effects.
+- ValhallaTrinkets for trinket metadata.
+
+## Optional dependency behavior
+
+ItemsAdderAdditions writes the persistent data keys even if ValhallaMMO or ValhallaTrinkets is not installed. Without the matching Valhalla plugin, the data remains on the item but has no gameplay effect.
+
+## Basic structure
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_sword:
+    display_name: "<red>Ruby Sword"
+    valhalla:
+      equipment_class: SWORD
+      item_flags:
+        - DISPLAY_ATTRIBUTES
+      stats:
+        - stat: DAMAGE_BASE
+          amount: 4.0
+          operation: ADD_NUMBER
+```
+
+## Stats
+
+Use `stats` when the same entries should be written to both Valhalla's actual stats and default stats.
+
+```yaml
+valhalla:
+  stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+      hidden: false
+```
+
+You can also write the two stat containers separately:
+
+```yaml
+valhalla:
+  actual_stats:
+    - stat: DAMAGE_BASE
+      amount: 6.0
+      operation: ADD_NUMBER
+  default_stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `stat` | string | *(required)* | Valhalla stat key. Unknown stat keys are skipped. |
+| `amount` | number | *(required)* | Stat value. |
+| `operation` | string | *(required)* | `ADD_NUMBER`, `ADD_SCALAR`, or `MULTIPLY_SCALAR_1`. |
+| `hidden` | boolean | `false` | Whether Valhalla should hide the stat line. |
+
+## Equipment class and flags
+
+```yaml
+valhalla:
+  equipment_class: SWORD
+  item_flags:
+    - DISPLAY_ATTRIBUTES
+    - HIDE_QUALITY
+```
+
+Common equipment classes include `SWORD`, `BOW`, `CROSSBOW`, `TRIDENT`, `MACE`, `HELMET`, `CHESTPLATE`, `LEGGINGS`, `BOOTS`, `PICKAXE`, `AXE`, `SHOVEL`, `HOE`, `SHIELD`, `TRINKET`, and `OTHER`.
+
+Supported item flags are:
+
+```text
+HIDE_TAGS, HIDE_QUALITY, DISPLAY_ATTRIBUTES, HIDE_DURABILITY,
+ATTRIBUTE_FOR_BOTH_HANDS, ATTRIBUTE_FOR_HELMET, INFINITY_EXPLOITABLE,
+UNCRAFTABLE, TEMPORARY_POTION_DISPLAY, UNENCHANTABLE, UNMENDABLE
+```
+
+## Permanent effects
+
+```yaml
+valhalla:
+  permanent_effects:
+    effects:
+      - type: minecraft:strength
+        amplifier: 1
+        duration: 200
+        condition: constant
+    cooldown_properties:
+      cooldown: 1200
+      cdr_affected: true
+```
+
+`effect` can be used instead of `type`. The legacy key `permanent_potion_effects` is also accepted for the effects list.
+
+`cooldown_properties` can also be placed at the top level as `permanent_effects_cooldown_properties`. `cdrAffected` is accepted as an alias for `cdr_affected`.
+
+## ValhallaTrinkets
+
+```yaml
+valhalla:
+  trinkets:
+    trinket_id: 1001
+    trinket_unique_id: 1001
+    unique: true
+    unstackable: true
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `trinket_id` | integer | *(none)* | ValhallaTrinkets ID. Must be a non-negative 32-bit integer. |
+| `trinket_unique_id` | integer | *(none)* | Unique trinket ID. Must be a non-negative 32-bit integer. |
+| `unique` | boolean | *(none)* | Writes or removes the ValhallaTrinkets unique flag. |
+| `unstackable` | boolean | *(none)* | When `true`, each generated item stack gets a random UUID. |
+
+## Reload behavior
+
+Run `/iareload` after editing `valhalla` sections. The data is applied to item stacks created after the reload; existing stacks are not rewritten automatically.
+
+## Troubleshooting
+
+- Unknown Valhalla stat names are skipped.
+- Enum values for `operation`, `equipment_class`, and `item_flags` should use the Valhalla-style uppercase names shown above.
+- Existing items in player inventories are not rewritten automatically.
+- If gameplay effects do not apply, verify that ValhallaMMO or ValhallaTrinkets is installed and supports the metadata being written.
+
+## Related pages
+
+- [ItemsAdder](/en/docs/compatibility/itemsadder)
+- [IDs](/en/docs/compatibility/ids)
+- [Configuration](/en/docs/configuration)

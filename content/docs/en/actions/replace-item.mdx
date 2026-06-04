@@ -1,6 +1,6 @@
 ---
 title: Replace Item
-description: Replace the item in a player's hand with a vanilla Minecraft, ItemsAdder, or MMOItems item. Optionally copy durability, enchantments, and persistent data from the original item.
+description: Replace a held item with a vanilla, ItemsAdder, or MMOItems item.
 version: "1.0.9"
 ---
 
@@ -20,7 +20,7 @@ Normal item triggers replace the main-hand item. Off-hand trigger variants, such
 
 ### `item`
 
-Required. The replacement item to give to the player. Use a vanilla material from [this list](https://jd.papermc.io/paper/org/bukkit/inventory/ItemType.html#field-summary), a custom ItemsAdder item with `namespace:id` or just `id`, or an MMOItems item with `mmoitems:type:id`.
+Required. The replacement item to give to the player. Use a vanilla material, an ItemsAdder item with `namespace:id` or just `id`, or an MMOItems item with `mmoitems:type:id`. See [IDs](/en/docs/compatibility/ids).
 
 Tags such as `#minecraft:planks` are not supported because the action must create one concrete item stack.
 

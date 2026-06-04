@@ -1,6 +1,6 @@
 ---
 title: Storage
-description: Turn any ItemsAdder custom block or furniture into a storage container. Supports shared storage, shulker-style portable containers, and trash disposal modes.
+description: Turn custom blocks or furniture into storage containers.
 version: "1.0.0"
 ---
 
@@ -81,7 +81,7 @@ Turns any custom block or furniture into a storage container. Three modes are av
 
 For `name`, use a value from [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) or a custom sound with `namespace:value`.
 
-Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
+Supports [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) formatting, [PlaceholderAPI](/en/docs/compatibility/placeholderapi) placeholders, and [ItemsAdder](https://itemsadder.com/) font images.
 
 ## Inventory type
 
@@ -127,6 +127,15 @@ behaviours:
 - `id`
 - `namespace:id`
 
+See [IDs](/en/docs/compatibility/ids) for ID syntax.
+
 When the inventory is closed by all players, the storage returns to its normal variant.
 
 <VideoGif src="/assets/behaviours_storage_example"/>
+
+## Related pages
+
+- [IDs](/en/docs/compatibility/ids)
+- [WorldGuard compatibility](/en/docs/compatibility/worldguard)
+- [CoreProtect compatibility](/en/docs/compatibility/coreprotect)
+- [PlaceholderAPI compatibility](/en/docs/compatibility/placeholderapi)

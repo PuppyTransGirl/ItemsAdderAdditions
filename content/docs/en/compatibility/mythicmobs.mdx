@@ -1,0 +1,51 @@
+---
+title: MythicMobs
+description: Optional MythicMobs support for the mythic_mobs_skill action.
+icon: Sparkles
+---
+
+MythicMobs support is optional. ItemsAdderAdditions uses MythicMobs only for the `mythic_mobs_skill` action.
+
+## Requirements
+
+- MythicMobs installed and enabled.
+- A valid MythicMobs skill name.
+- The `mythic_mobs_skill` action enabled in ItemsAdderAdditions config.
+
+## Supported features
+
+| Feature | MythicMobs behavior |
+|---------|---------------------|
+| [Mythic Mobs Skill action](/en/docs/actions/mythic-mobs-skill) | Casts a MythicMobs skill from the player with configurable power. |
+
+## Example
+
+```yaml
+mythic_mobs_skill:
+  skill: "mega_attack"
+  power: 0.75
+```
+
+The action asks MythicMobs to cast the skill from the player, using the player's location and MythicMobs' targeted entity helper.
+
+## Optional dependency behavior
+
+If MythicMobs is not installed or not enabled, the action returns without casting a skill. Other actions continue to work.
+
+## Limitations
+
+- This integration does not add new MythicMobs mechanics.
+- It is action-only; MMO-style item references are handled by [MMOItems](/en/docs/compatibility/mmoitems), not MythicMobs.
+
+## Troubleshooting
+
+- Verify the skill name exists in MythicMobs.
+- Confirm the action key is `mythic_mobs_skill`.
+- Check that the action is enabled in `config.yml`.
+- Confirm MythicMobs is installed and enabled before testing.
+
+## Related pages
+
+- [Mythic Mobs Skill action](/en/docs/actions/mythic-mobs-skill)
+- [Actions](/en/docs/actions)
+- [Configuration](/en/docs/configuration)

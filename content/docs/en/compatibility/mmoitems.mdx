@@ -1,0 +1,64 @@
+---
+title: MMOItems
+description: Optional MMOItems item reference and matching support.
+icon: Sword
+---
+
+MMOItems support is optional. If MMOItems is installed and enabled, ItemsAdderAdditions can create and match MMOItems stacks with `mmoitems:type:id` references.
+
+## Requirements
+
+- MMOItems installed and enabled only on servers that use `mmoitems:type:id` references.
+- The MMOItems type and item ID must exist in MMOItems.
+
+## Supported features
+
+MMOItems item references are supported by shared item-resolution paths, including:
+
+- recipe ingredients and concrete recipe outputs where item stacks are created
+- item actions such as `clear_item`, `replace_item`, and `toast.icon`
+- advancement item predicates and supported item conditions
+- custom item tags
+- component fields that create item stacks, such as `bundle_contents` and `charged_projectiles`
+
+## Syntax
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+The format is:
+
+```text
+mmoitems:type:id
+```
+
+ItemsAdderAdditions reads MMOItems metadata keys `MMOITEMS_ITEM_TYPE` and `MMOITEMS_ITEM_ID` when matching existing item stacks.
+
+## Optional dependency behavior
+
+If MMOItems is not installed or not enabled:
+
+- `mmoitems:type:id` references cannot create item stacks.
+- `mmoitems:type:id` references do not match existing items.
+- Other vanilla and ItemsAdder references continue to work.
+
+## Limitations
+
+- MMOItems references are item references only. They are not block, furniture, or recipe IDs.
+- Vanilla tags do not match MMOItems items.
+- Tags are still invalid in concrete output fields even if a custom tag contains MMOItems values.
+
+## Troubleshooting
+
+- Check the MMOItems type and ID spelling.
+- Use exactly two separators after the prefix: `mmoitems:type:id`.
+- Install and enable MMOItems before testing MMOItems references.
+
+## Related pages
+
+- [IDs](/en/docs/compatibility/ids)
+- [Crafting recipes](/en/docs/recipes/crafting)
+- [Custom Tags](/en/docs/custom-tags)
+- [Clear Item](/en/docs/actions/clear-item)
+- [Replace Item](/en/docs/actions/replace-item)

@@ -1,6 +1,6 @@
 ---
 title: Campfire Cooking
-description: Add campfire cooking recipes for ItemsAdder, MMOItems, or vanilla Minecraft items. Defined directly in your content YML files, no extra recipe files needed.
+description: Add campfire cooking recipes for vanilla, ItemsAdder, or MMOItems items.
 version: "1.0.3"
 ---
 
@@ -14,7 +14,7 @@ Optional. Defaults to `true`. Set to `false` to skip registering the recipe.
 
 ### `ingredient.item`
 
-Required. The input item for the recipe. Use a vanilla material, an ItemsAdder item, or an MMOItems item.
+Required. The input item for the recipe. Use a vanilla material, an ItemsAdder item, or an MMOItems item. See [IDs](/en/docs/compatibility/ids).
 
 ```yaml
 ingredient:
@@ -76,3 +76,8 @@ recipes:
 - Tags such as `#minecraft:fishes` are not supported here because campfire recipes require one concrete input stack.
 - Recipe IDs such as `roasted_berry_skewer` are internal identifiers.
 - The namespace comes from `info.namespace`.
+
+## Related pages
+
+- [IDs](/en/docs/compatibility/ids)
+- [MMOItems compatibility](/en/docs/compatibility/mmoitems)
