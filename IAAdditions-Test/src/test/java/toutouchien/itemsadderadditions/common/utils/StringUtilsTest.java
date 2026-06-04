@@ -46,13 +46,28 @@ class StringUtilsTest {
     }
 
     @Test
-    void preReleaseSuffixStripped() {
-        assertEquals(0, StringUtils.compareSemVer("1.0.0-beta-3", "1.0.0"));
+    void preReleaseLowerThanRelease() {
+        assertTrue(StringUtils.compareSemVer("1.0.0-beta-3", "1.0.0") < 0);
     }
 
     @Test
-    void preReleaseSuffixStrippedBothSides() {
-        assertEquals(0, StringUtils.compareSemVer("1.0.0-alpha-1", "1.0.0-beta-2"));
+    void releaseHigherThanPreRelease() {
+        assertTrue(StringUtils.compareSemVer("1.0.0", "1.0.0-beta-3") > 0);
+    }
+
+    @Test
+    void newerCorePreReleaseBeatsOlderRelease() {
+        assertTrue(StringUtils.compareSemVer("1.0.11-beta-3", "1.0.10") > 0);
+    }
+
+    @Test
+    void olderCorePreReleaseLosesToNewerRelease() {
+        assertTrue(StringUtils.compareSemVer("1.0.10-beta-14", "1.0.10") < 0);
+    }
+
+    @Test
+    void alphaLessThanBeta() {
+        assertTrue(StringUtils.compareSemVer("1.0.0-alpha-1", "1.0.0-beta-2") < 0);
     }
 
     @Test
@@ -106,7 +121,17 @@ class StringUtilsTest {
     }
 
     @Test
-    void preReleaseLargerNumericStillEqual() {
-        assertEquals(0, StringUtils.compareSemVer("2.0.0-beta-9", "2.0.0-rc-1"));
+    void betaLessThanRcRegardlessOfNumber() {
+        assertTrue(StringUtils.compareSemVer("2.0.0-beta-9", "2.0.0-rc-1") < 0);
+    }
+
+    @Test
+    void samePreReleaseEqual() {
+        assertEquals(0, StringUtils.compareSemVer("2.0.0-beta-9", "2.0.0-beta-9"));
+    }
+
+    @Test
+    void higherPreReleaseNumberWins() {
+        assertTrue(StringUtils.compareSemVer("2.0.0-beta-14", "2.0.0-beta-9") > 0);
     }
 }
