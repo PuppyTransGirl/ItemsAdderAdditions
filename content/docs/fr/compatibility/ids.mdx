@@ -1,0 +1,185 @@
+---
+title: IDs
+description: Formats d'IDs pris en charge pour les objets, blocs, recettes, tags et clés.
+icon: Hash
+---
+
+ItemsAdderAdditions normalise les IDs en minuscules avant de les comparer. Dans les exemples et les configurations partagées, privilégiez les IDs explicites comme `minecraft:diamond` et `my_pack:ruby_sword`.
+
+La plupart des champs sont soit des **sorties concrètes**, soit des **correspondances à l'exécution** :
+
+- Les sorties concrètes doivent résoudre une seule pile d'objets. Les tags n'y sont pas valides.
+- Les correspondances à l'exécution peuvent accepter des tags, car le plugin doit seulement comparer du contenu existant.
+
+## Référence rapide
+
+| Contenu | Format pris en charge | Exemple |
+|---------|-----------------------|---------|
+| Objet vanilla | `minecraft:id`, clé Minecraft seule ou nom de matériau Bukkit | `minecraft:diamond`, `diamond`, `DIAMOND` |
+| Bloc vanilla | `minecraft:id`, clé Minecraft seule ou nom de matériau Bukkit | `minecraft:oak_log`, `oak_log`, `OAK_LOG` |
+| Objet ItemsAdder | `namespace:id` ou `id` seul | `my_pack:ruby_sword`, `ruby_sword` |
+| Bloc ItemsAdder | `namespace:id` ou `id` seul | `my_pack:ruby_ore`, `ruby_ore` |
+| Meuble ItemsAdder | `namespace:id` ou `id` seul | `my_pack:ruby_lamp`, `ruby_lamp` |
+| Objet MMOItems | `mmoitems:type:id` | `mmoitems:sword:flame_blade` |
+| ID de recette | `namespace:id`, `id` seul ou tag de recette personnalisé lorsque pris en charge | `my_pack:ruby_sword`, `ruby_sword` |
+| Tag vanilla d'objets/blocs | `#minecraft:tag` ou `#tag` seul lorsque les tags vanilla sont acceptés | `#minecraft:planks`, `#logs` |
+| Tag personnalisé ItemsAdderAdditions | `#namespace:tag`, ou `#tag` seul dans le namespace actuel | `#my_pack:ruby_tools`, `#ruby_tools` |
+| Clé namespaced | `namespace:path` | `minecraft:strength`, `custom_pack:my_key` |
+
+## Objets et blocs vanilla
+
+Les objets et blocs vanilla peuvent être écrits sous forme d'IDs namespaced, de clés Minecraft seules ou de noms de matériaux Bukkit.
+
+```yaml
+item: minecraft:diamond_sword
+item: diamond_sword
+item: DIAMOND_SWORD
+
+block: minecraft:oak_log
+block: oak_log
+block: OAK_LOG
+```
+
+Pour les champs d'objet concrets, un ID seul est d'abord recherché dans le contenu ItemsAdder, puis dans les objets Minecraft vanilla.
+
+## Objets, blocs et meubles ItemsAdder
+
+Le contenu ItemsAdder peut utiliser `namespace:id` ou l'ID de contenu seul.
+
+```yaml
+item: my_pack:ruby_sword
+block: my_pack:ruby_ore
+furniture: my_pack:ruby_lamp
+```
+
+Les chemins seuls fonctionnent aussi dans de nombreux champs :
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_wand:
+    events:
+      interact:
+        right:
+          replace_item:
+            item: ruby_sword
+```
+
+Les IDs seuls fonctionnent, mais `namespace:id` est plus clair lorsque deux packs utilisent le même ID de contenu.
+
+## Objets MMOItems
+
+Les références MMOItems utilisent exactement cette forme :
+
+```yaml
+item: mmoitems:type:id
+```
+
+Exemple :
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+Le type et l'ID sont comparés via les métadonnées MMOItems. Si MMOItems n'est pas installé ou activé, ces références ne se résolvent pas et ne correspondent à rien.
+
+## Recettes
+
+Les IDs de recettes peuvent être namespaced ou seuls selon la fonctionnalité.
+
+```yaml
+recipe: my_pack:ruby_sword
+recipe: ruby_sword
+```
+
+Pour la correspondance de recettes, un ID de recette seul peut correspondre à la partie chemin d'un ID de recette namespaced. Les tags de recette personnalisés ne sont pris en charge que dans les champs qui acceptent explicitement les tags personnalisés.
+
+## Tags personnalisés
+
+Les tags personnalisés sont définis dans une section `tags` au niveau racine.
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+      - mmoitems:tool:ruby_hammer
+```
+
+Référencez le tag avec `#tag` dans le même namespace ou `#namespace:tag` depuis un autre namespace.
+
+```yaml
+items:
+  - "#ruby_tools"
+  - "#my_pack:ruby_tools"
+```
+
+Les types de tags personnalisés sont `item`, `block`, `furniture` et `recipe`. Consultez [Tags personnalisés](/fr/docs/custom-tags) pour les règles d'imbrication et la prise en charge par fonctionnalité.
+
+## Tags vanilla
+
+Les tags vanilla sont pris en charge lorsque le chemin de correspondance accepte les tags Bukkit d'objets ou de blocs.
+
+```yaml
+item: "#minecraft:planks"
+block: "#minecraft:logs"
+```
+
+Pour la correspondance des tags d'objets et de blocs, un tag vanilla seul comme `#logs` est normalisé en `#minecraft:logs`, sauf si un tag personnalisé avec le même ID existe dans le registre de tags actuel.
+
+Les tags vanilla ne correspondent qu'aux entrées du registre vanilla. Ils ne correspondent pas au contenu ItemsAdder ni au contenu MMOItems.
+
+Les ingrédients de `iaa_crafting_table` sont un cas particulier : les ingrédients sous forme de tag utilisent uniquement les tags Bukkit vanilla d'objets/blocs. Ils ne résolvent pas les tags personnalisés ItemsAdderAdditions.
+
+## Sorties d'objet concrètes
+
+Utilisez des IDs concrets pour les champs qui doivent créer une seule pile d'objets, notamment :
+
+- les résultats de recettes
+- les résultats de feu de camp, de tailleur de pierre et d'alambic
+- `toast.icon`
+- `clear_item.item`
+- `replace_item.item`
+- les champs de composants qui créent des piles d'objets stockées, comme `bundle_contents` et `charged_projectiles`
+
+Les tags ne sont pas valides dans ces champs, car un tag peut contenir plusieurs valeurs.
+
+## Blocs et meubles ItemsAdder orientés
+
+La correspondance à l'exécution des blocs et meubles traite les suffixes directionnels comme le même contenu de base :
+
+```text
+my_pack:chair_north -> my_pack:chair
+my_pack:chair_south -> my_pack:chair
+my_pack:chair_east  -> my_pack:chair
+my_pack:chair_west  -> my_pack:chair
+my_pack:chair_up    -> my_pack:chair
+my_pack:chair_down  -> my_pack:chair
+```
+
+Cela s'applique aux vérifications de correspondance comme les déclencheurs de progrès et l'appartenance aux tags personnalisés. Vous n'avez pas besoin de lister chaque variante orientée.
+
+## Erreurs courantes
+
+- Utiliser des tags dans des champs de sortie comme `result.item`, `toast.icon`, `clear_item.item` ou `replace_item.item`.
+- S'attendre à ce que les tags vanilla correspondent aux objets ItemsAdder ou MMOItems.
+- Utiliser `mmoitems:type:id` sans MMOItems installé.
+- Oublier le préfixe `#` pour les références de tags.
+- Écrire un ID namespaced invalide avec plusieurs deux-points, comme `namespace:path:extra`.
+- Réutiliser le même ID seul dans plusieurs packs sans savoir quel contenu sera retenu.
+
+## Pages associées
+
+- [Vue d'ensemble de la compatibilité](/fr/docs/compatibility)
+- [ItemsAdder](/fr/docs/compatibility/itemsadder)
+- [MMOItems](/fr/docs/compatibility/mmoitems)
+- [Tags personnalisés](/fr/docs/custom-tags)
+- [Recettes de craft](/fr/docs/recipes/crafting)
+- [Déclencheurs de progrès](/fr/docs/advancements/triggers)

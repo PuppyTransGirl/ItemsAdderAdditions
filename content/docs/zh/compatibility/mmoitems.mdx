@@ -1,0 +1,64 @@
+---
+title: MMOItems
+description: 可选的 MMOItems 物品引用和匹配支持。
+icon: Sword
+---
+
+MMOItems 支持是可选的。如果已安装并启用 MMOItems，ItemsAdderAdditions 可以通过 `mmoitems:type:id` 引用创建和匹配 MMOItems 物品堆叠。
+
+## 要求
+
+- 只有使用 `mmoitems:type:id` 引用的服务器才需要安装并启用 MMOItems。
+- MMOItems 类型和物品 ID 必须存在于 MMOItems 中。
+
+## 支持的功能
+
+共享的物品解析路径支持 MMOItems 物品引用，包括：
+
+- 创建物品堆叠的配方原料和具体配方输出
+- `clear_item`、`replace_item`、`toast.icon` 等物品动作
+- 进度物品谓词和受支持的物品条件
+- 自定义物品标签
+- 创建物品堆叠的 component 字段，例如 `bundle_contents` 和 `charged_projectiles`
+
+## 语法
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+格式为：
+
+```text
+mmoitems:type:id
+```
+
+ItemsAdderAdditions 在匹配已有物品堆叠时读取 MMOItems 元数据键 `MMOITEMS_ITEM_TYPE` 和 `MMOITEMS_ITEM_ID`。
+
+## 可选依赖行为
+
+如果未安装或未启用 MMOItems：
+
+- `mmoitems:type:id` 引用无法创建物品堆叠。
+- `mmoitems:type:id` 引用不会匹配已有物品。
+- 其他原版和 ItemsAdder 引用仍会正常工作。
+
+## 限制
+
+- MMOItems 引用仅是物品引用，不是方块、家具或配方 ID。
+- 原版标签不会匹配 MMOItems 物品。
+- 即使自定义标签包含 MMOItems 值，标签在具体输出字段中仍然无效。
+
+## 故障排查
+
+- 检查 MMOItems 类型和 ID 拼写。
+- 在前缀后准确使用两个分隔符：`mmoitems:type:id`。
+- 测试 MMOItems 引用前，请先安装并启用 MMOItems。
+
+## 相关页面
+
+- [ID](/zh/docs/compatibility/ids)
+- [合成配方](/zh/docs/recipes/crafting)
+- [自定义标签](/zh/docs/custom-tags)
+- [Clear Item](/zh/docs/actions/clear-item)
+- [Replace Item](/zh/docs/actions/replace-item)

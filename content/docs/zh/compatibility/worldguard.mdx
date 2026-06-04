@@ -1,0 +1,134 @@
+---
+title: WorldGuard
+description: ItemsAdderAdditions 添加的可选 WorldGuard 区域 flag。
+icon: Shield
+---
+
+WorldGuard 支持是可选的。安装 WorldGuard 后，ItemsAdderAdditions 会注册区域 flag，用于允许或拒绝受支持的 behaviours、自定义画放置和内置动作。
+
+如果未安装 WorldGuard，或在 ItemsAdderAdditions 配置中关闭了某项 WorldGuard 检查，则 ItemsAdderAdditions 会允许对应功能。
+
+## 要求
+
+- WorldGuard 需在 ItemsAdderAdditions 注册 flag 前安装。
+- 添加 WorldGuard 或修改会定义冲突 flag 的插件后，请重启服务器。
+
+## 配置
+
+WorldGuard 检查默认启用。
+
+```yaml
+worldguard:
+  enabled: true
+  flags:
+    storage_open: true
+    contact_damage: true
+    stackable_place: true
+    bed_use: true
+    custom_painting_place: true
+    actions: true
+```
+
+设置 `worldguard.enabled: false` 可关闭所有 ItemsAdderAdditions WorldGuard 检查。将单个 flag 选项设为 `false` 可停止检查该 flag，同时保留其他检查。
+
+## Flags
+
+ItemsAdderAdditions 会注册默认值为 `allow` 的 WorldGuard `StateFlag`。
+
+| Flag | 控制的行为 |
+|------|------------|
+| `iaa-storage-open` | 打开 storage behaviour 物品栏。 |
+| `iaa-contact-damage` | contact effect behaviour 造成的伤害。 |
+| `iaa-stackable-place` | stackable behaviour 处理的放置。 |
+| `iaa-bed-use` | 使用 bed behaviour。 |
+| `iaa-custom-painting-place` | 放置自定义画。 |
+
+## 动作 flag
+
+ItemsAdderAdditions 还会为每个内置动作注册一个 flag。flag 名称为：
+
+```text
+iaa-action-<action-key-with-underscores-replaced-by-dashes>
+```
+
+示例：
+
+| 动作键 | WorldGuard flag |
+|--------|-----------------|
+| `replace_biome` | `iaa-action-replace-biome` |
+| `open_trade_machine` | `iaa-action-open-trade-machine` |
+| `mythic_mobs_skill` | `iaa-action-mythic-mobs-skill` |
+
+当前内置动作 flag：
+
+```text
+iaa-action-actionbar
+iaa-action-clear-item
+iaa-action-ignite
+iaa-action-message
+iaa-action-mythic-mobs-skill
+iaa-action-open-inventory
+iaa-action-open-trade-machine
+iaa-action-play-animation
+iaa-action-play-emote
+iaa-action-replace-biome
+iaa-action-replace-item
+iaa-action-shoot-fireball
+iaa-action-swing-hand
+iaa-action-teleport
+iaa-action-title
+iaa-action-toast
+iaa-action-veinminer
+```
+
+所有 action executor 在运行前都会检查自己的动作 flag。检查位置来自 action context：目标实体、方块、家具实体，或作为 fallback 的玩家位置。
+
+## 区域示例
+
+拒绝在区域中打开 storage：
+
+```text
+/rg flag spawn iaa-storage-open deny
+```
+
+拒绝在区域中造成 contact effect 伤害：
+
+```text
+/rg flag spawn iaa-contact-damage deny
+```
+
+只拒绝区域中的 `replace_biome` 动作：
+
+```text
+/rg flag spawn iaa-action-replace-biome deny
+```
+
+显式允许放置自定义画：
+
+```text
+/rg flag gallery iaa-custom-painting-place allow
+```
+
+## 默认行为
+
+- Flags 默认值为 `allow`。
+- 没有 WorldGuard 时，ItemsAdderAdditions 会允许功能。
+- ItemsAdderAdditions 的 WorldGuard 配置关闭时，ItemsAdderAdditions 会允许功能。
+- 如果 flag 名称与非 `StateFlag` 冲突，该 flag 会被禁用并记录警告。
+
+## 故障排查
+
+- 如果 flag 命令提示 flag 不存在，请在安装 WorldGuard 后重启，让 ItemsAdderAdditions 在启动时注册 flag。
+- 如果功能仍然运行，请检查 `config.yml`，确认相关 `worldguard.flags.*` 选项为 `true`。
+- 对动作使用带连字符的动作 flag 名称，不要使用下划线。
+- 检查服务器日志中的 flag 冲突警告。
+
+## 相关页面
+
+- [配置](/zh/docs/configuration)
+- [Storage behaviour](/zh/docs/behaviours/storage)
+- [Contact effect behaviour](/zh/docs/behaviours/contact-effect)
+- [Stackable behaviour](/zh/docs/behaviours/stackable)
+- [Bed behaviour](/zh/docs/behaviours/bed)
+- [自定义画](/zh/docs/custom-paintings)
+- [动作参数](/zh/docs/actions/parameters)

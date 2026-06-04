@@ -1,0 +1,49 @@
+---
+title: ItemsAdder
+description: Vereist ItemsAdder-integratiegedrag dat door ItemsAdderAdditions wordt gebruikt.
+icon: Blocks
+---
+
+ItemsAdder is vereist. ItemsAdderAdditions laadt configuratie uit ItemsAdder content-YAML-bestanden en gebruikt ItemsAdder-API's om custom stacks, custom blocks, furniture, font images en reload-events op te lossen.
+
+## Vereisten
+
+- ItemsAdder v4 wordt ondersteund; de nieuwste versie wordt aanbevolen.
+- Een ondersteunde Paper-serverversie met een bijpassende ItemsAdderAdditions NMS-adapter.
+
+## Ondersteunde functies
+
+ItemsAdderAdditions gebruikt ItemsAdder voor:
+
+- het lezen van item-, blok-, furniture-, recept-, behaviour-, actie-, component-, custom tag-, advancement-, painting- en world-generation-secties uit content-YAML
+- het oplossen van ItemsAdder item-ID's naar `ItemStack`s
+- het matchen van al geplaatste custom blocks en furniture
+- het toepassen van item modifier hooks voor components en Valhalla-metadata
+- het luisteren naar ItemsAdder load-/reload-events
+- het verwerken van ItemsAdder font images in gerenderde tekst
+- runtimepatches voor ItemsAdder-cooldowns, stat requirements, stonecuttergedrag, trade machines en craftinggedrag waar nodig
+
+## Herlaadgedrag
+
+De meeste YAML-only ItemsAdderAdditions-secties worden herladen via ItemsAdder-reloads en `/iareload`.
+
+Components muteren gegenereerde itemstacks via ItemsAdder's item modifier pipeline. Voer na het wijzigen van components `/iazip` uit, zodat ItemsAdder het pack en de itemdata opnieuw genereert.
+
+## ID-syntax
+
+ItemsAdder-content kan meestal worden verwezen met `namespace:id` of een losse `id`.
+
+Zie [ID's](/nl/docs/compatibility/ids) voor exacte formaten en veelgemaakte fouten.
+
+## Problemen oplossen
+
+- Als een custom ID niet oplost, controleer dan of de content door ItemsAdder is geladen en of de namespace klopt.
+- Gebruik bij voorkeur `namespace:id` wanneer verschillende packs dezelfde losse ID kunnen gebruiken.
+- Voer na wijzigingen aan gegenereerde itemdata `/iazip` uit; voer na wijzigingen aan runtime YAML-secties `/iareload` uit.
+
+## Gerelateerde pagina's
+
+- [ID's](/nl/docs/compatibility/ids)
+- [Configuratie](/nl/docs/configuration)
+- [Components](/nl/docs/components)
+- [Custom Tags](/nl/docs/custom-tags)

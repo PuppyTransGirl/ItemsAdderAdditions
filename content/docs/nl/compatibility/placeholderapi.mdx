@@ -1,0 +1,57 @@
+---
+title: PlaceholderAPI
+description: Optionele PlaceholderAPI-verwerking in ondersteunde tekstvelden van ItemsAdderAdditions.
+icon: Braces
+---
+
+PlaceholderAPI-ondersteuning is optioneel. Wanneer PlaceholderAPI is geïnstalleerd, verwerkt ItemsAdderAdditions placeholders in ondersteunde tekstvelden. Wanneer PlaceholderAPI ontbreekt, blijft de oorspronkelijke tekst ongewijzigd.
+
+## Ondersteunde functies
+
+PlaceholderAPI wordt gebruikt door tekst-renderingpaden die op functiepagina's zijn gedocumenteerd, waaronder:
+
+- message-, actionbar-, title-, toast- en open inventory-acties
+- tekstacties bij voltooiing van advancements
+- titels van storage-inventarissen
+- tekst van het text display behaviour
+
+## Voorbeelden
+
+```yaml
+message:
+  text: "Hello %player_name%!"
+```
+
+```yaml
+behaviours:
+  text_display:
+    text: "Coins: %vault_eco_balance%"
+    refresh_interval: 20
+```
+
+Stel voor text displays `refresh_interval` in op een positieve waarde wanneer placeholders in de tijd moeten worden bijgewerkt.
+
+## Gedrag bij optionele afhankelijkheid
+
+Als PlaceholderAPI ontbreekt, worden placeholders niet opgelost en blijven ze letterlijk in de gerenderde tekst staan.
+
+## Beperkingen
+
+- ItemsAdderAdditions levert zelf geen PlaceholderAPI-expansions.
+- Placeholderondersteuning geldt alleen voor velden die de gedeelde tekst-renderer gebruiken of PlaceholderAPI-ondersteuning expliciet documenteren.
+
+## Problemen oplossen
+
+- Installeer de PlaceholderAPI-expansion die de placeholder levert die je gebruikt.
+- Gebruik een positieve refresh interval voor text display-placeholders die veranderen.
+- Als tekst letterlijk als `%placeholder%` verschijnt, controleer dan of PlaceholderAPI is geïnstalleerd en ingeschakeld.
+
+## Gerelateerde pagina's
+
+- [Message-actie](/nl/docs/actions/message)
+- [Actionbar-actie](/nl/docs/actions/actionbar)
+- [Title-actie](/nl/docs/actions/title)
+- [Toast-actie](/nl/docs/actions/toast)
+- [Open Inventory-actie](/nl/docs/actions/open-inventory)
+- [Text Display behaviour](/nl/docs/behaviours/text-display)
+- [Storage behaviour](/nl/docs/behaviours/storage)

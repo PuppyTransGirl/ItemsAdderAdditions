@@ -1,0 +1,147 @@
+---
+title: ValhallaMMO & Trinkets
+description: Voeg ValhallaMMO- en ValhallaTrinkets-metadata toe aan ItemsAdder itemstacks.
+icon: Gem
+version: "1.0.10"
+---
+
+ItemsAdderAdditions kan ValhallaMMO- en ValhallaTrinkets persistent data naar ItemsAdder itemstacks schrijven wanneer ze worden gemaakt. Configureer de data onder de `valhalla` sectie van een ItemsAdder-item.
+
+De metadata wordt rechtstreeks naar de itemstack geschreven. Gameplay-effecten vereisen dat de bijpassende Valhalla-plugin op de server is geïnstalleerd.
+
+## Vereisten
+
+- ItemsAdder-itemcontent die door ItemsAdder is geladen.
+- ValhallaMMO voor ValhallaMMO-stats, equipment class, item flags en permanente effecten.
+- ValhallaTrinkets voor trinket-metadata.
+
+## Gedrag bij optionele afhankelijkheid
+
+ItemsAdderAdditions schrijft de persistent data keys ook als ValhallaMMO of ValhallaTrinkets niet is geïnstalleerd. Zonder de bijpassende Valhalla-plugin blijft de data op het item staan, maar heeft die geen gameplay-effect.
+
+## Basisstructuur
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_sword:
+    display_name: "<red>Ruby Sword"
+    valhalla:
+      equipment_class: SWORD
+      item_flags:
+        - DISPLAY_ATTRIBUTES
+      stats:
+        - stat: DAMAGE_BASE
+          amount: 4.0
+          operation: ADD_NUMBER
+```
+
+## Stats
+
+Gebruik `stats` wanneer dezelfde entries naar zowel Valhalla's actual stats als default stats moeten worden geschreven.
+
+```yaml
+valhalla:
+  stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+      hidden: false
+```
+
+Je kunt de twee statcontainers ook apart schrijven:
+
+```yaml
+valhalla:
+  actual_stats:
+    - stat: DAMAGE_BASE
+      amount: 6.0
+      operation: ADD_NUMBER
+  default_stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `stat` | string | *(vereist)* | Valhalla stat key. Onbekende stat keys worden overgeslagen. |
+| `amount` | number | *(vereist)* | Statwaarde. |
+| `operation` | string | *(vereist)* | `ADD_NUMBER`, `ADD_SCALAR` of `MULTIPLY_SCALAR_1`. |
+| `hidden` | boolean | `false` | Of Valhalla de statregel moet verbergen. |
+
+## Equipment class en flags
+
+```yaml
+valhalla:
+  equipment_class: SWORD
+  item_flags:
+    - DISPLAY_ATTRIBUTES
+    - HIDE_QUALITY
+```
+
+Veelgebruikte equipment classes zijn `SWORD`, `BOW`, `CROSSBOW`, `TRIDENT`, `MACE`, `HELMET`, `CHESTPLATE`, `LEGGINGS`, `BOOTS`, `PICKAXE`, `AXE`, `SHOVEL`, `HOE`, `SHIELD`, `TRINKET` en `OTHER`.
+
+Ondersteunde item flags zijn:
+
+```text
+HIDE_TAGS, HIDE_QUALITY, DISPLAY_ATTRIBUTES, HIDE_DURABILITY,
+ATTRIBUTE_FOR_BOTH_HANDS, ATTRIBUTE_FOR_HELMET, INFINITY_EXPLOITABLE,
+UNCRAFTABLE, TEMPORARY_POTION_DISPLAY, UNENCHANTABLE, UNMENDABLE
+```
+
+## Permanente effecten
+
+```yaml
+valhalla:
+  permanent_effects:
+    effects:
+      - type: minecraft:strength
+        amplifier: 1
+        duration: 200
+        condition: constant
+    cooldown_properties:
+      cooldown: 1200
+      cdr_affected: true
+```
+
+`effect` kan worden gebruikt in plaats van `type`. De legacy key `permanent_potion_effects` wordt ook geaccepteerd voor de effectenlijst.
+
+`cooldown_properties` kan ook op het hoogste niveau worden geplaatst als `permanent_effects_cooldown_properties`. `cdrAffected` wordt geaccepteerd als alias voor `cdr_affected`.
+
+## ValhallaTrinkets
+
+```yaml
+valhalla:
+  trinkets:
+    trinket_id: 1001
+    trinket_unique_id: 1001
+    unique: true
+    unstackable: true
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `trinket_id` | integer | *(geen)* | ValhallaTrinkets-ID. Moet een niet-negatieve 32-bit integer zijn. |
+| `trinket_unique_id` | integer | *(geen)* | Unieke trinket-ID. Moet een niet-negatieve 32-bit integer zijn. |
+| `unique` | boolean | *(geen)* | Schrijft of verwijdert de ValhallaTrinkets unique flag. |
+| `unstackable` | boolean | *(geen)* | Als `true`, krijgt elke gegenereerde itemstack een willekeurige UUID. |
+
+## Herlaadgedrag
+
+Voer `/iareload` uit na wijzigingen aan `valhalla` secties. De data wordt toegepast op itemstacks die na de reload worden gemaakt; bestaande stacks worden niet automatisch herschreven.
+
+## Problemen oplossen
+
+- Onbekende Valhalla statnamen worden overgeslagen.
+- Enumwaarden voor `operation`, `equipment_class` en `item_flags` moeten de Valhalla-style hoofdletternamen gebruiken die hierboven staan.
+- Bestaande items in spelerinventarissen worden niet automatisch herschreven.
+- Als gameplay-effecten niet worden toegepast, controleer dan of ValhallaMMO of ValhallaTrinkets is geïnstalleerd en de geschreven metadata ondersteunt.
+
+## Gerelateerde pagina's
+
+- [ItemsAdder](/nl/docs/compatibility/itemsadder)
+- [ID's](/nl/docs/compatibility/ids)
+- [Configuratie](/nl/docs/configuration)

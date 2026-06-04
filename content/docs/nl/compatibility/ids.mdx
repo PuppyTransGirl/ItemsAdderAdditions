@@ -1,0 +1,185 @@
+---
+title: ID's
+description: Ondersteunde ID-formaten voor items, blokken, recepten, tags en keys.
+icon: Hash
+---
+
+ItemsAdderAdditions normaliseert ID's naar kleine letters voordat ze worden gematcht. Gebruik in voorbeelden en gedeelde configuraties bij voorkeur expliciete ID's zoals `minecraft:diamond` en `my_pack:ruby_sword`.
+
+De meeste velden zijn ofwel **concrete uitvoer** of **runtime-matches**:
+
+- Concrete uitvoer moet naar één itemstack oplossen. Tags zijn daar niet geldig.
+- Runtime-matches kunnen tags accepteren, omdat de plugin alleen bestaande content hoeft te vergelijken.
+
+## Snelle referentie
+
+| Content | Ondersteund formaat | Voorbeeld |
+|---------|---------------------|-----------|
+| Vanilla item | `minecraft:id`, losse Minecraft-key of Bukkit-materiaalnaam | `minecraft:diamond`, `diamond`, `DIAMOND` |
+| Vanilla blok | `minecraft:id`, losse Minecraft-key of Bukkit-materiaalnaam | `minecraft:oak_log`, `oak_log`, `OAK_LOG` |
+| ItemsAdder-item | `namespace:id` of losse `id` | `my_pack:ruby_sword`, `ruby_sword` |
+| ItemsAdder-blok | `namespace:id` of losse `id` | `my_pack:ruby_ore`, `ruby_ore` |
+| ItemsAdder-furniture | `namespace:id` of losse `id` | `my_pack:ruby_lamp`, `ruby_lamp` |
+| MMOItems-item | `mmoitems:type:id` | `mmoitems:sword:flame_blade` |
+| Recept-ID | `namespace:id`, losse `id` of custom recepttag waar ondersteund | `my_pack:ruby_sword`, `ruby_sword` |
+| Vanilla item-/bloktag | `#minecraft:tag` of losse `#tag` waar vanilla tags worden geaccepteerd | `#minecraft:planks`, `#logs` |
+| ItemsAdderAdditions custom tag | `#namespace:tag`, of losse `#tag` binnen de huidige namespace | `#my_pack:ruby_tools`, `#ruby_tools` |
+| Namespaced key | `namespace:path` | `minecraft:strength`, `custom_pack:my_key` |
+
+## Vanilla items en blokken
+
+Vanilla items en blokken kunnen worden geschreven als namespaced ID's, losse Minecraft-keys of Bukkit-materiaalnamen.
+
+```yaml
+item: minecraft:diamond_sword
+item: diamond_sword
+item: DIAMOND_SWORD
+
+block: minecraft:oak_log
+block: oak_log
+block: OAK_LOG
+```
+
+Voor concrete itemvelden wordt een losse ID eerst gecontroleerd tegen ItemsAdder-content en daarna tegen vanilla Minecraft-items.
+
+## ItemsAdder-items, -blokken en -furniture
+
+ItemsAdder-content kan `namespace:id` of de losse content-ID gebruiken.
+
+```yaml
+item: my_pack:ruby_sword
+block: my_pack:ruby_ore
+furniture: my_pack:ruby_lamp
+```
+
+Losse paden werken ook in veel velden:
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_wand:
+    events:
+      interact:
+        right:
+          replace_item:
+            item: ruby_sword
+```
+
+Losse ID's werken, maar `namespace:id` is duidelijker wanneer twee packs dezelfde content-ID gebruiken.
+
+## MMOItems-items
+
+MMOItems-referenties gebruiken precies deze vorm:
+
+```yaml
+item: mmoitems:type:id
+```
+
+Voorbeeld:
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+Het type en de ID worden via MMOItems-metadata gematcht. Als MMOItems niet is geïnstalleerd of ingeschakeld, lossen deze referenties niet op en matchen ze niet.
+
+## Recepten
+
+Recept-ID's kunnen namespaced of los zijn, afhankelijk van de functie.
+
+```yaml
+recipe: my_pack:ruby_sword
+recipe: ruby_sword
+```
+
+Bij receptmatching kan een losse recept-ID overeenkomen met het padgedeelte van een namespaced recept-ID. Custom recepttags worden alleen ondersteund in velden die custom tags expliciet accepteren.
+
+## Custom tags
+
+Custom tags worden gedefinieerd in een top-level `tags` sectie.
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+      - mmoitems:tool:ruby_hammer
+```
+
+Verwijs naar de tag met `#tag` binnen dezelfde namespace of met `#namespace:tag` vanuit een andere namespace.
+
+```yaml
+items:
+  - "#ruby_tools"
+  - "#my_pack:ruby_tools"
+```
+
+Custom tagtypes zijn `item`, `block`, `furniture` en `recipe`. Zie [Custom Tags](/nl/docs/custom-tags) voor nestingregels en functieondersteuning.
+
+## Vanilla tags
+
+Vanilla tags worden ondersteund waar het matchingpad Bukkit item- of bloktags accepteert.
+
+```yaml
+item: "#minecraft:planks"
+block: "#minecraft:logs"
+```
+
+Voor item- en bloktagmatching wordt een losse vanilla tag zoals `#logs` genormaliseerd naar `#minecraft:logs`, tenzij er een custom tag met dezelfde ID bestaat in de huidige tagregistry.
+
+Vanilla tags matchen alleen vanilla registry entries. Ze matchen geen ItemsAdder-content of MMOItems-content.
+
+`iaa_crafting_table`-ingrediënten zijn een speciaal geval: tag-ingrediënten gebruiken alleen Bukkit vanilla item-/bloktags. Ze lossen geen ItemsAdderAdditions custom tags op.
+
+## Concrete itemuitvoer
+
+Gebruik concrete ID's voor velden die precies één itemstack moeten aanmaken, zoals:
+
+- receptresultaten
+- kampvuur-, steensnijder- en brouwresultaten
+- `toast.icon`
+- `clear_item.item`
+- `replace_item.item`
+- componentvelden die opgeslagen itemstacks aanmaken, zoals `bundle_contents` en `charged_projectiles`
+
+Tags zijn in deze velden ongeldig, omdat een tag meer dan één waarde kan bevatten.
+
+## Geroteerde ItemsAdder-blokken en -furniture
+
+Runtime matching voor blokken en furniture behandelt directionele suffixen als dezelfde basiscontent:
+
+```text
+my_pack:chair_north -> my_pack:chair
+my_pack:chair_south -> my_pack:chair
+my_pack:chair_east  -> my_pack:chair
+my_pack:chair_west  -> my_pack:chair
+my_pack:chair_up    -> my_pack:chair
+my_pack:chair_down  -> my_pack:chair
+```
+
+Dit geldt voor matchingcontroles zoals advancement-triggers en custom tag-lidmaatschap. Je hoeft niet elke geroteerde variant apart te noteren.
+
+## Veelgemaakte fouten
+
+- Tags gebruiken in uitvoervelden zoals `result.item`, `toast.icon`, `clear_item.item` of `replace_item.item`.
+- Verwachten dat vanilla tags ItemsAdder- of MMOItems-items matchen.
+- `mmoitems:type:id` gebruiken zonder dat MMOItems is geïnstalleerd.
+- De `#`-prefix voor tagreferenties vergeten.
+- Een ongeldig namespaced ID schrijven met meer dan één dubbele punt, zoals `namespace:path:extra`.
+- Dezelfde losse ID in meerdere packs gebruiken zonder te weten welke content wordt gematcht.
+
+## Gerelateerde pagina's
+
+- [Compatibiliteitsoverzicht](/nl/docs/compatibility)
+- [ItemsAdder](/nl/docs/compatibility/itemsadder)
+- [MMOItems](/nl/docs/compatibility/mmoitems)
+- [Custom Tags](/nl/docs/custom-tags)
+- [Craftingrecepten](/nl/docs/recipes/crafting)
+- [Advancement-triggers](/nl/docs/advancements/triggers)

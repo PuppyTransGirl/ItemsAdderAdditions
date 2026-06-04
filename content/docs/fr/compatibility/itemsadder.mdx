@@ -1,0 +1,49 @@
+---
+title: ItemsAdder
+description: Comportement d'intégration ItemsAdder requis par ItemsAdderAdditions.
+icon: Blocks
+---
+
+ItemsAdder est requis. ItemsAdderAdditions charge sa configuration depuis les fichiers YAML de contenu ItemsAdder et utilise les APIs ItemsAdder pour résoudre les stacks personnalisés, blocs personnalisés, meubles, images de police et événements de rechargement.
+
+## Prérequis
+
+- ItemsAdder v4 est pris en charge ; la dernière version est recommandée.
+- Une version de serveur Paper prise en charge avec un adaptateur NMS ItemsAdderAdditions correspondant.
+
+## Fonctionnalités prises en charge
+
+ItemsAdderAdditions utilise ItemsAdder pour :
+
+- lire les sections d'objets, blocs, meubles, recettes, comportements, actions, composants, tags personnalisés, progrès, peintures et génération du monde depuis le YAML de contenu
+- résoudre les IDs d'objets ItemsAdder en `ItemStack`s
+- reconnaître les blocs personnalisés et meubles déjà placés
+- appliquer les hooks de modification d'objet pour les composants et les métadonnées Valhalla
+- écouter les événements de chargement/rechargement ItemsAdder
+- gérer les images de police ItemsAdder dans le texte rendu
+- appliquer, si nécessaire, des patchs runtime pour les cooldowns ItemsAdder, exigences de stats, comportement du tailleur de pierre, machines d'échange et comportement du craft
+
+## Comportement au rechargement
+
+La plupart des sections ItemsAdderAdditions uniquement en YAML se rechargent via les rechargements ItemsAdder et `/iareload`.
+
+Les composants modifient les stacks générés via le pipeline de modification d'objet d'ItemsAdder. Après avoir changé des composants, exécutez `/iazip` pour qu'ItemsAdder régénère le pack et les données d'objets.
+
+## Syntaxe des IDs
+
+Le contenu ItemsAdder peut généralement être référencé avec `namespace:id` ou `id` seul.
+
+Consultez [IDs](/fr/docs/compatibility/ids) pour les formats exacts et les erreurs courantes.
+
+## Dépannage
+
+- Si un ID personnalisé ne se résout pas, vérifiez que le contenu est chargé par ItemsAdder et que le namespace est correct.
+- Préférez `namespace:id` lorsque plusieurs packs peuvent utiliser le même ID seul.
+- Après avoir changé des données d'objets générées, exécutez `/iazip` ; après avoir changé des sections YAML runtime, exécutez `/iareload`.
+
+## Pages associées
+
+- [IDs](/fr/docs/compatibility/ids)
+- [Configuration](/fr/docs/configuration)
+- [Composants](/fr/docs/components)
+- [Tags personnalisés](/fr/docs/custom-tags)

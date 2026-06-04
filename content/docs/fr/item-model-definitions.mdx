@@ -1,0 +1,244 @@
+---
+title: Définitions de modèle d'objet
+icon: Boxes
+description: Générer des fichiers de définition de modèle d'objet Minecraft pour les objets personnalisés ItemsAdder depuis du YAML.
+version: "1.0.10"
+---
+
+Les définitions de modèle d'objet sont les fichiers de resource pack vanilla (ajoutés dans Minecraft 1.21.4) qui associent un objet à un modèle et choisissent entre plusieurs modèles selon l'état de l'objet. ItemsAdderAdditions génère ces fichiers JSON pour vous à partir d'une section YAML sur votre objet personnalisé, les écrit dans le resource pack et (en option) attache le composant `minecraft:item_model` correspondant à l'objet.
+
+Ajoutez une section `item_model_definition` sous la définition de votre objet et exécutez `/iazip` pour écrire les fichiers dans le pack.
+
+```yaml
+items:
+  my_item:
+    item_model_definition:
+      model:
+        type: model
+        model: my_pack:item/my_item
+```
+
+**Version minimale du serveur : 1.21.4.** Sur les versions antérieures, chaque section `item_model_definition` est ignorée avec un avertissement dans la console.
+
+Les fichiers générés sont écrits dans `assets/<namespace>/items/<path>.json` à l'intérieur du resource pack. Après modification du YAML, exécutez `/iazip` pour régénérer le pack. L'id du modèle d'objet généré est `<namespace>:<path>`.
+
+## Activation
+
+La fonctionnalité est contrôlée par `item_model_definitions` dans `config.yml` (activée par défaut) :
+
+```yaml
+features:
+  item_model_definitions: true
+```
+
+## Référence de la section
+
+| Clé | Type | Défaut | Description |
+|-----|------|--------|-------------|
+| `enabled` | Booléen | `true` | Mettez `false` pour ignorer cet objet. |
+| `path` | Chaîne | id de l'objet | Chemin de sortie / id du modèle généré. Supporte `namespace:path`. |
+| `model` | Objet | - | Raccourci builder pour l'arbre de modèle (voir ci-dessous). |
+| `raw` | Objet | - | Racine complète de la définition de modèle, écrite telle quelle. |
+| `apply_component` | Booléen | `true` | Attache le composant `minecraft:item_model` pointant vers l'id généré. |
+| `overwrite_existing_file` | Booléen | `true` | Avec `false`, un fichier existant au chemin cible n'est pas touché. |
+| `custom_model_data` | Objet | - | Ajoute un composant `minecraft:custom_model_data` (voir ci-dessous). |
+
+Exactement un de `model` ou `raw` est requis. Si les deux sont présents, `raw` est utilisé et un avertissement est journalisé.
+
+### `path`
+
+Si omis, le chemin par défaut est l'id de l'objet et le namespace par défaut est le namespace de l'objet. Un suffixe `.json` est retiré automatiquement.
+
+```yaml
+item_model_definition:
+  path: my_pack:custom/sword   # écrit assets/my_pack/items/custom/sword.json
+  model:
+    type: model
+    model: my_pack:item/sword
+```
+
+Règles :
+
+- Namespace : lettres minuscules, chiffres, `_`, `-`, `.`
+- Chemin : lettres minuscules, chiffres, `_`, `-`, `.`, `/`
+- Pas de `/` au début ni à la fin, pas de `//`
+- Les chemins absolus, les antislashs et `..` sont rejetés
+
+## Modèle builder (`model`)
+
+`model` est un raccourci : son objet devient le champ `model` de la racine générée. Il doit contenir un `type`. En mode builder, les valeurs `type` et `property` reçoivent automatiquement le préfixe `minecraft:` quand vous omettez un namespace (`model` devient `minecraft:model`).
+
+```yaml
+item_model_definition:
+  model:
+    type: model            # devient minecraft:model
+    model: my_pack:item/my_item
+```
+
+### Types supportés
+
+Le builder valide les types suivants. Tout autre `type` est écrit sans validation.
+
+#### `minecraft:model`
+
+Un modèle unique. Requiert `model` (un chemin de ressource de modèle).
+
+```yaml
+model:
+  type: model
+  model: my_pack:item/my_item
+```
+
+#### `minecraft:composite`
+
+Affiche plusieurs modèles superposés. Requiert une liste `models` non vide d'objets modèle.
+
+```yaml
+model:
+  type: composite
+  models:
+    - type: model
+      model: my_pack:item/base
+    - type: model
+      model: my_pack:item/overlay
+```
+
+#### `minecraft:condition`
+
+Choisit entre deux modèles selon une propriété booléenne. Requiert `property`, `on_true` et `on_false`.
+
+```yaml
+model:
+  type: condition
+  property: using_item
+  on_true:
+    type: model
+    model: my_pack:item/drawing
+  on_false:
+    type: model
+    model: my_pack:item/idle
+```
+
+#### `minecraft:select`
+
+Choisit un modèle dans une liste de cas selon la valeur d'une propriété. Requiert `property` et une liste `cases` non vide ; chaque cas a besoin de `when` et `model`. Un `fallback` optionnel est utilisé quand aucun cas ne correspond.
+
+```yaml
+model:
+  type: select
+  property: display_context
+  cases:
+    - when: gui
+      model:
+        type: model
+        model: my_pack:item/gui
+    - when: firstperson_righthand
+      model:
+        type: model
+        model: my_pack:item/hand
+  fallback:
+    type: model
+    model: my_pack:item/default
+```
+
+#### `minecraft:range_dispatch`
+
+Choisit un modèle selon une propriété numérique et des seuils. Requiert `property` et une liste `entries` non vide ; chaque entrée a besoin d'un `threshold` numérique et d'un `model`. Un `fallback` optionnel est utilisé sous le seuil le plus bas.
+
+```yaml
+model:
+  type: range_dispatch
+  property: damage
+  entries:
+    - threshold: 0.0
+      model:
+        type: model
+        model: my_pack:item/fresh
+    - threshold: 0.5
+      model:
+        type: model
+        model: my_pack:item/worn
+  fallback:
+    type: model
+    model: my_pack:item/broken
+```
+
+#### `minecraft:special`
+
+Un modèle spécial avec un renderer. Requiert `base` et un objet `model` avec son propre `type`.
+
+```yaml
+model:
+  type: special
+  base: my_pack:item/shield_base
+  model:
+    type: minecraft:shield
+```
+
+#### `minecraft:empty` / `minecraft:bundle/selected_item`
+
+Types marqueurs sans champs supplémentaires.
+
+```yaml
+model:
+  type: empty
+```
+
+## Modèle brut (`raw`)
+
+Utilisez `raw` quand vous voulez un contrôle total. C'est la racine complète de la définition de modèle, écrite sur disque telle quelle. Elle doit contenir un objet `model` au niveau racine. Contrairement au builder, `raw` n'ajoute aucun préfixe `minecraft:`, écrivez donc des ids namespacés complets.
+
+```yaml
+item_model_definition:
+  raw:
+    model:
+      type: minecraft:range_dispatch
+      property: minecraft:custom_model_data
+      entries:
+        - threshold: 1.0
+          model:
+            type: minecraft:model
+            model: my_pack:item/variant_1
+      fallback:
+        type: minecraft:model
+        model: my_pack:item/default
+```
+
+## Composants
+
+### `apply_component`
+
+Avec `true` (défaut), IAA attache un composant `minecraft:item_model` à l'objet pointant vers l'id du modèle généré, pour que l'objet utilise réellement la nouvelle définition sans que vous ayez à régler le composant à la main.
+
+Si l'objet définit déjà `components.item_model` (ou `minecraft:item_model`) et que la valeur diffère de l'id généré, IAA laisse le composant existant intact et journalise un avertissement. Mettez `apply_component: false` pour générer le fichier sans toucher aux composants.
+
+### `custom_model_data`
+
+Quand `apply_component` est `true` et que l'objet ne définit pas déjà de composant `custom_model_data`, vous pouvez en attacher un. Il utilise la forme vanilla `minecraft:custom_model_data` : des listes de `floats`, `flags`, `strings` et `colors`.
+
+```yaml
+item_model_definition:
+  model:
+    type: range_dispatch
+    property: custom_model_data
+    entries:
+      - threshold: 1.0
+        model:
+          type: model
+          model: my_pack:item/variant_1
+  custom_model_data:
+    floats:
+      - 1.0
+    flags:
+      - true
+    strings:
+      - hello
+    colors:
+      - "#FF0000"
+```
+
+Si `components.custom_model_data` existe déjà sur l'objet, la section est ignorée avec un avertissement.
+
+## Appliquer les modifications
+
+Les fichiers de définition de modèle d'objet sont écrits dans le resource pack au moment du rechargement. Exécutez `/iazip` ensuite pour reconstruire et appliquer le pack. La console journalise combien de définitions ont été générées, combien de fichiers ont changé et combien de fichiers existants ont été ignorés.

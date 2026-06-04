@@ -1,0 +1,64 @@
+---
+title: MMOItems
+description: Support optionnel des références et correspondances d'objets MMOItems.
+icon: Sword
+---
+
+Le support de MMOItems est optionnel. Si MMOItems est installé et activé, ItemsAdderAdditions peut créer et reconnaître des stacks MMOItems avec les références `mmoitems:type:id`.
+
+## Prérequis
+
+- MMOItems installé et activé uniquement sur les serveurs qui utilisent des références `mmoitems:type:id`.
+- Le type MMOItems et l'ID d'objet doivent exister dans MMOItems.
+
+## Fonctionnalités prises en charge
+
+Les références d'objets MMOItems sont prises en charge par les chemins partagés de résolution d'objets, notamment :
+
+- ingrédients de recettes et sorties concrètes de recettes lorsque des piles d'objets sont créées
+- actions d'objets comme `clear_item`, `replace_item` et `toast.icon`
+- prédicats d'objets de progrès et conditions d'objets prises en charge
+- tags personnalisés d'objets
+- champs de composants qui créent des piles d'objets, comme `bundle_contents` et `charged_projectiles`
+
+## Syntaxe
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+Le format est :
+
+```text
+mmoitems:type:id
+```
+
+ItemsAdderAdditions lit les clés de métadonnées MMOItems `MMOITEMS_ITEM_TYPE` et `MMOITEMS_ITEM_ID` lorsqu'il compare des piles d'objets existantes.
+
+## Comportement avec dépendance optionnelle
+
+Si MMOItems n'est pas installé ou n'est pas activé :
+
+- les références `mmoitems:type:id` ne peuvent pas créer de piles d'objets ;
+- les références `mmoitems:type:id` ne correspondent pas aux objets existants ;
+- les autres références vanilla et ItemsAdder continuent de fonctionner.
+
+## Limites
+
+- Les références MMOItems sont uniquement des références d'objets. Ce ne sont pas des IDs de blocs, de meubles ou de recettes.
+- Les tags vanilla ne correspondent pas aux objets MMOItems.
+- Les tags restent invalides dans les champs de sortie concrets, même si un tag personnalisé contient des valeurs MMOItems.
+
+## Dépannage
+
+- Vérifiez l'orthographe du type MMOItems et de l'ID.
+- Utilisez exactement deux séparateurs après le préfixe : `mmoitems:type:id`.
+- Installez et activez MMOItems avant de tester les références MMOItems.
+
+## Pages associées
+
+- [IDs](/fr/docs/compatibility/ids)
+- [Recettes de craft](/fr/docs/recipes/crafting)
+- [Tags personnalisés](/fr/docs/custom-tags)
+- [Clear Item](/fr/docs/actions/clear-item)
+- [Replace Item](/fr/docs/actions/replace-item)

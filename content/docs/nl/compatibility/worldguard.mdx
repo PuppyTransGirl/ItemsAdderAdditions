@@ -1,0 +1,134 @@
+---
+title: WorldGuard
+description: Optionele WorldGuard-regiovlaggen die door ItemsAdderAdditions worden toegevoegd.
+icon: Shield
+---
+
+WorldGuard-ondersteuning is optioneel. Wanneer WorldGuard is geïnstalleerd, registreert ItemsAdderAdditions regiovlaggen waarmee ondersteunde behaviours, plaatsing van custom paintings en ingebouwde acties kunnen worden toegestaan of geweigerd.
+
+Als WorldGuard niet is geïnstalleerd, of als een WorldGuard-controle is uitgeschakeld in de configuratie van ItemsAdderAdditions, staat ItemsAdderAdditions de beschermde functie toe.
+
+## Vereisten
+
+- WorldGuard is geïnstalleerd voordat ItemsAdderAdditions vlaggen registreert.
+- Herstart de server nadat je WorldGuard toevoegt of plugins wijzigt die conflicterende vlaggen definiëren.
+
+## Configuratie
+
+WorldGuard-controles zijn standaard ingeschakeld.
+
+```yaml
+worldguard:
+  enabled: true
+  flags:
+    storage_open: true
+    contact_damage: true
+    stackable_place: true
+    bed_use: true
+    custom_painting_place: true
+    actions: true
+```
+
+Zet `worldguard.enabled: false` om alle WorldGuard-controles van ItemsAdderAdditions uit te schakelen. Zet een individuele flagoptie op `false` om die vlag niet meer te controleren terwijl andere controles ingeschakeld blijven.
+
+## Vlaggen
+
+ItemsAdderAdditions registreert WorldGuard `StateFlag`s met standaardwaarde `allow`.
+
+| Vlag | Gecontroleerd gedrag |
+|------|----------------------|
+| `iaa-storage-open` | Inventarissen van het storage behaviour openen. |
+| `iaa-contact-damage` | Schade die door het contact effect behaviour wordt toegepast. |
+| `iaa-stackable-place` | Plaatsing die door het stackable behaviour wordt afgehandeld. |
+| `iaa-bed-use` | Het bed behaviour gebruiken. |
+| `iaa-custom-painting-place` | Custom paintings plaatsen. |
+
+## Actievlaggen
+
+ItemsAdderAdditions registreert ook één vlag per ingebouwde actie. De vlagnaam is:
+
+```text
+iaa-action-<action-key-with-underscores-replaced-by-dashes>
+```
+
+Voorbeelden:
+
+| Actiesleutel | WorldGuard-vlag |
+|--------------|-----------------|
+| `replace_biome` | `iaa-action-replace-biome` |
+| `open_trade_machine` | `iaa-action-open-trade-machine` |
+| `mythic_mobs_skill` | `iaa-action-mythic-mobs-skill` |
+
+Huidige ingebouwde actievlaggen:
+
+```text
+iaa-action-actionbar
+iaa-action-clear-item
+iaa-action-ignite
+iaa-action-message
+iaa-action-mythic-mobs-skill
+iaa-action-open-inventory
+iaa-action-open-trade-machine
+iaa-action-play-animation
+iaa-action-play-emote
+iaa-action-replace-biome
+iaa-action-replace-item
+iaa-action-shoot-fireball
+iaa-action-swing-hand
+iaa-action-teleport
+iaa-action-title
+iaa-action-toast
+iaa-action-veinminer
+```
+
+Alle action executors controleren hun actievlag voordat ze worden uitgevoerd. De gecontroleerde locatie wordt gekozen uit de action context: targetentiteit, blok, furniture-entiteit of de locatie van de speler als fallback.
+
+## Regiovoorbeelden
+
+Storage-openingen in een regio weigeren:
+
+```text
+/rg flag spawn iaa-storage-open deny
+```
+
+Contact effect-schade in een regio weigeren:
+
+```text
+/rg flag spawn iaa-contact-damage deny
+```
+
+Alleen de actie `replace_biome` in een regio weigeren:
+
+```text
+/rg flag spawn iaa-action-replace-biome deny
+```
+
+Plaatsing van custom paintings expliciet toestaan:
+
+```text
+/rg flag gallery iaa-custom-painting-place allow
+```
+
+## Standaardgedrag
+
+- Vlaggen staan standaard op `allow`.
+- Als WorldGuard ontbreekt, staat ItemsAdderAdditions de functie toe.
+- Als de WorldGuard-configuratie van ItemsAdderAdditions is uitgeschakeld, staat ItemsAdderAdditions de functie toe.
+- Als een vlagnaam conflicteert met een niet-`StateFlag`, wordt die vlag uitgeschakeld en wordt er een waarschuwing gelogd.
+
+## Problemen oplossen
+
+- Als een flagcommando zegt dat de vlag niet bestaat, herstart dan met WorldGuard geïnstalleerd zodat ItemsAdderAdditions de vlaggen tijdens startup kan registreren.
+- Als een functie toch wordt uitgevoerd, controleer `config.yml` en bevestig dat de bijbehorende optie `worldguard.flags.*` op `true` staat.
+- Gebruik voor acties de actievlagnaam met streepjes, niet met underscores.
+- Controleer de serverlogs op waarschuwingen over vlagconflicten.
+
+## Gerelateerde pagina's
+
+- [Configuratie](/nl/docs/configuration)
+- [Storage behaviour](/nl/docs/behaviours/storage)
+- [Contact effect behaviour](/nl/docs/behaviours/contact-effect)
+- [Stackable behaviour](/nl/docs/behaviours/stackable)
+- [Bed behaviour](/nl/docs/behaviours/bed)
+- [Custom Paintings](/nl/docs/custom-paintings)
+- [Actieparameters](/nl/docs/actions/parameters)

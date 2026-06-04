@@ -1,0 +1,64 @@
+---
+title: MMOItems
+description: Optionele MMOItems-ondersteuning voor itemreferenties en matching.
+icon: Sword
+---
+
+MMOItems-ondersteuning is optioneel. Als MMOItems is geïnstalleerd en ingeschakeld, kan ItemsAdderAdditions MMOItems-stacks aanmaken en matchen met `mmoitems:type:id`-referenties.
+
+## Vereisten
+
+- MMOItems is alleen geïnstalleerd en ingeschakeld op servers die `mmoitems:type:id`-referenties gebruiken.
+- Het MMOItems-type en de item-ID moeten in MMOItems bestaan.
+
+## Ondersteunde functies
+
+MMOItems-itemreferenties worden ondersteund door gedeelde item-resolutiepaden, waaronder:
+
+- receptingrediënten en concrete receptuitvoer waar itemstacks worden aangemaakt
+- itemacties zoals `clear_item`, `replace_item` en `toast.icon`
+- advancement-itempredicaten en ondersteunde itemvoorwaarden
+- custom itemtags
+- componentvelden die itemstacks aanmaken, zoals `bundle_contents` en `charged_projectiles`
+
+## Syntax
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+Het formaat is:
+
+```text
+mmoitems:type:id
+```
+
+ItemsAdderAdditions leest MMOItems-metadata keys `MMOITEMS_ITEM_TYPE` en `MMOITEMS_ITEM_ID` bij het matchen van bestaande itemstacks.
+
+## Gedrag bij optionele afhankelijkheid
+
+Als MMOItems niet is geïnstalleerd of niet is ingeschakeld:
+
+- kunnen `mmoitems:type:id`-referenties geen itemstacks aanmaken;
+- matchen `mmoitems:type:id`-referenties geen bestaande items;
+- blijven andere vanilla- en ItemsAdder-referenties werken.
+
+## Beperkingen
+
+- MMOItems-referenties zijn alleen itemreferenties. Het zijn geen blok-, furniture- of recept-ID's.
+- Vanilla tags matchen geen MMOItems-items.
+- Tags blijven ongeldig in concrete uitvoervelden, ook als een custom tag MMOItems-waarden bevat.
+
+## Problemen oplossen
+
+- Controleer de spelling van het MMOItems-type en de ID.
+- Gebruik precies twee scheidingstekens na de prefix: `mmoitems:type:id`.
+- Installeer en activeer MMOItems voordat je MMOItems-referenties test.
+
+## Gerelateerde pagina's
+
+- [ID's](/nl/docs/compatibility/ids)
+- [Craftingrecepten](/nl/docs/recipes/crafting)
+- [Custom Tags](/nl/docs/custom-tags)
+- [Clear Item](/nl/docs/actions/clear-item)
+- [Replace Item](/nl/docs/actions/replace-item)

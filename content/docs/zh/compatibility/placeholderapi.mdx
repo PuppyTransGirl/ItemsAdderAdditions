@@ -1,0 +1,57 @@
+---
+title: PlaceholderAPI
+description: 在受支持的 ItemsAdderAdditions 文本字段中可选解析 PlaceholderAPI。
+icon: Braces
+---
+
+PlaceholderAPI 支持是可选的。安装 PlaceholderAPI 后，ItemsAdderAdditions 会在受支持的文本字段中解析 placeholders。未安装时，原始文本会保持不变。
+
+## 支持的功能
+
+功能页面中记录的文本渲染路径会使用 PlaceholderAPI，包括：
+
+- message、actionbar、title、toast 和 open inventory 动作
+- 进度完成文本动作
+- storage 物品栏标题
+- text display behaviour 文本
+
+## 示例
+
+```yaml
+message:
+  text: "Hello %player_name%!"
+```
+
+```yaml
+behaviours:
+  text_display:
+    text: "Coins: %vault_eco_balance%"
+    refresh_interval: 20
+```
+
+对于 text displays，如果 placeholders 需要随时间更新，请将 `refresh_interval` 设置为正数。
+
+## 可选依赖行为
+
+如果缺少 PlaceholderAPI，placeholders 不会被解析，会原样保留在渲染文本中。
+
+## 限制
+
+- ItemsAdderAdditions 本身不提供 PlaceholderAPI expansions。
+- Placeholder 支持只适用于使用共享文本渲染器或明确说明支持 PlaceholderAPI 的字段。
+
+## 故障排查
+
+- 安装提供你所用 placeholder 的 PlaceholderAPI expansion。
+- 对会变化的 text display placeholders 使用正数刷新间隔。
+- 如果文本按 `%placeholder%` 原样显示，请确认 PlaceholderAPI 已安装并启用。
+
+## 相关页面
+
+- [Message 动作](/zh/docs/actions/message)
+- [Actionbar 动作](/zh/docs/actions/actionbar)
+- [Title 动作](/zh/docs/actions/title)
+- [Toast 动作](/zh/docs/actions/toast)
+- [Open Inventory 动作](/zh/docs/actions/open-inventory)
+- [Text Display behaviour](/zh/docs/behaviours/text-display)
+- [Storage behaviour](/zh/docs/behaviours/storage)

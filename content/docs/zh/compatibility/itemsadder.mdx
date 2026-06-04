@@ -1,0 +1,49 @@
+---
+title: ItemsAdder
+description: ItemsAdderAdditions 使用的必需 ItemsAdder 集成行为。
+icon: Blocks
+---
+
+ItemsAdder 是必需依赖。ItemsAdderAdditions 会从 ItemsAdder 内容 YAML 文件加载配置，并使用 ItemsAdder API 解析自定义物品堆叠、自定义方块、家具、字体图片和重载事件。
+
+## 要求
+
+- 支持 ItemsAdder v4；推荐使用最新版本。
+- 受支持的 Paper 服务器版本，并带有匹配的 ItemsAdderAdditions NMS 适配器。
+
+## 支持的功能
+
+ItemsAdderAdditions 使用 ItemsAdder 来：
+
+- 从内容 YAML 中读取物品、方块、家具、配方、behaviour、动作、component、自定义标签、进度、画和世界生成配置
+- 将 ItemsAdder 物品 ID 解析为 `ItemStack`
+- 匹配已放置的自定义方块和家具
+- 为 components 和 Valhalla 元数据应用物品修改 hook
+- 监听 ItemsAdder 加载/重载事件
+- 在渲染文本中处理 ItemsAdder 字体图片
+- 在需要时为 ItemsAdder 冷却、属性要求、切石机行为、trade machine 和合成行为应用运行时 patch
+
+## 重载行为
+
+大多数仅 YAML 的 ItemsAdderAdditions 配置会通过 ItemsAdder 重载和 `/iareload` 重新加载。
+
+Components 会通过 ItemsAdder 的物品修改流水线修改生成的物品堆叠。修改 components 后，请运行 `/iazip`，让 ItemsAdder 重新生成资源包和物品数据。
+
+## ID 语法
+
+ItemsAdder 内容通常可以用 `namespace:id` 或不带 namespace 的 `id` 引用。
+
+具体格式和常见错误请见 [ID](/zh/docs/compatibility/ids)。
+
+## 故障排查
+
+- 如果自定义 ID 无法解析，请确认内容已被 ItemsAdder 加载，并且 namespace 正确。
+- 当不同包可能使用相同的不带 namespace 的 ID 时，建议使用 `namespace:id`。
+- 修改生成的物品数据后运行 `/iazip`；修改运行时 YAML 节后运行 `/iareload`。
+
+## 相关页面
+
+- [ID](/zh/docs/compatibility/ids)
+- [配置](/zh/docs/configuration)
+- [Components](/zh/docs/components)
+- [自定义标签](/zh/docs/custom-tags)

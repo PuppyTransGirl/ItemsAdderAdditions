@@ -1,0 +1,134 @@
+---
+title: WorldGuard
+description: Flags de région WorldGuard optionnels ajoutés par ItemsAdderAdditions.
+icon: Shield
+---
+
+Le support de WorldGuard est optionnel. Lorsque WorldGuard est installé, ItemsAdderAdditions enregistre des flags de région qui peuvent autoriser ou refuser les comportements pris en charge, la pose de peintures personnalisées et les actions intégrées.
+
+Si WorldGuard n'est pas installé, ou si une vérification WorldGuard est désactivée dans la configuration d'ItemsAdderAdditions, la fonctionnalité protégée est autorisée par ItemsAdderAdditions.
+
+## Prérequis
+
+- WorldGuard est installé avant qu'ItemsAdderAdditions enregistre ses flags.
+- Redémarrez le serveur après avoir ajouté WorldGuard ou modifié des plugins qui définissent des flags en conflit.
+
+## Configuration
+
+Les vérifications WorldGuard sont activées par défaut.
+
+```yaml
+worldguard:
+  enabled: true
+  flags:
+    storage_open: true
+    contact_damage: true
+    stackable_place: true
+    bed_use: true
+    custom_painting_place: true
+    actions: true
+```
+
+Définissez `worldguard.enabled: false` pour désactiver toutes les vérifications WorldGuard d'ItemsAdderAdditions. Définissez une option de flag individuelle sur `false` pour ne plus vérifier ce flag tout en gardant les autres vérifications actives.
+
+## Flags
+
+ItemsAdderAdditions enregistre des `StateFlag`s WorldGuard avec la valeur par défaut `allow`.
+
+| Flag | Comportement contrôlé |
+|------|-----------------------|
+| `iaa-storage-open` | Ouverture des inventaires du comportement storage. |
+| `iaa-contact-damage` | Dégâts appliqués par le comportement contact effect. |
+| `iaa-stackable-place` | Placement géré par le comportement stackable. |
+| `iaa-bed-use` | Utilisation du comportement bed. |
+| `iaa-custom-painting-place` | Pose de peintures personnalisées. |
+
+## Flags d'action
+
+ItemsAdderAdditions enregistre aussi un flag par action intégrée. Le nom du flag est :
+
+```text
+iaa-action-<action-key-with-underscores-replaced-by-dashes>
+```
+
+Exemples :
+
+| Clé d'action | Flag WorldGuard |
+|--------------|-----------------|
+| `replace_biome` | `iaa-action-replace-biome` |
+| `open_trade_machine` | `iaa-action-open-trade-machine` |
+| `mythic_mobs_skill` | `iaa-action-mythic-mobs-skill` |
+
+Flags d'actions intégrées actuels :
+
+```text
+iaa-action-actionbar
+iaa-action-clear-item
+iaa-action-ignite
+iaa-action-message
+iaa-action-mythic-mobs-skill
+iaa-action-open-inventory
+iaa-action-open-trade-machine
+iaa-action-play-animation
+iaa-action-play-emote
+iaa-action-replace-biome
+iaa-action-replace-item
+iaa-action-shoot-fireball
+iaa-action-swing-hand
+iaa-action-teleport
+iaa-action-title
+iaa-action-toast
+iaa-action-veinminer
+```
+
+Tous les exécuteurs d'actions vérifient leur flag d'action avant de s'exécuter. L'emplacement vérifié est choisi depuis le contexte de l'action : entité cible, bloc, entité de meuble ou position du joueur en dernier recours.
+
+## Exemples de régions
+
+Refuser l'ouverture des stockages dans une région :
+
+```text
+/rg flag spawn iaa-storage-open deny
+```
+
+Refuser les dégâts de contact effect dans une région :
+
+```text
+/rg flag spawn iaa-contact-damage deny
+```
+
+Refuser uniquement l'action `replace_biome` dans une région :
+
+```text
+/rg flag spawn iaa-action-replace-biome deny
+```
+
+Autoriser explicitement la pose de peintures personnalisées :
+
+```text
+/rg flag gallery iaa-custom-painting-place allow
+```
+
+## Comportement par défaut
+
+- Les flags ont `allow` par défaut.
+- Sans WorldGuard, ItemsAdderAdditions autorise la fonctionnalité.
+- Si la configuration WorldGuard d'ItemsAdderAdditions est désactivée, ItemsAdderAdditions autorise la fonctionnalité.
+- Si un nom de flag entre en conflit avec un flag qui n'est pas un `StateFlag`, ce flag est désactivé et un avertissement est journalisé.
+
+## Dépannage
+
+- Si une commande de flag indique que le flag n'existe pas, redémarrez avec WorldGuard installé afin qu'ItemsAdderAdditions puisse enregistrer les flags au démarrage.
+- Si une fonctionnalité s'exécute quand même, vérifiez `config.yml` et confirmez que l'option `worldguard.flags.*` correspondante vaut `true`.
+- Pour les actions, utilisez le nom de flag d'action avec des tirets, pas des underscores.
+- Consultez les logs serveur pour les avertissements de conflit de flags.
+
+## Pages associées
+
+- [Configuration](/fr/docs/configuration)
+- [Comportement storage](/fr/docs/behaviours/storage)
+- [Comportement contact effect](/fr/docs/behaviours/contact-effect)
+- [Comportement stackable](/fr/docs/behaviours/stackable)
+- [Comportement bed](/fr/docs/behaviours/bed)
+- [Peintures personnalisées](/fr/docs/custom-paintings)
+- [Paramètres des actions](/fr/docs/actions/parameters)

@@ -1,0 +1,57 @@
+---
+title: PlaceholderAPI
+description: Résolution optionnelle des placeholders PlaceholderAPI dans les champs de texte ItemsAdderAdditions pris en charge.
+icon: Braces
+---
+
+Le support de PlaceholderAPI est optionnel. Lorsque PlaceholderAPI est installé, ItemsAdderAdditions résout les placeholders dans les champs de texte pris en charge. Lorsqu'il n'est pas installé, le texte d'origine reste inchangé.
+
+## Fonctionnalités prises en charge
+
+PlaceholderAPI est utilisé par les chemins de rendu de texte documentés sur les pages de fonctionnalités, notamment :
+
+- actions message, actionbar, title, toast et open inventory
+- actions de texte à la complétion d'un progrès
+- titres des inventaires storage
+- texte du comportement text display
+
+## Exemples
+
+```yaml
+message:
+  text: "Hello %player_name%!"
+```
+
+```yaml
+behaviours:
+  text_display:
+    text: "Coins: %vault_eco_balance%"
+    refresh_interval: 20
+```
+
+Pour les text displays, définissez `refresh_interval` sur une valeur positive lorsque les placeholders doivent se mettre à jour au fil du temps.
+
+## Comportement avec dépendance optionnelle
+
+Si PlaceholderAPI est absent, les placeholders ne sont pas résolus et restent dans le texte rendu.
+
+## Limites
+
+- ItemsAdderAdditions ne fournit pas d'expansions PlaceholderAPI lui-même.
+- Le support des placeholders s'applique uniquement aux champs qui utilisent le moteur de rendu de texte partagé ou qui documentent explicitement le support de PlaceholderAPI.
+
+## Dépannage
+
+- Installez l'expansion PlaceholderAPI qui fournit le placeholder que vous utilisez.
+- Utilisez un intervalle de rafraîchissement positif pour les placeholders de text display qui changent.
+- Si le texte apparaît littéralement comme `%placeholder%`, vérifiez que PlaceholderAPI est installé et activé.
+
+## Pages associées
+
+- [Action Message](/fr/docs/actions/message)
+- [Action Actionbar](/fr/docs/actions/actionbar)
+- [Action Title](/fr/docs/actions/title)
+- [Action Toast](/fr/docs/actions/toast)
+- [Action Open Inventory](/fr/docs/actions/open-inventory)
+- [Comportement Text Display](/fr/docs/behaviours/text-display)
+- [Comportement storage](/fr/docs/behaviours/storage)

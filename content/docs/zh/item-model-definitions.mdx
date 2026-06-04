@@ -1,0 +1,244 @@
+---
+title: 物品模型定义
+icon: Boxes
+description: 从 YAML 为 ItemsAdder 自定义物品生成 Minecraft 物品模型定义文件
+version: "1.0.10"
+---
+
+物品模型定义是 Minecraft 1.21.4 新增的原版资源包文件，用于把物品映射到模型，并根据物品状态在多个模型之间切换。ItemsAdderAdditions 会根据你自定义物品上的一段 YAML 为你生成这些 JSON 文件，写入资源包，并（可选）为物品附加对应的 `minecraft:item_model` 组件。
+
+在物品定义下添加 `item_model_definition` 节，然后执行 `/iazip` 把文件写入资源包。
+
+```yaml
+items:
+  my_item:
+    item_model_definition:
+      model:
+        type: model
+        model: my_pack:item/my_item
+```
+
+**最低服务端版本：1.21.4。** 在更旧的版本上，每个 `item_model_definition` 节都会被忽略，并在控制台输出警告。
+
+生成的文件写入资源包内的 `assets/<namespace>/items/<path>.json`。修改 YAML 后，执行 `/iazip` 重新生成资源包。生成的物品模型 id 为 `<namespace>:<path>`。
+
+## 启用
+
+该功能由 `config.yml` 中的 `item_model_definitions` 控制（默认启用）：
+
+```yaml
+features:
+  item_model_definitions: true
+```
+
+## 节字段参考
+
+| 键 | 类型 | 默认值 | 说明 |
+|----|------|--------|------|
+| `enabled` | 布尔 | `true` | 设为 `false` 跳过该物品。 |
+| `path` | 字符串 | 物品 id | 输出路径 / 生成的模型 id。支持 `namespace:path`。 |
+| `model` | 对象 | - | 模型树的 builder 简写（见下文）。 |
+| `raw` | 对象 | - | 完整的物品模型定义根对象，原样写入。 |
+| `apply_component` | 布尔 | `true` | 附加指向生成 id 的 `minecraft:item_model` 组件。 |
+| `overwrite_existing_file` | 布尔 | `true` | 为 `false` 时，目标路径已存在的文件保持不变。 |
+| `custom_model_data` | 对象 | - | 添加 `minecraft:custom_model_data` 组件（见下文）。 |
+
+`model` 和 `raw` 必须且仅能提供其中一个。若两者都存在，则使用 `raw` 并记录警告。
+
+### `path`
+
+若省略，路径默认为物品 id，命名空间默认为物品的命名空间。结尾的 `.json` 会被自动去除。
+
+```yaml
+item_model_definition:
+  path: my_pack:custom/sword   # 写入 assets/my_pack/items/custom/sword.json
+  model:
+    type: model
+    model: my_pack:item/sword
+```
+
+规则：
+
+- 命名空间：小写字母、数字、`_`、`-`、`.`
+- 路径：小写字母、数字、`_`、`-`、`.`、`/`
+- 不能以 `/` 开头或结尾，不能有 `//`
+- 拒绝绝对路径、反斜杠和 `..`
+
+## Builder 模型（`model`）
+
+`model` 是一个简写：其对象会成为生成根对象的 `model` 字段。它必须包含 `type`。在 builder 模式下，当你省略命名空间时，`type` 和 `property` 的值会自动加上 `minecraft:` 前缀（`model` 变成 `minecraft:model`）。
+
+```yaml
+item_model_definition:
+  model:
+    type: model            # 变成 minecraft:model
+    model: my_pack:item/my_item
+```
+
+### 支持的类型
+
+builder 会校验以下类型。其他任何 `type` 都会原样写入，不做校验。
+
+#### `minecraft:model`
+
+单个模型。需要 `model`（模型资源路径）。
+
+```yaml
+model:
+  type: model
+  model: my_pack:item/my_item
+```
+
+#### `minecraft:composite`
+
+将多个模型叠加渲染。需要非空的 `models` 模型对象列表。
+
+```yaml
+model:
+  type: composite
+  models:
+    - type: model
+      model: my_pack:item/base
+    - type: model
+      model: my_pack:item/overlay
+```
+
+#### `minecraft:condition`
+
+根据布尔属性在两个模型间选择。需要 `property`、`on_true` 和 `on_false`。
+
+```yaml
+model:
+  type: condition
+  property: using_item
+  on_true:
+    type: model
+    model: my_pack:item/drawing
+  on_false:
+    type: model
+    model: my_pack:item/idle
+```
+
+#### `minecraft:select`
+
+根据属性值从一组 case 中选择模型。需要 `property` 和非空的 `cases` 列表；每个 case 需要 `when` 和 `model`。当没有 case 匹配时使用可选的 `fallback` 模型。
+
+```yaml
+model:
+  type: select
+  property: display_context
+  cases:
+    - when: gui
+      model:
+        type: model
+        model: my_pack:item/gui
+    - when: firstperson_righthand
+      model:
+        type: model
+        model: my_pack:item/hand
+  fallback:
+    type: model
+    model: my_pack:item/default
+```
+
+#### `minecraft:range_dispatch`
+
+根据数值属性和阈值选择模型。需要 `property` 和非空的 `entries` 列表；每个 entry 需要数值 `threshold` 和 `model`。低于最低阈值时使用可选的 `fallback`。
+
+```yaml
+model:
+  type: range_dispatch
+  property: damage
+  entries:
+    - threshold: 0.0
+      model:
+        type: model
+        model: my_pack:item/fresh
+    - threshold: 0.5
+      model:
+        type: model
+        model: my_pack:item/worn
+  fallback:
+    type: model
+    model: my_pack:item/broken
+```
+
+#### `minecraft:special`
+
+带渲染器的特殊模型。需要 `base` 和一个带自身 `type` 的 `model` 对象。
+
+```yaml
+model:
+  type: special
+  base: my_pack:item/shield_base
+  model:
+    type: minecraft:shield
+```
+
+#### `minecraft:empty` / `minecraft:bundle/selected_item`
+
+无额外字段的标记类型。
+
+```yaml
+model:
+  type: empty
+```
+
+## 原始模型（`raw`）
+
+当你需要完全控制时使用 `raw`。它是完整的物品模型定义根对象，原样写入磁盘。它必须包含顶层 `model` 对象。与 builder 不同，`raw` 不会添加任何 `minecraft:` 前缀，因此请写完整的带命名空间 id。
+
+```yaml
+item_model_definition:
+  raw:
+    model:
+      type: minecraft:range_dispatch
+      property: minecraft:custom_model_data
+      entries:
+        - threshold: 1.0
+          model:
+            type: minecraft:model
+            model: my_pack:item/variant_1
+      fallback:
+        type: minecraft:model
+        model: my_pack:item/default
+```
+
+## 组件
+
+### `apply_component`
+
+为 `true`（默认）时，IAA 会为物品附加一个指向生成模型 id 的 `minecraft:item_model` 组件，这样物品就能真正使用新定义，而无需你手动设置组件。
+
+如果物品已定义 `components.item_model`（或 `minecraft:item_model`）且与生成的 id 不同，IAA 会保留现有组件不变并记录警告。设为 `apply_component: false` 可只生成文件而不改动组件。
+
+### `custom_model_data`
+
+当 `apply_component` 为 `true` 且物品尚未定义 `custom_model_data` 组件时，你可以附加一个。它使用原版 `minecraft:custom_model_data` 形式：`floats`、`flags`、`strings` 和 `colors` 列表。
+
+```yaml
+item_model_definition:
+  model:
+    type: range_dispatch
+    property: custom_model_data
+    entries:
+      - threshold: 1.0
+        model:
+          type: model
+          model: my_pack:item/variant_1
+  custom_model_data:
+    floats:
+      - 1.0
+    flags:
+      - true
+    strings:
+      - hello
+    colors:
+      - "#FF0000"
+```
+
+如果物品上已存在 `components.custom_model_data`，该节会被跳过并记录警告。
+
+## 应用更改
+
+物品模型定义文件在重载时写入资源包。之后执行 `/iazip` 重新打包并应用资源包。控制台会记录生成了多少个定义、有多少文件发生变化，以及跳过了多少已存在的文件。

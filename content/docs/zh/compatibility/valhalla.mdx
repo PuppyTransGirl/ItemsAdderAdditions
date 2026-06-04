@@ -1,0 +1,147 @@
+---
+title: ValhallaMMO & Trinkets
+description: 将 ValhallaMMO 和 ValhallaTrinkets 元数据附加到 ItemsAdder 物品堆叠。
+icon: Gem
+version: "1.0.10"
+---
+
+ItemsAdderAdditions 可以在 ItemsAdder 物品堆叠创建时写入 ValhallaMMO 和 ValhallaTrinkets 持久数据。请在 ItemsAdder 物品的 `valhalla` 节中配置这些数据。
+
+元数据会直接写入物品堆叠。实际游戏效果需要服务器安装对应的 Valhalla 插件。
+
+## 要求
+
+- ItemsAdder 已加载的 ItemsAdder 物品内容。
+- ValhallaMMO 用于 ValhallaMMO 属性、装备类型、物品 flag 和永久效果。
+- ValhallaTrinkets 用于饰品元数据。
+
+## 可选依赖行为
+
+即使未安装 ValhallaMMO 或 ValhallaTrinkets，ItemsAdderAdditions 也会写入持久数据键。没有对应 Valhalla 插件时，数据仍保留在物品上，但不会产生游戏效果。
+
+## 基础结构
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_sword:
+    display_name: "<red>Ruby Sword"
+    valhalla:
+      equipment_class: SWORD
+      item_flags:
+        - DISPLAY_ATTRIBUTES
+      stats:
+        - stat: DAMAGE_BASE
+          amount: 4.0
+          operation: ADD_NUMBER
+```
+
+## 属性
+
+当相同条目需要同时写入 Valhalla 的实际属性和默认属性时，使用 `stats`。
+
+```yaml
+valhalla:
+  stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+      hidden: false
+```
+
+也可以分别写入两个属性容器：
+
+```yaml
+valhalla:
+  actual_stats:
+    - stat: DAMAGE_BASE
+      amount: 6.0
+      operation: ADD_NUMBER
+  default_stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+```
+
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `stat` | string | *（必填）* | Valhalla 属性键。未知属性键会被跳过。 |
+| `amount` | number | *（必填）* | 属性值。 |
+| `operation` | string | *（必填）* | `ADD_NUMBER`、`ADD_SCALAR` 或 `MULTIPLY_SCALAR_1`。 |
+| `hidden` | boolean | `false` | Valhalla 是否隐藏该属性行。 |
+
+## 装备类型和 flags
+
+```yaml
+valhalla:
+  equipment_class: SWORD
+  item_flags:
+    - DISPLAY_ATTRIBUTES
+    - HIDE_QUALITY
+```
+
+常见装备类型包括 `SWORD`、`BOW`、`CROSSBOW`、`TRIDENT`、`MACE`、`HELMET`、`CHESTPLATE`、`LEGGINGS`、`BOOTS`、`PICKAXE`、`AXE`、`SHOVEL`、`HOE`、`SHIELD`、`TRINKET` 和 `OTHER`。
+
+支持的 item flags：
+
+```text
+HIDE_TAGS, HIDE_QUALITY, DISPLAY_ATTRIBUTES, HIDE_DURABILITY,
+ATTRIBUTE_FOR_BOTH_HANDS, ATTRIBUTE_FOR_HELMET, INFINITY_EXPLOITABLE,
+UNCRAFTABLE, TEMPORARY_POTION_DISPLAY, UNENCHANTABLE, UNMENDABLE
+```
+
+## 永久效果
+
+```yaml
+valhalla:
+  permanent_effects:
+    effects:
+      - type: minecraft:strength
+        amplifier: 1
+        duration: 200
+        condition: constant
+    cooldown_properties:
+      cooldown: 1200
+      cdr_affected: true
+```
+
+可以用 `effect` 代替 `type`。旧键 `permanent_potion_effects` 也可用于效果列表。
+
+`cooldown_properties` 也可以作为顶层 `permanent_effects_cooldown_properties` 放置。`cdrAffected` 是 `cdr_affected` 的别名。
+
+## ValhallaTrinkets
+
+```yaml
+valhalla:
+  trinkets:
+    trinket_id: 1001
+    trinket_unique_id: 1001
+    unique: true
+    unstackable: true
+```
+
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `trinket_id` | integer | *（无）* | ValhallaTrinkets ID。必须是非负 32 位整数。 |
+| `trinket_unique_id` | integer | *（无）* | 唯一饰品 ID。必须是非负 32 位整数。 |
+| `unique` | boolean | *（无）* | 写入或移除 ValhallaTrinkets unique flag。 |
+| `unstackable` | boolean | *（无）* | 为 `true` 时，每个生成的物品堆叠都会获得随机 UUID。 |
+
+## 重载行为
+
+修改 `valhalla` 节后运行 `/iareload`。数据会应用到重载后创建的物品堆叠；已有堆叠不会自动重写。
+
+## 故障排查
+
+- 未知 Valhalla 属性名会被跳过。
+- `operation`、`equipment_class` 和 `item_flags` 的枚举值应使用上方所示的 Valhalla 风格大写名称。
+- 玩家背包中的已有物品不会自动重写。
+- 如果游戏效果没有生效，请确认已安装 ValhallaMMO 或 ValhallaTrinkets，并且它支持写入的元数据。
+
+## 相关页面
+
+- [ItemsAdder](/zh/docs/compatibility/itemsadder)
+- [ID](/zh/docs/compatibility/ids)
+- [配置](/zh/docs/configuration)

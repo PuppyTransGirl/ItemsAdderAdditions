@@ -1,0 +1,51 @@
+---
+title: MythicMobs
+description: Support optionnel de MythicMobs pour l'action mythic_mobs_skill.
+icon: Sparkles
+---
+
+Le support de MythicMobs est optionnel. ItemsAdderAdditions utilise MythicMobs uniquement pour l'action `mythic_mobs_skill`.
+
+## Prérequis
+
+- MythicMobs installé et activé.
+- Un nom de skill MythicMobs valide.
+- L'action `mythic_mobs_skill` activée dans la configuration d'ItemsAdderAdditions.
+
+## Fonctionnalités prises en charge
+
+| Fonctionnalité | Comportement MythicMobs |
+|----------------|-------------------------|
+| [Action Mythic Mobs Skill](/fr/docs/actions/mythic-mobs-skill) | Lance une skill MythicMobs depuis le joueur avec une puissance configurable. |
+
+## Exemple
+
+```yaml
+mythic_mobs_skill:
+  skill: "mega_attack"
+  power: 0.75
+```
+
+L'action demande à MythicMobs de lancer la skill depuis le joueur, en utilisant la position du joueur et l'aide de ciblage d'entité de MythicMobs.
+
+## Comportement avec dépendance optionnelle
+
+Si MythicMobs n'est pas installé ou n'est pas activé, l'action retourne sans lancer de skill. Les autres actions continuent de fonctionner.
+
+## Limites
+
+- Cette intégration n'ajoute pas de nouvelles mécaniques MythicMobs.
+- Elle est limitée aux actions ; les références d'objets de style MMO sont gérées par [MMOItems](/fr/docs/compatibility/mmoitems), pas par MythicMobs.
+
+## Dépannage
+
+- Vérifiez que le nom de skill existe dans MythicMobs.
+- Confirmez que la clé d'action est `mythic_mobs_skill`.
+- Vérifiez que l'action est activée dans `config.yml`.
+- Confirmez que MythicMobs est installé et activé avant de tester.
+
+## Pages associées
+
+- [Action Mythic Mobs Skill](/fr/docs/actions/mythic-mobs-skill)
+- [Paramètres des actions](/fr/docs/actions/parameters)
+- [Configuration](/fr/docs/configuration)

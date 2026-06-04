@@ -1,0 +1,51 @@
+---
+title: MythicMobs
+description: Optionele MythicMobs-ondersteuning voor de actie mythic_mobs_skill.
+icon: Sparkles
+---
+
+MythicMobs-ondersteuning is optioneel. ItemsAdderAdditions gebruikt MythicMobs alleen voor de actie `mythic_mobs_skill`.
+
+## Vereisten
+
+- MythicMobs is geïnstalleerd en ingeschakeld.
+- Een geldige MythicMobs-skillnaam.
+- De actie `mythic_mobs_skill` is ingeschakeld in de configuratie van ItemsAdderAdditions.
+
+## Ondersteunde functies
+
+| Functie | MythicMobs-gedrag |
+|---------|-------------------|
+| [Mythic Mobs Skill-actie](/nl/docs/actions/mythic-mobs-skill) | Cast een MythicMobs-skill vanuit de speler met configureerbare power. |
+
+## Voorbeeld
+
+```yaml
+mythic_mobs_skill:
+  skill: "mega_attack"
+  power: 0.75
+```
+
+De actie vraagt MythicMobs om de skill vanuit de speler te casten, met de locatie van de speler en de targeted entity helper van MythicMobs.
+
+## Gedrag bij optionele afhankelijkheid
+
+Als MythicMobs niet is geïnstalleerd of niet is ingeschakeld, keert de actie terug zonder een skill te casten. Andere acties blijven werken.
+
+## Beperkingen
+
+- Deze integratie voegt geen nieuwe MythicMobs-mechanics toe.
+- Ze is alleen voor acties; MMO-style itemreferenties worden afgehandeld door [MMOItems](/nl/docs/compatibility/mmoitems), niet door MythicMobs.
+
+## Problemen oplossen
+
+- Controleer of de skillnaam in MythicMobs bestaat.
+- Controleer of de actionsleutel `mythic_mobs_skill` is.
+- Controleer of de actie is ingeschakeld in `config.yml`.
+- Controleer of MythicMobs is geïnstalleerd en ingeschakeld voordat je test.
+
+## Gerelateerde pagina's
+
+- [Mythic Mobs Skill-actie](/nl/docs/actions/mythic-mobs-skill)
+- [Actieparameters](/nl/docs/actions/parameters)
+- [Configuratie](/nl/docs/configuration)

@@ -1,0 +1,185 @@
+---
+title: ID
+description: 物品、方块、配方、标签和键支持的 ID 格式。
+icon: Hash
+---
+
+ItemsAdderAdditions 在匹配前会把 ID 统一转为小写。在示例和共享配置中，建议使用显式 ID，例如 `minecraft:diamond` 和 `my_pack:ruby_sword`。
+
+大多数字段分为 **具体输出** 和 **运行时匹配** 两类：
+
+- 具体输出必须解析为一个物品堆叠，因此不能使用标签。
+- 运行时匹配可以接受标签，因为插件只需要比较已有内容。
+
+## 快速参考
+
+| 内容 | 支持的格式 | 示例 |
+|------|------------|------|
+| 原版物品 | `minecraft:id`、不带 `minecraft:` 的键或 Bukkit 材质名 | `minecraft:diamond`, `diamond`, `DIAMOND` |
+| 原版方块 | `minecraft:id`、不带 `minecraft:` 的键或 Bukkit 材质名 | `minecraft:oak_log`, `oak_log`, `OAK_LOG` |
+| ItemsAdder 物品 | `namespace:id` 或不带 namespace 的 `id` | `my_pack:ruby_sword`, `ruby_sword` |
+| ItemsAdder 方块 | `namespace:id` 或不带 namespace 的 `id` | `my_pack:ruby_ore`, `ruby_ore` |
+| ItemsAdder 家具 | `namespace:id` 或不带 namespace 的 `id` | `my_pack:ruby_lamp`, `ruby_lamp` |
+| MMOItems 物品 | `mmoitems:type:id` | `mmoitems:sword:flame_blade` |
+| 配方 ID | `namespace:id`、不带 namespace 的 `id`，或支持处的自定义配方标签 | `my_pack:ruby_sword`, `ruby_sword` |
+| 原版物品/方块标签 | `#minecraft:tag`，或接受原版标签处的不带 namespace 的 `#tag` | `#minecraft:planks`, `#logs` |
+| ItemsAdderAdditions 自定义标签 | `#namespace:tag`，或当前 namespace 内的 `#tag` | `#my_pack:ruby_tools`, `#ruby_tools` |
+| Namespaced key | `namespace:path` | `minecraft:strength`, `custom_pack:my_key` |
+
+## 原版物品和方块
+
+原版物品和方块可以写成 namespaced ID、不带 `minecraft:` 的键，或 Bukkit 材质名。
+
+```yaml
+item: minecraft:diamond_sword
+item: diamond_sword
+item: DIAMOND_SWORD
+
+block: minecraft:oak_log
+block: oak_log
+block: OAK_LOG
+```
+
+对于具体物品字段，不带 namespace 的 ID 会先按 ItemsAdder 内容检查，再按原版 Minecraft 物品检查。
+
+## ItemsAdder 物品、方块和家具
+
+ItemsAdder 内容可以使用 `namespace:id`，也可以只使用内容 ID。
+
+```yaml
+item: my_pack:ruby_sword
+block: my_pack:ruby_ore
+furniture: my_pack:ruby_lamp
+```
+
+很多字段也支持只写路径：
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_wand:
+    events:
+      interact:
+        right:
+          replace_item:
+            item: ruby_sword
+```
+
+不带 namespace 的 ID 可以工作，但当多个包使用相同内容 ID 时，`namespace:id` 更清晰。
+
+## MMOItems 物品
+
+MMOItems 引用必须使用以下格式：
+
+```yaml
+item: mmoitems:type:id
+```
+
+示例：
+
+```yaml
+item: mmoitems:sword:flame_blade
+```
+
+类型和 ID 会通过 MMOItems 元数据匹配。如果未安装或未启用 MMOItems，这些引用无法解析，也不会匹配。
+
+## 配方
+
+配方 ID 是否可以省略 namespace 取决于具体功能。
+
+```yaml
+recipe: my_pack:ruby_sword
+recipe: ruby_sword
+```
+
+在配方匹配中，不带 namespace 的配方 ID 可以匹配 namespaced 配方 ID 的 path 部分。自定义配方标签只在明确支持自定义标签的字段中可用。
+
+## 自定义标签
+
+自定义标签在顶层 `tags` 节中定义。
+
+```yaml
+info:
+  namespace: my_pack
+
+tags:
+  ruby_tools:
+    type: item
+    values:
+      - ruby_pickaxe
+      - ruby_axe
+      - mmoitems:tool:ruby_hammer
+```
+
+在同一 namespace 中用 `#tag` 引用标签，从其他 namespace 引用时使用 `#namespace:tag`。
+
+```yaml
+items:
+  - "#ruby_tools"
+  - "#my_pack:ruby_tools"
+```
+
+自定义标签类型包括 `item`、`block`、`furniture` 和 `recipe`。嵌套规则和功能支持请见[自定义标签](/zh/docs/custom-tags)。
+
+## 原版标签
+
+在匹配路径接受 Bukkit 物品或方块标签时，可以使用原版标签。
+
+```yaml
+item: "#minecraft:planks"
+block: "#minecraft:logs"
+```
+
+对于物品和方块标签匹配，不带 namespace 的原版标签（如 `#logs`）会规范化为 `#minecraft:logs`，除非当前标签注册表中存在相同 ID 的自定义标签。
+
+原版标签只匹配原版注册表条目，不会匹配 ItemsAdder 内容或 MMOItems 内容。
+
+`iaa_crafting_table` 原料是特殊情况：标签原料只使用 Bukkit 原版物品/方块标签，不会解析 ItemsAdderAdditions 自定义标签。
+
+## 具体物品输出
+
+以下必须生成一个物品堆叠的字段应使用具体 ID：
+
+- 配方结果
+- 营火、切石机和酿造结果
+- `toast.icon`
+- `clear_item.item`
+- `replace_item.item`
+- 会创建存储物品堆叠的 component 字段，例如 `bundle_contents` 和 `charged_projectiles`
+
+这些字段不能使用标签，因为一个标签可能包含多个值。
+
+## 旋转的 ItemsAdder 方块和家具
+
+运行时方块和家具匹配会把方向后缀视为同一个基础内容：
+
+```text
+my_pack:chair_north -> my_pack:chair
+my_pack:chair_south -> my_pack:chair
+my_pack:chair_east  -> my_pack:chair
+my_pack:chair_west  -> my_pack:chair
+my_pack:chair_up    -> my_pack:chair
+my_pack:chair_down  -> my_pack:chair
+```
+
+这适用于进度触发器、自定义标签成员关系等匹配检查。你不需要列出每个旋转变体。
+
+## 常见错误
+
+- 在 `result.item`、`toast.icon`、`clear_item.item` 或 `replace_item.item` 等输出字段中使用标签。
+- 期望原版标签匹配 ItemsAdder 或 MMOItems 物品。
+- 在未安装 MMOItems 时使用 `mmoitems:type:id`。
+- 标签引用忘记加 `#` 前缀。
+- 写出包含多个冒号的无效 namespaced ID，例如 `namespace:path:extra`。
+- 在多个包中复用相同的不带 namespace 的 ID，却不确定会匹配到哪个内容。
+
+## 相关页面
+
+- [兼容性概览](/zh/docs/compatibility)
+- [ItemsAdder](/zh/docs/compatibility/itemsadder)
+- [MMOItems](/zh/docs/compatibility/mmoitems)
+- [自定义标签](/zh/docs/custom-tags)
+- [合成配方](/zh/docs/recipes/crafting)
+- [进度触发器](/zh/docs/advancements/triggers)

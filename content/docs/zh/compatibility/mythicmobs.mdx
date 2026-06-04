@@ -1,0 +1,51 @@
+---
+title: MythicMobs
+description: mythic_mobs_skill 动作的可选 MythicMobs 支持。
+icon: Sparkles
+---
+
+MythicMobs 支持是可选的。ItemsAdderAdditions 只在 `mythic_mobs_skill` 动作中使用 MythicMobs。
+
+## 要求
+
+- 已安装并启用 MythicMobs。
+- 有效的 MythicMobs skill 名称。
+- 在 ItemsAdderAdditions 配置中启用 `mythic_mobs_skill` 动作。
+
+## 支持的功能
+
+| 功能 | MythicMobs 行为 |
+|------|-----------------|
+| [Mythic Mobs Skill 动作](/zh/docs/actions/mythic-mobs-skill) | 以玩家为来源，用可配置 power 施放 MythicMobs skill。 |
+
+## 示例
+
+```yaml
+mythic_mobs_skill:
+  skill: "mega_attack"
+  power: 0.75
+```
+
+该动作会请求 MythicMobs 以玩家为来源施放 skill，并使用玩家位置和 MythicMobs 的目标实体辅助逻辑。
+
+## 可选依赖行为
+
+如果未安装或未启用 MythicMobs，该动作会直接返回，不会施放 skill。其他动作仍会正常工作。
+
+## 限制
+
+- 此集成不会添加新的 MythicMobs mechanics。
+- 它只用于动作；MMO 风格物品引用由 [MMOItems](/zh/docs/compatibility/mmoitems) 处理，不由 MythicMobs 处理。
+
+## 故障排查
+
+- 确认 skill 名称存在于 MythicMobs 中。
+- 确认动作键为 `mythic_mobs_skill`。
+- 检查该动作是否已在 `config.yml` 中启用。
+- 测试前确认 MythicMobs 已安装并启用。
+
+## 相关页面
+
+- [Mythic Mobs Skill 动作](/zh/docs/actions/mythic-mobs-skill)
+- [动作参数](/zh/docs/actions/parameters)
+- [配置](/zh/docs/configuration)

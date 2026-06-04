@@ -1,0 +1,61 @@
+---
+title: CoreProtect
+description: Optioneel CoreProtect-loggedrag dat door ItemsAdderAdditions wordt ondersteund.
+icon: History
+---
+
+CoreProtect-ondersteuning is optioneel. ItemsAdderAdditions gebruikt CoreProtect momenteel alleen om het openen van storage behaviours als interacties te loggen.
+
+## Vereisten
+
+- CoreProtect is geïnstalleerd en ingeschakeld.
+- De CoreProtect-API is ingeschakeld.
+- Een ItemsAdderAdditions storage behaviour is in gebruik.
+
+## Wat wordt gelogd
+
+Wanneer een speler een ItemsAdderAdditions storagecontainer opent, roept ItemsAdderAdditions CoreProtect's interactielogger aan met:
+
+- de naam van de speler
+- de opslaglocatie
+
+Hierdoor zijn storage-openingen zichtbaar als CoreProtect-interacties wanneer CoreProtect beschikbaar is.
+
+## Wat wordt niet gelogd
+
+ItemsAdderAdditions logt deze zaken momenteel niet via CoreProtect:
+
+- itemverplaatsingen binnen de storage-inventaris
+- uitvoering van acties
+- plaatsing van custom paintings
+- stackable-plaatsing
+- contact effect-schade
+- receptcrafting
+- voltooiing van advancements
+- world generation
+
+## Gedrag bij optionele afhankelijkheid
+
+Als CoreProtect niet is geïnstalleerd, is uitgeschakeld of als de API niet beschikbaar is, slaat ItemsAdderAdditions de logaanroep over. Storage blijft normaal werken.
+
+## Ondersteunde functies
+
+| Functie | CoreProtect-gedrag |
+|---------|--------------------|
+| [Storage behaviour](/nl/docs/behaviours/storage) | Logt een interactie wanneer storage wordt geopend. |
+
+## Beperkingen
+
+CoreProtect-ondersteuning is bewust smal. Ze registreert dat storage is geopend; ze levert geen volledige auditlog van inventarisinhoud of itemtransfers.
+
+## Problemen oplossen
+
+- Controleer of CoreProtect is geïnstalleerd en ingeschakeld.
+- Controleer of de CoreProtect-API is ingeschakeld en werkt.
+- Test met een blok of furniture met storage behaviour, niet met een losstaande actie of recept.
+- Als er geen interactie verschijnt, controleer dan of de speler de storage daadwerkelijk succesvol heeft geopend.
+
+## Gerelateerde pagina's
+
+- [Storage behaviour](/nl/docs/behaviours/storage)
+- [WorldGuard](/nl/docs/compatibility/worldguard)

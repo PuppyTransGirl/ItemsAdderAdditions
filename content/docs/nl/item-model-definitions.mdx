@@ -1,0 +1,244 @@
+---
+title: Item Model Definitions
+icon: Boxes
+description: Genereer Minecraft item model definition-bestanden voor ItemsAdder custom items vanuit YAML.
+version: "1.0.10"
+---
+
+Item model definitions zijn de vanilla resource pack-bestanden (toegevoegd in Minecraft 1.21.4) die een item aan een model koppelen en tussen modellen kiezen op basis van de itemstatus. ItemsAdderAdditions genereert deze JSON-bestanden voor je vanuit een YAML-sectie op je custom item, schrijft ze naar de resource pack en koppelt (optioneel) de bijbehorende `minecraft:item_model` component aan het item.
+
+Voeg een `item_model_definition` sectie toe onder je itemdefinitie en voer `/iazip` uit om de bestanden naar de pack te schrijven.
+
+```yaml
+items:
+  my_item:
+    item_model_definition:
+      model:
+        type: model
+        model: my_pack:item/my_item
+```
+
+**Minimale serverversie: 1.21.4.** Op oudere versies wordt elke `item_model_definition` sectie genegeerd met een waarschuwing in de console.
+
+Gegenereerde bestanden worden geschreven naar `assets/<namespace>/items/<path>.json` binnen de resource pack. Voer na het wijzigen van de YAML `/iazip` uit om de pack opnieuw te genereren. Het gegenereerde item model-id is `<namespace>:<path>`.
+
+## Inschakelen
+
+De functie wordt geregeld door `item_model_definitions` in `config.yml` (standaard ingeschakeld):
+
+```yaml
+features:
+  item_model_definitions: true
+```
+
+## Sectie-referentie
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `enabled` | Boolean | `true` | Zet op `false` om dit item over te slaan. |
+| `path` | String | item-id | Uitvoerpad / gegenereerd model-id. Ondersteunt `namespace:path`. |
+| `model` | Object | - | Builder-shorthand voor de modelboom (zie hieronder). |
+| `raw` | Object | - | Volledige item model definition-root, letterlijk geschreven. |
+| `apply_component` | Boolean | `true` | Koppelt de `minecraft:item_model` component die naar het gegenereerde id wijst. |
+| `overwrite_existing_file` | Boolean | `true` | Bij `false` blijft een bestaand bestand op het doelpad onaangeroerd. |
+| `custom_model_data` | Object | - | Voegt een `minecraft:custom_model_data` component toe (zie hieronder). |
+
+Precies één van `model` of `raw` is vereist. Als beide aanwezig zijn, wordt `raw` gebruikt en wordt een waarschuwing gelogd.
+
+### `path`
+
+Indien weggelaten is het pad standaard het item-id en de namespace standaard de namespace van het item. Een `.json`-extensie wordt automatisch verwijderd.
+
+```yaml
+item_model_definition:
+  path: my_pack:custom/sword   # schrijft assets/my_pack/items/custom/sword.json
+  model:
+    type: model
+    model: my_pack:item/sword
+```
+
+Regels:
+
+- Namespace: kleine letters, cijfers, `_`, `-`, `.`
+- Pad: kleine letters, cijfers, `_`, `-`, `.`, `/`
+- Geen `/` aan begin of eind, geen `//`
+- Absolute paden, backslashes en `..` worden geweigerd
+
+## Builder-model (`model`)
+
+`model` is een shorthand: het object wordt het `model`-veld van de gegenereerde root. Het moet een `type` bevatten. In builder-modus krijgen de `type`- en `property`-waarden automatisch het voorvoegsel `minecraft:` wanneer je een namespace weglaat (`model` wordt `minecraft:model`).
+
+```yaml
+item_model_definition:
+  model:
+    type: model            # wordt minecraft:model
+    model: my_pack:item/my_item
+```
+
+### Ondersteunde types
+
+De builder valideert de volgende types. Elk ander `type` wordt zonder validatie geschreven.
+
+#### `minecraft:model`
+
+Eén enkel model. Vereist `model` (een modelresourcepad).
+
+```yaml
+model:
+  type: model
+  model: my_pack:item/my_item
+```
+
+#### `minecraft:composite`
+
+Toont meerdere modellen over elkaar. Vereist een niet-lege `models`-lijst van modelobjecten.
+
+```yaml
+model:
+  type: composite
+  models:
+    - type: model
+      model: my_pack:item/base
+    - type: model
+      model: my_pack:item/overlay
+```
+
+#### `minecraft:condition`
+
+Kiest tussen twee modellen op basis van een booleaanse property. Vereist `property`, `on_true` en `on_false`.
+
+```yaml
+model:
+  type: condition
+  property: using_item
+  on_true:
+    type: model
+    model: my_pack:item/drawing
+  on_false:
+    type: model
+    model: my_pack:item/idle
+```
+
+#### `minecraft:select`
+
+Kiest een model uit een lijst cases op basis van een property-waarde. Vereist `property` en een niet-lege `cases`-lijst; elke case heeft `when` en `model` nodig. Een optionele `fallback` wordt gebruikt wanneer geen case past.
+
+```yaml
+model:
+  type: select
+  property: display_context
+  cases:
+    - when: gui
+      model:
+        type: model
+        model: my_pack:item/gui
+    - when: firstperson_righthand
+      model:
+        type: model
+        model: my_pack:item/hand
+  fallback:
+    type: model
+    model: my_pack:item/default
+```
+
+#### `minecraft:range_dispatch`
+
+Kiest een model op basis van een numerieke property en drempels. Vereist `property` en een niet-lege `entries`-lijst; elke entry heeft een numerieke `threshold` en een `model` nodig. Een optionele `fallback` wordt gebruikt onder de laagste drempel.
+
+```yaml
+model:
+  type: range_dispatch
+  property: damage
+  entries:
+    - threshold: 0.0
+      model:
+        type: model
+        model: my_pack:item/fresh
+    - threshold: 0.5
+      model:
+        type: model
+        model: my_pack:item/worn
+  fallback:
+    type: model
+    model: my_pack:item/broken
+```
+
+#### `minecraft:special`
+
+Een speciaal model met een renderer. Vereist `base` en een `model`-object met een eigen `type`.
+
+```yaml
+model:
+  type: special
+  base: my_pack:item/shield_base
+  model:
+    type: minecraft:shield
+```
+
+#### `minecraft:empty` / `minecraft:bundle/selected_item`
+
+Markertypes zonder extra velden.
+
+```yaml
+model:
+  type: empty
+```
+
+## Raw-model (`raw`)
+
+Gebruik `raw` wanneer je volledige controle wilt. Het is de volledige item model definition-root en wordt letterlijk naar schijf geschreven. Het moet een `model`-object op rootniveau bevatten. Anders dan de builder voegt `raw` geen `minecraft:`-voorvoegsels toe, dus schrijf volledige namespaced ids.
+
+```yaml
+item_model_definition:
+  raw:
+    model:
+      type: minecraft:range_dispatch
+      property: minecraft:custom_model_data
+      entries:
+        - threshold: 1.0
+          model:
+            type: minecraft:model
+            model: my_pack:item/variant_1
+      fallback:
+        type: minecraft:model
+        model: my_pack:item/default
+```
+
+## Componenten
+
+### `apply_component`
+
+Bij `true` (standaard) koppelt IAA een `minecraft:item_model` component aan het item die naar het gegenereerde model-id wijst, zodat het item de nieuwe definitie daadwerkelijk gebruikt zonder dat je de component handmatig instelt.
+
+Als het item al `components.item_model` (of `minecraft:item_model`) definieert en die verschilt van het gegenereerde id, laat IAA de bestaande component onaangeroerd en logt een waarschuwing. Zet `apply_component: false` om het bestand te genereren zonder componenten aan te raken.
+
+### `custom_model_data`
+
+Wanneer `apply_component` `true` is en het item nog geen `custom_model_data` component definieert, kun je er een koppelen. Het gebruikt de vanilla `minecraft:custom_model_data` vorm: lijsten van `floats`, `flags`, `strings` en `colors`.
+
+```yaml
+item_model_definition:
+  model:
+    type: range_dispatch
+    property: custom_model_data
+    entries:
+      - threshold: 1.0
+        model:
+          type: model
+          model: my_pack:item/variant_1
+  custom_model_data:
+    floats:
+      - 1.0
+    flags:
+      - true
+    strings:
+      - hello
+    colors:
+      - "#FF0000"
+```
+
+Als `components.custom_model_data` al op het item bestaat, wordt de sectie overgeslagen met een waarschuwing.
+
+## Wijzigingen toepassen
+
+Item model definition-bestanden worden tijdens het herladen naar de resource pack geschreven. Voer daarna `/iazip` uit om de pack opnieuw te bouwen en toe te passen. De console logt hoeveel definities zijn gegenereerd, hoeveel bestanden zijn gewijzigd en hoeveel bestaande bestanden zijn overgeslagen.

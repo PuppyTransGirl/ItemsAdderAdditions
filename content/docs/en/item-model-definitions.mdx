@@ -1,0 +1,244 @@
+---
+title: Item Model Definitions
+icon: Boxes
+description: Generate Minecraft item model definition files for ItemsAdder custom items from YAML.
+version: "1.0.10"
+---
+
+Item model definitions are the vanilla resource-pack files (added in Minecraft 1.21.4) that map an item to a model and select between models based on item state. ItemsAdderAdditions generates these JSON files for you from a YAML section on your custom item, writes them into the resource pack, and (optionally) attaches the matching `minecraft:item_model` component to the item.
+
+Add an `item_model_definition` section under your item definition and run `/iazip` to write the files into the pack.
+
+```yaml
+items:
+  my_item:
+    item_model_definition:
+      model:
+        type: model
+        model: my_pack:item/my_item
+```
+
+**Minimum server version: 1.21.4.** On older versions every `item_model_definition` section is ignored with a console warning.
+
+Generated files are written to `assets/<namespace>/items/<path>.json` inside the resource pack. After changing the YAML, run `/iazip` to regenerate the pack. The generated item model id is `<namespace>:<path>`.
+
+## Enabling
+
+The feature is controlled by `item_model_definitions` in `config.yml` (enabled by default):
+
+```yaml
+features:
+  item_model_definitions: true
+```
+
+## Section reference
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `enabled` | Boolean | `true` | Set to `false` to skip this item. |
+| `path` | String | item id | Output path / generated model id. Supports `namespace:path`. |
+| `model` | Object | - | Builder shorthand for the model tree (see below). |
+| `raw` | Object | - | Full item model definition root, passed through verbatim. |
+| `apply_component` | Boolean | `true` | Attach the `minecraft:item_model` component pointing at the generated id. |
+| `overwrite_existing_file` | Boolean | `true` | When `false`, an existing file at the target path is left untouched. |
+| `custom_model_data` | Object | - | Adds a `minecraft:custom_model_data` component (see below). |
+
+Exactly one of `model` or `raw` is required. If both are present, `raw` is used and a warning is logged.
+
+### `path`
+
+If omitted, the path defaults to the item id and the namespace defaults to the item's namespace. A trailing `.json` is stripped automatically.
+
+```yaml
+item_model_definition:
+  path: my_pack:custom/sword   # writes assets/my_pack/items/custom/sword.json
+  model:
+    type: model
+    model: my_pack:item/sword
+```
+
+Rules:
+
+- Namespace: lowercase letters, digits, `_`, `-`, `.`
+- Path: lowercase letters, digits, `_`, `-`, `.`, `/`
+- No leading or trailing `/`, no `//`
+- Absolute paths, backslashes, and `..` are rejected
+
+## Builder model (`model`)
+
+`model` is a shorthand: its object becomes the `model` field of the generated root. It must contain a `type`. In builder mode, the `type` and `property` values are automatically prefixed with `minecraft:` when you omit a namespace (`model` becomes `minecraft:model`).
+
+```yaml
+item_model_definition:
+  model:
+    type: model            # becomes minecraft:model
+    model: my_pack:item/my_item
+```
+
+### Supported types
+
+The builder validates the following types. Any other `type` is passed through without validation.
+
+#### `minecraft:model`
+
+A single model. Requires `model` (a model resource path).
+
+```yaml
+model:
+  type: model
+  model: my_pack:item/my_item
+```
+
+#### `minecraft:composite`
+
+Renders several models on top of each other. Requires a non-empty `models` list of model objects.
+
+```yaml
+model:
+  type: composite
+  models:
+    - type: model
+      model: my_pack:item/base
+    - type: model
+      model: my_pack:item/overlay
+```
+
+#### `minecraft:condition`
+
+Picks between two models based on a boolean property. Requires `property`, `on_true`, and `on_false`.
+
+```yaml
+model:
+  type: condition
+  property: using_item
+  on_true:
+    type: model
+    model: my_pack:item/drawing
+  on_false:
+    type: model
+    model: my_pack:item/idle
+```
+
+#### `minecraft:select`
+
+Picks a model from a list of cases based on a property value. Requires `property` and a non-empty `cases` list; each case needs `when` and `model`. An optional `fallback` model is used when no case matches.
+
+```yaml
+model:
+  type: select
+  property: display_context
+  cases:
+    - when: gui
+      model:
+        type: model
+        model: my_pack:item/gui
+    - when: firstperson_righthand
+      model:
+        type: model
+        model: my_pack:item/hand
+  fallback:
+    type: model
+    model: my_pack:item/default
+```
+
+#### `minecraft:range_dispatch`
+
+Picks a model based on a numeric property and thresholds. Requires `property` and a non-empty `entries` list; each entry needs a numeric `threshold` and a `model`. An optional `fallback` is used below the lowest threshold.
+
+```yaml
+model:
+  type: range_dispatch
+  property: damage
+  entries:
+    - threshold: 0.0
+      model:
+        type: model
+        model: my_pack:item/fresh
+    - threshold: 0.5
+      model:
+        type: model
+        model: my_pack:item/worn
+  fallback:
+    type: model
+    model: my_pack:item/broken
+```
+
+#### `minecraft:special`
+
+A special model with a renderer. Requires `base` and a `model` object with its own `type`.
+
+```yaml
+model:
+  type: special
+  base: my_pack:item/shield_base
+  model:
+    type: minecraft:shield
+```
+
+#### `minecraft:empty` / `minecraft:bundle/selected_item`
+
+Marker types with no additional fields.
+
+```yaml
+model:
+  type: empty
+```
+
+## Raw model (`raw`)
+
+Use `raw` when you want full control. It is the complete item model definition root and is written to disk verbatim. It must contain a top-level `model` object. Unlike the builder, `raw` does not add any `minecraft:` prefixes, so write full namespaced ids.
+
+```yaml
+item_model_definition:
+  raw:
+    model:
+      type: minecraft:range_dispatch
+      property: minecraft:custom_model_data
+      entries:
+        - threshold: 1.0
+          model:
+            type: minecraft:model
+            model: my_pack:item/variant_1
+      fallback:
+        type: minecraft:model
+        model: my_pack:item/default
+```
+
+## Components
+
+### `apply_component`
+
+When `true` (default), IAA attaches a `minecraft:item_model` component to the item pointing at the generated model id, so the item actually uses the new definition without you setting the component by hand.
+
+If the item already defines `components.item_model` (or `minecraft:item_model`) and it differs from the generated id, IAA leaves the existing component untouched and logs a warning. Set `apply_component: false` to generate the file without touching components.
+
+### `custom_model_data`
+
+When `apply_component` is `true` and the item does not already define a `custom_model_data` component, you can attach one. It uses the vanilla `minecraft:custom_model_data` shape: lists of `floats`, `flags`, `strings`, and `colors`.
+
+```yaml
+item_model_definition:
+  model:
+    type: range_dispatch
+    property: custom_model_data
+    entries:
+      - threshold: 1.0
+        model:
+          type: model
+          model: my_pack:item/variant_1
+  custom_model_data:
+    floats:
+      - 1.0
+    flags:
+      - true
+    strings:
+      - hello
+    colors:
+      - "#FF0000"
+```
+
+If `components.custom_model_data` already exists on the item, the section is skipped with a warning.
+
+## Applying changes
+
+Item model definition files are written into the resource pack at reload time. Run `/iazip` afterwards to repackage and apply the pack. The console logs how many definitions were generated, how many files changed, and how many existing files were skipped.

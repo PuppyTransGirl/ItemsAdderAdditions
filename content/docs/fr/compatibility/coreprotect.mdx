@@ -1,0 +1,61 @@
+---
+title: CoreProtect
+description: Comportement de journalisation CoreProtect optionnel pris en charge par ItemsAdderAdditions.
+icon: History
+---
+
+Le support de CoreProtect est optionnel. ItemsAdderAdditions utilise actuellement CoreProtect uniquement pour journaliser les ouvertures du comportement storage comme interactions.
+
+## Prérequis
+
+- CoreProtect installé et activé.
+- API CoreProtect activée.
+- Comportement storage d'ItemsAdderAdditions en cours d'utilisation.
+
+## Ce qui est journalisé
+
+Lorsqu'un joueur ouvre un conteneur storage ItemsAdderAdditions, ItemsAdderAdditions appelle le journaliseur d'interactions de CoreProtect avec :
+
+- le nom du joueur
+- l'emplacement du stockage
+
+Les ouvertures de storage apparaissent ainsi comme interactions CoreProtect lorsque CoreProtect est disponible.
+
+## Ce qui n'est pas journalisé
+
+ItemsAdderAdditions ne journalise pas actuellement ces éléments via CoreProtect :
+
+- déplacements d'objets dans l'inventaire de storage
+- exécution d'actions
+- pose de peintures personnalisées
+- placement stackable
+- dégâts de contact effect
+- craft de recettes
+- complétion de progrès
+- génération du monde
+
+## Comportement avec dépendance optionnelle
+
+Si CoreProtect n'est pas installé, est désactivé ou si son API est indisponible, ItemsAdderAdditions ignore l'appel de journalisation. Le storage continue de fonctionner normalement.
+
+## Fonctionnalités prises en charge
+
+| Fonctionnalité | Comportement CoreProtect |
+|----------------|--------------------------|
+| [Comportement storage](/fr/docs/behaviours/storage) | Journalise une interaction lorsque le storage est ouvert. |
+
+## Limites
+
+Le support de CoreProtect est volontairement restreint. Il enregistre que le storage a été ouvert ; il ne fournit pas un journal d'audit complet du contenu de l'inventaire ni des transferts d'objets.
+
+## Dépannage
+
+- Vérifiez que CoreProtect est installé et activé.
+- Vérifiez que l'API CoreProtect est activée et fonctionne.
+- Testez avec un bloc ou meuble utilisant le comportement storage, pas avec une action ou recette sans rapport.
+- Si aucune interaction n'apparaît, vérifiez que le joueur a bien ouvert le storage avec succès.
+
+## Pages associées
+
+- [Comportement storage](/fr/docs/behaviours/storage)
+- [WorldGuard](/fr/docs/compatibility/worldguard)

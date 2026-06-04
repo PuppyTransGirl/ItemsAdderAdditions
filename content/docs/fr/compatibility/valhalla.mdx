@@ -1,0 +1,147 @@
+---
+title: ValhallaMMO & Trinkets
+description: Ajouter des métadonnées ValhallaMMO et ValhallaTrinkets aux piles d'objets ItemsAdder.
+icon: Gem
+version: "1.0.10"
+---
+
+ItemsAdderAdditions peut écrire des données persistantes ValhallaMMO et ValhallaTrinkets sur les piles d'objets ItemsAdder lorsqu'elles sont créées. Configurez ces données dans la section `valhalla` d'un objet ItemsAdder.
+
+Les métadonnées sont écrites directement sur la pile d'objets. Les effets en jeu nécessitent que le plugin Valhalla correspondant soit installé sur le serveur.
+
+## Prérequis
+
+- Contenu d'objet ItemsAdder chargé par ItemsAdder.
+- ValhallaMMO pour les stats ValhallaMMO, la classe d'équipement, les flags d'objet et les effets permanents.
+- ValhallaTrinkets pour les métadonnées de trinket.
+
+## Comportement avec dépendance optionnelle
+
+ItemsAdderAdditions écrit les clés de données persistantes même si ValhallaMMO ou ValhallaTrinkets n'est pas installé. Sans le plugin Valhalla correspondant, les données restent sur l'objet mais n'ont aucun effet en jeu.
+
+## Structure de base
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_sword:
+    display_name: "<red>Ruby Sword"
+    valhalla:
+      equipment_class: SWORD
+      item_flags:
+        - DISPLAY_ATTRIBUTES
+      stats:
+        - stat: DAMAGE_BASE
+          amount: 4.0
+          operation: ADD_NUMBER
+```
+
+## Stats
+
+Utilisez `stats` lorsque les mêmes entrées doivent être écrites dans les stats actuelles et par défaut de Valhalla.
+
+```yaml
+valhalla:
+  stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+      hidden: false
+```
+
+Vous pouvez aussi écrire les deux conteneurs de stats séparément :
+
+```yaml
+valhalla:
+  actual_stats:
+    - stat: DAMAGE_BASE
+      amount: 6.0
+      operation: ADD_NUMBER
+  default_stats:
+    - stat: DAMAGE_BASE
+      amount: 4.0
+      operation: ADD_NUMBER
+```
+
+| Clé | Type | Défaut | Description |
+|-----|------|--------|-------------|
+| `stat` | string | *(requis)* | Clé de stat Valhalla. Les clés de stat inconnues sont ignorées. |
+| `amount` | number | *(requis)* | Valeur de la stat. |
+| `operation` | string | *(requis)* | `ADD_NUMBER`, `ADD_SCALAR` ou `MULTIPLY_SCALAR_1`. |
+| `hidden` | boolean | `false` | Indique si Valhalla doit masquer la ligne de stat. |
+
+## Classe d'équipement et flags
+
+```yaml
+valhalla:
+  equipment_class: SWORD
+  item_flags:
+    - DISPLAY_ATTRIBUTES
+    - HIDE_QUALITY
+```
+
+Les classes d'équipement courantes incluent `SWORD`, `BOW`, `CROSSBOW`, `TRIDENT`, `MACE`, `HELMET`, `CHESTPLATE`, `LEGGINGS`, `BOOTS`, `PICKAXE`, `AXE`, `SHOVEL`, `HOE`, `SHIELD`, `TRINKET` et `OTHER`.
+
+Les flags d'objet pris en charge sont :
+
+```text
+HIDE_TAGS, HIDE_QUALITY, DISPLAY_ATTRIBUTES, HIDE_DURABILITY,
+ATTRIBUTE_FOR_BOTH_HANDS, ATTRIBUTE_FOR_HELMET, INFINITY_EXPLOITABLE,
+UNCRAFTABLE, TEMPORARY_POTION_DISPLAY, UNENCHANTABLE, UNMENDABLE
+```
+
+## Effets permanents
+
+```yaml
+valhalla:
+  permanent_effects:
+    effects:
+      - type: minecraft:strength
+        amplifier: 1
+        duration: 200
+        condition: constant
+    cooldown_properties:
+      cooldown: 1200
+      cdr_affected: true
+```
+
+`effect` peut être utilisé à la place de `type`. La clé historique `permanent_potion_effects` est aussi acceptée pour la liste d'effets.
+
+`cooldown_properties` peut aussi être placé au niveau supérieur sous le nom `permanent_effects_cooldown_properties`. `cdrAffected` est accepté comme alias de `cdr_affected`.
+
+## ValhallaTrinkets
+
+```yaml
+valhalla:
+  trinkets:
+    trinket_id: 1001
+    trinket_unique_id: 1001
+    unique: true
+    unstackable: true
+```
+
+| Clé | Type | Défaut | Description |
+|-----|------|--------|-------------|
+| `trinket_id` | integer | *(aucun)* | ID ValhallaTrinkets. Doit être un entier 32 bits positif ou nul. |
+| `trinket_unique_id` | integer | *(aucun)* | ID unique de trinket. Doit être un entier 32 bits positif ou nul. |
+| `unique` | boolean | *(aucun)* | Écrit ou retire le flag unique ValhallaTrinkets. |
+| `unstackable` | boolean | *(aucun)* | Si `true`, chaque pile d'objets générée reçoit un UUID aléatoire. |
+
+## Comportement au rechargement
+
+Exécutez `/iareload` après avoir modifié les sections `valhalla`. Les données sont appliquées aux piles d'objets créées après le rechargement ; les piles existantes ne sont pas réécrites automatiquement.
+
+## Dépannage
+
+- Les noms de stats Valhalla inconnus sont ignorés.
+- Les valeurs d'énumération pour `operation`, `equipment_class` et `item_flags` doivent utiliser les noms en majuscules de style Valhalla indiqués ci-dessus.
+- Les objets déjà présents dans les inventaires des joueurs ne sont pas réécrits automatiquement.
+- Si les effets en jeu ne s'appliquent pas, vérifiez que ValhallaMMO ou ValhallaTrinkets est installé et prend en charge les métadonnées écrites.
+
+## Pages associées
+
+- [ItemsAdder](/fr/docs/compatibility/itemsadder)
+- [IDs](/fr/docs/compatibility/ids)
+- [Configuration](/fr/docs/configuration)

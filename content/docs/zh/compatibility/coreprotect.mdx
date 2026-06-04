@@ -1,0 +1,61 @@
+---
+title: CoreProtect
+description: ItemsAdderAdditions 支持的可选 CoreProtect 日志行为。
+icon: History
+---
+
+CoreProtect 支持是可选的。ItemsAdderAdditions 目前只使用 CoreProtect 将 storage behaviour 的打开操作记录为交互。
+
+## 要求
+
+- 已安装并启用 CoreProtect。
+- 已启用 CoreProtect API。
+- 正在使用 ItemsAdderAdditions storage behaviour。
+
+## 会记录什么
+
+当玩家打开 ItemsAdderAdditions storage 容器时，ItemsAdderAdditions 会调用 CoreProtect 的交互日志记录器，并传入：
+
+- 玩家名称
+- storage 位置
+
+当 CoreProtect 可用时，storage 打开操作会显示为 CoreProtect 交互。
+
+## 不会记录什么
+
+ItemsAdderAdditions 目前不会通过 CoreProtect 记录以下内容：
+
+- storage 物品栏内的物品移动
+- 动作执行
+- 自定义画放置
+- stackable 放置
+- contact effect 伤害
+- 配方合成
+- 进度完成
+- 世界生成
+
+## 可选依赖行为
+
+如果未安装 CoreProtect、CoreProtect 被禁用或 API 不可用，ItemsAdderAdditions 会跳过日志调用。Storage 仍会正常工作。
+
+## 支持的功能
+
+| 功能 | CoreProtect 行为 |
+|------|------------------|
+| [Storage behaviour](/zh/docs/behaviours/storage) | 打开 storage 时记录一次交互。 |
+
+## 限制
+
+CoreProtect 支持范围有意保持较窄。它只记录 storage 被打开，不提供完整的物品栏内容或物品转移审计日志。
+
+## 故障排查
+
+- 确认已安装并启用 CoreProtect。
+- 确认 CoreProtect API 已启用且正常工作。
+- 使用带 storage behaviour 的方块或家具测试，不要用无关动作或配方测试。
+- 如果没有出现交互记录，请确认玩家确实成功打开了 storage。
+
+## 相关页面
+
+- [Storage behaviour](/zh/docs/behaviours/storage)
+- [WorldGuard](/zh/docs/compatibility/worldguard)
