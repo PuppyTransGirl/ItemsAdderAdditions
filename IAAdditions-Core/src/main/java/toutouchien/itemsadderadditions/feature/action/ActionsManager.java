@@ -29,6 +29,12 @@ public final class ActionsManager implements ReloadableContentSystem {
         applySettings(settings);
     }
 
+    public static List<String> builtInActionKeys() {
+        return BuiltInActions.create().stream()
+                .map(ActionExecutor::key)
+                .toList();
+    }
+
     public void applySettings(PluginSettings settings) {
         registry.registerBuiltIns(settings::actionEnabled, BuiltInActions.create());
     }

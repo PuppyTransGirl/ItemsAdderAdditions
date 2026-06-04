@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.settings;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.integration.hook.worldguard.WorldGuardSettings;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -18,7 +19,8 @@ public record PluginSettings(
         ToggleMap actions,
         ToggleMap behaviours,
         ToggleMap components,
-        UpdateCheckerSettings updateChecker
+        UpdateCheckerSettings updateChecker,
+        WorldGuardSettings worldGuard
 ) {
     public PluginSettings {
         features = Map.copyOf(features);
@@ -36,7 +38,8 @@ public record PluginSettings(
                 reader.toggleSection("actions", true),
                 reader.toggleSection("behaviours", true),
                 reader.toggleSection("components", true),
-                readUpdateChecker(reader)
+                readUpdateChecker(reader),
+                WorldGuardSettings.load(config)
         );
     }
 

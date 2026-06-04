@@ -11,6 +11,16 @@ behaviours:
   storage: true
   text_display: true
 
+worldguard:
+  enabled: true
+  flags:
+    storage_open: true
+    contact_damage: true
+    stackable_place: true
+    bed_use: true
+    custom_painting_place: true
+    actions: true
+
 actions:
   actionbar: true
   clear_item: true

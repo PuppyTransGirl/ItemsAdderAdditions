@@ -13,6 +13,7 @@ repositories {
     maven("https://mvn.lumine.io/repository/maven-public/") // MythicMobs
     maven("https://maven.playpro.com/")
     maven("https://repo.momirealms.net/releases/") // AntiGriefLib
+    maven("https://maven.enginehub.org/repo/") // WorldGuard / WorldEdit
     maven("https://nexus.phoenixdevt.fr/repository/maven-public/") // MMOItems
 }
 

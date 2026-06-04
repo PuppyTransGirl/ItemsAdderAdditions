@@ -20,6 +20,7 @@ import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.invento
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound.StorageSoundPlayer;
 import toutouchien.itemsadderadditions.integration.hook.CoreProtectHook;
+import toutouchien.itemsadderadditions.integration.worldguard.WorldGuardProtectionChecks;
 
 import java.util.*;
 
@@ -64,6 +65,8 @@ public final class StorageSessionManager {
 
     public void openForBlock(Player player, Block block) {
         Location location = block.getLocation();
+        if (!canOpen(player, location)) return;
+
         boolean firstAtLocation = !sessions.hasAt(location);
         Inventory inventory = inventories.openFor(player, location, block, null);
 
@@ -76,6 +79,8 @@ public final class StorageSessionManager {
 
     public void openForEntity(Player player, Entity entity) {
         Location location = entity.getLocation();
+        if (!canOpen(player, location)) return;
+
         boolean firstAtLocation = !sessions.hasAt(location);
 
         // Load contents and open before the transformer can remove/replace the entity.
@@ -93,6 +98,8 @@ public final class StorageSessionManager {
             @Nullable Block block,
             @Nullable Entity entity
     ) {
+        if (!canOpen(player, location)) return;
+
         Inventory inventory = inventories.openFor(player, location, block, entity);
         open(player, new StorageSession(player, inventory, block, entity, storageType), location);
     }
@@ -175,6 +182,11 @@ public final class StorageSessionManager {
     @Nullable
     public ItemStack[] getLiveContentsAt(Location location) {
         return inventories.liveContentsAt(location);
+    }
+
+    private boolean canOpen(Player player, Location location) {
+        return storageType == StorageType.DISPOSAL
+                || WorldGuardProtectionChecks.canOpenStorage(player, location);
     }
 
     private void open(Player player, StorageSession session, Location location) {

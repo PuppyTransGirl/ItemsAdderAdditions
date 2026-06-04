@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.feature.behaviour.builtin;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
@@ -29,6 +30,7 @@ import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.contact.ContactDetector;
+import toutouchien.itemsadderadditions.integration.worldguard.WorldGuardProtectionChecks;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 
 import java.util.*;
@@ -177,7 +179,8 @@ public final class ContactEffectBehaviour extends BehaviourExecutor implements L
         Set<UUID> nowSet = new HashSet<>();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!isTouching(player) || (player.isSneaking() && !applyWhenSneaking))
+            Location contactLocation = contactLocation(player);
+            if (contactLocation == null || (player.isSneaking() && !applyWhenSneaking))
                 continue;
 
             UUID id = player.getUniqueId();
@@ -187,7 +190,7 @@ public final class ContactEffectBehaviour extends BehaviourExecutor implements L
             if (!attributeMods.isEmpty() && entering)
                 applyModifiers(player);
 
-            if (damageEnabled && due(lastDamageTick, id, now, damageInterval))
+            if (damageEnabled && canApplyDamageGroup(player, contactLocation) && due(lastDamageTick, id, now, damageInterval))
                 applyDamage(player);
 
             if (healEnabled && due(lastHealTick, id, now, healInterval))
@@ -217,6 +220,11 @@ public final class ContactEffectBehaviour extends BehaviourExecutor implements L
         lastDamageTick.keySet().retainAll(nowSet);
         lastHealTick.keySet().retainAll(nowSet);
         potionLastTick.keySet().retainAll(nowSet);
+    }
+
+    private boolean canApplyDamageGroup(Player player, Location contactLocation) {
+        double amount = damageAmount == null ? 0.0 : damageAmount;
+        return amount <= 0.0 || WorldGuardProtectionChecks.canApplyContactDamage(player, contactLocation);
     }
 
     private void applyDamage(Player player) {
@@ -420,13 +428,13 @@ public final class ContactEffectBehaviour extends BehaviourExecutor implements L
         return Registry.ATTRIBUTE.get(Key.key(norm));
     }
 
-    private boolean isTouching(Player player) {
+    private @Nullable Location contactLocation(Player player) {
         if (detector == null || category == null)
-            return false;
+            return null;
 
         return switch (category) {
-            case BLOCK, ITEM, FURNITURE -> detector.isTouchingBlock(player);
-            case COMPLEX_FURNITURE -> detector.isTouchingComplexFurniture(player);
+            case BLOCK, ITEM, FURNITURE -> detector.touchingBlockLocation(player);
+            case COMPLEX_FURNITURE -> detector.touchingComplexFurnitureLocation(player);
         };
     }
 

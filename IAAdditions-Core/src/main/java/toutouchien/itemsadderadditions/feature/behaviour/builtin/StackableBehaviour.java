@@ -21,6 +21,7 @@ import toutouchien.itemsadderadditions.common.utils.SoundUtils;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
+import toutouchien.itemsadderadditions.integration.worldguard.WorldGuardProtectionChecks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,6 +208,11 @@ public final class StackableBehaviour extends BehaviourExecutor implements Liste
             }
 
             if (step.items.stream().anyMatch(expected -> NamespaceUtils.matchesItemIDOrTag(item, expected))) {
+                if (!WorldGuardProtectionChecks.canPlaceStackable(player, block.getLocation())) {
+                    event.setCancelled(true);
+                    return;
+                }
+
                 applyStep(event, step, player, item, block);
                 return;
             }

@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.loading.ConfigFileCategory;
 import toutouchien.itemsadderadditions.common.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.integration.worldguard.WorldGuardProtectionChecks;
 import toutouchien.itemsadderadditions.nms.api.INmsPaintingHandler;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.nms.api.painting.NmsPaintingVariant;
@@ -181,6 +182,8 @@ public final class CustomPaintingManager implements ReloadableContentSystem {
         if (!target.getType().isAir()) return false;
 
         Location location = target.getLocation();
+        if (!WorldGuardProtectionChecks.canPlaceCustomPainting(player, location)) return false;
+
         Painting painting = location.getWorld().spawn(location, Painting.class, spawned ->
                 spawned.setFacingDirection(face, true));
 

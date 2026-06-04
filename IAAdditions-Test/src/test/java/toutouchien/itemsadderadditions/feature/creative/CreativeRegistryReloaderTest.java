@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
+import toutouchien.itemsadderadditions.integration.hook.worldguard.WorldGuardSettings;
 import toutouchien.itemsadderadditions.nms.api.INmsCreativeMenuHandler;
 import toutouchien.itemsadderadditions.nms.api.INmsHandler;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
@@ -111,7 +112,8 @@ class CreativeRegistryReloaderTest {
                 new ToggleMap(Map.of(), true),
                 new ToggleMap(Map.of(), true),
                 new ToggleMap(Map.of(), true),
-                new UpdateCheckerSettings(false, false)
+                new UpdateCheckerSettings(false, false),
+                WorldGuardSettings.defaults()
         );
     }
 

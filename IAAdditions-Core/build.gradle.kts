@@ -13,7 +13,7 @@ dependencies {
     compileOnly(libs.jspecify)
 
     api(project(":IAAdditions-NMS:api"))
-    implementation(project(":IAAdditions-Hook"))
+    api(project(":IAAdditions-Hook"))
 
     implementation(libs.bstats.bukkit)
     implementation(libs.custom.block.data)

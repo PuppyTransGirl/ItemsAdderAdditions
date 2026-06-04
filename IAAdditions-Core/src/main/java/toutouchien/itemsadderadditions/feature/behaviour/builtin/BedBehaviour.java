@@ -29,6 +29,7 @@ import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.bed.SlotOffset;
 import toutouchien.itemsadderadditions.integration.itemsadder.CustomEntities;
+import toutouchien.itemsadderadditions.integration.worldguard.WorldGuardProtectionChecks;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 
 import java.util.*;
@@ -263,6 +264,7 @@ public final class BedBehaviour extends BehaviourExecutor implements Listener {
 
     private void handleBedInteract(Player player, Location furnitureBase) {
         if (player.isSneaking() || player.isSleeping()) return;
+        if (!WorldGuardProtectionChecks.canUseBed(player, furnitureBase)) return;
 
         float yaw = 0f;
         CustomFurniture cf = findNearbyCustomFurniture(furnitureBase);

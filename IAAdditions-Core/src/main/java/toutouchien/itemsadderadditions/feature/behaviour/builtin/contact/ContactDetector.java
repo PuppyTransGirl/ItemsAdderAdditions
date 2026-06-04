@@ -9,6 +9,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.integration.itemsadder.CustomEntities;
 
 import java.util.Collection;
@@ -41,7 +42,15 @@ public final class ContactDetector {
     }
 
     public boolean isTouchingBlock(Player player) {
-        return overlapsAny(player, block -> {
+        return touchingBlockLocation(player) != null;
+    }
+
+    public boolean isTouchingComplexFurniture(Player player) {
+        return touchingComplexFurnitureLocation(player) != null;
+    }
+
+    public @Nullable Location touchingBlockLocation(Player player) {
+        return overlapLocation(player, block -> {
             CustomBlock cb = CustomBlock.byAlreadyPlaced(block);
             if (cb != null && namespacedID.equals(cb.getNamespacedID())) return true;
             CustomFurniture cf = CustomFurniture.byAlreadySpawned(block);
@@ -49,7 +58,7 @@ public final class ContactDetector {
         });
     }
 
-    public boolean isTouchingComplexFurniture(Player player) {
+    public @Nullable Location touchingComplexFurnitureLocation(Player player) {
         Collection<Entity> nearby = player.getWorld().getNearbyEntities(
                 player.getLocation(),
                 ENTITY_SEARCH_RADIUS, ENTITY_SEARCH_RADIUS, ENTITY_SEARCH_RADIUS
@@ -59,13 +68,17 @@ public final class ContactDetector {
             CustomEntity ce = CustomEntities.byAlreadySpawned(entity);
             if (ce == null || !namespacedID.equals(ce.getNamespacedID())) continue;
             Block barrierBlock = entity.getLocation().getBlock();
-            if (overlapsAny(player, barrierBlock::equals)) return true;
+            if (overlapsAny(player, barrierBlock::equals)) return entity.getLocation();
         }
 
-        return false;
+        return null;
     }
 
     private boolean overlapsAny(Player player, Predicate<Block> isTarget) {
+        return overlapLocation(player, isTarget) != null;
+    }
+
+    private @Nullable Location overlapLocation(Player player, Predicate<Block> isTarget) {
         Location loc = player.getLocation();
         double px = loc.getX();
         double pz = loc.getZ();
@@ -75,10 +88,12 @@ public final class ContactDetector {
 
         for (int dy = 0; dy < PLAYER_HEIGHT; dy++) {
             Block origin = player.getWorld().getBlockAt(bx0, footY + dy, bz0);
-            if (isTarget.test(origin)) return true;
+            if (isTarget.test(origin)) return origin.getLocation();
 
-            if (dy == 0 && topFaceActive && isTarget.test(origin.getRelative(BlockFace.DOWN)))
-                return true;
+            if (dy == 0 && topFaceActive) {
+                Block below = origin.getRelative(BlockFace.DOWN);
+                if (isTarget.test(below)) return below.getLocation();
+            }
 
             for (BlockFace face : activeFaces) {
                 if (face == BlockFace.UP) continue;
@@ -89,10 +104,10 @@ public final class ContactDetector {
                 double cx = neighbour.getX() + 0.5;
                 double cz = neighbour.getZ() + 0.5;
                 if (Math.abs(px - cx) <= THRESHOLD && Math.abs(pz - cz) <= THRESHOLD)
-                    return true;
+                    return neighbour.getLocation();
             }
         }
 
-        return false;
+        return null;
     }
 }

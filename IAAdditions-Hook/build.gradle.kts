@@ -9,6 +9,8 @@ dependencies {
     compileOnly(libs.placeholderapi)
     compileOnly(libs.mythicmobs)
     compileOnly(libs.coreprotect)
+    compileOnly(libs.worldguard.bukkit)
+    compileOnly(libs.worldedit.bukkit)
     compileOnly(libs.mmoitems)
     compileOnly(libs.mythiclib)
 }

@@ -13,6 +13,7 @@ import toutouchien.itemsadderadditions.common.utils.Task;
 import toutouchien.itemsadderadditions.feature.action.annotation.Action;
 import toutouchien.itemsadderadditions.integration.bridge.CooldownBridge;
 import toutouchien.itemsadderadditions.integration.bridge.StatRequirementsBridge;
+import toutouchien.itemsadderadditions.integration.worldguard.WorldGuardProtectionChecks;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 
 import java.util.Set;
@@ -166,12 +167,16 @@ public abstract class ActionExecutor implements Keyed {
         for (Entity entity : targets) {
             if (delay <= 0) {
                 context.runOn(entity);
-                execute(context);
+                if (WorldGuardProtectionChecks.canRunAction(key(), context)) {
+                    execute(context);
+                }
             } else {
                 Task.runDelayed(
                         task -> {
                             context.runOn(entity);
-                            execute(context);
+                            if (WorldGuardProtectionChecks.canRunAction(key(), context)) {
+                                execute(context);
+                            }
                         },
                         ItemsAdderAdditions.instance(),
                         entity,

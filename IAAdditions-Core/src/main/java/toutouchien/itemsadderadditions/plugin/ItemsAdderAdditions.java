@@ -10,6 +10,8 @@ import toutouchien.itemsadderadditions.feature.behaviour.BehavioursManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.feature.painting.CustomPaintingManager;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeManager;
+import toutouchien.itemsadderadditions.integration.hook.worldguard.WorldGuardProtection;
+import toutouchien.itemsadderadditions.integration.hook.worldguard.WorldGuardSettings;
 import toutouchien.itemsadderadditions.patch.PatchManager;
 import toutouchien.itemsadderadditions.patch.Version;
 import toutouchien.itemsadderadditions.runtime.PluginRuntime;
@@ -48,6 +50,12 @@ public class ItemsAdderAdditions extends JavaPlugin {
         Version version = Version.of(
                 Bukkit.getMinecraftVersion(),
                 itemsAdder.getPluginMeta().getVersion()
+        );
+
+        WorldGuardProtection.registerFlags(
+                this,
+                WorldGuardSettings.load(getConfig()),
+                ActionsManager.builtInActionKeys()
         );
 
         PatchManager.applyAll(version);

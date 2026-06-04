@@ -20,6 +20,10 @@ dependencies:
       load: BEFORE
       required: false
 
+    WorldGuard:
+      load: BEFORE
+      required: false
+
     MMOItems:
       load: BEFORE
       required: false
