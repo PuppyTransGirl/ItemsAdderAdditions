@@ -1,0 +1,23 @@
+# <:itemsadderadditions:1489729496004165663> **1.0.10** @everyone
+
+## **Features**
+**Added** a LOT of possibilities with new **[`Components`](https://itemsadderadditions.com/en/docs/components)**, including generic component support on newer Minecraft versions
+**Added** **[Custom Tags](https://itemsadderadditions.com/en/docs/custom-tags)** for reusable item, block, furniture, and recipe groups
+**Added** custom **[Brewing Stand recipes](https://itemsadderadditions.com/en/docs/recipes/brewing)** with ItemsAdder, MMOItems, and vanilla item support
+**Added** **[`contact_effect`](https://itemsadderadditions.com/en/docs/actions/contact-effect)**, it was previously named `contact_damage` but it has been renamed and heavily improved
+**Added** **[ValhallaMMO and ValhallaTrinkets metadata](https://itemsadderadditions.com/en/docs/valhalla)** support for ItemsAdder items
+**Added** the **[`open_trade_machine`](https://itemsadderadditions.com/en/docs/actions/open-trade-machine)** action to open ItemsAdder trade machine GUIs from actions
+**Added** **[Item Model Definitions](https://itemsadderadditions.com/en/docs/item-model-definitions)** generation/writing support for newer resource pack item model workflows
+**Added** recipe result `components` support for crafting, campfire, stonecutter, and brewing recipes, allowing components to be applied directly to recipe results
+**Added** optional **[WorldGuard flags](https://itemsadderadditions.com/en/docs/worldguard)** for IAA features and actions
+**Added** new **[Advancement Triggers](https://itemsadderadditions.com/en/docs/advancements/triggers)**:
+```yml
+join_server
+first_join
+tick
+sit_furniture
+unsit_furniture
+open_trade_machine
+start_emote
+stop_emote
+```

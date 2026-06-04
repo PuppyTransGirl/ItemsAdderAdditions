@@ -122,8 +122,10 @@ public final class ComponentsManager implements ReloadableContentSystem {
             List<GenericComponentBinding> generic
     ) {
         for (String key : section.getKeys(false)) {
-            // 1. Try specialized handler (uses raw key - preserves existing YAML syntax).
-            ComponentExecutor prototype = registry.getPrototype(key);
+            // 1. Try specialized handler. Prefer the raw IAA key, but also let
+            // minecraft:<key> resolve to a native IAA component before falling
+            // back to the generic NMS path.
+            ComponentExecutor prototype = specializedPrototype(key);
             if (prototype != null) {
                 if (!prototype.isSupportedOnCurrentVersion()) {
                     Log.warn(NAME, "Component '{}' on '{}' requires a newer Minecraft version - skipping.", key, namespacedId);
@@ -157,6 +159,17 @@ public final class ComponentsManager implements ReloadableContentSystem {
                         "Generic component '{}' failed to parse: {}", key, e.getMessage());
             }
         }
+    }
+
+    private @Nullable ComponentExecutor specializedPrototype(String key) {
+        ComponentExecutor prototype = registry.getPrototype(key);
+        if (prototype != null) return prototype;
+
+        ComponentKey normalized = ComponentKey.from(key);
+        String prefix = "minecraft:";
+        if (!normalized.normalized().startsWith(prefix)) return null;
+
+        return registry.getPrototype(normalized.normalized().substring(prefix.length()));
     }
 
     public ItemStack applyComponents(String namespacedID, ItemStack itemStack) {
