@@ -36,10 +36,10 @@ paintings:
 | `enabled`           | 布尔值         | `true`  | 设置为 `false` 可在不移除条目的情况下跳过该画                  |
 | `width`             | 整数          | *（必填）*  | 画的宽度（以方块计）                                   |
 | `height`            | 整数          | *（必填）*  | 画的高度（以方块计）                                   |
-| `asset`             | `命名空间:键`    | *（必填）*  | 纹理资源键。参见下方的[纹理路径](#纹理路径)                     |
+| `asset`             | `namespace:key`    | *（必填）*  | 纹理资源键。参见下方的[纹理路径](#纹理路径)                     |
 | `title`             | 字符串         | *（无）*   | 可选的在提示框中显示的标题。支持 MiniMessage                 |
 | `author`            | 字符串         | *（无）*   | 可选的在提示框中显示的作者名                               |
-| `item`              | `命名空间:物品ID` | *（无）*   | 可选关联的 ItemsAdder 物品。在有效的墙面上右键点击时，此物品会放置该自定义画 |
+| `item`              | `namespace:item_id` | *（无）*   | 可选关联的 ItemsAdder 物品。在有效的墙面上右键点击时，此物品会放置该自定义画。见 [ID](/zh/docs/compatibility/ids) |
 | `include_in_random` | 布尔值         | `false` | 当设为 `true` 时，原版画物品在墙面空间合适时可以随机选中此自定义画        |
 
 ## 纹理路径
@@ -57,7 +57,7 @@ contents/mynamespace/textures/painting/sunset.png
 如果你设置了 `item`，该 ItemsAdder 物品的行为将类似自定义画物品：
 
 - 在有效墙面上右键点击会放置该自定义画
-- 会遵循保护插件的检查
+- 启用 WorldGuard 集成时，会遵循画放置相关的 WorldGuard flags
 - 副手重复放置问题会被自动处理
 
 如果 `include_in_random` 设为 `false`（默认值），该画只能通过其关联物品放置。将其设为 `true` 也可让原版画物品随机选中它
@@ -76,3 +76,8 @@ features:
 - 此功能仅在 Minecraft **1.21.5** 及更高版本上可用。在较旧的受支持版本上，插件会记录警告并跳过 `paintings` 部分
 - 画变体本身不需要 `/iazip` 或手动资源包步骤，但你的纹理文件必须照常包含在资源包中
 - 关联的 `item` 必须是已存在的 ItemsAdder 物品。如果该物品缺失，画变体仍会被注册，但没有放置物品可用
+
+## 相关页面
+
+- [ID](/zh/docs/compatibility/ids)
+- [WorldGuard 兼容性](/zh/docs/compatibility/worldguard)

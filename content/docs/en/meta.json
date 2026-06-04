@@ -17,6 +17,7 @@
     "components",
     "creative-inventory-integration",
     "custom-paintings",
-    "custom-tags"
+    "custom-tags",
+    "item-model-definitions"
   ]
 }

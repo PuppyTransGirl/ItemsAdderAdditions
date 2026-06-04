@@ -1,12 +1,19 @@
 ---
 title: /itemsadderadditions
-description: Commande d’administration principale du plugin ItemsAdderAdditions. Rechargez config.yml et activez ou désactivez le mode debug.
+description: Commande d'administration pour les rechargements et le mode debug.
 version: "1.0.7"
 ---
 
 ## `/itemsadderadditions`
 
-Commande administrative principale d’ItemsAdderAdditions.
+Commande d'administration principale pour ItemsAdderAdditions.
+
+Alias :
+
+```text
+/iaadditions
+/iaa
+```
 
 ## Permissions
 
@@ -20,7 +27,7 @@ itemsadderadditions.command.itemsadderadditions
 
 ### `/itemsadderadditions reload`
 
-Recharge le `config.yml` d'ItemsAdderAdditions et réapplique les toggles de fonctionnalités, actions, comportements et composants.
+Recharge le `config.yml` d'ItemsAdderAdditions et actualise les toggles de fonctionnalités, actions, comportements et composants au niveau du plugin.
 
 ```text
 /itemsadderadditions reload
@@ -32,11 +39,11 @@ Permission :
 itemsadderadditions.command.itemsadderadditions.reload
 ```
 
-Cette commande ne recharge pas les fichiers YAML de contenu ItemsAdder.
+Cette commande ne recharge **pas** les fichiers YAML de contenu ItemsAdder.
 
-Utilisez `/iareload` après avoir modifié les sections YAML ItemsAdderAdditions comme les actions, comportements, tags personnalisés, recettes, progrès, peintures personnalisées, métadonnées Valhalla ou entrées de génération du monde.
+Utilisez `/iareload` après avoir modifié des sections YAML de contenu ItemsAdderAdditions comme les actions, comportements, tags personnalisés, recettes, progrès, peintures personnalisées, métadonnées Valhalla ou entrées de génération du monde.
 
-Utilisez `/iazip` après avoir modifié les sections `components` ou les assets du pack de ressources.
+Utilisez `/iazip` après avoir modifié les sections `components` ou des assets du resource pack.
 
 ### `/itemsadderadditions debug`
 

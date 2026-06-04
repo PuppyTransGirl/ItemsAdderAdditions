@@ -68,6 +68,53 @@ ignite:
   target_in_sight_distance: 10
 ```
 
+## Triggerplaatsing
+
+Acties worden gedeclareerd binnen `events` secties van ItemsAdder-items, -blokken, furniture of complex furniture.
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_staff:
+    events:
+      interact:
+        right:
+          message:
+            text: "<green>Right-clicked"
+
+  ruby_lamp:
+    events:
+      placed_furniture:
+        interact:
+          message:
+            text: "<yellow>Furniture clicked"
+```
+
+`placed_block` acties kunnen worden genest onder `events.placed_block`. Furniture- en complex furniture-acties worden geladen uit `events.placed_furniture`.
+
+## Ondersteunde triggernamen
+
+Veelgebruikte itemtriggers zijn:
+
+```text
+interact, interact_mainhand, interact_offhand, block_break, attack, kill,
+drop, pickup, held, held_offhand, unheld, unheld_offhand, item_break,
+eat, drink, bow_shot, gun_shot, gun_no_ammo, gun_reload, item_throw,
+item_hit_ground, item_hit_entity, book_write, book_read, fishing_start,
+fishing_caught, fishing_failed, fishing_cancel, fishing_bite,
+fishing_in_ground, bucket_empty, bucket_fill
+```
+
+Bloktriggers zijn onder andere `interact`, `break` en geneste `placed_block` triggers. Furniture-triggers gebruiken dezelfde item-style triggernamen onder `placed_furniture`. Complex furniture ondersteunt momenteel `placed_furniture.interact`.
+
+`interact`, `interact_mainhand` en `interact_offhand` kunnen argumentsecties gebruiken zoals `right`, `left`, `right_shift` en `left_shift`. Wildcardacties onder de trigger worden ook uitgevoerd na de exacte argumentmatch.
+
+## Cooldowns en stat requirements
+
+Wanneer een actie wordt geactiveerd vanuit een vastgehouden ItemsAdder-item, controleert ItemsAdderAdditions de door ItemsAdder geconfigureerde cooldowns en stat requirements voor dat item voordat de actie wordt uitgevoerd. Als de speler niet aan die eisen voldoet, wordt de actie overgeslagen.
+
 ## Volledig voorbeeld
 
 ```yaml

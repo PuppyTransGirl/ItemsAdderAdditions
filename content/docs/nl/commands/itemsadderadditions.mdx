@@ -1,12 +1,19 @@
 ---
 title: /itemsadderadditions
-description: Hoofdcommando voor het beheer van de ItemsAdderAdditions-plugin. Herlaad config.yml en schakel debugmodus in of uit.
+description: Beheerderscommando voor reloads en debugmodus.
 version: "1.0.7"
 ---
 
 ## `/itemsadderadditions`
 
-Hoofd-beheerscommando voor ItemsAdderAdditions.
+Hoofdbeheerderscommando voor ItemsAdderAdditions.
+
+Aliassen:
+
+```text
+/iaadditions
+/iaa
+```
 
 ## Permissies
 
@@ -20,7 +27,7 @@ itemsadderadditions.command.itemsadderadditions
 
 ### `/itemsadderadditions reload`
 
-Herlaadt ItemsAdderAdditions `config.yml` en past feature-, actie-, gedrag- en componenttoggles opnieuw toe.
+Herlaadt ItemsAdderAdditions `config.yml` en vernieuwt pluginbrede feature-, actie-, behaviour- en componenttoggles.
 
 ```text
 /itemsadderadditions reload
@@ -32,9 +39,9 @@ Permissie:
 itemsadderadditions.command.itemsadderadditions.reload
 ```
 
-Dit commando herlaadt geen ItemsAdder content-YAML-bestanden.
+Dit commando herlaadt **geen** ItemsAdder content-YAML-bestanden.
 
-Gebruik `/iareload` na wijzigingen aan ItemsAdderAdditions content-YAML zoals acties, gedragingen, custom tags, recepten, advancements, custom paintings, Valhalla-metadata of worldgen-items.
+Gebruik `/iareload` na wijzigingen aan ItemsAdderAdditions content-YAML-secties zoals acties, behaviours, custom tags, recepten, advancements, custom paintings, Valhalla-metadata of world generation entries.
 
 Gebruik `/iazip` na wijzigingen aan `components` secties of resourcepack-assets.
 

@@ -662,13 +662,37 @@ criteria:
 
 ## fall_from_height
 
-Se déclenche lorsque le joueur subit des dégâts de chute. Pas de conditions.
+Se déclenche lorsque le joueur subit des dégâts de chute.
 
 ```yaml
 criteria:
   survived_fall:
     trigger: fall_from_height
+    conditions:
+      distance:
+        y:
+          min: 30
+          max: 320
 ```
+
+Vous pouvez aussi utiliser un nombre unique comme distance de chute minimale :
+
+```yaml
+criteria:
+  small_fall:
+    trigger: fall_from_height
+    conditions:
+      distance: 8
+```
+
+| Clé | Type | Défaut | Description |
+|-----|------|--------|-------------|
+| `distance` | number ou section | `0` à illimité | Plage de distance de chute. Un nombre indique une distance minimale. Une section peut utiliser `min`/`max`, ou une plage imbriquée `y`, `absolute` ou `horizontal`. |
+| `distance.min` | number | `0` | Distance de chute minimale. |
+| `distance.max` | number | *(illimité)* | Distance de chute maximale. |
+| `distance.y` | section | *(aucun)* | Forme recommandée pour la plage verticale de distance de chute. Prend en charge `min` et `max`. |
+| `distance.absolute` | section | *(aucun)* | Forme de plage alternative. Prend en charge `min` et `max`. |
+| `distance.horizontal` | section | *(aucun)* | Forme de plage alternative. Prend en charge `min` et `max`. |
 
 ---
 

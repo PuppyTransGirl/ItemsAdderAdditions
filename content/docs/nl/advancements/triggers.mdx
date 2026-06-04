@@ -662,13 +662,37 @@ criteria:
 
 ## fall_from_height
 
-Wordt geactiveerd wanneer de speler valschade oploopt. Geen voorwaarden.
+Wordt geactiveerd wanneer de speler valschade oploopt.
 
 ```yaml
 criteria:
   survived_fall:
     trigger: fall_from_height
+    conditions:
+      distance:
+        y:
+          min: 30
+          max: 320
 ```
+
+Je kunt ook één getal gebruiken als minimale valafstand:
+
+```yaml
+criteria:
+  small_fall:
+    trigger: fall_from_height
+    conditions:
+      distance: 8
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `distance` | number of section | `0` tot onbeperkt | Bereik van de valafstand. Een getal betekent minimale afstand. Een section kan `min`/`max` gebruiken, of een genest `y`, `absolute` of `horizontal` bereik. |
+| `distance.min` | number | `0` | Minimale valafstand. |
+| `distance.max` | number | *(onbeperkt)* | Maximale valafstand. |
+| `distance.y` | section | *(geen)* | Voorkeursvorm voor verticaal valafstandbereik. Ondersteunt `min` en `max`. |
+| `distance.absolute` | section | *(geen)* | Alternatieve bereikvorm. Ondersteunt `min` en `max`. |
+| `distance.horizontal` | section | *(geen)* | Alternatieve bereikvorm. Ondersteunt `min` en `max`. |
 
 ---
 

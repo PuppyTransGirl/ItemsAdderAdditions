@@ -1,10 +1,10 @@
 ---
 title: Configuration
 icon: Settings
-description: Clés config.yml du plugin, toggles de fonctionnalités, actions, comportements et rechargement.
+description: Clés du config.yml du plugin, toggles de fonctionnalités, toggles d'actions, toggles de comportements et comportement de rechargement.
 ---
 
-ItemsAdderAdditions utilise `config.yml` pour les toggles globaux du plugin. Les fichiers YAML de contenu ItemsAdder définissent les actions, comportements, recettes, progrès, peintures, tags et entrées de génération.
+ItemsAdderAdditions utilise `config.yml` pour les toggles de fonctionnalités au niveau du plugin. Le YAML de contenu ItemsAdder définit toujours les actions, comportements, recettes, progrès, peintures, tags et entrées de génération du monde réels.
 
 ## Configuration par défaut
 
@@ -12,6 +12,7 @@ ItemsAdderAdditions utilise `config.yml` pour les toggles globaux du plugin. Les
 features:
   creative_inventory_integration: true
   custom_paintings: true
+  item_model_definitions: true
 
 behaviours:
   bed: true
@@ -21,6 +22,16 @@ behaviours:
   storage: true
   text_display: true
 
+worldguard:
+  enabled: true
+  flags:
+    storage_open: true
+    contact_damage: true
+    stackable_place: true
+    bed_use: true
+    custom_painting_place: true
+    actions: true
+
 actions:
   actionbar: true
   clear_item: true
@@ -28,6 +39,7 @@ actions:
   message: true
   mythic_mobs_skill: true
   open_inventory: true
+  open_trade_machine: true
   play_animation: true
   play_emote: true
   replace_biome: true
@@ -44,33 +56,41 @@ update-checker:
   on-join: true
 ```
 
-## Fonctionnement des toggles
+## Comportement des toggles
 
-Les clés absentes sont activées par défaut. Cela vaut aussi pour les sections optionnelles absentes de la configuration générée.
+Les clés de toggle manquantes sont activées par défaut. Cela s'applique aussi aux sections optionnelles qui ne sont pas présentes dans la configuration par défaut.
+
+Les vérifications de régions WorldGuard se configurent sous `worldguard` ; consultez la [compatibilité WorldGuard](/fr/docs/compatibility/worldguard).
+
+Les composants peuvent être désactivés de la même manière :
 
 ```yaml
-actions:
-  open_trade_machine: false
-
 components:
   rarity: false
 ```
 
-## Rechargement
+## Comportement au rechargement
+
+Exécutez :
 
 ```text
 /itemsadderadditions reload
+```
+
+ou :
+
+```text
 /iaa reload
 ```
 
-Cette commande recharge `config.yml` et réapplique les toggles globaux. Elle ne recharge pas les fichiers YAML de contenu ItemsAdder.
+Cette commande recharge `config.yml` et réapplique les toggles de fonctionnalités, actions, comportements et composants au niveau du plugin. Elle ne recharge **pas** les fichiers YAML de contenu ItemsAdder.
 
-Utilisez `/iareload` après avoir modifié les sections YAML ItemsAdderAdditions comme les actions, comportements, tags personnalisés, recettes, progrès, peintures personnalisées, métadonnées Valhalla ou génération du monde.
+Utilisez `/iareload` après avoir modifié des sections YAML de contenu ItemsAdderAdditions comme les actions, comportements, tags personnalisés, recettes, progrès, peintures personnalisées, métadonnées Valhalla ou entrées de génération du monde.
 
-Utilisez `/iazip` après avoir modifié les sections `components` ou des assets du pack de ressources. `/iareload` recharge le contenu ItemsAdderAdditions sauf les composants.
+Utilisez `/iazip` après avoir modifié les sections `components` ou des assets du resource pack. `/iareload` recharge le contenu ItemsAdderAdditions sauf les composants.
 
 ## Erreurs courantes
 
-- Mettre un toggle à `false` puis attendre que le contenu correspondant continue à fonctionner après rechargement.
-- Ajouter une faute de frappe sous `actions`, `behaviours`, `features` ou `components`.
-- Utiliser `/itemsadderadditions reload` pour recharger du contenu YAML ou reconstruire le pack. Utilisez `/iareload` pour le contenu YAML et `/iazip` pour les composants ou assets.
+- Mettre un toggle à `false` et s'attendre à ce que le contenu existant continue de fonctionner après rechargement.
+- Ajouter une faute de frappe sous `actions`, `behaviours`, `features` ou `components` ; les clés de toggle inconnues ne désactivent pas la fonctionnalité visée.
+- S'attendre à ce que `/itemsadderadditions reload` recharge le YAML de contenu ItemsAdder ou reconstruise le resource pack. Utilisez `/iareload` pour le YAML de contenu et `/iazip` pour les composants ou assets.

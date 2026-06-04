@@ -1,7 +1,7 @@
 ---
 title: Table de craft
 description: Ajouter des recettes avancées avec objets ItemsAdder, objets MMOItems, objets vanilla, tags vanilla, quantités exactes, conditions de durabilité, recettes shapeless, sons et commandes à la fabrication.
-version: "1.0.7"
+version: "1.0.10"
 ---
 
 ItemsAdderAdditions ajoute un type de recette de craft avancé appelé `iaa_crafting_table`. Il fonctionne avec les recettes 3x3 et les recettes 2x2 de l'inventaire joueur. `iaa_crafting` est accepté comme alias.
@@ -28,7 +28,14 @@ recipes:
   iaa_crafting_table:
 ```
 
-Si vous n'avez besoin que des fonctionnalités de craft normales d’ItemsAdder, vous pouvez continuer à utiliser le type de recette `crafting_table` classique.
+```yaml
+recipes:
+  iaa_crafting:
+```
+
+Privilégiez `iaa_crafting_table` dans les nouveaux fichiers. `iaa_crafting` se comporte de la même manière et existe comme alias.
+
+Si vous n'avez besoin que des fonctionnalités de craft normales d'ItemsAdder, vous pouvez continuer à utiliser le type de recette `crafting_table` classique.
 
 ## Recette avec forme de base
 
@@ -389,11 +396,16 @@ recipes:
 
 ## Références d’objets prises en charge
 
+Voir [IDs](/fr/docs/compatibility/ids) pour la référence d'ID partagée.
+
 Les objets des ingrédients et résultats peuvent utiliser :
 
-- les noms de matériaux vanilla comme `STICK` ou `DIAMOND`
-- les ID ItemsAdder comme `namespace:item`
-- les tags comme `#minecraft:planks`
+- des noms de matériaux vanilla comme `STICK` ou `DIAMOND`
+- des IDs namespaced vanilla comme `minecraft:stick`
+- des IDs ItemsAdder comme `namespace:item`
+- des IDs MMOItems comme `mmoitems:type:id`
+
+Les ingrédients peuvent aussi utiliser des tags vanilla comme `#minecraft:planks`. Ce sont uniquement des tags Bukkit vanilla d'objets/blocs ; les tags personnalisés ItemsAdderAdditions ne sont pas résolus dans les ingrédients de craft. Les tags ne sont pas valides comme résultats ou objets de remplacement.
 
 ## Notes
 
@@ -401,3 +413,11 @@ Les objets des ingrédients et résultats peuvent utiliser :
 - Les recettes sans forme avec des prédicats avancés doivent utiliser le format liste.
 - `iaa_crafting_table` est un type de recette avancé supplémentaire, pas un remplacement du `crafting_table` d’ItemsAdder.
 - `iaa_crafting` est un alias de `iaa_crafting_table`.
+- Chaque clé `pattern...` est chargée comme variante de pattern shaped. Exemples : `pattern`, `pattern_2`, `pattern_alt`.
+- Les listes anonymes d'ingrédients shapeless prennent en charge jusqu'à 26 entrées.
+
+## Pages associées
+
+- [IDs](/fr/docs/compatibility/ids)
+- [Compatibilité MMOItems](/fr/docs/compatibility/mmoitems)
+- [Tags personnalisés](/fr/docs/custom-tags)

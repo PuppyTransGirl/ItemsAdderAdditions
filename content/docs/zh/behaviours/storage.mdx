@@ -79,7 +79,7 @@ version: "1.0.0"
     </Tab>
 </Tabs>
 
-`name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `命名空间:值` 格式的自定义音效
+`name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `namespace:value` 格式的自定义音效
 
 支持 [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) 格式、[PlaceholderAPI](https://modrinth.com/plugin/placeholderapi) 占位符和 [ItemsAdder](https://itemsadder.com/) 字体图片
 
@@ -125,8 +125,17 @@ behaviours:
 
 `open_variant` 应为另一个自定义方块、家具或复杂家具的 ID，可以使用以下格式：
 - `id`
-- `命名空间:id`
+- `namespace:id`
 
-当所有玩家都关闭物品栏后，存储会恢复为其正常变体
+ID 语法请见 [ID](/zh/docs/compatibility/ids)。
+
+当所有玩家都关闭物品栏后，storage 会恢复为正常变体
 
 <VideoGif src="/assets/behaviours_storage_example"/>
+
+## 相关页面
+
+- [ID](/zh/docs/compatibility/ids)
+- [WorldGuard 兼容性](/zh/docs/compatibility/worldguard)
+- [CoreProtect 兼容性](/zh/docs/compatibility/coreprotect)
+- [PlaceholderAPI 兼容性](/zh/docs/compatibility/placeholderapi)

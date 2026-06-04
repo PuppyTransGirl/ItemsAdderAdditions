@@ -68,6 +68,53 @@ ignite:
   target_in_sight_distance: 10
 ```
 
+## Placement des déclencheurs
+
+Les actions se déclarent dans les sections `events` des objets, blocs, meubles ou meubles complexes ItemsAdder.
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_staff:
+    events:
+      interact:
+        right:
+          message:
+            text: "<green>Right-clicked"
+
+  ruby_lamp:
+    events:
+      placed_furniture:
+        interact:
+          message:
+            text: "<yellow>Furniture clicked"
+```
+
+Les actions `placed_block` peuvent être imbriquées sous `events.placed_block`. Les actions de meubles et meubles complexes sont chargées depuis `events.placed_furniture`.
+
+## Noms de déclencheurs pris en charge
+
+Les déclencheurs d'objets courants incluent :
+
+```text
+interact, interact_mainhand, interact_offhand, block_break, attack, kill,
+drop, pickup, held, held_offhand, unheld, unheld_offhand, item_break,
+eat, drink, bow_shot, gun_shot, gun_no_ammo, gun_reload, item_throw,
+item_hit_ground, item_hit_entity, book_write, book_read, fishing_start,
+fishing_caught, fishing_failed, fishing_cancel, fishing_bite,
+fishing_in_ground, bucket_empty, bucket_fill
+```
+
+Les déclencheurs de blocs incluent `interact`, `break` et les déclencheurs `placed_block` imbriqués. Les déclencheurs de meubles utilisent les mêmes noms de style objet sous `placed_furniture`. Les meubles complexes prennent actuellement en charge `placed_furniture.interact`.
+
+`interact`, `interact_mainhand` et `interact_offhand` peuvent utiliser des sections d'arguments comme `right`, `left`, `right_shift` et `left_shift`. Les actions wildcard sous le déclencheur sont aussi exécutées après la correspondance exacte de l'argument.
+
+## Cooldowns et exigences de stats
+
+Lorsqu'une action est déclenchée depuis un objet ItemsAdder tenu en main, ItemsAdderAdditions vérifie les cooldowns et exigences de stats configurés par ItemsAdder pour cet objet avant d'exécuter l'action. Si le joueur ne remplit pas ces exigences, l'action est ignorée.
+
 ## Exemple complet
 
 ```yaml

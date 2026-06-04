@@ -33,7 +33,7 @@ version: "1.0.0"
             decrement_amount: 2 # 可选，默认：1
         ```
 
-        `name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `命名空间:值` 格式的自定义音效
+        `name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `namespace:value` 格式的自定义音效
     </Tab>
     <Tab value="完整">
         ```yaml
@@ -54,10 +54,15 @@ version: "1.0.0"
               ...
         ```
 
-        `name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `命名空间:值` 格式的自定义音效
+        `name` 请使用 [Sounds.json](https://minecraft.wiki/w/Sounds.json/Java_Edition_values) 中的值，或使用 `namespace:value` 格式的自定义音效
     </Tab>
 </Tabs>
 
-这些 ID 必须指向自定义方块。支持的类型：`REAL`、`REAL_NOTE`、`REAL_TRANSPARENT` 和 `REAL_WIRE`。你可以根据需要添加任意多个步骤
+方块 ID 必须指向自定义方块。支持的类型：`REAL`、`REAL_NOTE`、`REAL_TRANSPARENT` 和 `REAL_WIRE`。`items` 可以包含具体物品 ID 或受支持的物品标签。见 [ID](/zh/docs/compatibility/ids)。你可以根据需要添加任意多个步骤
 
 <VideoGif src="/assets/behaviours_stackable_example"/>
+
+## 相关页面
+
+- [ID](/zh/docs/compatibility/ids)
+- [WorldGuard 兼容性](/zh/docs/compatibility/worldguard)

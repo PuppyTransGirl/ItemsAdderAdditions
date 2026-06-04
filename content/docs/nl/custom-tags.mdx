@@ -5,7 +5,7 @@ description: Definieer herbruikbare item-, blok-, furniture- en receptgroepen in
 version: "1.0.10"
 ---
 
-Custom tags groeperen content-ID's zodat je dezelfde groep kunt hergebruiken in ondersteunde ItemsAdderAdditions-functies. Ze worden geladen uit een top-level `tags` sectie in ItemsAdder content-YAML.
+Custom tags laten je content-ID's één keer groeperen en die groep hergebruiken in ondersteunde ItemsAdderAdditions-functies. Ze worden geladen uit een top-level `tags` sectie in elk ItemsAdder content-YAML-bestand.
 
 ## Basisstructuur
 
@@ -40,22 +40,27 @@ tags:
       - ruby_pickaxe
 ```
 
-Gebruik `#tag_id` binnen dezelfde namespace of `#namespace:tag_id` vanuit een andere namespace.
+Verwijs naar een tag met `#tag_id` binnen dezelfde namespace of met `#namespace:tag_id` vanuit een andere namespace. Zie [ID's](/nl/docs/compatibility/ids) voor regels rond tagreferenties.
 
-## Typen
+## Tagtypes
 
-| Type | Aliassen | Waarden |
-|------|----------|---------|
+| Type | Aliassen | Waarden kunnen bevatten |
+|------|----------|-------------------------|
 | `item` | `items` | ItemsAdder-items, vanilla items, MMOItems-items en geneste itemtags. |
 | `block` | `blocks` | ItemsAdder-blokken, vanilla blokken en geneste bloktags. |
 | `furniture` | `furnitures` | ItemsAdder furniture-ID's en geneste furniture-tags. |
 | `recipe` | `recipes` | Recept-ID's en geneste recepttags. |
 
-Als `type` ontbreekt, wordt de tag als itemtag behandeld.
+Als `type` ontbreekt, wordt de tag behandeld als een itemtag.
 
 ## Geneste tags
 
+Tags kunnen andere tags van hetzelfde type bevatten.
+
 ```yaml
+info:
+  namespace: my_pack
+
 tags:
   ruby_tools:
     type: item
@@ -71,17 +76,17 @@ tags:
       - minecraft:diamond_pickaxe
 ```
 
-Geneste tags moeten hetzelfde type hebben. Circulaire verwijzingen worden gedetecteerd en genegeerd.
+Geneste tags worden tijdens reload opgelost. Circulaire verwijzingen worden gedetecteerd en genegeerd, zodat de server niet blijft hangen.
 
-## Waar ze werken
+## Waar custom tags werken
 
-Custom tags werken in runtime matching, waaronder:
+Custom tags worden ondersteund door runtime ID-matchingpaden, waaronder:
 
 - advancementvoorwaarden voor items, blokken, furniture en recepten
-- spelerpredicaten voor items, equipment, slots en blokken
+- spelerpredicaten voor items, equipment, slots en blokcontroles
 - `items` van het `stackable` behaviour
 
-Ingrediënten van `iaa_crafting_table` zijn anders: ingredienttags gebruiken alleen Bukkit vanilla item-/bloktags, niet ItemsAdderAdditions custom tags.
+Craftingreceptingrediënten zijn anders: `iaa_crafting_table` tag-ingrediënten gebruiken alleen Bukkit's vanilla item-/bloktags. Ze lossen geen ItemsAdderAdditions custom tags op.
 
 ## Compleet voorbeeld
 
@@ -107,12 +112,33 @@ items:
           - "#my_pack:ruby_tools"
 ```
 
-## Herladen
+```yaml
+advancements:
+  collect_any_ruby_tool:
+    display:
+      title: "Ruby Tools"
+      description: "Obtain any ruby tool."
+      icon: my_pack:ruby_pickaxe
+    criteria:
+      collect:
+        trigger: obtain_item
+        conditions:
+          items:
+            - "#my_pack:ruby_tools"
+```
 
-Custom tags worden voorbereid voordat acties, gedragingen, recepten, advancements en worldgen worden herladen. Voer `/iareload` uit na wijzigingen.
+## Herlaadgedrag
+
+Custom tags worden voorbereid voordat acties, behaviours, recepten, advancements en world generation worden herladen. Voer `/iareload` uit na wijzigingen aan tags.
 
 ## Veelgemaakte fouten
 
-- Tagtypen mengen. Een furniture-tag kan geen itemtag bevatten.
-- Dezelfde combinatie van `type` en tag-ID twee keer definiëren. De eerste definitie wint.
-- Een tag gebruiken waar een optie een concreet item moet maken, zoals receptresultaten, `toast.icon`, `clear_item.item` of `replace_item.item`.
+- Tagtypes mengen. Een furniture-tag kan geen itemtag bevatten.
+- Dezelfde combinatie van `type` en tag-ID twee keer definiëren. De eerste declaratie wint.
+- Verwachten dat custom tags itemstacks kunnen aanmaken. Gebruik concrete item-ID's voor uitvoer zoals receptresultaten, `toast.icon`, `clear_item.item` en `replace_item.item`.
+- Een vanilla-ogende tag zoals `#minecraft:planks` overschrijven. Custom tags worden eerst opgelost wanneer er een custom tag met die ID bestaat.
+
+## Gerelateerde pagina's
+
+- [ID's](/nl/docs/compatibility/ids)
+- [Compatibiliteit](/nl/docs/compatibility)

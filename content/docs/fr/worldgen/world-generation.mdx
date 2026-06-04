@@ -1,23 +1,23 @@
 ---
 title: Génération du monde
-description: Faire apparaître des meubles ItemsAdder personnalisés lors de la génération des chunks Minecraft. Prend en charge les modes populateur de monde et décorateur de surface, configurés dans vos fichiers YML.
+description: Faire apparaître des meubles ItemsAdder personnalisés pendant la génération des chunks.
 version: "1.0.8"
 ---
 
-Deux modes de génération du monde permettent de faire apparaître des meubles personnalisés dans les chunks nouvellement générés. Les deux sont définis directement dans vos fichiers YML de contenu ItemsAdder.
+Deux modes de génération du monde permettent de faire apparaître des meubles personnalisés dans les chunks nouvellement générés. Les deux se définissent directement dans vos fichiers YML de contenu ItemsAdder.
 
-| | Populateur de monde | Décorateur de surface |
-|-|---------------------|----------------------|
+| | World Populator | Surface Decorator |
+|-|-----------------|-------------------|
 | Clé YAML | `blocks_populators` | `surface_decorators` |
-| Style de placement | Basé sur les veines (groupé) | Dispersion en surface |
+| Style de placement | Par veines (groupé) | Dispersion en surface |
 | Contrôle de densité | `vein_blocks` + `chunk_veins` | `amount` |
-| Clé de config de surface | `replaceable_blocks` | `bottom_blocks` |
+| Clé de configuration de surface | `replaceable_blocks` | `bottom_blocks` |
 
-Utilisez le **Populateur de monde** pour les apparitions groupées (champignons, groupes semblables aux minerais). Utilisez le **Décorateur de surface** pour les objets de surface régulièrement dispersés (fleurs, petits rochers).
+Utilisez le **World Populator** pour les apparitions groupées (champignons, groupes de type minerai). Utilisez le **Surface Decorator** pour les objets de surface répartis régulièrement (fleurs, petits rochers).
 
-## Populateur de monde
+## World Populator
 
-Fait apparaître des meubles en grappes de type veine lors de la génération des chunks. Utilise la clé `blocks_populators` (la ancienne clé `worlds_populators` est également acceptée).
+Fait apparaître des meubles en groupes de type veine pendant la génération des chunks. Utilise la clé `blocks_populators` (la clé historique `worlds_populators` est aussi acceptée).
 
 ```yaml
 info:
@@ -43,21 +43,23 @@ blocks_populators:
 
 | Clé | Type | Défaut | Description |
 |-----|------|--------|-------------|
-| `enabled` | booléen | `true` | Définir à `false` pour ignorer sans supprimer. |
-| `furniture` | `namespace:id` | *(obligatoire)* | Le meuble ItemsAdder à faire apparaître. |
-| `worlds` | liste | *(tous)* | Noms de monde à restreindre. Prend en charge le joker `*`. |
-| `biomes` | liste | *(tous)* | ID de biome (ex. `minecraft:forest`). Tous doivent être valides sinon l'entrée est ignorée. |
-| `replaceable_blocks` | liste | *(tous)* | Matériaux autorisés pour le bloc directement sous le point d'apparition. |
-| `vein_blocks` | entier | `1` | Pièces de meuble par tentative de veine. |
-| `chunk_veins` | entier | `4` | Tentatives de veine par chunk. |
-| `chunk_chance` | double | `-1` | Chance 0-100 par chunk. `-1` = toujours. |
-| `min_height` | entier | `60` | Niveau Y minimum. Doit être inférieur à `max_height`. |
-| `max_height` | entier | `80` | Niveau Y maximum. |
-| `allow_liquid_placement` | booléen | `false` | Autoriser l'apparition dans l'eau ou la lave. |
+| `enabled` | boolean | `true` | Définissez sur `false` pour ignorer sans supprimer. |
+| `furniture` | `namespace:id` | *(requis)* | Le meuble ItemsAdder à faire apparaître. Voir [IDs](/fr/docs/compatibility/ids). |
+| `worlds` | list | *(tous)* | Noms des mondes à cibler. Prend en charge les motifs wildcard comme `world_*`. |
+| `biomes` | list | *(tous)* | IDs de biomes (ex. `minecraft:forest`). Tous doivent être valides ou l'entrée est ignorée. |
+| `replaceable_blocks` | list | *(n'importe lequel)* | Matériaux autorisés pour le bloc directement sous le point d'apparition. |
+| `vein_blocks` | integer | `1` | Nombre de meubles par tentative de veine. |
+| `chunk_veins` | integer | `4` | Tentatives de veine par chunk. |
+| `chunk_chance` | double | `-1` | Chance de 0 à 100 par chunk. `-1` = toujours. |
+| `min_height` | integer | `60` | Niveau Y minimal. Doit être inférieur à `max_height`. |
+| `max_height` | integer | `80` | Niveau Y maximal. |
+| `allow_liquid_placement` | boolean | `false` | Autorise l'apparition dans l'eau ou la lave. |
 
-## Décorateur de surface
+Les alias historiques restent acceptés : `worlds_populators` pour `blocks_populators`, `amount` pour `vein_blocks`, `iterations` pour `chunk_veins` et `chance` pour `chunk_chance`.
 
-Disperse des meubles sur la surface du terrain nouvellement généré. Utilise la clé `surface_decorators`.
+## Surface Decorator
+
+Répartit des meubles sur la surface du terrain nouvellement généré. Utilise la clé `surface_decorators`.
 
 ```yaml
 info:
@@ -82,20 +84,24 @@ surface_decorators:
 
 | Clé | Type | Défaut | Description |
 |-----|------|--------|-------------|
-| `enabled` | booléen | `true` | Définir à `false` pour ignorer sans supprimer. |
-| `furniture` | `namespace:id` | *(obligatoire)* | Le meuble ItemsAdder à faire apparaître. |
-| `worlds` | liste | *(tous)* | Noms de monde à restreindre. Prend en charge le joker `*`. |
-| `biomes` | liste | *(tous)* | ID de biome (ex. `minecraft:plains`). Tous doivent être valides sinon l'entrée est ignorée. |
-| `bottom_blocks` | liste | *(tous)* | Matériaux autorisés pour le bloc directement sous le point d'apparition. |
-| `amount` | entier | `4` | Tentatives de placement par chunk. |
-| `chunk_chance` | double | `-1` | Chance 0-100 par chunk. `-1` = toujours. |
-| `min_height` | entier | `60` | Niveau Y minimum. Doit être inférieur à `max_height`. |
-| `max_height` | entier | `80` | Niveau Y maximum. |
-| `allow_liquid_surface` | booléen | `false` | Autoriser un bloc liquide sous le point d'apparition comme surface valide. |
-| `allow_liquid_placement` | booléen | `false` | Autoriser l'apparition dans l'eau ou la lave. |
+| `enabled` | boolean | `true` | Définissez sur `false` pour ignorer sans supprimer. |
+| `furniture` | `namespace:id` | *(requis)* | Le meuble ItemsAdder à faire apparaître. Voir [IDs](/fr/docs/compatibility/ids). |
+| `worlds` | list | *(tous)* | Noms des mondes à cibler. Prend en charge les motifs wildcard comme `world_*`. |
+| `biomes` | list | *(tous)* | IDs de biomes (ex. `minecraft:plains`). Tous doivent être valides ou l'entrée est ignorée. |
+| `bottom_blocks` | list | *(n'importe lequel)* | Matériaux autorisés pour le bloc directement sous le point d'apparition. |
+| `amount` | integer | `4` | Tentatives de placement par chunk. |
+| `chunk_chance` | double | `-1` | Chance de 0 à 100 par chunk. `-1` = toujours. |
+| `min_height` | integer | `60` | Niveau Y minimal. Doit être inférieur à `max_height`. |
+| `max_height` | integer | `80` | Niveau Y maximal. |
+| `allow_liquid_surface` | boolean | `false` | Autorise un bloc liquide sous le point d'apparition comme surface valide. |
+| `allow_liquid_placement` | boolean | `false` | Autorise l'apparition dans l'eau ou la lave. |
+
+L'alias historique `chance` est accepté pour `chunk_chance`.
 
 ## Notes
 
 - Seuls les chunks nouvellement générés déclenchent l'apparition. Les chunks existants ne sont pas affectés.
-- Le meuble doit être enregistré par ItemsAdder avant que l'entrée soit chargée.
-- Les ID de biome invalides provoquent l'ignorance de toute l'entrée.
+- Le meuble doit être enregistré par ItemsAdder avant le chargement de l'entrée.
+- Les IDs de biomes invalides font ignorer toute l'entrée.
+- Les surface decorators dans le Nether scannent vers le bas de `max_height` à `min_height`.
+- Lorsque `allow_liquid_placement` est activé, la décoration de surface en dimension normale utilise la heightmap du fond océanique afin de trouver les surfaces sous l'eau.

@@ -1,7 +1,7 @@
 ---
 title: 合成
 description: 通过 iaa_crafting_table 添加高级合成配方，支持 ItemsAdder 物品、MMOItems 物品、原版物品、原版标签、精确数量、耐久度要求、无序配方支持以及合成完成时的音效和命令
-version: "1.0.7"
+version: "1.0.10"
 ---
 
 ItemsAdderAdditions 新增了一种高级合成配方类型，名为 `iaa_crafting_table`。它同时支持 3x3 合成台配方和 2x2 玩家背包合成配方。`iaa_crafting` 是它的别名
@@ -25,6 +25,13 @@ ItemsAdderAdditions 新增了一种高级合成配方类型，名为 `iaa_crafti
 recipes:
   iaa_crafting_table:
 ```
+
+```yaml
+recipes:
+  iaa_crafting:
+```
+
+新文件建议使用 `iaa_crafting_table`。`iaa_crafting` 行为相同，并作为别名存在。
 
 如果你只需要普通的 ItemsAdder 合成功能，可以继续使用常规的 `crafting_table` 配方类型
 
@@ -387,6 +394,8 @@ recipes:
 
 ## 支持的物品引用
 
+共享 ID 参考请见 [ID](/zh/docs/compatibility/ids)。
+
 原料和结果物品可以使用：
 
 - 原版材质名，如 `STICK` 或 `DIAMOND`
@@ -394,7 +403,7 @@ recipes:
 - ItemsAdder ID，如 `namespace:item`
 - MMOItems ID，如 `mmoitems:type:id`
 
-原料还可以额外使用原版标签，如 `#minecraft:planks`。标签不能用作结果或替换物品
+原料还可以额外使用原版标签，如 `#minecraft:planks`。这些仅是 Bukkit 原版物品/方块标签；合成原料不会解析 ItemsAdderAdditions 自定义标签。标签不能用作结果或替换物品。
 
 ## 备注
 
@@ -402,3 +411,11 @@ recipes:
 - 带有高级谓词的无序配方应使用列表格式
 - `iaa_crafting_table` 是一个额外的高级配方类型，而非 ItemsAdder `crafting_table` 的替代品
 - `iaa_crafting` 是 `iaa_crafting_table` 的别名
+- 每个 `pattern...` 键都会作为 shaped pattern 变体加载。例如：`pattern`、`pattern_2`、`pattern_alt`。
+- 匿名 shapeless 原料列表最多支持 26 个条目。
+
+## 相关页面
+
+- [ID](/zh/docs/compatibility/ids)
+- [MMOItems 兼容性](/zh/docs/compatibility/mmoitems)
+- [自定义标签](/zh/docs/custom-tags)

@@ -1,10 +1,10 @@
 ---
 title: Brewing
-description: Voeg custom brewing stand recepten toe met ItemsAdder-, MMOItems- en vanilla items.
+description: Voeg custom brewing stand-recepten toe met ItemsAdder-, MMOItems- en vanilla items.
 version: "1.0.10"
 ---
 
-ItemsAdderAdditions voegt het recepttype `brewing` toe voor brewing stands. Het registreert een Paper potion mix en ondersteunt exacte matching voor ItemsAdder-, MMOItems- en vanilla items.
+ItemsAdderAdditions voegt een `brewing` recepttype toe voor brewing stands. Het registreert een Paper potion mix en ondersteunt exacte matching van ItemsAdder-, MMOItems- en vanilla items.
 
 ## Basisrecept
 
@@ -26,25 +26,31 @@ recipes:
       fuel_cost: 1
 ```
 
-`base` is de aanbevolen sleutel voor het invoeritem. De oudere alias `input` wordt nog geaccepteerd.
+`base` is de aanbevolen key voor de invoerfles. De legacy key `input` wordt nog geaccepteerd.
 
 ## Opties
 
 | Sleutel | Type | Standaard | Beschrijving |
 |---------|------|-----------|--------------|
-| `enabled` | boolean | `true` | Zet op `false` om het recept over te slaan. |
-| `base.item` | string | *(vereist)* | Vereist invoeritem. `input.item` wordt ook geaccepteerd. |
-| `ingredient.item` | string | *(vereist)* | Vereist brewing-ingredient. |
-| `ingredient.consume` | integer | `1` | Aantal ingredientitems dat wordt verbruikt. Moet groter zijn dan `0`. |
+| `enabled` | boolean | `true` | Zet op `false` om dit recept over te slaan. |
+| `base.item` | string | *(vereist)* | Vereiste invoerfles/item. Het legacy pad `input.item` wordt ook geaccepteerd. |
+| `ingredient.item` | string | *(vereist)* | Vereist brewing-ingrediënt. |
+| `ingredient.consume` | integer | `1` | Hoeveel ingrediëntitems worden verbruikt. Moet groter zijn dan `0`. |
 | `result.item` | string | *(vereist)* | Uitvoeritem. |
 | `result.amount` | integer | `1` | Brewing-uitvoer wordt beperkt tot één item per flessenslot. |
 | `brew_time` | integer | `400` | Brewingtijd in ticks. Moet groter zijn dan `0`. |
 | `fuel_cost` | integer | `1` | Blaze-powder brandstofeenheden die worden verbruikt. Moet groter zijn dan `0`. |
-| `on_complete` | sectie | *(geen)* | Optionele sound- en commandacties nadat brewing klaar is. |
+| `on_complete` | section | *(geen)* | Optionele sound- en commandacties nadat brewing is voltooid. |
 
 ## Itemreferenties
 
-`base.item`, `ingredient.item` en `result.item` accepteren vanilla materialen, ItemsAdder-items en MMOItems-items. Tags zijn hier niet geldig omdat brewing concrete itemstacks vergelijkt.
+`base.item`, `ingredient.item` en `result.item` kunnen gebruiken:
+
+- vanilla materialen zoals `POTION` of `minecraft:awkward_potion`
+- ItemsAdder-items zoals `my_pack:ruby_dust`
+- MMOItems-items zoals `mmoitems:material:ruby_dust`
+
+Tags zijn hier niet geldig, omdat brewing concrete itemstacks moet vergelijken. Zie [ID's](/nl/docs/compatibility/ids) voor ondersteunde itemformaten.
 
 ## Voltooiingsacties
 
@@ -55,13 +61,15 @@ on_complete:
   sound:
     name: minecraft:block.brewing_stand.brew
     source: master
+    volume: 1.0
+    pitch: 1.0
   commands:
     reward:
-      command: "say {player} brouwde een elixir"
+      command: "say {player} brewed a ruby elixir"
       as_console: true
 ```
 
-`{player}` wordt vervangen door de naam van de kijkende speler.
+`{player}` wordt vervangen door de naam van de kijkende speler. Commands worden als speler uitgevoerd, tenzij `as_console: true` is ingesteld.
 
 ## Compleet voorbeeld
 
@@ -83,14 +91,23 @@ recipes:
         amount: 1
       brew_time: 600
       fuel_cost: 2
+      on_complete:
+        sound:
+          name: minecraft:entity.player.levelup
+          source: master
 ```
 
 ## Veelgemaakte fouten
 
-- `result.amount` hoger dan `1` zetten. De waarde wordt beperkt tot `1`.
-- Tags zoals `#minecraft:*` gebruiken. Brewing recepten matchen concrete itemstacks.
-- `fuel_cost` hoger zetten dan de beschikbare brandstof in de stand.
+- `result.amount` hoger dan `1` zetten. Brewing stands bevatten maar één resultaatitem per flessenslot, dus de hoeveelheid wordt beperkt tot `1`.
+- `#minecraft:*`-tags gebruiken. Brewing recepten matchen exacte itemstacks, geen tags.
+- `fuel_cost` hoger zetten dan de huidige brandstof in de stand. Het recept wordt pas voltooid zodra er genoeg brandstof beschikbaar is.
 
-## Herladen
+## Herlaadgedrag
 
-Voer `/iareload` uit nadat je brewing recepten hebt aangepast.
+Voer `/iareload` uit na wijzigingen aan brewing recepten.
+
+## Gerelateerde pagina's
+
+- [ID's](/nl/docs/compatibility/ids)
+- [MMOItems-compatibiliteit](/nl/docs/compatibility/mmoitems)

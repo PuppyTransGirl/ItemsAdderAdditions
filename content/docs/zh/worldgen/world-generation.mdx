@@ -1,23 +1,23 @@
 ---
 title: 世界生成
-description: 在 Minecraft 区块生成时生成自定义 ItemsAdder 家具。支持世界填充器和地表装饰器两种模式，在你的内容 YML 文件中配置
+description: 在区块生成期间生成自定义 ItemsAdder 家具。
 version: "1.0.8"
 ---
 
-两种世界生成模式可让你在新生成的区块中生成自定义家具。两者都直接在你的 ItemsAdder 内容 YML 文件中定义
+两种世界生成模式可以在新生成的区块中生成自定义家具。二者都直接在 ItemsAdder 内容 YML 文件中定义。
 
-|        | 世界填充器                         | 地表装饰器                |
-|--------|-------------------------------|----------------------|
-| YAML 键 | `blocks_populators`           | `surface_decorators` |
-| 放置风格   | 基于矿脉（簇状）                      | 地表散布                 |
-| 密度控制   | `vein_blocks` + `chunk_veins` | `amount`             |
-| 表面配置键  | `replaceable_blocks`          | `bottom_blocks`      |
+| | World Populator | Surface Decorator |
+|-|-----------------|-------------------|
+| YAML key | `blocks_populators` | `surface_decorators` |
+| 放置方式 | Vein-based（成簇） | 表面散布 |
+| 密度控制 | `vein_blocks` + `chunk_veins` | `amount` |
+| 表面配置 key | `replaceable_blocks` | `bottom_blocks` |
 
-使用**世界填充器**可进行簇状生成（蘑菇、类似矿石的群组）。使用**地表装饰器**可进行均匀散布的地表物体生成（花朵、小石头）
+**World Populator** 适合成簇生成（蘑菇、类似矿脉的组合）。**Surface Decorator** 适合均匀散布在表面的物体（花、小石头）。
 
-## 世界填充器
+## World Populator
 
-在区块生成期间以矿脉式簇状生成家具。使用 `blocks_populators` 键（也接受旧版键 `worlds_populators`）
+在区块生成期间以 vein 风格簇状生成家具。使用 `blocks_populators` key（也接受旧 key `worlds_populators`）。
 
 ```yaml
 info:
@@ -41,23 +41,25 @@ blocks_populators:
     max_height: 100
 ```
 
-| 键                        | 类型        | 默认值     | 描述                                                  |
-|--------------------------|-----------|---------|-----------------------------------------------------|
-| `enabled`                | 布尔值       | `true`  | 设置为 `false` 可跳过而不移除                                 |
-| `furniture`              | `命名空间:id` | *（必填）*  | 要生成的 ItemsAdder 家具                                  |
-| `worlds`                 | 列表        | *（全部）*  | 要限定的世界名称。支持 `*` 通配符                                 |
-| `biomes`                 | 列表        | *（全部）*  | 生物群系 ID（例如 `minecraft:forest`）。所有 ID 必须有效，否则该条目将被跳过 |
-| `replaceable_blocks`     | 列表        | *（任意）*  | 生成点正下方方块允许的材质                                       |
-| `vein_blocks`            | 整数        | `1`     | 每次矿脉尝试放置的家具数量                                       |
-| `chunk_veins`            | 整数        | `4`     | 每个区块的矿脉尝试次数                                         |
-| `chunk_chance`           | 双精度浮点数    | `-1`    | 每个区块的概率 0-100。`-1` = 始终生成                           |
-| `min_height`             | 整数        | `60`    | 最低 Y 坐标。必须小于 `max_height`                           |
-| `max_height`             | 整数        | `80`    | 最高 Y 坐标                                             |
-| `allow_liquid_placement` | 布尔值       | `false` | 允许在水中或熔岩中生成                                         |
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `enabled` | boolean | `true` | 设为 `false` 可跳过且不删除条目。 |
+| `furniture` | `namespace:id` | *（必填）* | 要生成的 ItemsAdder 家具。见 [ID](/zh/docs/compatibility/ids)。 |
+| `worlds` | list | *（全部）* | 限定世界名称。支持 `world_*` 等 wildcard pattern。 |
+| `biomes` | list | *（全部）* | 生物群系 ID（如 `minecraft:forest`）。所有 ID 都必须有效，否则跳过该条目。 |
+| `replaceable_blocks` | list | *（任意）* | 生成点正下方方块允许使用的材质。 |
+| `vein_blocks` | integer | `1` | 每次 vein 尝试生成的家具数量。 |
+| `chunk_veins` | integer | `4` | 每个区块的 vein 尝试次数。 |
+| `chunk_chance` | double | `-1` | 每个区块 0-100 的概率。`-1` = 总是生成。 |
+| `min_height` | integer | `60` | 最小 Y 高度。必须小于 `max_height`。 |
+| `max_height` | integer | `80` | 最大 Y 高度。 |
+| `allow_liquid_placement` | boolean | `false` | 允许生成在水或岩浆中。 |
 
-## 地表装饰器
+仍接受旧别名：`worlds_populators` 对应 `blocks_populators`，`amount` 对应 `vein_blocks`，`iterations` 对应 `chunk_veins`，`chance` 对应 `chunk_chance`。
 
-在新生成的地形表面散布家具。使用 `surface_decorators` 键
+## Surface Decorator
+
+将家具散布在新生成地形的表面。使用 `surface_decorators` key。
 
 ```yaml
 info:
@@ -80,22 +82,26 @@ surface_decorators:
     max_height: 120
 ```
 
-| 键                        | 类型        | 默认值     | 描述                                                  |
-|--------------------------|-----------|---------|-----------------------------------------------------|
-| `enabled`                | 布尔值       | `true`  | 设置为 `false` 可跳过而不移除                                 |
-| `furniture`              | `命名空间:id` | *（必填）*  | 要生成的 ItemsAdder 家具                                  |
-| `worlds`                 | 列表        | *（全部）*  | 要限定的世界名称。支持 `*` 通配符                                 |
-| `biomes`                 | 列表        | *（全部）*  | 生物群系 ID（例如 `minecraft:plains`）。所有 ID 必须有效，否则该条目将被跳过 |
-| `bottom_blocks`          | 列表        | *（任意）*  | 生成点正下方方块允许的材质                                       |
-| `amount`                 | 整数        | `4`     | 每个区块的放置尝试次数                                         |
-| `chunk_chance`           | 双精度浮点数    | `-1`    | 每个区块的概率 0-100。`-1` = 始终生成                           |
-| `min_height`             | 整数        | `60`    | 最低 Y 坐标。必须小于 `max_height`                           |
-| `max_height`             | 整数        | `80`    | 最高 Y 坐标                                             |
-| `allow_liquid_surface`   | 布尔值       | `false` | 允许将生成点下方的液体方块视为有效表面                                 |
-| `allow_liquid_placement` | 布尔值       | `false` | 允许在水中或熔岩中生成                                         |
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `enabled` | boolean | `true` | 设为 `false` 可跳过且不删除条目。 |
+| `furniture` | `namespace:id` | *（必填）* | 要生成的 ItemsAdder 家具。见 [ID](/zh/docs/compatibility/ids)。 |
+| `worlds` | list | *（全部）* | 限定世界名称。支持 `world_*` 等 wildcard pattern。 |
+| `biomes` | list | *（全部）* | 生物群系 ID（如 `minecraft:plains`）。所有 ID 都必须有效，否则跳过该条目。 |
+| `bottom_blocks` | list | *（任意）* | 生成点正下方方块允许使用的材质。 |
+| `amount` | integer | `4` | 每个区块的放置尝试次数。 |
+| `chunk_chance` | double | `-1` | 每个区块 0-100 的概率。`-1` = 总是生成。 |
+| `min_height` | integer | `60` | 最小 Y 高度。必须小于 `max_height`。 |
+| `max_height` | integer | `80` | 最大 Y 高度。 |
+| `allow_liquid_surface` | boolean | `false` | 允许生成点下方的液体方块作为有效表面。 |
+| `allow_liquid_placement` | boolean | `false` | 允许生成在水或岩浆中。 |
+
+旧别名 `chance` 可用于 `chunk_chance`。
 
 ## 备注
 
-- 仅新生成的区块会触发生成。现有区块不受影响
-- 家具必须在加载该条目之前已由 ItemsAdder 注册
-- 无效的生物群系 ID 会导致整个条目被跳过
+- 只有新生成的区块会触发生成。已有区块不受影响。
+- 家具必须在条目加载前已由 ItemsAdder 注册。
+- 无效生物群系 ID 会导致整个条目被跳过。
+- Nether 中的 surface decorators 会从 `max_height` 向下扫描到 `min_height`。
+- 启用 `allow_liquid_placement` 时，普通维度的表面装饰会使用 ocean-floor heightmap，以便找到水下表面。

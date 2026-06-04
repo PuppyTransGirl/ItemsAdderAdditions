@@ -1,7 +1,7 @@
 ---
 title: Werkbank
 description: Voeg geavanceerde werkbankrecepten toe met ItemsAdder-items, MMOItems-items, vanilla items, vanilla tags, exacte aantallen, duurzaamheidsvereisten, shapeless recepten en voltooiingsgeluiden/commando's.
-version: "1.0.7"
+version: "1.0.10"
 ---
 
 ItemsAdderAdditions voegt een geavanceerd craftingrecepttype toe genaamd `iaa_crafting_table`. Het werkt voor zowel 3x3 recepten als 2x2 recepten in het spelerinventaris. `iaa_crafting` wordt geaccepteerd als alias.
@@ -27,6 +27,13 @@ Recepten die deze extra functies gebruiken, moeten worden geplaatst onder:
 recipes:
   iaa_crafting_table:
 ```
+
+```yaml
+recipes:
+  iaa_crafting:
+```
+
+Gebruik bij voorkeur `iaa_crafting_table` in nieuwe bestanden. `iaa_crafting` werkt hetzelfde en bestaat als alias.
 
 Als je alleen normale ItemsAdder-knutselfuncties nodig hebt, kun je het gewone `crafting_table`-recepttype blijven gebruiken.
 
@@ -389,6 +396,8 @@ recipes:
 
 ## Ondersteunde itemreferenties
 
+Zie [ID's](/nl/docs/compatibility/ids) voor de gedeelde ID-referentie.
+
 Ingrediënt- en resultaatitems kunnen gebruiken:
 
 - vanilla materiaalnamen zoals `STICK` of `DIAMOND`
@@ -396,7 +405,7 @@ Ingrediënt- en resultaatitems kunnen gebruiken:
 - ItemsAdder-ID's zoals `namespace:item`
 - MMOItems-ID's zoals `mmoitems:type:id`
 
-Ingrediënten kunnen daarnaast vanilla tags gebruiken zoals `#minecraft:planks`. Tags zijn niet geldig als resultaat of vervangingsitem.
+Ingrediënten kunnen daarnaast vanilla tags gebruiken zoals `#minecraft:planks`. Dit zijn alleen Bukkit vanilla item-/bloktags; ItemsAdderAdditions custom tags worden niet opgelost in craftingingrediënten. Tags zijn niet geldig als resultaat of vervangingsitem.
 
 ## Opmerkingen
 
@@ -404,3 +413,11 @@ Ingrediënten kunnen daarnaast vanilla tags gebruiken zoals `#minecraft:planks`.
 - Shapeless recepten met geavanceerde predicaten moeten het lijstformaat gebruiken.
 - `iaa_crafting_table` is een aanvullend geavanceerd recepttype, geen vervanging voor ItemsAdder `crafting_table`.
 - `iaa_crafting` is een alias voor `iaa_crafting_table`.
+- Elke `pattern...` key wordt geladen als een shaped pattern variant. Voorbeelden: `pattern`, `pattern_2`, `pattern_alt`.
+- Anonieme shapeless ingrediëntenlijsten ondersteunen maximaal 26 entries.
+
+## Gerelateerde pagina's
+
+- [ID's](/nl/docs/compatibility/ids)
+- [MMOItems-compatibiliteit](/nl/docs/compatibility/mmoitems)
+- [Custom Tags](/nl/docs/custom-tags)

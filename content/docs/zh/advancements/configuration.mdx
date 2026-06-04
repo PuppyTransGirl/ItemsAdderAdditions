@@ -53,7 +53,7 @@ display:
 |--------------------|-----------|---------------------|------------------------------------------------------------------------------|
 | `title`            | 字符串       | *（必填）*              | 进度标题。支持 [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/) |
 | `description`      | 字符串       | `""`                | 提示框描述。支持 MiniMessage                                                         |
-| `icon`             | `命名空间:id` | `minecraft:barrier` | 用作图标的物品。接受 ItemsAdder 物品 ID、MMOItems ID 或原版材质 ID。不支持标签，因为图标必须解析为一个具体的物品      |
+| `icon`             | `namespace:id` | `minecraft:barrier` | 用作图标的物品。接受 ItemsAdder 物品 ID、MMOItems ID 或原版材质 ID。不支持标签，因为图标必须解析为一个具体的物品      |
 | `frame`            | 字符串       | `task`              | 图标边框形状：`task`、`goal` 或 `challenge`                                           |
 | `background`       | 字符串       | *（无）*               | **仅限根进度。** 标签背景的纹理路径（例如 `minecraft:gui/advancements/backgrounds/adventure`）  |
 | `show_toast`       | 布尔值       | `true`              | 完成时显示弹窗通知                                                                    |
@@ -111,7 +111,7 @@ rewards:
 |--------------|-------|------|----------------------------------------|
 | `experience` | 整数    | `0`  | 完成时授予的经验点数                             |
 | `loot`       | 字符串列表 | `[]` | 完成时调用的战利品表键                            |
-| `recipes`    | 字符串列表 | `[]` | 要解锁的配方键。接受 `命名空间:id` 或纯 `id`（使用文件命名空间） |
+| `recipes`    | 字符串列表 | `[]` | 要解锁的配方键。接受 `namespace:id` 或纯 `id`（使用文件命名空间） |
 
 ## 完整示例
 

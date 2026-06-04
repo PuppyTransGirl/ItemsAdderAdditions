@@ -1,10 +1,10 @@
 ---
-title: Alambic
-description: Ajouter des recettes d'alambic personnalisées avec des objets ItemsAdder, MMOItems et vanilla.
+title: Brewing
+description: Ajouter des recettes de brewing stand personnalisées avec des objets ItemsAdder, MMOItems et vanilla.
 version: "1.0.10"
 ---
 
-ItemsAdderAdditions ajoute le type de recette `brewing` pour les alambics. Il enregistre un mélange de potion Paper et permet de faire correspondre précisément des objets ItemsAdder, MMOItems et vanilla.
+ItemsAdderAdditions ajoute un type de recette `brewing` pour les brewing stands. Il enregistre un mélange de potion Paper et prend en charge la correspondance exacte des objets ItemsAdder, MMOItems et vanilla.
 
 ## Recette de base
 
@@ -26,42 +26,50 @@ recipes:
       fuel_cost: 1
 ```
 
-`base` est la clé recommandée pour l'objet d'entrée. L'ancien alias `input` est encore accepté.
+`base` est la clé recommandée pour la bouteille d'entrée. La clé historique `input` est toujours acceptée.
 
 ## Options
 
 | Clé | Type | Défaut | Description |
 |-----|------|--------|-------------|
-| `enabled` | booléen | `true` | Mettre à `false` pour ignorer la recette. |
-| `base.item` | chaîne | *(requis)* | Objet ou potion d'entrée. `input.item` est aussi accepté. |
-| `ingredient.item` | chaîne | *(requis)* | Ingrédient d'alambic requis. |
-| `ingredient.consume` | entier | `1` | Quantité d'ingrédient consommée. Doit être supérieure à `0`. |
-| `result.item` | chaîne | *(requis)* | Objet de sortie. |
-| `result.amount` | entier | `1` | Les sorties d'alambic sont limitées à un objet par emplacement de potion. |
-| `brew_time` | entier | `400` | Temps de préparation en ticks. Doit être supérieur à `0`. |
-| `fuel_cost` | entier | `1` | Unités de combustible de blaze consommées. Doit être supérieur à `0`. |
-| `on_complete` | section | *(aucun)* | Actions optionnelles de son et commandes après la fin de la préparation. |
+| `enabled` | boolean | `true` | Définissez sur `false` pour ignorer cette recette. |
+| `base.item` | string | *(requis)* | Bouteille/objet d'entrée requis. Le chemin historique `input.item` est aussi accepté. |
+| `ingredient.item` | string | *(requis)* | Ingrédient de brewing requis. |
+| `ingredient.consume` | integer | `1` | Nombre d'objets ingrédient à consommer. Doit être supérieur à `0`. |
+| `result.item` | string | *(requis)* | Objet de sortie. |
+| `result.amount` | integer | `1` | Les sorties de brewing sont limitées à un objet par emplacement de bouteille. |
+| `brew_time` | integer | `400` | Temps de brewing en ticks. Doit être supérieur à `0`. |
+| `fuel_cost` | integer | `1` | Unités de combustible blaze powder à consommer. Doit être supérieur à `0`. |
+| `on_complete` | section | *(aucun)* | Actions optionnelles de son et de commandes après la fin du brewing. |
 
 ## Références d'objets
 
-`base.item`, `ingredient.item` et `result.item` acceptent les matériaux vanilla, les objets ItemsAdder et les objets MMOItems. Les tags ne sont pas valides ici, car la recette doit comparer des piles d'objets concrètes.
+`base.item`, `ingredient.item` et `result.item` peuvent utiliser :
 
-## Actions de fin
+- des matériaux vanilla comme `POTION` ou `minecraft:awkward_potion`
+- des objets ItemsAdder comme `my_pack:ruby_dust`
+- des objets MMOItems comme `mmoitems:material:ruby_dust`
 
-`on_complete` s'exécute quand l'alambic termine et qu'au moins un joueur regarde l'alambic.
+Les tags ne sont pas valides ici, car le brewing doit comparer des piles d'objets concrètes. Consultez [IDs](/fr/docs/compatibility/ids) pour les formats d'objets pris en charge.
+
+## Actions de complétion
+
+`on_complete` s'exécute lorsque le brewing stand termine et qu'au moins un joueur le consulte.
 
 ```yaml
 on_complete:
   sound:
     name: minecraft:block.brewing_stand.brew
     source: master
+    volume: 1.0
+    pitch: 1.0
   commands:
     reward:
-      command: "say {player} a préparé un élixir"
+      command: "say {player} brewed a ruby elixir"
       as_console: true
 ```
 
-`{player}` est remplacé par le nom du joueur spectateur.
+`{player}` est remplacé par le nom du joueur qui consulte l'interface. Les commandes s'exécutent en tant que joueur, sauf si `as_console: true` est défini.
 
 ## Exemple complet
 
@@ -83,14 +91,23 @@ recipes:
         amount: 1
       brew_time: 600
       fuel_cost: 2
+      on_complete:
+        sound:
+          name: minecraft:entity.player.levelup
+          source: master
 ```
 
 ## Erreurs courantes
 
-- Définir `result.amount` au-dessus de `1`. La valeur est limitée à `1`.
-- Utiliser des tags `#minecraft:*`. Les recettes d'alambic correspondent à des objets concrets.
-- Définir `fuel_cost` plus haut que le combustible disponible dans l'alambic.
+- Définir `result.amount` au-dessus de `1`. Les brewing stands ne contiennent qu'un objet résultat par emplacement de bouteille, donc la quantité est limitée à `1`.
+- Utiliser des tags `#minecraft:*`. Les recettes de brewing correspondent à des piles d'objets exactes, pas à des tags.
+- Définir `fuel_cost` au-dessus du combustible actuellement présent dans le stand. La recette ne se terminera pas tant qu'il n'y aura pas assez de combustible.
 
-## Rechargement
+## Comportement au rechargement
 
-Exécutez `/iareload` après avoir modifié des recettes d'alambic.
+Exécutez `/iareload` après avoir modifié des recettes de brewing.
+
+## Pages associées
+
+- [IDs](/fr/docs/compatibility/ids)
+- [Compatibilité MMOItems](/fr/docs/compatibility/mmoitems)

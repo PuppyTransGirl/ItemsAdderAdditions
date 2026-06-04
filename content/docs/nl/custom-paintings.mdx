@@ -39,7 +39,7 @@ paintings:
 | `asset` | `namespace:key` | *(verplicht)* | Sleutel van de textuurasset. Zie [Tekstuurpad](#tekstuurpad) hieronder. |
 | `title` | string | *(geen)* | Optionele weergavetitel getoond in tooltips. Ondersteunt MiniMessage. |
 | `author` | string | *(geen)* | Optionele auteurnaam getoond in tooltips. |
-| `item` | `namespace:item_id` | *(geen)* | Optioneel gekoppeld ItemsAdder-item. Wanneer er met rechts op een geldig muurvlak wordt geklikt, plaatst dit item het aangepaste schilderij. |
+| `item` | `namespace:item_id` | *(geen)* | Optioneel gekoppeld ItemsAdder-item. Wanneer er met rechts op een geldig muurvlak wordt geklikt, plaatst dit item het aangepaste schilderij. Zie [ID's](/nl/docs/compatibility/ids). |
 | `include_in_random` | bool | `false` | Wanneer `true`, kunnen vanilla schilderijitems willekeurig dit aangepaste schilderij selecteren wanneer de muurruimte past. |
 
 ## Tekstuurpad
@@ -57,7 +57,7 @@ Er zijn geen datapack-bestanden nodig. De plugin injecteert de schilderijvariant
 Als je een `item` instelt, gedraagt dat ItemsAdder-item zich als een aangepast schilderijitem:
 
 - Rechtsklikken op een geldig muurvlak plaatst het aangepaste schilderij.
-- Controles van beschermingsplugins worden gerespecteerd.
+- WorldGuard-vlaggen voor painting placement worden gerespecteerd wanneer WorldGuard-integratie is ingeschakeld.
 - Het probleem met dubbele plaatsing via de tweede hand wordt automatisch afgehandeld.
 
 Als `include_in_random` `false` is (de standaard), kan het schilderij alleen worden geplaatst via het gekoppelde item. Stel het in op `true` om ook vanilla schilderijitems toe te staan het willekeurig te kiezen.
@@ -76,3 +76,8 @@ features:
 - Deze functie is alleen beschikbaar op Minecraft **1.21.5** en nieuwer. Op oudere ondersteunde versies logt de plugin een waarschuwing en slaat hij de sectie `paintings` over.
 - Er is geen `/iazip` of handmatige resourcepackstap nodig voor de schilderijvarianten zelf, maar je textuurbestand moet zoals gebruikelijk in je resourcepack zijn opgenomen.
 - Het gekoppelde `item` moet een bestaand ItemsAdder-item zijn. Als het ontbreekt, wordt de schilderijvariant nog steeds geregistreerd, maar werkt er geen plaatsingsitem.
+
+## Gerelateerde pagina's
+
+- [ID's](/nl/docs/compatibility/ids)
+- [WorldGuard-compatibiliteit](/nl/docs/compatibility/worldguard)

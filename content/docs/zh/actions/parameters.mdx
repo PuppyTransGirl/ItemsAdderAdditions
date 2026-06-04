@@ -68,6 +68,53 @@ ignite:
   target_in_sight_distance: 10
 ```
 
+## 触发器放置位置
+
+动作声明在 ItemsAdder 物品、方块、家具或复杂家具的 `events` 节中。
+
+```yaml
+info:
+  namespace: my_pack
+
+items:
+  ruby_staff:
+    events:
+      interact:
+        right:
+          message:
+            text: "<green>Right-clicked"
+
+  ruby_lamp:
+    events:
+      placed_furniture:
+        interact:
+          message:
+            text: "<yellow>Furniture clicked"
+```
+
+`placed_block` 动作可以嵌套在 `events.placed_block` 下。家具和复杂家具动作从 `events.placed_furniture` 加载。
+
+## 支持的触发器名称
+
+常见物品触发器包括：
+
+```text
+interact, interact_mainhand, interact_offhand, block_break, attack, kill,
+drop, pickup, held, held_offhand, unheld, unheld_offhand, item_break,
+eat, drink, bow_shot, gun_shot, gun_no_ammo, gun_reload, item_throw,
+item_hit_ground, item_hit_entity, book_write, book_read, fishing_start,
+fishing_caught, fishing_failed, fishing_cancel, fishing_bite,
+fishing_in_ground, bucket_empty, bucket_fill
+```
+
+方块触发器包括 `interact`、`break` 和嵌套的 `placed_block` 触发器。家具触发器在 `placed_furniture` 下使用相同的物品风格触发器名称。复杂家具目前支持 `placed_furniture.interact`。
+
+`interact`、`interact_mainhand` 和 `interact_offhand` 可以使用 `right`、`left`、`right_shift`、`left_shift` 等参数节。触发器下的 wildcard 动作也会在精确参数匹配之后执行。
+
+## 冷却和属性要求
+
+当动作由手持的 ItemsAdder 物品触发时，ItemsAdderAdditions 会在执行动作前检查 ItemsAdder 为该物品配置的冷却和属性要求。如果玩家不满足这些要求，该动作会被跳过。
+
 ## 完整示例
 
 ```yaml

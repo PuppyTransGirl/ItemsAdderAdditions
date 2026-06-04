@@ -5,7 +5,7 @@ description: Définir des groupes réutilisables d'objets, blocs, meubles et rec
 version: "1.0.10"
 ---
 
-Les tags personnalisés permettent de regrouper des IDs de contenu et de réutiliser le groupe dans les fonctionnalités ItemsAdderAdditions compatibles. Ils sont chargés depuis une section `tags` au niveau racine d'un fichier YAML de contenu ItemsAdder.
+Les tags personnalisés vous permettent de regrouper des IDs de contenu une seule fois et de réutiliser ce groupe dans les fonctionnalités ItemsAdderAdditions prises en charge. Ils sont chargés depuis une section `tags` au niveau racine dans n'importe quel fichier YAML de contenu ItemsAdder.
 
 ## Structure de base
 
@@ -40,22 +40,27 @@ tags:
       - ruby_pickaxe
 ```
 
-Référencez un tag avec `#tag_id` dans le même namespace ou `#namespace:tag_id` depuis un autre namespace.
+Référencez un tag avec `#tag_id` dans le même namespace ou `#namespace:tag_id` depuis un autre namespace. Consultez [IDs](/fr/docs/compatibility/ids) pour les règles de référence de tags.
 
-## Types
+## Types de tags
 
-| Type | Alias | Valeurs acceptées |
-|------|-------|-------------------|
+| Type | Alias | Les valeurs peuvent contenir |
+|------|-------|------------------------------|
 | `item` | `items` | Objets ItemsAdder, objets vanilla, objets MMOItems et tags d'objets imbriqués. |
 | `block` | `blocks` | Blocs ItemsAdder, blocs vanilla et tags de blocs imbriqués. |
 | `furniture` | `furnitures` | IDs de meubles ItemsAdder et tags de meubles imbriqués. |
 | `recipe` | `recipes` | IDs de recettes et tags de recettes imbriqués. |
 
-Si `type` est absent, le tag est traité comme un tag d'objets.
+Si `type` est omis, le tag est traité comme un tag d'objets.
 
 ## Tags imbriqués
 
+Les tags peuvent inclure d'autres tags du même type.
+
 ```yaml
+info:
+  namespace: my_pack
+
 tags:
   ruby_tools:
     type: item
@@ -71,17 +76,17 @@ tags:
       - minecraft:diamond_pickaxe
 ```
 
-Les tags imbriqués doivent avoir le même type. Les références circulaires sont détectées et ignorées.
+Les tags imbriqués sont résolus pendant le rechargement. Les références circulaires sont détectées et ignorées au lieu de bloquer le serveur.
 
-## Où ils fonctionnent
+## Où fonctionnent les tags personnalisés
 
-Les tags personnalisés fonctionnent avec les chemins de correspondance runtime, notamment :
+Les tags personnalisés sont pris en charge par les chemins de correspondance d'IDs à l'exécution, notamment :
 
-- les conditions de progrès pour objets, blocs, meubles et recettes
-- les prédicats joueur d'objet, équipement, slot et bloc
+- conditions de progrès pour objets, blocs, meubles et recettes
+- prédicats de joueur pour objets, équipement, slots et vérifications de blocs
 - `items` du comportement `stackable`
 
-Les ingrédients de `iaa_crafting_table` sont différents : les tags d'ingrédients utilisent uniquement les tags vanilla Bukkit d'objets/blocs, pas les tags personnalisés ItemsAdderAdditions.
+Les ingrédients de recettes de craft sont différents : les ingrédients sous forme de tag de `iaa_crafting_table` utilisent uniquement les tags Bukkit vanilla d'objets/blocs. Ils ne résolvent pas les tags personnalisés ItemsAdderAdditions.
 
 ## Exemple complet
 
@@ -98,7 +103,7 @@ tags:
 
 items:
   charged_ruby:
-    display_name: "<red>Rubis chargé"
+    display_name: "<red>Charged Ruby"
     behaviours:
       stackable:
         blocks:
@@ -107,12 +112,33 @@ items:
           - "#my_pack:ruby_tools"
 ```
 
-## Rechargement
+```yaml
+advancements:
+  collect_any_ruby_tool:
+    display:
+      title: "Ruby Tools"
+      description: "Obtain any ruby tool."
+      icon: my_pack:ruby_pickaxe
+    criteria:
+      collect:
+        trigger: obtain_item
+        conditions:
+          items:
+            - "#my_pack:ruby_tools"
+```
 
-Les tags personnalisés sont préparés avant les actions, comportements, recettes, progrès et entrées de génération du monde. Exécutez `/iareload` après les avoir modifiés.
+## Comportement au rechargement
+
+Les tags personnalisés sont préparés avant le rechargement des actions, comportements, recettes, progrès et de la génération du monde. Exécutez `/iareload` après avoir modifié des tags.
 
 ## Erreurs courantes
 
-- Mélanger les types de tags. Un tag de meuble ne peut pas inclure un tag d'objet.
-- Définir deux fois le même couple `type` + ID de tag. La première définition gagne.
-- Utiliser un tag là où une option doit créer un objet concret, comme un résultat de recette, `toast.icon`, `clear_item.item` ou `replace_item.item`.
+- Mélanger les types de tags. Un tag de meubles ne peut pas contenir un tag d'objets.
+- Définir deux fois le même `type` et le même ID de tag. La première déclaration l'emporte.
+- S'attendre à ce que les tags personnalisés créent des piles d'objets. Utilisez des IDs d'objets concrets pour les sorties comme les résultats de recettes, `toast.icon`, `clear_item.item` et `replace_item.item`.
+- Remplacer un tag qui ressemble à un tag vanilla, comme `#minecraft:planks`. Les tags personnalisés sont résolus en premier lorsqu'un tag personnalisé avec cet ID existe.
+
+## Pages associées
+
+- [IDs](/fr/docs/compatibility/ids)
+- [Compatibilité](/fr/docs/compatibility)

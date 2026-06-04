@@ -1,23 +1,23 @@
 ---
 title: Wereldgeneratie
-description: Spawn aangepaste ItemsAdder-meubels tijdens Minecraft-chunkgeneratie. Ondersteunt world-populator- en surface-decorator-modi, geconfigureerd in je YML-bestanden.
+description: Spawn custom ItemsAdder-furniture tijdens chunkgeneratie.
 version: "1.0.8"
 ---
 
-Twee wereldgeneratiemodi laten je aangepaste meubels spawnen in nieuw gegenereerde chunks. Beide zijn rechtstreeks gedefinieerd in je ItemsAdder-inhoud YML-bestanden.
+Met twee world generation-modi kun je custom furniture spawnen in nieuw gegenereerde chunks. Beide worden direct in je ItemsAdder content-YML-bestanden gedefinieerd.
 
-| | Wereld-populator | Oppervlakte-decorateur |
+| | World Populator | Surface Decorator |
 |-|-----------------|-------------------|
-| YAML-sleutel | `blocks_populators` | `surface_decorators` |
-| Plaatsingsstijl | Adergebaseerd (geclusterd) | Oppervlaktespreiding |
+| YAML key | `blocks_populators` | `surface_decorators` |
+| Plaatsingsstijl | Vein-based (geclusterd) | Verspreid over het oppervlak |
 | Dichtheidscontrole | `vein_blocks` + `chunk_veins` | `amount` |
-| Oppervlakteconfiguratiesleutel | `replaceable_blocks` | `bottom_blocks` |
+| Surface-config key | `replaceable_blocks` | `bottom_blocks` |
 
-Gebruik de **Wereld-populator** voor geclusterde spawns (paddenstoelen, ertsachtige groepen). Gebruik de **Oppervlakte-decorateur** voor gelijkmatig verspreide oppervlakteobjecten (bloemen, kleine rotsen).
+Gebruik de **World Populator** voor geclusterde spawns (paddenstoelen, ertsachtige groepen). Gebruik de **Surface Decorator** voor gelijkmatig verspreide objecten aan het oppervlak (bloemen, kleine stenen).
 
-## Wereld-populator
+## World Populator
 
-Spawnt meubels in adergroepen tijdens chunkgeneratie. Gebruikt de sleutel `blocks_populators` (de verouderde sleutel `worlds_populators` wordt ook geaccepteerd).
+Spawnt furniture in vein-achtige clusters tijdens chunkgeneratie. Gebruikt de key `blocks_populators` (de legacy key `worlds_populators` wordt ook geaccepteerd).
 
 ```yaml
 info:
@@ -43,21 +43,23 @@ blocks_populators:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |---------|------|-----------|--------------|
-| `enabled` | bool | `true` | Stel dit in op `false` om over te slaan zonder te verwijderen. |
-| `furniture` | `namespace:id` | *(verplicht)* | Het te spawnen ItemsAdder-meubel. |
-| `worlds` | lijst | *(alle)* | Wereldnamen om tot te beperken. Ondersteunt `*` jokerteken. |
-| `biomes` | lijst | *(alle)* | Bioom-ID's (bijv. `minecraft:forest`). Alle moeten geldig zijn, anders wordt de invoer overgeslagen. |
-| `replaceable_blocks` | lijst | *(elk)* | Toegestane materialen voor het blok direct onder het spawnpunt. |
-| `vein_blocks` | integer | `1` | Aantal meubelstukken per aderpoging. |
-| `chunk_veins` | integer | `4` | Aderpogingen per chunk. |
-| `chunk_chance` | double | `-1` | 0-100 kans per chunk. `-1` = altijd. |
+| `enabled` | boolean | `true` | Zet op `false` om over te slaan zonder te verwijderen. |
+| `furniture` | `namespace:id` | *(vereist)* | De ItemsAdder-furniture die moet spawnen. Zie [ID's](/nl/docs/compatibility/ids). |
+| `worlds` | list | *(alle)* | Wereldnamen om tot te beperken. Ondersteunt wildcardpatronen zoals `world_*`. |
+| `biomes` | list | *(alle)* | Biome-ID's (bijv. `minecraft:forest`). Alle IDs moeten geldig zijn, anders wordt de entry overgeslagen. |
+| `replaceable_blocks` | list | *(elk)* | Toegestane materialen voor het blok direct onder het spawnpunt. |
+| `vein_blocks` | integer | `1` | Furniture-stukken per veinpoging. |
+| `chunk_veins` | integer | `4` | Veinpogingen per chunk. |
+| `chunk_chance` | double | `-1` | Kans per chunk van 0-100. `-1` = altijd. |
 | `min_height` | integer | `60` | Minimum Y-niveau. Moet lager zijn dan `max_height`. |
 | `max_height` | integer | `80` | Maximum Y-niveau. |
-| `allow_liquid_placement` | bool | `false` | Sta spawnen in water of lava toe. |
+| `allow_liquid_placement` | boolean | `false` | Sta spawnen in water of lava toe. |
 
-## Oppervlakte-decorateur
+Legacy aliases worden nog geaccepteerd: `worlds_populators` voor `blocks_populators`, `amount` voor `vein_blocks`, `iterations` voor `chunk_veins` en `chance` voor `chunk_chance`.
 
-Verspreidt meubels over het oppervlak van nieuw gegenereerd terrein. Gebruikt de sleutel `surface_decorators`.
+## Surface Decorator
+
+Verspreidt furniture over het oppervlak van nieuw gegenereerd terrein. Gebruikt de key `surface_decorators`.
 
 ```yaml
 info:
@@ -82,20 +84,24 @@ surface_decorators:
 
 | Sleutel | Type | Standaard | Beschrijving |
 |---------|------|-----------|--------------|
-| `enabled` | bool | `true` | Stel dit in op `false` om over te slaan zonder te verwijderen. |
-| `furniture` | `namespace:id` | *(verplicht)* | Het te spawnen ItemsAdder-meubel. |
-| `worlds` | lijst | *(alle)* | Wereldnamen om tot te beperken. Ondersteunt `*` jokerteken. |
-| `biomes` | lijst | *(alle)* | Bioom-ID's (bijv. `minecraft:plains`). Alle moeten geldig zijn, anders wordt de invoer overgeslagen. |
-| `bottom_blocks` | lijst | *(elk)* | Toegestane materialen voor het blok direct onder het spawnpunt. |
+| `enabled` | boolean | `true` | Zet op `false` om over te slaan zonder te verwijderen. |
+| `furniture` | `namespace:id` | *(vereist)* | De ItemsAdder-furniture die moet spawnen. Zie [ID's](/nl/docs/compatibility/ids). |
+| `worlds` | list | *(alle)* | Wereldnamen om tot te beperken. Ondersteunt wildcardpatronen zoals `world_*`. |
+| `biomes` | list | *(alle)* | Biome-ID's (bijv. `minecraft:plains`). Alle IDs moeten geldig zijn, anders wordt de entry overgeslagen. |
+| `bottom_blocks` | list | *(elk)* | Toegestane materialen voor het blok direct onder het spawnpunt. |
 | `amount` | integer | `4` | Plaatsingspogingen per chunk. |
-| `chunk_chance` | double | `-1` | 0-100 kans per chunk. `-1` = altijd. |
+| `chunk_chance` | double | `-1` | Kans per chunk van 0-100. `-1` = altijd. |
 | `min_height` | integer | `60` | Minimum Y-niveau. Moet lager zijn dan `max_height`. |
 | `max_height` | integer | `80` | Maximum Y-niveau. |
-| `allow_liquid_surface` | bool | `false` | Sta een vloeistofblok onder het spawnpunt toe als geldig oppervlak. |
-| `allow_liquid_placement` | bool | `false` | Sta spawnen in water of lava toe. |
+| `allow_liquid_surface` | boolean | `false` | Sta een vloeistofblok onder het spawnpunt toe als geldig oppervlak. |
+| `allow_liquid_placement` | boolean | `false` | Sta spawnen in water of lava toe. |
+
+De legacy alias `chance` wordt geaccepteerd voor `chunk_chance`.
 
 ## Opmerkingen
 
 - Alleen nieuw gegenereerde chunks activeren spawning. Bestaande chunks worden niet beïnvloed.
-- Het meubel moet door ItemsAdder zijn geregistreerd voordat de invoer wordt geladen.
-- Ongeldige bioom-ID's zorgen ervoor dat de volledige invoer wordt overgeslagen.
+- De furniture moet door ItemsAdder zijn geregistreerd voordat de entry wordt geladen.
+- Ongeldige biome-ID's zorgen ervoor dat de volledige entry wordt overgeslagen.
+- Surface decorators in de Nether scannen omlaag van `max_height` naar `min_height`.
+- Wanneer `allow_liquid_placement` is ingeschakeld, gebruikt surface decoration in normale dimensies de ocean-floor heightmap zodat onderwateroppervlakken gevonden kunnen worden.

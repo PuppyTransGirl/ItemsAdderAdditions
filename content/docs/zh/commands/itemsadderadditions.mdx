@@ -1,12 +1,19 @@
 ---
 title: /itemsadderadditions
-description: ItemsAdderAdditions 插件的主要管理命令。重载 config.yml 并切换调试模式
+description: 用于重载和 debug 模式的管理员命令。
 version: "1.0.7"
 ---
 
 ## `/itemsadderadditions`
 
-ItemsAdderAdditions 的主要管理命令
+ItemsAdderAdditions 的主管理员命令。
+
+别名：
+
+```text
+/iaadditions
+/iaa
+```
 
 ## 权限
 
@@ -20,7 +27,7 @@ itemsadderadditions.command.itemsadderadditions
 
 ### `/itemsadderadditions reload`
 
-重载 ItemsAdderAdditions 的 `config.yml`，并重新应用功能、动作、行为和组件开关
+重载 ItemsAdderAdditions `config.yml`，并刷新插件级功能、动作、behaviour 和 component 开关。
 
 ```text
 /itemsadderadditions reload
@@ -32,15 +39,15 @@ itemsadderadditions.command.itemsadderadditions
 itemsadderadditions.command.itemsadderadditions.reload
 ```
 
-此命令不会重载 ItemsAdder 内容 YAML 文件。
+该命令**不会**重载 ItemsAdder 内容 YAML 文件。
 
-修改 ItemsAdderAdditions 内容 YAML（例如动作、行为、自定义标签、配方、进度、自定义画、Valhalla 元数据或世界生成条目）后请使用 `/iareload`。
+修改 ItemsAdderAdditions 内容 YAML 节后，请使用 `/iareload`，例如动作、behaviours、自定义标签、配方、进度、自定义画、Valhalla 元数据或世界生成条目。
 
-修改 `components` 节或资源包资源后请使用 `/iazip`。
+修改 `components` 节或资源包资源后，请使用 `/iazip`。
 
 ### `/itemsadderadditions debug`
 
-开启或关闭调试模式
+开启或关闭 debug 模式。
 
 ```text
 /itemsadderadditions debug
