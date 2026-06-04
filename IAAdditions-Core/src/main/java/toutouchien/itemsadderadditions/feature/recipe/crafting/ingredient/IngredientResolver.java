@@ -14,13 +14,11 @@ import org.bukkit.inventory.RecipeChoice;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagType;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.integration.hook.MMOItemsHook;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Parses ingredient entries from YAML into {@link ParsedIngredient} instances.
@@ -245,13 +243,23 @@ public final class IngredientResolver {
             @Nullable String potionType
     ) {
         if (itemRef.startsWith("#")) {
-            RecipeChoice tagChoice = resolveTag(itemRef.substring(1), recipeId, keyLabel);
+            String tagRef = itemRef.substring(1);
+
+            // ItemsAdderAdditions custom ITEM tag wins over a same-named vanilla tag.
+            String customTagId = NamespaceUtils.normalizeCustomTagId(namespace, tagRef);
+            if (NamespaceUtils.customTagRegistry().hasTag(customTagId, CustomTagType.ITEM)) {
+                return buildCustomTagIngredient(
+                        namespace, customTagId, keyLabel, recipeId,
+                        requiredAmount, damageAmount, replacement, ignoreDurability, potionType);
+            }
+
+            RecipeChoice tagChoice = resolveTag(tagRef, recipeId, keyLabel);
             if (tagChoice == null) return null;
             return new ParsedIngredient(
                     tagChoice, tagChoice,
                     requiredAmount, damageAmount, replacement,
                     ignoreDurability, potionType,
-                    null, 0);   // tags are never custom items
+                    null, 0);   // vanilla tags are never custom items
         }
 
         if (itemRef.toLowerCase(Locale.ROOT).startsWith("mmoitems:")) {
@@ -349,6 +357,65 @@ public final class IngredientResolver {
                 requiredAmount, damageAmount, replacement,
                 ignoreDurability, potionType,
                 customId, 0);
+    }
+
+    /**
+     * Builds a {@link ParsedIngredient} for an ItemsAdderAdditions custom ITEM
+     * tag reference such as {@code #mypack:gems}.
+     *
+     * <p>The registration {@link RecipeChoice} is a {@link RecipeChoice.MaterialChoice}
+     * over the base materials of every tag member, so Bukkit surfaces the recipe
+     * for any plausible slot. The strict membership check (which rejects vanilla
+     * items or custom items that merely share a base material) happens at craft
+     * time in {@code CraftingIngredientMatcher} via
+     * {@link NamespaceUtils#matchesItemIDOrTag}, gated by
+     * {@link ParsedIngredient#customTagId()}.
+     */
+    @Nullable
+    private static ParsedIngredient buildCustomTagIngredient(
+            String namespace,
+            String tagId,
+            String keyLabel,
+            String recipeId,
+            int requiredAmount,
+            int damageAmount,
+            @Nullable ItemStack replacement,
+            boolean ignoreDurability,
+            @Nullable String potionType
+    ) {
+        List<String> members = NamespaceUtils.customTagRegistry().values(tagId, CustomTagType.ITEM);
+        if (members.isEmpty()) {
+            Log.warn(LOG_TAG,
+                    "Ingredient '{}' in recipe '{}': custom tag '#{}' is empty.",
+                    keyLabel, recipeId, tagId);
+            return null;
+        }
+
+        EnumSet<Material> materials = EnumSet.noneOf(Material.class);
+        for (String member : members) {
+            ItemStack stack = NamespaceUtils.itemByID(namespace, member);
+            if (stack == null || !stack.getType().isItem()) {
+                Log.warn(LOG_TAG,
+                        "Ingredient '{}' in recipe '{}': custom tag '#{}' member '{}' could not be resolved to an item.",
+                        keyLabel, recipeId, tagId, member);
+                continue;
+            }
+            materials.add(stack.getType());
+        }
+
+        if (materials.isEmpty()) {
+            Log.warn(LOG_TAG,
+                    "Ingredient '{}' in recipe '{}': custom tag '#{}' has no resolvable item materials.",
+                    keyLabel, recipeId, tagId);
+            return null;
+        }
+
+        RecipeChoice choice = new RecipeChoice.MaterialChoice(new ArrayList<>(materials));
+        return new ParsedIngredient(
+                choice, choice,
+                requiredAmount, damageAmount, replacement,
+                ignoreDurability, potionType,
+                null, 0, tagId);
     }
 
     @Nullable

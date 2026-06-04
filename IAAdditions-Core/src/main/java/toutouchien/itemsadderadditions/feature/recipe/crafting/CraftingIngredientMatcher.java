@@ -18,6 +18,10 @@ final class CraftingIngredientMatcher {
     }
 
     static boolean matches(ParsedIngredient ingredient, ItemStack slot) {
+        if (ingredient.isCustomTag()) {
+            return matchesCustomTagIngredient(ingredient, slot);
+        }
+
         if (ingredient.isCustomItem()) {
             return matchesCustomIngredient(ingredient, slot);
         }
@@ -58,6 +62,15 @@ final class CraftingIngredientMatcher {
 
     static String itemInfo(@Nullable ItemStack item) {
         return item == null ? "null" : item.getType() + " x" + item.getAmount();
+    }
+
+    private static boolean matchesCustomTagIngredient(ParsedIngredient ingredient, ItemStack slot) {
+        String tagId = ingredient.customTagId();
+        assert tagId != null; // guarded by isCustomTag()
+
+        if (!NamespaceUtils.matchesItemIDOrTag(slot, "#" + tagId)) return false;
+
+        return ingredient.potionType() == null || matchesPotionType(ingredient, slot);
     }
 
     private static boolean matchesCustomIngredient(ParsedIngredient ingredient, ItemStack slot) {

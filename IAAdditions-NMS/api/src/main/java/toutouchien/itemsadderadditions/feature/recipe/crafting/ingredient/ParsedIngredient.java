@@ -26,6 +26,13 @@ import org.jspecify.annotations.Nullable;
  *                           ID check instead of the expensive
  *                           {@link ItemStack#isSimilar} path inside
  *                           {@link RecipeChoice.ExactChoice#test}.
+ * @param customTagId        The normalized ID (no {@code '#'}) of an
+ *                           ItemsAdderAdditions custom ITEM tag, or {@code null}
+ *                           when this ingredient is not a custom tag. When
+ *                           non-null, validation matches the slot against tag
+ *                           membership at craft time instead of the registration
+ *                           {@link RecipeChoice}, so only items actually in the
+ *                           tag are accepted.
  */
 @NullMarked
 public record ParsedIngredient(
@@ -37,7 +44,8 @@ public record ParsedIngredient(
         boolean ignoreDurability,
         @Nullable String potionType,
         @Nullable String customNamespacedId,
-        int customNamespacedIdHash        // 0 when customNamespacedId is null
+        int customNamespacedIdHash,       // 0 when customNamespacedId is null
+        @Nullable String customTagId
 ) {
     /**
      * Compact constructor - derives {@link #customNamespacedIdHash} from
@@ -52,6 +60,24 @@ public record ParsedIngredient(
     }
 
     /**
+     * Back-compat constructor for ingredients that are not custom tags.
+     */
+    public ParsedIngredient(
+            RecipeChoice choice,
+            RecipeChoice validationChoice,
+            int requiredAmount,
+            int damageAmount,
+            @Nullable ItemStack replacement,
+            boolean ignoreDurability,
+            @Nullable String potionType,
+            @Nullable String customNamespacedId,
+            int customNamespacedIdHash
+    ) {
+        this(choice, validationChoice, requiredAmount, damageAmount, replacement,
+                ignoreDurability, potionType, customNamespacedId, customNamespacedIdHash, null);
+    }
+
+    /**
      * Convenience constructor for vanilla ingredients (no custom-item fields).
      */
     public ParsedIngredient(
@@ -61,7 +87,7 @@ public record ParsedIngredient(
             @Nullable ItemStack replacement
     ) {
         this(choice, choice, requiredAmount, damageAmount, replacement,
-                false, null, null, 0);
+                false, null, null, 0, null);
     }
 
     /**
@@ -71,8 +97,17 @@ public record ParsedIngredient(
         return customNamespacedId != null;
     }
 
+    /**
+     * Returns {@code true} when this ingredient is an ItemsAdderAdditions custom
+     * ITEM tag.
+     */
+    public boolean isCustomTag() {
+        return customTagId != null;
+    }
+
     public boolean hasPredicate() {
         return isCustomItem()       // custom items always need listener-level identity check
+                || isCustomTag()    // custom tags need listener-level membership check
                 || requiredAmount > 1
                 || damageAmount > 0
                 || replacement != null
