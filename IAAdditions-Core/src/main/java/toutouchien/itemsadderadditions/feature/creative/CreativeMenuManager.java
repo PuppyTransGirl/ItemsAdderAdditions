@@ -2,16 +2,11 @@ package toutouchien.itemsadderadditions.feature.creative;
 
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
+import toutouchien.itemsadderadditions.common.resourcepack.ResourcePackFiles;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Populates the vanilla creative Decorations tab with ItemsAdder items.
@@ -22,15 +17,11 @@ import java.util.List;
  */
 @NullMarked
 public final class CreativeMenuManager {
-    private static final String IA_MERGE_PATH = "ItemsAdderAdditions/resourcepack";
-    private static final String MERGE_SETTING_ITEMSADDER =
-            "resource-pack.zip.merge_other_plugins_resourcepacks_folders";
-
     private final CreativePaintingModelWriter paintingModelWriter = new CreativePaintingModelWriter();
 
     public void setup() {
-        configureItemsAdder();
-        CreativeResourcePackFiles.writeBlankPaintingTexture();
+        ResourcePackFiles.ensureItemsAdderMergeFolder("CreativeMenu");
+        ResourcePackFiles.writeTransparentPixelPng("assets/iaadditions/textures/painting/placeholder.png", "CreativeMenu");
     }
 
     public void reload() {
@@ -47,39 +38,4 @@ public final class CreativeMenuManager {
         );
     }
 
-    private void configureItemsAdder() {
-        File iaConfig = new File(
-                ItemsAdderAdditions.instance().getDataFolder().getParentFile(),
-                "ItemsAdder/config.yml"
-        );
-
-        if (!iaConfig.exists()) {
-            Log.warn(
-                    "CreativeMenu",
-                    "Could not locate ItemsAdder/config.yml - add '{}' to "
-                            + "merge_other_plugins_resourcepacks_folders manually",
-                    IA_MERGE_PATH
-            );
-            return;
-        }
-
-        FileConfiguration config = YamlConfiguration.loadConfiguration(iaConfig);
-        List<String> mergeFolders = config.getStringList(MERGE_SETTING_ITEMSADDER);
-
-        if (mergeFolders.contains(IA_MERGE_PATH)) return;
-
-        mergeFolders.add(IA_MERGE_PATH);
-        config.set(MERGE_SETTING_ITEMSADDER, mergeFolders);
-
-        try {
-            config.save(iaConfig);
-            Log.success(
-                    "CreativeMenu",
-                    "Registered '{}' in ItemsAdder's merge list.",
-                    IA_MERGE_PATH
-            );
-        } catch (IOException e) {
-            Log.error("CreativeMenu", "Failed to save ItemsAdder/config.yml", e);
-        }
-    }
 }

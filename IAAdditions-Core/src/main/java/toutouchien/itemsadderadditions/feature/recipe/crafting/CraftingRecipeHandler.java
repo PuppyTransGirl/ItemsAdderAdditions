@@ -7,6 +7,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeActions;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeActionsParser;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.IngredientResolver;
@@ -23,6 +24,7 @@ public final class CraftingRecipeHandler {
     private static final String LOG_TAG = "CraftingRecipe";
 
     private final INmsCraftingRecipeHandler nms;
+    private final @Nullable ComponentsManager componentsManager;
     private final List<CraftingRecipeData> predicateRecipes = new ArrayList<>();
     /**
      * O(1) lookup used by {@code CraftingRecipeListener.matchRecipe()}.
@@ -38,7 +40,12 @@ public final class CraftingRecipeHandler {
     private int loadedCount = 0;
 
     public CraftingRecipeHandler(INmsCraftingRecipeHandler nms) {
+        this(nms, null);
+    }
+
+    public CraftingRecipeHandler(INmsCraftingRecipeHandler nms, @Nullable ComponentsManager componentsManager) {
         this.nms = nms;
+        this.componentsManager = componentsManager;
     }
 
     /**
@@ -149,10 +156,13 @@ public final class CraftingRecipeHandler {
     }
 
     @Nullable
-    private static ItemStack parseResult(
+    private ItemStack parseResult(
             String namespace, String recipeId, ConfigurationSection resultSec
     ) {
-        String itemRef = resultSec.getString("item");
+        ConfigurationSection actualResultSec = unwrapResultSection(namespace, recipeId, resultSec);
+        if (actualResultSec == null) return null;
+
+        String itemRef = actualResultSec.getString("item");
         if (itemRef == null) {
             Log.warn(LOG_TAG,
                     "Missing 'result.item' for {}:{}", namespace, recipeId);
@@ -167,13 +177,65 @@ public final class CraftingRecipeHandler {
             return null;
         }
 
-        int amount = resultSec.getInt("amount", 1);
-        if (amount != 1) {
-            item = item.clone();
-            item.setAmount(amount);
+        item = item.clone();
+        item = applyResultComponents(namespace, recipeId, item, actualResultSec);
+        item.setAmount(actualResultSec.getInt("amount", 1));
+        return item;
+    }
+
+    @Nullable
+    private static ConfigurationSection unwrapResultSection(
+            String namespace, String recipeId, ConfigurationSection resultSec
+    ) {
+        if (resultSec.isString("item")) return resultSec;
+
+        ConfigurationSection nested = null;
+        for (String key : resultSec.getKeys(false)) {
+            ConfigurationSection child = resultSec.getConfigurationSection(key);
+            if (child == null || !child.isString("item")) continue;
+            if (nested != null) {
+                Log.warn(LOG_TAG,
+                        "Result for {}:{} has multiple nested item sections; expected exactly one.",
+                        namespace, recipeId);
+                return null;
+            }
+            nested = child;
         }
 
-        return item;
+        if (nested != null) return nested;
+
+        Log.warn(LOG_TAG, "Missing 'result.item' for {}:{}", namespace, recipeId);
+        return null;
+    }
+
+    private ItemStack applyResultComponents(
+            String namespace,
+            String recipeId,
+            ItemStack item,
+            ConfigurationSection resultSec
+    ) {
+        if (!resultSec.contains("components")) return item;
+
+        ConfigurationSection componentsSection = resultSec.getConfigurationSection("components");
+        if (componentsSection == null) {
+            Log.warn(LOG_TAG,
+                    "'result.components' for {}:{} must be a section/map - skipping components.",
+                    namespace, recipeId);
+            return item;
+        }
+
+        if (componentsManager == null) {
+            Log.warn(LOG_TAG,
+                    "'result.components' for {}:{} cannot be applied because the component system is unavailable.",
+                    namespace, recipeId);
+            return item;
+        }
+
+        return componentsManager.applyComponentsToStack(
+                item,
+                componentsSection,
+                namespace + ":" + recipeId + " result"
+        );
     }
 
     public List<CraftingRecipeData> predicateRecipes() {

@@ -18,6 +18,7 @@ import toutouchien.itemsadderadditions.feature.behaviour.BehavioursManager;
 import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeMenuManager;
 import toutouchien.itemsadderadditions.feature.creative.CreativeRegistryReloader;
+import toutouchien.itemsadderadditions.feature.itemmodel.ItemModelDefinitionManager;
 import toutouchien.itemsadderadditions.feature.painting.CustomPaintingManager;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeManager;
 import toutouchien.itemsadderadditions.feature.update.UpdateChecker;
@@ -60,6 +61,7 @@ public final class PluginRuntime {
     private BehavioursManager behavioursManager;
     private ComponentsManager componentsManager;
     private ValhallaManager valhallaManager;
+    private ItemModelDefinitionManager itemModelDefinitionManager;
     private CustomPaintingManager customPaintingManager;
     private RecipeManager recipeManager;
     private AdvancementManager advancementManager;
@@ -137,12 +139,15 @@ public final class PluginRuntime {
         this.behavioursManager = new BehavioursManager(settings);
         this.componentsManager = new ComponentsManager(settings);
         this.valhallaManager = new ValhallaManager();
+        this.itemModelDefinitionManager = new ItemModelDefinitionManager(settings);
+        this.itemModelDefinitionManager.setup();
         this.customPaintingManager = new CustomPaintingManager(plugin);
-        this.recipeManager = new RecipeManager(plugin);
+        this.recipeManager = new RecipeManager(plugin, componentsManager);
         this.advancementManager = new AdvancementManager(plugin);
 
         this.itemModifierPipeline = new ItemModifierPipeline(plugin);
         itemModifierPipeline.addContributor(componentsManager::applyComponents);
+        itemModifierPipeline.addContributor(itemModelDefinitionManager::applyItemModelDefinitionComponents);
         itemModifierPipeline.addContributor(valhallaManager::applyValhalla);
         itemModifierPipeline.register();
 
@@ -152,6 +157,7 @@ public final class PluginRuntime {
                 actionsManager,
                 behavioursManager,
                 componentsManager,
+                itemModelDefinitionManager,
                 valhallaManager,
                 customPaintingManager,
                 recipeManager,
@@ -234,6 +240,7 @@ public final class PluginRuntime {
         actionsManager().applySettings(settings());
         behavioursManager().applySettings(settings());
         componentsManager().applySettings(settings());
+        itemModelDefinitionManager.applySettings(settings());
     }
 
     private void startMetrics() {

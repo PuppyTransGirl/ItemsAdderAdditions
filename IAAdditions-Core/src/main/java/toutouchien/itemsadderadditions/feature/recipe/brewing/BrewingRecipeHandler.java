@@ -9,6 +9,7 @@ import org.bukkit.inventory.RecipeChoice;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.recipe.AbstractRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeActions;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeActionsParser;
@@ -41,12 +42,19 @@ public final class BrewingRecipeHandler extends AbstractRecipeHandler {
     private final BrewingMixRegistry mixRegistry;
 
     public BrewingRecipeHandler() {
-        super("BrewingRecipe");
-        this.mixRegistry = BUKKIT_MIX_REGISTRY;
+        this(null, BUKKIT_MIX_REGISTRY);
     }
 
     public BrewingRecipeHandler(BrewingMixRegistry mixRegistry) {
-        super("BrewingRecipe");
+        this(null, mixRegistry);
+    }
+
+    public BrewingRecipeHandler(@Nullable ComponentsManager componentsManager) {
+        this(componentsManager, BUKKIT_MIX_REGISTRY);
+    }
+
+    public BrewingRecipeHandler(@Nullable ComponentsManager componentsManager, BrewingMixRegistry mixRegistry) {
+        super("BrewingRecipe", componentsManager);
         this.mixRegistry = mixRegistry;
     }
 

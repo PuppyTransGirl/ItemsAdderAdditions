@@ -6,6 +6,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 
 /**
  * Shared helpers and loading loop for all simple (non-crafting) recipe handlers.
@@ -27,6 +28,7 @@ public abstract class AbstractRecipeHandler {
      * Used in log messages to identify this handler type (e.g. {@code "CampfireRecipe"}).
      */
     protected final String logTag;
+    private final @Nullable ComponentsManager componentsManager;
 
     /**
      * Total recipes successfully registered across all {@link #load} calls since the last {@link #resetCount()}.
@@ -34,7 +36,12 @@ public abstract class AbstractRecipeHandler {
     private int loadedCount = 0;
 
     protected AbstractRecipeHandler(String logTag) {
+        this(logTag, null);
+    }
+
+    protected AbstractRecipeHandler(String logTag, @Nullable ComponentsManager componentsManager) {
         this.logTag = logTag;
+        this.componentsManager = componentsManager;
     }
 
     /**
@@ -160,7 +167,8 @@ public abstract class AbstractRecipeHandler {
     }
 
     /**
-     * Resolves the {@code result} sub-section: resolves the item, then applies {@code amount}.
+     * Resolves the {@code result} sub-section: resolves the item, applies optional
+     * {@code components:} via the normal component system, then applies {@code amount}.
      */
     @Nullable
     protected final ItemStack resolveResult(
@@ -168,11 +176,72 @@ public abstract class AbstractRecipeHandler {
             String recipeId,
             ConfigurationSection resultSection
     ) {
-        ItemStack item = resolveItem(namespace, recipeId, "result", resultSection.getString("item"));
+        ConfigurationSection actualResultSection = unwrapResultSection(namespace, recipeId, resultSection);
+        if (actualResultSection == null) return null;
+
+        ItemStack item = resolveItem(namespace, recipeId, "result", actualResultSection.getString("item"));
         if (item == null) return null;
 
-        item.setAmount(resultSection.getInt("amount", 1));
+        item = applyResultComponents(namespace, recipeId, item, actualResultSection);
+        item.setAmount(actualResultSection.getInt("amount", 1));
         return item;
+    }
+
+    @Nullable
+    protected final ConfigurationSection unwrapResultSection(
+            String namespace,
+            String recipeId,
+            ConfigurationSection resultSection
+    ) {
+        if (resultSection.isString("item")) return resultSection;
+
+        ConfigurationSection nested = null;
+        for (String key : resultSection.getKeys(false)) {
+            ConfigurationSection child = resultSection.getConfigurationSection(key);
+            if (child == null || !child.isString("item")) continue;
+            if (nested != null) {
+                Log.warn(logTag,
+                        "Result for {}:{} has multiple nested item sections; expected exactly one.",
+                        namespace, recipeId);
+                return null;
+            }
+            nested = child;
+        }
+
+        if (nested != null) return nested;
+
+        Log.warn(logTag, "Missing 'result.item' for {}:{}", namespace, recipeId);
+        return null;
+    }
+
+    protected final ItemStack applyResultComponents(
+            String namespace,
+            String recipeId,
+            ItemStack item,
+            ConfigurationSection resultSection
+    ) {
+        if (!resultSection.contains("components")) return item;
+
+        ConfigurationSection componentsSection = resultSection.getConfigurationSection("components");
+        if (componentsSection == null) {
+            Log.warn(logTag,
+                    "'result.components' for {}:{} must be a section/map - skipping components.",
+                    namespace, recipeId);
+            return item;
+        }
+
+        if (componentsManager == null) {
+            Log.warn(logTag,
+                    "'result.components' for {}:{} cannot be applied because the component system is unavailable.",
+                    namespace, recipeId);
+            return item;
+        }
+
+        return componentsManager.applyComponentsToStack(
+                item,
+                componentsSection,
+                namespace + ":" + recipeId + " result"
+        );
     }
 
     /**

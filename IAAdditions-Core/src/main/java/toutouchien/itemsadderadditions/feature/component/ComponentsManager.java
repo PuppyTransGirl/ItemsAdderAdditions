@@ -5,6 +5,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.registry.ExecutorRegistry;
 import toutouchien.itemsadderadditions.feature.component.binding.GenericComponentBinding;
@@ -129,9 +130,14 @@ public final class ComponentsManager implements ReloadableContentSystem {
                     continue;
                 }
 
-                ComponentExecutor instance = prototype.newInstance();
-                if (instance.configure(section.get(key), namespacedId)) {
-                    specialized.add(instance);
+                try {
+                    ComponentExecutor instance = prototype.newInstance();
+                    if (instance.configure(section.get(key), namespacedId)) {
+                        specialized.add(instance);
+                    }
+                } catch (RuntimeException e) {
+                    Log.itemWarn(NAME, namespacedId,
+                            "Component '{}' failed to configure: {}", key, e.getMessage());
                 }
                 continue;
             }
@@ -143,24 +149,66 @@ public final class ComponentsManager implements ReloadableContentSystem {
                 continue;
             }
 
-            ComponentValue value = ComponentTreeParser.parse(section.get(key));
-            generic.add(new GenericComponentBinding(normalized, value));
+            try {
+                ComponentValue value = ComponentTreeParser.parse(section.get(key));
+                generic.add(new GenericComponentBinding(normalized, value));
+            } catch (RuntimeException e) {
+                Log.itemWarn(NAME, namespacedId,
+                        "Generic component '{}' failed to parse: {}", key, e.getMessage());
+            }
         }
     }
 
     public ItemStack applyComponents(String namespacedID, ItemStack itemStack) {
-        List<ComponentExecutor> executors = specializedBindings.get(namespacedID);
+        return applyBindings(
+                itemStack,
+                namespacedID,
+                specializedBindings.get(namespacedID),
+                genericBindings.get(namespacedID)
+        );
+    }
+
+    /**
+     * Applies a raw {@code components:} config section to an arbitrary stack using
+     * the same specialized + generic component pipeline as normal item definitions.
+     *
+     * @param itemStack          stack to clone and modify
+     * @param componentsSection  raw YAML {@code components:} section
+     * @param context            label used in warnings (item id, recipe id, etc.)
+     * @return cloned stack with all successfully-applied components
+     */
+    public ItemStack applyComponentsToStack(
+            ItemStack itemStack,
+            ConfigurationSection componentsSection,
+            String context
+    ) {
+        List<ComponentExecutor> specialized = new ArrayList<>();
+        List<GenericComponentBinding> generic = new ArrayList<>();
+        loadItemComponents(componentsSection, context, specialized, generic);
+        return applyBindings(itemStack.clone(), context, specialized, generic);
+    }
+
+    private ItemStack applyBindings(
+            ItemStack itemStack,
+            String context,
+            @Nullable List<ComponentExecutor> executors,
+            @Nullable List<GenericComponentBinding> generics
+    ) {
         if (executors != null) {
             for (ComponentExecutor executor : executors) {
-                itemStack = executor.apply(itemStack, namespacedID);
+                try {
+                    itemStack = executor.apply(itemStack, context);
+                } catch (RuntimeException e) {
+                    Log.itemWarn(NAME, context,
+                            "Component '{}' failed to apply: {}", executor.key(), e.getMessage());
+                }
             }
         }
 
-        List<GenericComponentBinding> generics = genericBindings.get(namespacedID);
         if (generics != null) {
             INmsItemComponentHandler handler = NmsManager.instance().handler().itemComponents();
             for (GenericComponentBinding binding : generics) {
-                itemStack = binding.apply(itemStack, namespacedID, handler);
+                itemStack = binding.apply(itemStack, context, handler);
             }
         }
 

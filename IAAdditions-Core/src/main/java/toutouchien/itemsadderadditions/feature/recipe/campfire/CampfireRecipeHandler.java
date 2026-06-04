@@ -3,6 +3,8 @@ package toutouchien.itemsadderadditions.feature.recipe.campfire;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.recipe.AbstractRecipeHandler;
 import toutouchien.itemsadderadditions.nms.api.NmsManager;
 
@@ -27,7 +29,11 @@ import toutouchien.itemsadderadditions.nms.api.NmsManager;
 @NullMarked
 public final class CampfireRecipeHandler extends AbstractRecipeHandler {
     public CampfireRecipeHandler() {
-        super("CampfireRecipe");
+        this(null);
+    }
+
+    public CampfireRecipeHandler(@Nullable ComponentsManager componentsManager) {
+        super("CampfireRecipe", componentsManager);
     }
 
     @Override

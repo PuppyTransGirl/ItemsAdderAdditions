@@ -4,6 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.recipe.AbstractRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeActions;
 import toutouchien.itemsadderadditions.feature.recipe.RecipeActionsParser;
@@ -41,7 +42,11 @@ public final class StonecutterRecipeHandler extends AbstractRecipeHandler {
     private final List<StonecutterEntry> entries = new ArrayList<>();
 
     public StonecutterRecipeHandler() {
-        super("StonecutterRecipe");
+        this(null);
+    }
+
+    public StonecutterRecipeHandler(@Nullable ComponentsManager componentsManager) {
+        super("StonecutterRecipe", componentsManager);
     }
 
     @Override

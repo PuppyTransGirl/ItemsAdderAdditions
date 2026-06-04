@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.lone.itemsadder.api.CustomStack;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.resourcepack.ResourcePackFiles;
 
 import java.util.Collection;
 
@@ -13,8 +14,9 @@ final class CreativePaintingModelWriter {
         JsonObject root = new JsonObject();
         root.add("model", selectModel(items));
 
-        CreativeResourcePackFiles.writeJson(
-                CreativeResourcePackFiles.resourcePackFile("assets/minecraft/items/painting.json"),
+        ResourcePackFiles.writeJson(
+                "CreativeMenu",
+                ResourcePackFiles.resourcePackFile("assets/minecraft/items/painting.json"),
                 root
         );
         return root.getAsJsonObject("model").getAsJsonArray("cases").size();

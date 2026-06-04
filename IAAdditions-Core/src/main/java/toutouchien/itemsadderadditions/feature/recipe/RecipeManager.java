@@ -5,6 +5,7 @@ import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
 import toutouchien.itemsadderadditions.feature.recipe.brewing.BrewingRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.brewing.BrewingRecipeListener;
 import toutouchien.itemsadderadditions.feature.recipe.campfire.CampfireRecipeHandler;
@@ -22,15 +23,19 @@ import toutouchien.itemsadderadditions.runtime.reload.ReloadableContentSystem;
 public final class RecipeManager implements ReloadableContentSystem {
     private static final String LOG_TAG = "RecipeManager";
 
-    private final CampfireRecipeHandler campfireHandler = new CampfireRecipeHandler();
-    private final StonecutterRecipeHandler stonecutterHandler = new StonecutterRecipeHandler();
-    private final BrewingRecipeHandler brewingHandler = new BrewingRecipeHandler();
-    private final CraftingRecipeHandler craftingHandler =
-            new CraftingRecipeHandler(NmsManager.instance().handler().craftingRecipes());
+    private final CampfireRecipeHandler campfireHandler;
+    private final StonecutterRecipeHandler stonecutterHandler;
+    private final BrewingRecipeHandler brewingHandler;
+    private final CraftingRecipeHandler craftingHandler;
     private final BrewingRecipeListener brewingListener;
     private final RecipeLoader loader;
 
-    public RecipeManager(Plugin plugin) {
+    public RecipeManager(Plugin plugin, ComponentsManager componentsManager) {
+        this.campfireHandler = new CampfireRecipeHandler(componentsManager);
+        this.stonecutterHandler = new StonecutterRecipeHandler(componentsManager);
+        this.brewingHandler = new BrewingRecipeHandler(componentsManager);
+        this.craftingHandler = new CraftingRecipeHandler(
+                NmsManager.instance().handler().craftingRecipes(), componentsManager);
         this.brewingListener = new BrewingRecipeListener(brewingHandler);
         this.loader = new RecipeLoader(campfireHandler, stonecutterHandler, brewingHandler, craftingHandler);
         Bukkit.getPluginManager().registerEvents(new CraftingRecipeListener(craftingHandler, plugin), plugin);
