@@ -15,7 +15,7 @@ class BuiltInComponentsTest {
         List<ComponentExecutor> components = BuiltInComponents.create();
         Set<String> keys = components.stream().map(ComponentExecutor::key).collect(Collectors.toSet());
 
-        assertEquals(41, components.size());
+        assertEquals(42, components.size());
         assertEquals(Set.of(
                 "attack_range",
                 "banner_patterns",
@@ -32,6 +32,7 @@ class BuiltInComponentsTest {
                 "enchantable",
                 "firework_explosion",
                 "fireworks",
+                "glider",
                 "intangible_projectile",
                 "kinetic_weapon",
                 "lodestone_tracker",

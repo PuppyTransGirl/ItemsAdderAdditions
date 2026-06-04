@@ -30,6 +30,7 @@ final class BuiltInComponents {
                 new EnchantableComponent(),
                 new FireworkExplosionComponent(),
                 new FireworksComponent(),
+                new GliderComponent(),
                 new IntangibleProjectileComponent(),
                 new KineticWeaponComponent(),
                 new LodestoneTrackerComponent(),
