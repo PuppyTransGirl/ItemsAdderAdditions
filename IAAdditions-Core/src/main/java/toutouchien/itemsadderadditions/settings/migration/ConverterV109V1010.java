@@ -15,6 +15,14 @@ public final class ConverterV109V1010 {
     private static final Map<String, Object> DEFAULTS = Map.of(
             "features.item_model_definitions", true,
 
+            "worldguard.enabled", true,
+            "worldguard.flags.storage_open", true,
+            "worldguard.flags.contact_damage", true,
+            "worldguard.flags.stackable_place", true,
+            "worldguard.flags.bed_use", true,
+            "worldguard.flags.custom_painting_place", true,
+            "worldguard.flags.actions", true,
+
             "actions.open_trade_machine", true
     );
 
