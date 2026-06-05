@@ -14,7 +14,7 @@ import toutouchien.itemsadderadditions.feature.component.annotation.Component;
 import java.util.Locale;
 
 /**
- * <p><strong>Minimum Minecraft Version:</strong> 1.21.5
+ * <p><strong>Minimum Minecraft Version:</strong> 1.21.11
  *
  * <table>
  * <tr><th>Property</th><th>Type</th><th>Values</th></tr>
@@ -31,7 +31,7 @@ public final class SwingAnimationComponent extends ComponentExecutor {
 
     @Override
     public @Nullable VersionUtils minimumVersion() {
-        return VersionUtils.v1_21_5;
+        return VersionUtils.v1_21_11;
     }
 
     @Override
