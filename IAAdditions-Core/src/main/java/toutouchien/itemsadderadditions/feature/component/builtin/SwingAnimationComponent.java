@@ -26,7 +26,7 @@ import java.util.Locale;
 @NullMarked
 @Component(key = "swing_animation")
 public final class SwingAnimationComponent extends ComponentExecutor {
-    private SwingAnimation.Animation type = SwingAnimation.Animation.WHACK;
+    private SwingAnimation.@Nullable Animation type;
     private int duration = 6;
 
     @Override
@@ -62,8 +62,9 @@ public final class SwingAnimationComponent extends ComponentExecutor {
 
     @Override
     public ItemStack apply(ItemStack itemStack, String namespacedID) {
+        SwingAnimation.Animation animation = type != null ? type : SwingAnimation.Animation.WHACK;
         itemStack.setData(DataComponentTypes.SWING_ANIMATION,
-                SwingAnimation.swingAnimation().type(type).duration(duration).build());
+                SwingAnimation.swingAnimation().type(animation).duration(duration).build());
         return itemStack;
     }
 }
