@@ -37,7 +37,7 @@ class SwingAnimationComponentTest {
 
     @Test
     void requiresMinimumVersion() {
-        assertEquals(VersionUtils.v1_21_5, new SwingAnimationComponent().minimumVersion());
+        assertEquals(VersionUtils.v1_21_11, new SwingAnimationComponent().minimumVersion());
     }
 
     @ParameterizedTest
