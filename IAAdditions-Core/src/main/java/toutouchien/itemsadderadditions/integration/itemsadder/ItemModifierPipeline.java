@@ -22,15 +22,24 @@ public final class ItemModifierPipeline {
     private final List<ItemModifierContributor> contributors = new ArrayList<>();
     private volatile boolean active = true;
     private boolean registered;
+    private int registerAttempts;
 
     public ItemModifierPipeline(ItemsAdderAdditions plugin) {
         this.plugin = plugin;
     }
 
     public synchronized void register() {
-        if (registered) return;
-        registered = true;
-        ItemsAdder.Advanced.injectItemModifier(plugin, this::apply);
+        if (registered || !active) return;
+
+        try {
+            ItemsAdder.Advanced.injectItemModifier(plugin, this::apply);
+            registered = true;
+        } catch (RuntimeException e) {
+            if (registerAttempts++ >= 20) throw e;
+
+            plugin.getLogger().warning("ItemsAdder item modifier API is not ready yet; retrying registration shortly.");
+            plugin.getServer().getScheduler().runTaskLater(plugin, this::register, 40L);
+        }
     }
 
     public void addContributor(ItemModifierContributor contributor) {

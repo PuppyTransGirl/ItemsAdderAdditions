@@ -1,8 +1,10 @@
 package toutouchien.itemsadderadditions.feature.component;
 
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.version.VersionUtils;
 import toutouchien.itemsadderadditions.feature.component.builtin.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,32 +16,28 @@ final class BuiltInComponents {
     }
 
     static List<ComponentExecutor> create() {
-        return List.of(
-                new AttackRangeComponent(),
+        if (VersionUtils.isLowerThan(VersionUtils.v1_21_5)) {
+            return List.of();
+        }
+
+        List<ComponentExecutor> components = new ArrayList<>(List.of(
                 new BannerPatternsComponent(),
-                new BlocksAttacksComponent(),
                 new BaseColorComponent(),
                 new BundleContentsComponent(),
-                new CanBreakComponent(),
                 new CanPlaceOnComponent(),
                 new ChargedProjectilesComponent(),
                 new DamageResistantComponent(),
                 new DamageTypeComponent(),
-                new DeathProtectionComponent(),
                 new DyedColorComponent(),
                 new EnchantableComponent(),
                 new FireworkExplosionComponent(),
                 new FireworksComponent(),
-                new GliderComponent(),
                 new IntangibleProjectileComponent(),
-                new KineticWeaponComponent(),
                 new LodestoneTrackerComponent(),
                 new MapColorComponent(),
                 new MapDecorationsComponent(),
                 new MapIdComponent(),
-                new MinimumAttackChargeComponent(),
                 new OminousBottleAmplifierComponent(),
-                new PiercingWeaponComponent(),
                 new PotDecorationsComponent(),
                 new PotionContentsComponent(),
                 new PotionDurationScaleComponent(),
@@ -47,16 +45,35 @@ final class BuiltInComponents {
                 new ProvidesBannerPatternsComponent(),
                 new ProvidesTrimMaterialComponent(),
                 new RarityComponent(),
-                new RepairableComponent(),
                 new StoredEnchantmentsComponent(),
                 new SuspiciousStewEffectsComponent(),
-                new SwingAnimationComponent(),
-                new ToolComponent(),
                 new TooltipDisplayComponent(),
                 new UseCooldownComponent(),
                 new UseRemainderComponent(),
-                new WeaponComponent(),
                 new WritableBookContentComponent()
-        );
+        ));
+
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_1)) {
+            components.add(new MinimumAttackChargeComponent());
+        }
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_3)) {
+            components.add(new GliderComponent());
+        }
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_5)) {
+            components.add(new BlocksAttacksComponent());
+            components.add(new CanBreakComponent());
+            components.add(new DeathProtectionComponent());
+            components.add(new KineticWeaponComponent());
+            components.add(new PiercingWeaponComponent());
+            components.add(new RepairableComponent());
+            components.add(new ToolComponent());
+            components.add(new WeaponComponent());
+        }
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_11)) {
+            components.add(new AttackRangeComponent());
+            components.add(new SwingAnimationComponent());
+        }
+
+        return List.copyOf(components);
     }
 }

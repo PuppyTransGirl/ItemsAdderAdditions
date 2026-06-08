@@ -51,6 +51,7 @@ public final class PatchManager {
             new AddEnchantmentPatch_IA_4_0_17(),
             new CooldownCapturePatch_IA_4_0_17(),
             new CraftingRecipeBypassPatch_IA_4_0_17(),
+            new ResourcePackPacketListenerPatch_IA_4_0_17(),
             new StatRequirementsCapturePatch_IA_4_0_17(),
             new StonecutterSelectiveBypassPatch_IA_4_0_17()
     );

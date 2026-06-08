@@ -14,8 +14,8 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.common.version.VersionUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionDispatcher;
 import toutouchien.itemsadderadditions.feature.action.TriggerType;
@@ -39,8 +39,7 @@ public final class ItemUseProjectileActionListener implements Listener {
         String itemId = NamespaceUtils.itemID(item);
         if (itemId == null) return;
 
-        Consumable consumable = item.getData(DataComponentTypes.CONSUMABLE);
-        TriggerType type = isDrink(item, consumable)
+        TriggerType type = isDrink(item)
                 ? TriggerType.ITEM_DRINK
                 : TriggerType.ITEM_EAT;
 
@@ -53,9 +52,12 @@ public final class ItemUseProjectileActionListener implements Listener {
         );
     }
 
-    private static boolean isDrink(ItemStack item, @Nullable Consumable consumable) {
-        if (consumable != null) {
-            return consumable.animation() == ItemUseAnimation.DRINK;
+    private static boolean isDrink(ItemStack item) {
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v1_21_5)) {
+            Consumable consumable = item.getData(DataComponentTypes.CONSUMABLE);
+            if (consumable != null) {
+                return consumable.animation() == ItemUseAnimation.DRINK;
+            }
         }
 
         Material type = item.getType();

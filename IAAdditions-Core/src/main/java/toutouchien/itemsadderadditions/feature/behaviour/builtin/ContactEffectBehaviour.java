@@ -1,7 +1,6 @@
 package toutouchien.itemsadderadditions.feature.behaviour.builtin;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -58,7 +57,7 @@ import java.util.concurrent.TimeUnit;
 public final class ContactEffectBehaviour extends BehaviourExecutor implements Listener {
     private static final String SUBSYSTEM = "Behaviours";
     private static final DamageSource HEAL_DAMAGE_SOURCE = DamageSource.builder(DamageType.CACTUS).build();
-    private static final @Nullable Attribute MAX_HEALTH = Registry.ATTRIBUTE.get(Key.key("minecraft:max_health"));
+    private static final @Nullable Attribute MAX_HEALTH = Registry.ATTRIBUTE.get(NamespacedKey.minecraft("max_health"));
 
     private final EnumSet<BlockFace> activeFaces = EnumSet.noneOf(BlockFace.class);
     private final List<TimedPotion> potions = new ArrayList<>();
@@ -337,7 +336,8 @@ public final class ContactEffectBehaviour extends BehaviourExecutor implements L
         String key = name.trim().toLowerCase(Locale.ROOT);
         if (!key.contains(":")) key = "minecraft:" + key;
 
-        DamageType type = Registry.DAMAGE_TYPE.get(Key.key(key));
+        NamespacedKey damageTypeKey = NamespacedKey.fromString(key);
+        DamageType type = damageTypeKey == null ? null : Registry.DAMAGE_TYPE.get(damageTypeKey);
         if (type == null) {
             Log.itemWarn(SUBSYSTEM, itemId,
                     "'contact_effect.damage.cause' value '{}' is not a known damage type - using cactus", name);
@@ -356,7 +356,7 @@ public final class ContactEffectBehaviour extends BehaviourExecutor implements L
             }
 
             String type = typeObj.toString().trim().toLowerCase(Locale.ROOT);
-            PotionEffectType effectType = Registry.POTION_EFFECT_TYPE.get(Key.key("minecraft", type));
+            PotionEffectType effectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(type));
             if (effectType == null) {
                 Log.itemWarn(SUBSYSTEM, itemId, "'contact_effect' potion effect type '{}' is unknown - skipping", typeObj);
                 continue;
@@ -425,7 +425,8 @@ public final class ContactEffectBehaviour extends BehaviourExecutor implements L
         else if (norm.startsWith("zombie_")) norm = norm.substring("zombie_".length());
 
         if (!norm.contains(":")) norm = "minecraft:" + norm;
-        return Registry.ATTRIBUTE.get(Key.key(norm));
+        NamespacedKey key = NamespacedKey.fromString(norm);
+        return key == null ? null : Registry.ATTRIBUTE.get(key);
     }
 
     private @Nullable Location contactLocation(Player player) {

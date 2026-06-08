@@ -245,6 +245,14 @@ The documentation contains:
 
 Contributions are welcome !
 
+### Full server test
+
+`./gradlew fullTest` boots every enabled supported Paper version one at a time with the freshly built shadow JAR.
+It is intentionally slow and is not wired into `test`, `check`, or `build`. Drop local dependency jars such as
+ItemsAdder and ProtocolLib in `test-servers/test-plugins/` before running it. fullTest runs every server with
+Java 25 and sets `Paper.IgnoreJavaVersion=true`. Name ProtocolLib jars with `legacy` / `modern`; fullTest uses
+legacy through Paper 1.21.8 and modern after that.
+
 If you would like to improve the project, feel free to:
 
 - Submit a pull request

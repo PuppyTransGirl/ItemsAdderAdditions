@@ -25,8 +25,8 @@ public final class ActionsListener {
                 new BlockActionListener(dispatcher),
                 new ItemInteractionActionListener(dispatcher),
                 new ItemCombatInventoryActionListener(dispatcher),
-                new ItemUseProjectileActionListener(dispatcher),
-                new MiscItemActionListener(dispatcher)
+                new MiscItemActionListener(dispatcher),
+                new ItemUseProjectileActionListener(dispatcher)
         );
     }
 }

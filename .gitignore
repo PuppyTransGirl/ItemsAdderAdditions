@@ -127,6 +127,7 @@ gradle-app.setting
 
 # run-paper
 run/**
+test-servers/
 
 # docs
 node_modules/
