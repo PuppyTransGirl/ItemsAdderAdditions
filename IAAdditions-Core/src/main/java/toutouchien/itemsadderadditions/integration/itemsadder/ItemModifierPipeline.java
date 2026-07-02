@@ -36,8 +36,9 @@ public final class ItemModifierPipeline {
             registered = true;
         } catch (RuntimeException e) {
             if (registerAttempts++ >= 20) throw e;
-
-            plugin.getLogger().warning("ItemsAdder item modifier API is not ready yet; retrying registration shortly.");
+            if (registerAttempts == 1) {
+                plugin.getLogger().warning("ItemsAdder item modifier API is not ready yet; retrying registration shortly.");
+            }
             plugin.getServer().getScheduler().runTaskLater(plugin, this::register, 40L);
         }
     }
