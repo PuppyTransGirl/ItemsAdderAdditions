@@ -19,7 +19,7 @@ import java.lang.invoke.MethodType;
 import java.time.Instant;
 import java.util.*;
 
-public final class NmsToastHandler_v26_1_2 implements INmsToastHandler {
+public final class NmsToastHandler_v26_2 implements INmsToastHandler {
     private static final Identifier TOAST_ID = Identifier.fromNamespaceAndPath("iaadditions", "toast_notification");
     private static final AdvancementRequirements REQUIREMENTS = new AdvancementRequirements(List.of(List.of("trigger")));
     private static final MethodHandle ADVANCEMENT_PROGRESS_CTOR;
@@ -102,3 +102,4 @@ public final class NmsToastHandler_v26_1_2 implements INmsToastHandler {
         ));
     }
 }
+

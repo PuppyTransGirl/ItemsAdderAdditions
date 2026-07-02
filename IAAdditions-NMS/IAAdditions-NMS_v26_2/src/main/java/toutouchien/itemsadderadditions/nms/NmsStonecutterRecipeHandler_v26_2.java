@@ -14,7 +14,7 @@ import toutouchien.itemsadderadditions.nms.api.INmsStonecutterRecipeHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-final class NmsStonecutterRecipeHandler_v26_1_2 implements INmsStonecutterRecipeHandler {
+final class NmsStonecutterRecipeHandler_v26_2 implements INmsStonecutterRecipeHandler {
     private static final String LOG_TAG = "StonecutterRecipe";
 
     private final List<ResourceKey<Recipe<?>>> registeredKeys = new ArrayList<>();
@@ -59,3 +59,4 @@ final class NmsStonecutterRecipeHandler_v26_1_2 implements INmsStonecutterRecipe
         // INmsHandler#finalizeRecipes() once after all handlers are done.
     }
 }
+

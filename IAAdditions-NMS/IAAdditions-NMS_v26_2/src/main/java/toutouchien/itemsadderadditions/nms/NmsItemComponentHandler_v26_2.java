@@ -16,7 +16,7 @@ import toutouchien.itemsadderadditions.nms.api.component.GenericComponentResult;
 import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandler;
 
 @NullMarked
-final class NmsItemComponentHandler_v26_1_2 implements INmsItemComponentHandler {
+final class NmsItemComponentHandler_v26_2 implements INmsItemComponentHandler {
     @Override
     public boolean isSupported() {
         return true;
@@ -86,3 +86,4 @@ final class NmsItemComponentHandler_v26_1_2 implements INmsItemComponentHandler 
         };
     }
 }
+

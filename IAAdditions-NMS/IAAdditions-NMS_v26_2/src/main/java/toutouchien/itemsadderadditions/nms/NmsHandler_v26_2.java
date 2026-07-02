@@ -6,18 +6,18 @@ import toutouchien.itemsadderadditions.nms.api.*;
 import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandler;
 
 @NullMarked
-public final class NmsHandler_v26_1_2 implements INmsHandler {
-    private final NmsBedHandler_v26_1_2 bed = new NmsBedHandler_v26_1_2();
-    private final NmsBiomeHandler_v26_1_2 biome = new NmsBiomeHandler_v26_1_2();
-    private final NmsCampfireRecipeHandler_v26_1_2 campfireRecipes = new NmsCampfireRecipeHandler_v26_1_2();
-    private final NmsCraftingRecipeHandler_v26_1_2 craftingRecipes = new NmsCraftingRecipeHandler_v26_1_2();
-    private final NmsCreativeMenuHandler_v26_1_2 creativeMenu = new NmsCreativeMenuHandler_v26_1_2();
-    private final NmsPaintingHandler_v26_1_2 paintings = new NmsPaintingHandler_v26_1_2();
-    private final NmsStonecutterRecipeHandler_v26_1_2 stonecutterRecipes = new NmsStonecutterRecipeHandler_v26_1_2();
-    private final NmsToastHandler_v26_1_2 toasts = new NmsToastHandler_v26_1_2();
-    private final NmsTextDisplayHandler_v26_1_2 textDisplays = new NmsTextDisplayHandler_v26_1_2();
-    private final NmsAdvancementHandler_v26_1_2 advancements = new NmsAdvancementHandler_v26_1_2();
-    private final NmsItemComponentHandler_v26_1_2 itemComponents = new NmsItemComponentHandler_v26_1_2();
+public final class NmsHandler_v26_2 implements INmsHandler {
+    private final NmsBedHandler_v26_2 bed = new NmsBedHandler_v26_2();
+    private final NmsBiomeHandler_v26_2 biome = new NmsBiomeHandler_v26_2();
+    private final NmsCampfireRecipeHandler_v26_2 campfireRecipes = new NmsCampfireRecipeHandler_v26_2();
+    private final NmsCraftingRecipeHandler_v26_2 craftingRecipes = new NmsCraftingRecipeHandler_v26_2();
+    private final NmsCreativeMenuHandler_v26_2 creativeMenu = new NmsCreativeMenuHandler_v26_2();
+    private final NmsPaintingHandler_v26_2 paintings = new NmsPaintingHandler_v26_2();
+    private final NmsStonecutterRecipeHandler_v26_2 stonecutterRecipes = new NmsStonecutterRecipeHandler_v26_2();
+    private final NmsToastHandler_v26_2 toasts = new NmsToastHandler_v26_2();
+    private final NmsTextDisplayHandler_v26_2 textDisplays = new NmsTextDisplayHandler_v26_2();
+    private final NmsAdvancementHandler_v26_2 advancements = new NmsAdvancementHandler_v26_2();
+    private final NmsItemComponentHandler_v26_2 itemComponents = new NmsItemComponentHandler_v26_2();
 
     @Override
     public INmsBedHandler bed() {
@@ -81,3 +81,4 @@ public final class NmsHandler_v26_1_2 implements INmsHandler {
         MinecraftServer.getServer().getRecipeManager().finalizeRecipeLoading();
     }
 }
+

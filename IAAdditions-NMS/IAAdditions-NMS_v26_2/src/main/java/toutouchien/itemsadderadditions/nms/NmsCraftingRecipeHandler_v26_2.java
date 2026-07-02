@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @NullMarked
-final class NmsCraftingRecipeHandler_v26_1_2 implements INmsCraftingRecipeHandler {
+final class NmsCraftingRecipeHandler_v26_2 implements INmsCraftingRecipeHandler {
     private static final String LOG_TAG = "CraftingRecipe";
 
     private final List<ResourceKey<Recipe<?>>> registeredKeys = new ArrayList<>();
@@ -145,3 +145,4 @@ final class NmsCraftingRecipeHandler_v26_1_2 implements INmsCraftingRecipeHandle
         // INmsHandler#finalizeRecipes() once after all handlers are done.
     }
 }
+

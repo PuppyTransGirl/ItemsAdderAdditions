@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 @NullMarked
-public final class PacketListener_v26_1_2 {
+public final class PacketListener_v26_2 {
     /**
      * Atomic reference to an immutable snapshot of the painting-variant-ID →
      * CustomStack mapping. Swapped in a single write on each reload so Netty I/O
@@ -39,14 +39,14 @@ public final class PacketListener_v26_1_2 {
 
     /**
      * Parallel map of painting-variant-ID → precomputed NMS item integer ID.
-     * Populated during {@link #updateCache} so that {@link BytePacketListener_v26_1_2}
+     * Populated during {@link #updateCache} so that {@link BytePacketListener_v26_2}
      * never calls {@code CraftItemStack.asNMSCopy} or {@code Registry.getId}
      * on Netty I/O threads.
      */
     static final AtomicReference<Map<Integer, Integer>> PRECOMPUTED_ITEM_IDS =
             new AtomicReference<>(Map.of());
 
-    private PacketListener_v26_1_2() {
+    private PacketListener_v26_2() {
         throw new IllegalStateException("Static class");
     }
 
@@ -54,9 +54,9 @@ public final class PacketListener_v26_1_2 {
      * Registers the {@link ChannelDupeHandler} on every future player connection.
      * Must be called from {@code onEnable} before any player connects.
      *
-     * <p>Must be called <em>before</em> {@link toutouchien.itemsadderadditions.nms.creative.BytePacketListener_v26_1_2#inject(Plugin)} so that
+     * <p>Must be called <em>before</em> {@link toutouchien.itemsadderadditions.nms.creative.BytePacketListener_v26_2#inject(Plugin)} so that
      * {@code "iaadditions_packet_listener"} already exists in the pipeline
-     * when {@code BytePacketListener_v26_1_2} looks it up.
+     * when {@code BytePacketListener_v26_2} looks it up.
      */
     public static void inject() {
         ChannelInitializeListenerHolder.addListener(
@@ -127,3 +127,4 @@ public final class PacketListener_v26_1_2 {
         }
     }
 }
+

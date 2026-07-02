@@ -6,7 +6,7 @@ import toutouchien.itemsadderadditions.common.utils.EnumUtils;
 @SuppressWarnings("java:S115")
 public enum VersionUtils {
     UNKNOWN(Integer.MAX_VALUE),
-    v26_1_2(775),
+    v26_2(776),
     v1_21_11(774),
     v1_21_10(773),
     v1_21_8(772),

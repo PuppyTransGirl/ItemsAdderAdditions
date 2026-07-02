@@ -53,7 +53,7 @@ class AttackRangeComponentTest {
 
     @Test
     void supportedOnCurrentTestServer() {
-        // The test server runs 26.1.2, which is newer than 1.21.11.
+        // The test server runs 26.2, which is newer than 1.21.11.
         assertTrue(new AttackRangeComponent().isSupportedOnCurrentVersion());
     }
 

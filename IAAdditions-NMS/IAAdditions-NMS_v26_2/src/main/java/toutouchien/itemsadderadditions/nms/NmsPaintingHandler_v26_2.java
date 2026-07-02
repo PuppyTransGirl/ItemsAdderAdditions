@@ -18,12 +18,12 @@ import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.nms.api.INmsPaintingHandler;
 import toutouchien.itemsadderadditions.nms.api.painting.NmsPaintingVariant;
-import toutouchien.itemsadderadditions.nms.painting.RegistryInjector_v26_1_2;
+import toutouchien.itemsadderadditions.nms.painting.RegistryInjector_v26_2;
 
 import java.util.*;
 
 @NullMarked
-final class NmsPaintingHandler_v26_1_2 implements INmsPaintingHandler {
+final class NmsPaintingHandler_v26_2 implements INmsPaintingHandler {
     private static final String TAG = "CustomPaintings";
     private static final Set<String> KNOWN_MANAGED_VARIANT_IDS = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
@@ -67,11 +67,11 @@ final class NmsPaintingHandler_v26_1_2 implements INmsPaintingHandler {
 
         Map<TagKey<PaintingVariant>, List<Holder<PaintingVariant>>> tags = copyRegistryTags(registry);
         tags.put(PaintingVariantTags.PLACEABLE, new ArrayList<>(placeableById.values()));
-        RegistryInjector_v26_1_2.setRegistryFrozen(mappedRegistry, false);
+        RegistryInjector_v26_2.setRegistryFrozen(mappedRegistry, false);
         try {
             mappedRegistry.bindTags(tags);
         } finally {
-            RegistryInjector_v26_1_2.setRegistryFrozen(mappedRegistry, true);
+            RegistryInjector_v26_2.setRegistryFrozen(mappedRegistry, true);
         }
 
         int changed = changedCount(before, after);
@@ -144,7 +144,7 @@ final class NmsPaintingHandler_v26_1_2 implements INmsPaintingHandler {
 
     @Override
     public void injectPaintingVariants(Collection<NmsPaintingVariant> variants) {
-        RegistryInjector_v26_1_2.injectPaintingVariants(variants);
+        RegistryInjector_v26_2.injectPaintingVariants(variants);
     }
 
     @Override
@@ -172,3 +172,4 @@ final class NmsPaintingHandler_v26_1_2 implements INmsPaintingHandler {
         return ((CraftPainting) painting).getHandle().survives();
     }
 }
+

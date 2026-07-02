@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @NullMarked
-public final class RegistryInjector_v26_1_2 {
+public final class RegistryInjector_v26_2 {
     // Reflection objects resolved once at class-init time and reused on every reload.
     private static final java.lang.reflect.Method BIND_METHOD;
     private static final java.lang.reflect.Field FROZEN_FIELD;
@@ -36,7 +36,7 @@ public final class RegistryInjector_v26_1_2 {
         }
     }
 
-    private RegistryInjector_v26_1_2() {
+    private RegistryInjector_v26_2() {
         throw new IllegalStateException("Static class");
     }
 
@@ -114,3 +114,4 @@ public final class RegistryInjector_v26_1_2 {
         }
     }
 }
+

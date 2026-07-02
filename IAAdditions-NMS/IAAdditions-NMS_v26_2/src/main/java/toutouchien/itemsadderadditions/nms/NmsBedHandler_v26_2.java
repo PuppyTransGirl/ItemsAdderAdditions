@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * renderer, making the fake-packet approach the only reliable way to keep the
  * bed invisible client-side while still allowing {@link Player#sleep} to work.</p>
  */
-public final class NmsBedHandler_v26_1_2 implements INmsBedHandler {
+public final class NmsBedHandler_v26_2 implements INmsBedHandler {
     /**
      * Stores the block state that existed at a position before we replaced it
      * with a fake bed, keyed by {@link BlockPos} so we can restore it later.
@@ -68,7 +68,7 @@ public final class NmsBedHandler_v26_1_2 implements INmsBedHandler {
         // Persist whatever was there so we can restore it exactly.
         originalStates.put(pos, level.getBlockState(pos));
 
-        BlockState bed = Blocks.WHITE_BED.defaultBlockState()
+        BlockState bed = Blocks.BED.white().defaultBlockState()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING,
                         yawToFacing(location.getYaw()))
                 .setValue(BlockStateProperties.BED_PART, BedPart.HEAD)

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @NullMarked
-public final class NmsBiomeHandler_v26_1_2 implements INmsBiomeHandler {
+public final class NmsBiomeHandler_v26_2 implements INmsBiomeHandler {
     /**
      * Cache from Bukkit {@link org.bukkit.block.Biome} → its NMS {@link Holder}.
      * Populated lazily on first use of each biome.
@@ -121,3 +121,4 @@ public final class NmsBiomeHandler_v26_1_2 implements INmsBiomeHandler {
         }
     }
 }
+

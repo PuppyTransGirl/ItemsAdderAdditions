@@ -3,10 +3,12 @@ package toutouchien.itemsadderadditions.nms;
 import com.mojang.math.Transformation;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Brightness;
@@ -29,7 +31,10 @@ import toutouchien.itemsadderadditions.nms.api.textdisplay.PacketTextDisplayVisu
 import java.util.List;
 
 @NullMarked
-public final class NmsTextDisplayHandler_v26_1_2 implements INmsTextDisplayHandler {
+public final class NmsTextDisplayHandler_v26_2 implements INmsTextDisplayHandler {
+    private static final net.minecraft.world.entity.EntityType<?> TEXT_DISPLAY_TYPE =
+            BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.fromNamespaceAndPath("minecraft", "text_display"));
+
     private static Display.TextDisplay createTextDisplay(Location location) {
         World world = location.getWorld();
         if (world == null) {
@@ -37,7 +42,7 @@ public final class NmsTextDisplayHandler_v26_1_2 implements INmsTextDisplayHandl
         }
 
         ServerLevel level = ((CraftWorld) world).getHandle();
-        Display.TextDisplay entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, level);
+        Display.TextDisplay entity = new Display.TextDisplay(TEXT_DISPLAY_TYPE, level);
         entity.setPos(location.getX(), location.getY(), location.getZ());
         entity.setYRot(location.getYaw());
         entity.setXRot(location.getPitch());

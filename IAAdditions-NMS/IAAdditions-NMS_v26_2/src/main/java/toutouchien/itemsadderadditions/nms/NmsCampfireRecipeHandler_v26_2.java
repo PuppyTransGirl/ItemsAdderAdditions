@@ -14,7 +14,7 @@ import toutouchien.itemsadderadditions.nms.api.INmsCampfireRecipeHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-final class NmsCampfireRecipeHandler_v26_1_2 implements INmsCampfireRecipeHandler {
+final class NmsCampfireRecipeHandler_v26_2 implements INmsCampfireRecipeHandler {
     private static final String LOG_TAG = "CampfireRecipe";
 
     private final List<ResourceKey<Recipe<?>>> registeredKeys = new ArrayList<>();
@@ -64,3 +64,4 @@ final class NmsCampfireRecipeHandler_v26_1_2 implements INmsCampfireRecipeHandle
         // INmsHandler#finalizeRecipes() once after all handlers are done.
     }
 }
+

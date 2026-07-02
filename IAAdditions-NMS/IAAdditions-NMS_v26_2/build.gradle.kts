@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.paperweight.userdev)
 }
 
-val nmsVersion: String = rootProject.properties["nmsVersion_v26_1_2"] as String
+val nmsVersion: String = rootProject.properties["nmsVersion_v26_2"] as String
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -32,3 +32,4 @@ configurations.configureEach {
         }
     }
 }
+

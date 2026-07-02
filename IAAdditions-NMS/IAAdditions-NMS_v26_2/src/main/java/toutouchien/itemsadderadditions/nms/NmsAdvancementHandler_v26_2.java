@@ -3,7 +3,9 @@ package toutouchien.itemsadderadditions.nms;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.minecraft.advancements.*;
-import net.minecraft.advancements.criterion.ImpossibleTrigger;
+import net.minecraft.advancements.triggers.CriteriaTriggers;
+import net.minecraft.advancements.triggers.Criterion;
+import net.minecraft.advancements.triggers.ImpossibleTrigger;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
@@ -31,7 +33,7 @@ import java.lang.invoke.MethodType;
 import java.util.*;
 
 @NullMarked
-public final class NmsAdvancementHandler_v26_1_2 implements INmsAdvancementHandler {
+public final class NmsAdvancementHandler_v26_2 implements INmsAdvancementHandler {
     private static final MethodHandle ADVANCEMENT_PROGRESS_CTOR;
     private static final MethodHandle ADVANCEMENTS_GETTER;
     private static final MethodHandle ADVANCEMENTS_SETTER;
@@ -56,7 +58,7 @@ public final class NmsAdvancementHandler_v26_1_2 implements INmsAdvancementHandl
                     ServerAdvancementManager.class, "advancements", Map.class
             );
         } catch (Exception e) {
-            throw new RuntimeException("NmsAdvancementHandler_v26_1_2 init failed", e);
+            throw new RuntimeException("NmsAdvancementHandler_v26_2 init failed", e);
         }
     }
 

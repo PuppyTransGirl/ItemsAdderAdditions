@@ -80,7 +80,7 @@ fun requiredFullTestProtocolLib(minecraftVersion: String) = requiredFullTestPlug
 dependencies {
     implementation(project(":IAAdditions-Core"))
 
-    if (enabled("enable_nms_v26_1_2")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v26_1_2"))
+    if (enabled("enable_nms_v26_2")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v26_2"))
     if (enabled("enable_nms_v1_21_11")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v1_21_11"))
     if (enabled("enable_nms_v1_21_10")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v1_21_10"))
     if (enabled("enable_nms_v1_21_8")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v1_21_8"))
@@ -168,11 +168,11 @@ tasks {
         commonServerConfig("1.21.4")
     }
 
-    register<xyz.jpenilla.runpaper.task.RunServer>("runServer26_1_2") {
+    register<xyz.jpenilla.runpaper.task.RunServer>("runServer26_2") {
         group = "run paper"
-        description = "Run a Paper 26.1.2 server for plugin testing."
-        minecraftVersion("26.1.2")
-        commonServerConfig("26.1.2")
+        description = "Run a Paper 26.2 server for plugin testing."
+        minecraftVersion("26.2")
+        commonServerConfig("26.2")
     }
 
     val fullTestRunTasks = fullTestVersions.map { fullTestVersion ->

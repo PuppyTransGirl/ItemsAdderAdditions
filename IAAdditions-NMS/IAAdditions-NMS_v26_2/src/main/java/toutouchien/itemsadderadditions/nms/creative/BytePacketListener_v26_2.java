@@ -25,7 +25,7 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.plugin.Plugin;
 import toutouchien.itemsadderadditions.common.logging.Log;
 
-public final class BytePacketListener_v26_1_2 {
+public final class BytePacketListener_v26_2 {
     /**
      * Registers the byte-level packet listener on every new player channel.
      *
@@ -50,15 +50,15 @@ public final class BytePacketListener_v26_1_2 {
         }
 
         /**
-         * Returns the {@link PacketListener_v26_1_2.ChannelDupeHandler} from the pipeline, or {@code null} if absent.
+         * Returns the {@link PacketListener_v26_2.ChannelDupeHandler} from the pipeline, or {@code null} if absent.
          *
          * @param ctx the channel handler context
          * @return the dupe handler, or {@code null}
          */
-        private static PacketListener_v26_1_2.ChannelDupeHandler getDupeHandler(
+        private static PacketListener_v26_2.ChannelDupeHandler getDupeHandler(
                 ChannelHandlerContext ctx
         ) {
-            return (PacketListener_v26_1_2.ChannelDupeHandler) ctx.pipeline()
+            return (PacketListener_v26_2.ChannelDupeHandler) ctx.pipeline()
                     .get("iaadditions_packet_listener");
         }
 
@@ -161,13 +161,13 @@ public final class BytePacketListener_v26_1_2 {
             int dataStart = buf.readerIndex();
             int paintingId = VarInt.read(buf.slice(dataStart, dataLength)) - 1;
 
-            PacketListener_v26_1_2.ChannelDupeHandler dupeHandler = getDupeHandler(ctx);
+            PacketListener_v26_2.ChannelDupeHandler dupeHandler = getDupeHandler(ctx);
             if (dupeHandler == null) return false;
 
-            CustomStack customItem = PacketListener_v26_1_2.PAINTING_ITEMS.get().get(paintingId);
+            CustomStack customItem = PacketListener_v26_2.PAINTING_ITEMS.get().get(paintingId);
             if (customItem == null) return false;
 
-            Integer precomputed = PacketListener_v26_1_2.PRECOMPUTED_ITEM_IDS.get().get(paintingId);
+            Integer precomputed = PacketListener_v26_2.PRECOMPUTED_ITEM_IDS.get().get(paintingId);
             int baseItemId = precomputed != null
                     ? precomputed
                     : itemRegistry.getId(CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem());
@@ -201,3 +201,4 @@ public final class BytePacketListener_v26_1_2 {
         }
     }
 }
+

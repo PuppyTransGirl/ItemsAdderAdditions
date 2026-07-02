@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @NullMarked
-public final class RegistryInjector_v26_1_2 {
+public final class RegistryInjector_v26_2 {
     private static final String TAG = "CustomPaintings";
     private static final Field FROZEN_FIELD;
     private static final Field BY_VALUE_FIELD;
@@ -53,7 +53,7 @@ public final class RegistryInjector_v26_1_2 {
         }
     }
 
-    private RegistryInjector_v26_1_2() {
+    private RegistryInjector_v26_2() {
         throw new IllegalStateException("Static class");
     }
 
@@ -231,3 +231,4 @@ public final class RegistryInjector_v26_1_2 {
         }
     }
 }
+
