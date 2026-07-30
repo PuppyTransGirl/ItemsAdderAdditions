@@ -72,6 +72,15 @@ class ConfigFileRegistryTest {
     }
 
     @Test
+    void scan_itemsAdderCraftingTableRecipeFile_notCategorizedAsIaaCrafting() throws IOException {
+        writeYml("crafting.yml", "recipes:\n  crafting_table:\n    my_recipe: {}");
+        ConfigFileRegistry registry = ConfigFileRegistry.scan(tempDir);
+        assertEquals(1, registry.totalFilesScanned());
+        assertEquals(0, registry.totalFilesTagged());
+        assertEquals(0, registry.fileCount(ConfigFileCategory.CRAFTING_RECIPES));
+    }
+
+    @Test
     void scan_paintingFile_categorized() throws IOException {
         writeYml("paint.yml", "paintings:\n  my_painting: {}");
         ConfigFileRegistry registry = ConfigFileRegistry.scan(tempDir);

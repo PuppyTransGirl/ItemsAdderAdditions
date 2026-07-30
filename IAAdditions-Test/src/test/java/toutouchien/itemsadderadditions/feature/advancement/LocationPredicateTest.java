@@ -126,4 +126,17 @@ class LocationPredicateTest {
     void blockPredicateParseNullForNullRaw() {
         assertNull(BlockPredicate.parse("ns", null));
     }
+
+    @Test
+    void customStructuresNamespaceParsesAsOptionalPluginStructure() {
+        LocationPredicate predicate = LocationPredicate.parse("ns",
+                map("structures", List.of(
+                        "customstructures:Ancient_Temple",
+                        "custom_structures:Ruins"
+                )));
+
+        assertNotNull(predicate);
+        assertTrue(predicate.structures().isEmpty());
+        assertEquals(List.of("Ancient_Temple", "Ruins"), predicate.customStructures());
+    }
 }

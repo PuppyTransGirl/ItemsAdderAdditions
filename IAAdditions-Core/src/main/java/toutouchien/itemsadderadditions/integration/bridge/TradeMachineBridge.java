@@ -13,9 +13,10 @@ import java.util.Map;
 /**
  * Opens ItemsAdder trade-machine menus.
  *
- * <p>ItemsAdder 4.0.17 exposes a public trade-machine API, so that version is
- * opened through {@link CustomStack#openTradeMenu(String, Player)} instead of
- * relying on obfuscated internals.</p>
+ * <p>ItemsAdder 4.0.17 exposes a public furniture trade-machine API, so furniture
+ * machines are opened through {@link CustomStack#openTradeMenu(String, Player)}.
+ * The public API does not support {@code block_trade_machine}, so those machines
+ * continue to use the captured internal handler.</p>
  *
  * <p>Older ItemsAdder 4.0.x builds do not expose that API. For those versions
  * the bridge keeps using the captured internal handler provided by the versioned
@@ -58,21 +59,30 @@ public final class TradeMachineBridge {
             return false;
         }
 
-        if (hasPublicTradeMenuApi()) {
-            return openTradeMachineViaApi(player, namespacedId);
-        }
-
+        boolean publicApiAvailable = hasPublicTradeMenuApi();
         Object handler = handlerInstance;
-        if (handler == null) {
+        if (!publicApiAvailable && handler == null) {
             throw new IllegalStateException(
                     "Trade-machine handler has not been captured yet"
             );
         }
 
-        CustomStack cs = CustomStack.getInstance(namespacedId);
-        if (cs == null) return false;
+        CustomStack customStack = NamespaceUtils.customItemByID(null, namespacedId);
+        if (customStack == null) {
+            customStack = CustomStack.getInstance(namespacedId);
+        }
+        if (customStack == null) {
+            return false;
+        }
 
-        ItemStack itemStack = cs.getItemStack();
+        ItemStack itemStack = customStack.getItemStack();
+        if (publicApiAvailable && CustomStack.isFurnitureTradeMachine(itemStack)) {
+            return CustomStack.openTradeMenu(namespacedId, player);
+        }
+
+        if (handler == null) {
+            return false;
+        }
 
         try {
             Object registry = ensureRegistryField(handler).get(handler);
@@ -107,20 +117,6 @@ public final class TradeMachineBridge {
                     e
             );
         }
-    }
-
-    private static boolean openTradeMachineViaApi(Player player, String namespacedId) {
-        CustomStack customStack = NamespaceUtils.customItemByID(null, namespacedId);
-        if (customStack == null) {
-            return false;
-        }
-
-        ItemStack itemStack = customStack.getItemStack();
-        if (!CustomStack.isFurnitureTradeMachine(itemStack)) {
-            return false;
-        }
-
-        return CustomStack.openTradeMenu(namespacedId, player);
     }
 
     private static boolean hasPublicTradeMenuApi() {

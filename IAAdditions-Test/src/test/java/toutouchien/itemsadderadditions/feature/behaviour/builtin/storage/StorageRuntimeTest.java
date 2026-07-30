@@ -120,6 +120,17 @@ class StorageRuntimeTest {
     }
 
     @Test
+    void complexFurnitureOpenVariantUsesFurnitureOpenVariantPath() {
+        StorageRuntime runtime = runtimeWithOpenVariant(
+                new OpenVariantConfig(ItemCategory.COMPLEX_FURNITURE, "test:crate_open"),
+                mock(OpenVariantTransformer.class)
+        );
+
+        assertFalse(runtime.hasBlockOpenVariant());
+        assertTrue(runtime.hasFurnitureOpenVariant());
+    }
+
+    @Test
     void preloadBlockContentsStoresOnlyNonNullContentsByBlockCoordinate() {
         StorageRuntime runtime = runtime(StorageType.STORAGE);
         var block = world.getBlockAt(4, 64, 4);

@@ -171,11 +171,30 @@ class OpenVariantTransformerTest {
     }
 
     @Test
-    void unsupportedCategoryAndInvalidOriginalFurnitureAreNoOps() {
-        OpenVariantTransformer unsupported = new OpenVariantTransformer(
+    void complexFurnitureOpenVariantUsesFurniturePlacement() {
+        Entity originalEntity = mock(Entity.class);
+        when(originalEntity.isValid()).thenReturn(true);
+        when(originalEntity.getLocation()).thenReturn(new Location(world, 2, 64, 2, 45f, 0f));
+        Entity openEntity = mock(Entity.class);
+        Entity restored = mock(Entity.class);
+        OpenVariantTransformer transformer = new OpenVariantTransformer(
                 new OpenVariantConfig(ItemCategory.COMPLEX_FURNITURE, "pack:open_complex"));
-        assertNull(unsupported.onFirstOpen(location, false, null));
 
+        try (MockedStatic<OpenVariantPlacement> placement = mockStatic(OpenVariantPlacement.class)) {
+            placement.when(() -> OpenVariantPlacement.spawnFurniture("pack:open_complex", location, false, 45f))
+                    .thenReturn(openEntity);
+            placement.when(() -> OpenVariantPlacement.spawnFurniture("pack:closed", location, false, 45f))
+                    .thenReturn(restored);
+
+            assertSame(openEntity, transformer.onFirstOpen(location, false, originalEntity));
+            assertSame(restored, transformer.onLastClose(location, "pack:closed", false));
+
+            placement.verify(() -> OpenVariantPlacement.removeFurnitureEntity(originalEntity));
+        }
+    }
+
+    @Test
+    void invalidOriginalFurnitureIsNoOp() {
         Entity invalid = mock(Entity.class);
         when(invalid.isValid()).thenReturn(false);
         OpenVariantTransformer furniture = new OpenVariantTransformer(

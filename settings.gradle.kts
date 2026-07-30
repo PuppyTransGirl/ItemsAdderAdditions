@@ -13,6 +13,7 @@ include(":IAAdditions-Jar")
 include(":IAAdditions-Test")
 
 include(":IAAdditions-NMS:api")
+if (enabled("enable_nms_v26_2")) include(":IAAdditions-NMS:IAAdditions-NMS_v26_2")
 if (enabled("enable_nms_v26_1_2")) include(":IAAdditions-NMS:IAAdditions-NMS_v26_1_2")
 if (enabled("enable_nms_v1_21_11")) include(":IAAdditions-NMS:IAAdditions-NMS_v1_21_11")
 if (enabled("enable_nms_v1_21_10")) include(":IAAdditions-NMS:IAAdditions-NMS_v1_21_10")

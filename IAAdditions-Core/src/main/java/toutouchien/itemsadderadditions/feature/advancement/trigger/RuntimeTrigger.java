@@ -22,6 +22,7 @@ public enum RuntimeTrigger {
     KILL_ENTITY_WITH_ITEM,
     PERMISSION,
     IN_BIOME,
+    ENTER_REGION,
     USING_ITEM,
     TAME_ANIMAL,
     VILLAGER_TRADE,

@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Collection;
+import java.util.Set;
 
 @NullMarked
 interface WorldGuardDelegate {
@@ -16,4 +17,6 @@ interface WorldGuardDelegate {
     boolean test(Player player, Location location, WorldGuardFlagKey key);
 
     boolean testAction(String actionKey, Player player, Location location);
+
+    Set<String> regionIdsAt(Location location);
 }

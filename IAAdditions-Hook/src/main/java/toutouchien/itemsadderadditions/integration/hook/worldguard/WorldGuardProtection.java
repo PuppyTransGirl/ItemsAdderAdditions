@@ -8,6 +8,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Set;
 
 @NullMarked
 public final class WorldGuardProtection {
@@ -57,6 +58,14 @@ public final class WorldGuardProtection {
     public static boolean isActionAllowed(String actionKey, Player player, Location location, WorldGuardSettings settings) {
         WorldGuardDelegate active = hookIfUsable(settings);
         return active == null || !settings.actions() || active.testAction(actionKey, player, location);
+    }
+
+    /**
+     * Returns the normalized IDs of all WorldGuard regions containing a location.
+     */
+    public static Set<String> regionIdsAt(Location location) {
+        WorldGuardDelegate active = hookIfInstalled();
+        return active == null ? Set.of() : active.regionIdsAt(location);
     }
 
     private static @Nullable WorldGuardDelegate hookIfUsable(WorldGuardSettings settings) {

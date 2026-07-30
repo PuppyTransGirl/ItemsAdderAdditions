@@ -23,6 +23,7 @@ public sealed interface AdvancementConditions permits
         AdvancementConditions.KillEntityWithItem,
         AdvancementConditions.Permission,
         AdvancementConditions.InBiome,
+        AdvancementConditions.EnterRegion,
         AdvancementConditions.UsingItem,
         AdvancementConditions.TameAnimal,
         AdvancementConditions.EnchantedItem,
@@ -82,6 +83,8 @@ public sealed interface AdvancementConditions permits
     record Permission(String node) implements AdvancementConditions {}
 
     record InBiome(String biomeId, @Nullable String world) implements AdvancementConditions {}
+
+    record EnterRegion(String regionId, @Nullable String world) implements AdvancementConditions {}
 
     record UsingItem(String itemId) implements AdvancementConditions {}
 

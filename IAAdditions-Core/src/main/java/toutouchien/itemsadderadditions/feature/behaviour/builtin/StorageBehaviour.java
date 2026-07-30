@@ -5,6 +5,7 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.momirealms.antigrieflib.AntiGriefLib;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -29,6 +30,7 @@ import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvar
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionManager;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound.StorageSoundParser;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound.StorageSounds;
+import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 
 import java.util.*;
 
@@ -106,6 +108,7 @@ public final class StorageBehaviour extends BehaviourExecutor {
                 : null;
 
         @Nullable StorageInventorySpec resolvedSpec = StorageInventoryTypes.resolve(inventoryTypeName, namespacedID);
+        AntiGriefLib antiGriefLib = ItemsAdderAdditions.instance().antiGriefLib();
 
         StorageSessionManager sessionManager = new StorageSessionManager(
                 rows,
@@ -114,6 +117,7 @@ public final class StorageBehaviour extends BehaviourExecutor {
                 storageType,
                 contentsKey,
                 plugin,
+                antiGriefLib,
                 openSound,
                 closeSound,
                 namespacedID,
@@ -205,6 +209,7 @@ public final class StorageBehaviour extends BehaviourExecutor {
             return config.category() == ItemCategory.BLOCK;
 
         return config.category() == ItemCategory.FURNITURE
+                || config.category() == ItemCategory.COMPLEX_FURNITURE
                 || config.category() == ItemCategory.ITEM;
     }
 

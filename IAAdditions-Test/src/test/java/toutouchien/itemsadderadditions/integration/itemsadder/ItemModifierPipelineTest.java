@@ -26,14 +26,14 @@ class ItemModifierPipelineTest {
 
     @Test
     void noContributorsReturnsOriginal() {
-        ItemModifierPipeline pipeline = new ItemModifierPipeline(null);
+        ItemModifierPipeline pipeline = new ItemModifierPipeline();
         ItemStack stack = sword();
         assertSame(stack, pipeline.apply("test:item", stack));
     }
 
     @Test
     void singleContributorReceivesCorrectArgs() {
-        ItemModifierPipeline pipeline = new ItemModifierPipeline(null);
+        ItemModifierPipeline pipeline = new ItemModifierPipeline();
         String[] capturedId = {null};
         ItemStack stack = sword();
         pipeline.addContributor((id, item) -> {
@@ -46,7 +46,7 @@ class ItemModifierPipelineTest {
 
     @Test
     void contributorsCalledInInsertionOrder() {
-        ItemModifierPipeline pipeline = new ItemModifierPipeline(null);
+        ItemModifierPipeline pipeline = new ItemModifierPipeline();
         StringBuilder order = new StringBuilder();
         pipeline.addContributor((_, item) -> {
             order.append("A");
@@ -62,7 +62,7 @@ class ItemModifierPipelineTest {
 
     @Test
     void contributorCanTransformItem() {
-        ItemModifierPipeline pipeline = new ItemModifierPipeline(null);
+        ItemModifierPipeline pipeline = new ItemModifierPipeline();
         pipeline.addContributor((_, _) -> ItemStack.of(Material.GOLDEN_SWORD));
         ItemStack result = pipeline.apply("test:item", sword());
         assertEquals(Material.GOLDEN_SWORD, result.getType());
@@ -70,7 +70,7 @@ class ItemModifierPipelineTest {
 
     @Test
     void eachContributorReceivesOutputOfPrevious() {
-        ItemModifierPipeline pipeline = new ItemModifierPipeline(null);
+        ItemModifierPipeline pipeline = new ItemModifierPipeline();
         pipeline.addContributor((_, _) -> ItemStack.of(Material.GOLDEN_SWORD));
         pipeline.addContributor((_, item) -> {
             assertEquals(Material.GOLDEN_SWORD, item.getType());
@@ -81,7 +81,7 @@ class ItemModifierPipelineTest {
 
     @Test
     void shutdownMakesApplyReturnInputUnchanged() {
-        ItemModifierPipeline pipeline = new ItemModifierPipeline(null);
+        ItemModifierPipeline pipeline = new ItemModifierPipeline();
         boolean[] called = {false};
         pipeline.addContributor((_, item) -> {
             called[0] = true;
@@ -95,7 +95,7 @@ class ItemModifierPipelineTest {
 
     @Test
     void addContributorNullThrows() {
-        ItemModifierPipeline pipeline = new ItemModifierPipeline(null);
+        ItemModifierPipeline pipeline = new ItemModifierPipeline();
         assertThrows(NullPointerException.class, () -> pipeline.addContributor(null));
     }
 }

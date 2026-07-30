@@ -8,7 +8,8 @@ import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CooldownBridgeTest {
     private static ServerMock server;
@@ -48,6 +49,24 @@ class CooldownBridgeTest {
     }
 
     @Test
+    void captureFromCustomItemDataUses4017BetaHashField() {
+        CooldownBridge.capture(false, player, new CustomItemDataWithBR(42));
+        assertTrue(CooldownBridge.isOnCooldown(player, 42));
+    }
+
+    @Test
+    void captureFromCustomItemDataUses4017FinalHashField() {
+        CooldownBridge.capture(false, player, new CustomItemDataWithBH(43));
+        assertTrue(CooldownBridge.isOnCooldown(player, 43));
+    }
+
+    @Test
+    void captureFromCustomItemDataWithoutKnownHashFieldIsIgnored() {
+        assertFalse(CooldownBridge.capture(false, player, new CustomItemDataWithoutHash(44)));
+        assertFalse(CooldownBridge.isOnCooldown(player, 44));
+    }
+
+    @Test
     void capturePassesResultThrough() {
         assertTrue(CooldownBridge.capture(true, player, 1));
         assertFalse(CooldownBridge.capture(false, player, 1));
@@ -72,5 +91,14 @@ class CooldownBridgeTest {
 
         CooldownBridge.clear(player.getUniqueId());
         assertFalse(CooldownBridge.isOnCooldown(player, 5));
+    }
+
+    private record CustomItemDataWithBR(int BR) {
+    }
+
+    private record CustomItemDataWithBH(int BH) {
+    }
+
+    private record CustomItemDataWithoutHash(int other) {
     }
 }

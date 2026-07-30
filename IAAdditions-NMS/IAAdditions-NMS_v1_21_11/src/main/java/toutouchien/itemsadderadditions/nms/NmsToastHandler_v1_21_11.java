@@ -3,6 +3,7 @@ package toutouchien.itemsadderadditions.nms;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.minecraft.advancements.*;
+import net.minecraft.advancements.criterion.ImpossibleTrigger;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -21,6 +22,10 @@ import java.util.*;
 public final class NmsToastHandler_v1_21_11 implements INmsToastHandler {
     private static final Identifier TOAST_ID = Identifier.fromNamespaceAndPath("iaadditions", "toast_notification");
     private static final AdvancementRequirements REQUIREMENTS = new AdvancementRequirements(List.of(List.of("trigger")));
+    private static final Map<String, Criterion<?>> CRITERIA = Map.of(
+            "trigger",
+            CriteriaTriggers.IMPOSSIBLE.createCriterion(new ImpossibleTrigger.TriggerInstance())
+    );
     private static final MethodHandle ADVANCEMENT_PROGRESS_CTOR;
 
     static {
@@ -69,7 +74,7 @@ public final class NmsToastHandler_v1_21_11 implements INmsToastHandler {
                 Optional.empty(),
                 Optional.of(displayInfo),
                 AdvancementRewards.EMPTY,
-                Collections.emptyMap(),
+                CRITERIA,
                 REQUIREMENTS,
                 false,
                 Optional.empty()

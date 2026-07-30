@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.feature.advancement.trigger.*;
+import toutouchien.itemsadderadditions.integration.customstructures.CustomStructuresBridge;
 import toutouchien.itemsadderadditions.patch.Version;
 import toutouchien.itemsadderadditions.patch.VersionRange;
 
@@ -36,6 +37,7 @@ public final class AdvancementRuntimeService {
                 new KillEntityWithItemTriggerHandler(registry),
                 new PermissionTriggerHandler(registry),
                 new InBiomeTriggerHandler(registry),
+                new EnterRegionTriggerHandler(registry),
                 new UsingItemTriggerHandler(registry),
                 new TameAnimalTriggerHandler(registry),
                 new VillagerTradeTriggerHandler(registry),
@@ -83,6 +85,9 @@ public final class AdvancementRuntimeService {
             listeners.add(new UnsitFurnitureTriggerHandler(registry));
             listeners.add(new OpenTradeMachineTriggerHandler(registry));
         }
+
+        Listener customStructuresBridge = CustomStructuresBridge.register(plugin);
+        if (customStructuresBridge != null) activeListeners.add(customStructuresBridge);
 
         for (Listener l : listeners) {
             Bukkit.getPluginManager().registerEvents(l, plugin);

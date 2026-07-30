@@ -84,6 +84,22 @@ final class WorldGuardHook extends PluginHook implements WorldGuardDelegate {
         return flag == null || testState(player, location, flag);
     }
 
+    @Override
+    public Set<String> regionIdsAt(Location location) {
+        if (location.getWorld() == null) return Set.of();
+
+        RegionQuery query = WorldGuard.getInstance()
+                .getPlatform()
+                .getRegionContainer()
+                .createQuery();
+        var regions = query.getApplicableRegions(BukkitAdapter.adapt(location));
+        if (regions.isVirtual()) return Set.of();
+
+        Set<String> ids = new LinkedHashSet<>();
+        regions.forEach(region -> ids.add(region.getId().toLowerCase(Locale.ROOT)));
+        return Set.copyOf(ids);
+    }
+
     private boolean testState(Player player, Location location, StateFlag flag) {
         if (location.getWorld() == null) return true;
 

@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sessio
 
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.momirealms.antigrieflib.AntiGriefLib;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -20,7 +21,7 @@ import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.invento
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.sound.StorageSoundPlayer;
 import toutouchien.itemsadderadditions.integration.hook.CoreProtectHook;
-import toutouchien.itemsadderadditions.integration.worldguard.WorldGuardProtectionChecks;
+import toutouchien.itemsadderadditions.integration.protection.StorageProtectionChecks;
 
 import java.util.*;
 
@@ -41,6 +42,7 @@ public final class StorageSessionManager {
     private final StorageInventoryResolver inventories;
     private final StorageSessionPersister persister;
     private final StorageSoundPlayer sounds;
+    private final AntiGriefLib antiGriefLib;
     @Nullable private final OpenVariantTransformer openVariantTransformer;
 
     public StorageSessionManager(
@@ -50,12 +52,14 @@ public final class StorageSessionManager {
             StorageType storageType,
             NamespacedKey contentsKey,
             JavaPlugin plugin,
+            AntiGriefLib antiGriefLib,
             @Nullable Sound openSound,
             @Nullable Sound closeSound,
             String originalNamespacedId,
             @Nullable OpenVariantTransformer openVariantTransformer
     ) {
         this.storageType = storageType;
+        this.antiGriefLib = antiGriefLib;
         this.openVariantTransformer = openVariantTransformer;
         this.inventories = new StorageInventoryResolver(sessions, rows, spec, title, storageType, contentsKey, plugin);
         this.persister = new StorageSessionPersister(
@@ -186,7 +190,7 @@ public final class StorageSessionManager {
 
     private boolean canOpen(Player player, Location location) {
         return storageType == StorageType.DISPOSAL
-                || WorldGuardProtectionChecks.canOpenStorage(player, location);
+                || StorageProtectionChecks.canOpenStorage(player, location, antiGriefLib);
     }
 
     private void open(Player player, StorageSession session, Location location) {

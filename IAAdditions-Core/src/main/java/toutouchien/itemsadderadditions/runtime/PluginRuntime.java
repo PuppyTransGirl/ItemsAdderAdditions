@@ -31,6 +31,7 @@ import toutouchien.itemsadderadditions.nms.api.NmsManager;
 import toutouchien.itemsadderadditions.plugin.ItemsAdderAdditions;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadCoordinator;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadResult;
+import toutouchien.itemsadderadditions.settings.PluginFeature;
 import toutouchien.itemsadderadditions.settings.PluginSettings;
 import toutouchien.itemsadderadditions.settings.migration.*;
 
@@ -146,11 +147,10 @@ public final class PluginRuntime {
         this.recipeManager = new RecipeManager(plugin, componentsManager);
         this.advancementManager = new AdvancementManager(plugin);
 
-        this.itemModifierPipeline = new ItemModifierPipeline(plugin);
+        this.itemModifierPipeline = new ItemModifierPipeline();
         itemModifierPipeline.addContributor(componentsManager::applyComponents);
         itemModifierPipeline.addContributor(itemModelDefinitionManager::applyItemModelDefinitionComponents);
         itemModifierPipeline.addContributor(valhallaManager::applyValhalla);
-        itemModifierPipeline.register();
 
         setupCreativeInventoryIntegration();
         this.creativeRegistryReloader = new CreativeRegistryReloader(plugin);
@@ -233,6 +233,10 @@ public final class PluginRuntime {
         return require(antiGriefLib, "antiGriefLib");
     }
 
+    public ItemModifierPipeline itemModifierPipeline() {
+        return require(itemModifierPipeline, "itemModifierPipeline");
+    }
+
     private void reloadSettings() {
         this.settings = PluginSettings.load(plugin.getConfig());
     }
@@ -287,6 +291,10 @@ public final class PluginRuntime {
     }
 
     private void setupCreativeInventoryIntegration() {
+        if (!settings().featureEnabled(PluginFeature.CREATIVE_INVENTORY_INTEGRATION)) {
+            return;
+        }
+
         if (NmsManager.instance().handler().creativeMenu() == null) {
             return;
         }

@@ -42,15 +42,10 @@ public class CooldownCapturePatch_IA_4_0_17 extends MethodInjectPatch {
         ga.loadArg(0);
 
         ga.loadArg(1);
-        ga.getField(
-                Type.getObjectType("itemsadder/m/oy"),
-                "BR",
-                Type.INT_TYPE
-        );
 
         ga.invokeStatic(
                 Type.getType(CooldownBridge.class),
-                Method.getMethod("boolean capture(boolean, Object, int)")
+                Method.getMethod("boolean capture(boolean, Object, Object)")
         );
     }
 }

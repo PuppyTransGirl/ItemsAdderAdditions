@@ -12,6 +12,7 @@ import org.bukkit.util.Vector;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.common.utils.BiomeKeys;
 import toutouchien.itemsadderadditions.common.utils.BlocksShape;
 import toutouchien.itemsadderadditions.feature.action.ActionContext;
 import toutouchien.itemsadderadditions.feature.action.ActionExecutor;
@@ -134,7 +135,7 @@ public final class ReplaceBiomeAction extends ActionExecutor {
         }
 
         Log.debug("ReplaceBiome", "Configured: biome={}, shape={}, rx={}, ry={}, rz={}",
-                biome.getKey(), shape, radiusX, radiusY, radiusZ);
+                BiomeKeys.asString(biome), shape, radiusX, radiusY, radiusZ);
         return true;
     }
 
@@ -152,7 +153,7 @@ public final class ReplaceBiomeAction extends ActionExecutor {
         targets.removeIf(target -> !antiGriefLib.test(context.player(), Flag.PLACE, target));
 
         Log.debug("ReplaceBiome", "Replacing {} biome quanta with biome {} (shape={}, rx={}, ry={}, rz={})",
-                targets.size(), biome.getKey(), shape, radiusX, radiusY, radiusZ);
+                targets.size(), BiomeKeys.asString(biome), shape, radiusX, radiusY, radiusZ);
 
         NmsManager.instance().handler().biome().setBiomes(location.getWorld(), targets, biome);
     }

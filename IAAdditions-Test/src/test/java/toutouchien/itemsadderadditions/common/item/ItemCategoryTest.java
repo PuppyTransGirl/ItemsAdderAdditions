@@ -3,9 +3,9 @@ package toutouchien.itemsadderadditions.common.item;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class ItemCategoryTest {
@@ -23,6 +23,14 @@ class ItemCategoryTest {
     private CustomStack stack(String namespacedId, boolean isBlock) {
         CustomStack stack = mock(CustomStack.class);
         when(stack.getNamespacedID()).thenReturn(namespacedId);
+        int colon = namespacedId.indexOf(':');
+        if (colon >= 0) {
+            lenient().when(stack.getNamespace()).thenReturn(namespacedId.substring(0, colon));
+            lenient().when(stack.getId()).thenReturn(namespacedId.substring(colon + 1));
+        } else {
+            lenient().when(stack.getNamespace()).thenReturn("");
+            lenient().when(stack.getId()).thenReturn(namespacedId);
+        }
         lenient().when(stack.isBlock()).thenReturn(isBlock);
         return stack;
     }
@@ -85,7 +93,6 @@ class ItemCategoryTest {
 
     @Test
     void sameFileVariantInheritsParentCategory() {
-        // variant_of points at "base" in the same file.
         var cfg2 = yaml("""
                 items:
                   base:
@@ -96,6 +103,20 @@ class ItemCategoryTest {
                 """);
         assertEquals(ItemCategory.FURNITURE,
                 ItemCategory.determine(stack("pack:child", false), cfg2, "child"));
+    }
+
+    @Test
+    void sameFileNamespacedVariantInheritsParentCategory() {
+        var cfg = yaml("""
+                items:
+                  base:
+                    behaviours:
+                      furniture: {}
+                  child:
+                    variant_of: pack:base
+                """);
+        assertEquals(ItemCategory.FURNITURE,
+                ItemCategory.determine(stack("pack:child", false), cfg, "child"));
     }
 
     @Test
@@ -110,16 +131,49 @@ class ItemCategoryTest {
     }
 
     @Test
-    void crossFileVariantConsultsItemsAdderInstance() {
-        var cfg = yaml("""
+    void crossFileRegisteredVariantInheritsParentCategory() {
+        var childCfg = yaml("""
                 items:
                   child:
                     variant_of: otherpack:remote_base
                 """);
-        // Cross-file parent resolution calls CustomStack.getInstance, whose compileOnly IA stub
-        // throws UnsupportedOperationException. Real ItemsAdder runtime needed to resolve it.
-        assertThrows(UnsupportedOperationException.class,
-                () -> ItemCategory.determine(stack("pack:child", false), cfg, "child"));
+        var parentCfg = yaml("""
+                items:
+                  remote_base:
+                    behaviours:
+                      furniture: {}
+                """);
+        CustomStack parent = stack("otherpack:remote_base", false);
+        when(parent.getConfig()).thenReturn(parentCfg);
+
+        try (MockedStatic<CustomStack> customStacks = mockStatic(CustomStack.class)) {
+            customStacks.when(() -> CustomStack.getInstance("otherpack:remote_base")).thenReturn(parent);
+
+            assertEquals(ItemCategory.FURNITURE,
+                    ItemCategory.determine(stack("pack:child", false), childCfg, "child"));
+        }
+    }
+
+    @Test
+    void crossFileTemplateVariantInheritsParentCategoryWhenTemplateApiExists() {
+        var childCfg = yaml("""
+                items:
+                  child:
+                    variant_of: office_table_template
+                """);
+        var template = yaml("""
+                behaviours:
+                  furniture: {}
+                """);
+
+        try (MockedStatic<CustomStack> customStacks = mockStatic(CustomStack.class)) {
+            customStacks.when(() -> CustomStack.getInstance("pack:office_table_template")).thenReturn(null);
+            customStacks.when(() -> CustomStack.getConfigSectionOfTemplateCopy("pack:office_table_template"))
+                    .thenReturn(template);
+
+            assertEquals(ItemCategory.FURNITURE,
+                    ItemCategory.determine(stack("pack:child", false), childCfg, "child"));
+        }
     }
 
     @Test

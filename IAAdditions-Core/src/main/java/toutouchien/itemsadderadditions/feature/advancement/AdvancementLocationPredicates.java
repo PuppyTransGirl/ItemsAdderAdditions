@@ -10,9 +10,12 @@ import org.bukkit.generator.structure.Structure;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.common.utils.BiomeKeys;
+import toutouchien.itemsadderadditions.integration.customstructures.CustomStructuresBridge;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static toutouchien.itemsadderadditions.feature.advancement.AdvancementPredicateSupport.*;
@@ -27,12 +30,17 @@ record LocationPredicate(
         @Nullable BlockPredicate block,
         IntRange light,
         @Nullable Boolean canSeeSky,
-        List<Structure> structures
+        List<Structure> structures,
+        List<String> customStructures
 ) {
     @Nullable
     public static LocationPredicate parse(String namespace, @Nullable Object raw) {
         if (raw == null) return null;
         Object position = section(raw, "position");
+        List<String> structureIds = readStringList(raw, "structures").isEmpty()
+                ? readStringList(raw, "structure")
+                : readStringList(raw, "structures");
+        StructureFilters structureFilters = parseStructures(structureIds);
         return new LocationPredicate(
                 (readStringList(raw, "dimension").isEmpty() ? readStringList(raw, "dimensions") : readStringList(raw, "dimension")),
                 emptyToNull(string(value(raw, "world"))),
@@ -43,19 +51,28 @@ record LocationPredicate(
                 BlockPredicate.parse(namespace, sectionOrValue(raw, "block")),
                 IntRange.parse(raw, "light"),
                 bool(raw, "can_see_sky"),
-                parseStructures(
-                        readStringList(raw, "structures").isEmpty()
-                                ? readStringList(raw, "structure")
-                                : readStringList(raw, "structures")
-                )
+                structureFilters.vanilla(),
+                structureFilters.custom()
         );
     }
 
-    private static List<Structure> parseStructures(List<String> ids) {
-        if (ids.isEmpty()) return List.of();
+    private static StructureFilters parseStructures(List<String> ids) {
+        if (ids.isEmpty()) return StructureFilters.EMPTY;
         var registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.STRUCTURE);
-        List<Structure> result = new ArrayList<>(ids.size());
+        List<Structure> vanilla = new ArrayList<>(ids.size());
+        List<String> custom = new ArrayList<>();
         for (String id : ids) {
+            String trimmed = id.trim();
+            int separator = trimmed.indexOf(':');
+            if (separator > 0 && separator < trimmed.length() - 1) {
+                String namespace = trimmed.substring(0, separator).toLowerCase(Locale.ROOT);
+                if (namespace.equals(CustomStructuresBridge.NAMESPACE)
+                        || namespace.equals("custom_structures")) {
+                    custom.add(trimmed.substring(separator + 1));
+                    continue;
+                }
+            }
+
             String normalized = NamespaceUtils.normalizeMinecraftID(id);
             String[] parts = normalized.split(":", 2);
             if (parts.length != 2 || parts[0].isBlank() || parts[1].isBlank()) continue;
@@ -64,9 +81,9 @@ record LocationPredicate(
                 Log.warn("Advancement", "Unknown structure '{}' in location predicate, ignoring.", id);
                 continue;
             }
-            result.add(structure);
+            vanilla.add(structure);
         }
-        return List.copyOf(result);
+        return new StructureFilters(List.copyOf(vanilla), List.copyOf(custom));
     }
 
     public boolean matches(Location loc) {
@@ -76,7 +93,7 @@ record LocationPredicate(
             return false;
         if (worldName != null && !world.getName().equals(worldName)) return false;
         if (!biomes.isEmpty()) {
-            String biome = loc.getBlock().getBiome().getKey().toString();
+            String biome = BiomeKeys.asString(loc.getBlock().getBiome());
             boolean matched = false;
             for (String expected : biomes) {
                 if (NamespaceUtils.normalizeMinecraftID(expected).equals(biome)) {
@@ -90,7 +107,8 @@ record LocationPredicate(
         if (block != null && !block.matches(loc)) return false;
         if (!light.matches(loc.getBlock().getLightLevel())) return false;
         if (canSeeSky != null && canSeeSky != AdvancementPredicateSupport.canSeeSky(loc)) return false;
-        if (!structures.isEmpty() && !isInAnyStructure(loc, world)) return false;
+        if ((!structures.isEmpty() || !customStructures.isEmpty())
+                && !isInAnyStructure(loc, world)) return false;
         return true;
     }
 
@@ -103,7 +121,14 @@ record LocationPredicate(
                 if (gs.getBoundingBox().contains(point)) return true;
             }
         }
+        for (String structure : customStructures) {
+            if (CustomStructuresBridge.isInStructure(loc, structure)) return true;
+        }
         return false;
+    }
+
+    private record StructureFilters(List<Structure> vanilla, List<String> custom) {
+        private static final StructureFilters EMPTY = new StructureFilters(List.of(), List.of());
     }
 }
 

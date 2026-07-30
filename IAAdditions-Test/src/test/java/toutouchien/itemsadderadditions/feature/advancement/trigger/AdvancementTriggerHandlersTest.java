@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions.feature.advancement.trigger;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -11,9 +12,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.*;
@@ -31,6 +30,7 @@ import toutouchien.itemsadderadditions.nms.api.INmsHandler;
 import toutouchien.itemsadderadditions.testsupport.FakeNms;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.*;
 
@@ -112,6 +112,60 @@ class AdvancementTriggerHandlersTest {
         new PermissionTriggerHandler(registry).onJoin(new PlayerJoinEvent(player, Component.empty()));
 
         verifyNotAwarded();
+    }
+
+    @Test
+    void enterRegionAwardsOnlyWhenCrossingIntoMatchingRegion() {
+        NamespacedKey key = register(RuntimeTrigger.ENTER_REGION,
+                new AdvancementConditions.EnterRegion("spawn", null));
+        EnterRegionTriggerHandler handler = new EnterRegionTriggerHandler(
+                registry,
+                location -> location.getBlockX() >= 10 ? Set.of("spawn") : Set.of()
+        );
+
+        handler.onMove(new PlayerMoveEvent(
+                player,
+                new Location(world, 9, 64, 0),
+                new Location(world, 10, 64, 0)
+        ));
+
+        verifyAwarded(key);
+    }
+
+    @Test
+    void enterRegionDoesNotAwardWhileRemainingInside() {
+        register(RuntimeTrigger.ENTER_REGION,
+                new AdvancementConditions.EnterRegion("spawn", null));
+        EnterRegionTriggerHandler handler = new EnterRegionTriggerHandler(
+                registry,
+                location -> location.getBlockX() >= 10 ? Set.of("spawn") : Set.of()
+        );
+
+        handler.onMove(new PlayerMoveEvent(
+                player,
+                new Location(world, 10, 64, 0),
+                new Location(world, 11, 64, 0)
+        ));
+
+        verifyNotAwarded();
+    }
+
+    @Test
+    void enterRegionSupportsTeleportEntry() {
+        NamespacedKey key = register(RuntimeTrigger.ENTER_REGION,
+                new AdvancementConditions.EnterRegion("dungeon", "world"));
+        EnterRegionTriggerHandler handler = new EnterRegionTriggerHandler(
+                registry,
+                location -> location.getBlockZ() >= 100 ? Set.of("dungeon") : Set.of()
+        );
+
+        handler.onTeleport(new PlayerTeleportEvent(
+                player,
+                new Location(world, 0, 64, 0),
+                new Location(world, 0, 64, 100)
+        ));
+
+        verifyAwarded(key);
     }
 
     @Test

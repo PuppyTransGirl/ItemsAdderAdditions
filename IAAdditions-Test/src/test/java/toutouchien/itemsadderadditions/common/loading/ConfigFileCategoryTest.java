@@ -60,6 +60,16 @@ class ConfigFileCategoryTest {
     }
 
     @Test
+    void itemsAdderCraftingTableDoesNotMatchIaaCrafting() {
+        YamlConfiguration yaml = fromYaml("""
+                recipes:
+                  crafting_table:
+                    some_recipe: {}
+                """);
+        assertFalse(ConfigFileCategory.CRAFTING_RECIPES.matches(yaml));
+    }
+
+    @Test
     void detectFurniturePopulatorsBlocksPopulators() {
         YamlConfiguration yaml = fromYaml("""
                 blocks_populators:

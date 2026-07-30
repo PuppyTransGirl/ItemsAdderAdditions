@@ -16,7 +16,7 @@ public final class SleptInBedTriggerHandler extends AbstractTriggerHandler {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBedEnter(PlayerBedEnterEvent event) {
-        if (event.enterAction().problem() != null) return;
+        if (event.getBedEnterResult() != PlayerBedEnterEvent.BedEnterResult.OK) return;
         for (AdvancementCriterionDefinition c : registry.criteriaByTrigger(RuntimeTrigger.SLEPT_IN_BED)) {
             if (!(c.conditions() instanceof AdvancementConditions.None)) continue;
             award(event.getPlayer(), advancementKeyFor(c), c.name());

@@ -226,6 +226,10 @@ public final class AdvancementLoader {
                     NamespaceUtils.normalizeMinecraftID(sec != null ? sec.getString("biome", "") : ""),
                     sec != null ? sec.getString("world") : null
             );
+            case ENTER_REGION -> new AdvancementConditions.EnterRegion(
+                    (sec != null ? sec.getString("region", "") : "").trim().toLowerCase(Locale.ROOT),
+                    sec != null ? sec.getString("world") : null
+            );
             case USING_ITEM -> new AdvancementConditions.UsingItem(
                     normalizeItemIdOrTag(namespace, sec != null ? sec.getString("item", "") : "")
             );

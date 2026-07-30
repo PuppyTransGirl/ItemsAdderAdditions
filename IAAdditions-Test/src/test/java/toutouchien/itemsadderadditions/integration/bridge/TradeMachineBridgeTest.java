@@ -4,8 +4,11 @@ import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockito.MockedStatic;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 
@@ -17,6 +20,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class TradeMachineBridgeTest {
+    @BeforeAll
+    static void setupServer() {
+        MockBukkit.mock();
+    }
+
+    @AfterAll
+    static void teardownServer() {
+        MockBukkit.unmock();
+    }
+
     @BeforeEach
     void resetBridge() throws Exception {
         for (String field : new String[]{
@@ -73,6 +86,35 @@ class TradeMachineBridgeTest {
             customStacks.when(() -> CustomStack.isFurnitureTradeMachine(item)).thenReturn(false);
             assertFalse(TradeMachineBridge.openTradeMachine(player, "pack:not_machine"));
         }
+    }
+
+    @Test
+    void publicApiFallsBackToCapturedHandlerForBlockTradeMachine() throws Exception {
+        Player player = mock(Player.class);
+        ItemStack item = ItemStack.of(Material.CHEST);
+        CustomStack customStack = mock(CustomStack.class);
+        when(customStack.getItemStack()).thenReturn(item);
+        setNamespaceCache("pack:block_machine", customStack);
+
+        LegacyTradeMachine blockMachine = new LegacyTradeMachine();
+        LegacyHandler handler = new LegacyHandler(new LegacyRegistry(
+                new LegacyCustomItemData(new LegacyBehaviorContainer(null, blockMachine))));
+        TradeMachineBridge.capture(handler);
+
+        try (MockedStatic<CustomStack> customStacks = mockStatic(CustomStack.class)) {
+            customStacks.when(() -> CustomStack.isFurnitureTradeMachine(item)).thenReturn(false);
+
+            assertTrue(TradeMachineBridge.openTradeMachine(player, "pack:block_machine"));
+            customStacks.verify(
+                    () -> CustomStack.openTradeMenu("pack:block_machine", player),
+                    never()
+            );
+        } finally {
+            NamespaceUtils.invalidateCache();
+        }
+
+        assertSame(player, blockMachine.openedFor);
+        assertSame(blockMachine, handler.vR.get(player));
     }
 
     @Test

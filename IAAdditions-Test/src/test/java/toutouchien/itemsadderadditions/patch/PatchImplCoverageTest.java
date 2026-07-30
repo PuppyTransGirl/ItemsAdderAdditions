@@ -3,14 +3,12 @@ package toutouchien.itemsadderadditions.patch;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_15.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_16.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_17.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -26,19 +24,17 @@ class PatchImplCoverageTest {
         return List.of(
                 new CooldownCapturePatch_IA_4_0_15(),
                 new StatRequirementsCapturePatch_IA_4_0_15(),
-                new CraftingRecipeBypassPatch_IA_4_0_15(),
                 new TradeMachineCapturePatch_IA_4_0_15(),
                 new StonecutterSelectiveBypassPatch_IA_4_0_15(),
                 new AddEnchantmentPatch_IA_4_0_15(),
                 new CooldownCapturePatch_IA_4_0_16(),
                 new StatRequirementsCapturePatch_IA_4_0_16(),
-                new CraftingRecipeBypassPatch_IA_4_0_16(),
                 new TradeMachineCapturePatch_IA_4_0_16(),
                 new StonecutterSelectiveBypassPatch_IA_4_0_16(),
                 new AddEnchantmentPatch_IA_4_0_16(),
                 new CooldownCapturePatch_IA_4_0_17(),
                 new StatRequirementsCapturePatch_IA_4_0_17(),
-                new CraftingRecipeBypassPatch_IA_4_0_17(),
+                new TradeMachineCapturePatch_IA_4_0_17(),
                 new StonecutterSelectiveBypassPatch_IA_4_0_17(),
                 new AddEnchantmentPatch_IA_4_0_17()
         );
@@ -73,6 +69,13 @@ class PatchImplCoverageTest {
                 () -> assertDoesNotThrow(() -> exercise(patch))));
     }
 
+    @Test
+    void ia4017CooldownCaptureDoesNotHardCodeObfuscatedItemHashField() {
+        List<String> fields = emittedFieldAccesses(new CooldownCapturePatch_IA_4_0_17());
+
+        assertFalse(fields.stream().anyMatch(field -> field.startsWith("itemsadder/m/oy.")));
+    }
+
     private MethodVisitor stubMethodVisitor() {
         ClassWriter cw = new ClassWriter(0);
         cw.visit(Opcodes.V21, Opcodes.ACC_PUBLIC, "Synthetic", null, "java/lang/Object", null);
@@ -100,6 +103,47 @@ class PatchImplCoverageTest {
 
         patched.visitMaxs(0, 0);
         patched.visitEnd();
+    }
+
+    private List<String> emittedFieldAccesses(MethodPatch patch) {
+        String name = patch.targetMethod();
+        String descriptor = patch.targetDescriptor();
+
+        ClassWriter cw = new ClassWriter(0);
+        cw.visit(Opcodes.V21, Opcodes.ACC_PUBLIC, "Synthetic", null, "java/lang/Object", null);
+
+        MethodVisitor base = cw.visitMethod(Opcodes.ACC_PUBLIC, name, descriptor, null, null);
+        MethodVisitor patched = patch.patchMethod(Opcodes.ACC_PUBLIC, name, descriptor, base);
+
+        patched.visitCode();
+        emitReturn(patched, Type.getReturnType(descriptor));
+        patched.visitMaxs(0, 0);
+        patched.visitEnd();
+        cw.visitEnd();
+
+        List<String> fields = new ArrayList<>();
+        new ClassReader(cw.toByteArray()).accept(new ClassVisitor(Opcodes.ASM9) {
+            @Override
+            public MethodVisitor visitMethod(
+                    int access,
+                    String methodName,
+                    String methodDescriptor,
+                    String signature,
+                    String[] exceptions
+            ) {
+                if (!name.equals(methodName) || !descriptor.equals(methodDescriptor)) {
+                    return null;
+                }
+                return new MethodVisitor(Opcodes.ASM9) {
+                    @Override
+                    public void visitFieldInsn(int opcode, String owner, String fieldName, String fieldDescriptor) {
+                        fields.add(owner + "." + fieldName + ":" + fieldDescriptor);
+                    }
+                };
+            }
+        }, 0);
+
+        return fields;
     }
 
     private void emitMatchingCallIfNeeded(MethodPatch patch, MethodVisitor mv) {

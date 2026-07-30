@@ -42,6 +42,7 @@ dependencies {
     testImplementation(libs.paper.api.test)
     testImplementation(libs.mockbukkit)
     testImplementation(libs.itemsadder)
+    testImplementation(libs.antigrieflib)
     testImplementation(libs.mockito.core)
     testImplementation(libs.asm)
     testImplementation(libs.asm.commons)

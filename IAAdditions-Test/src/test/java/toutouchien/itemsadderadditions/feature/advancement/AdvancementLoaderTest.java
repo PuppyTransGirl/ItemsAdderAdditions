@@ -791,6 +791,18 @@ class AdvancementLoaderTest {
     }
 
     @Test
+    void criteria_enterRegion_parsesRegionAndOptionalWorld() {
+        var conditions = assertInstanceOf(AdvancementConditions.EnterRegion.class,
+                loadSingleCriterion("enter_region", """
+                        region: "Spawn-Area"
+                        world: "world"
+                        """));
+
+        assertEquals("spawn-area", conditions.regionId());
+        assertEquals("world", conditions.world());
+    }
+
+    @Test
     void criteria_noConditionsSection_usesDefaults() {
         var result = load("""
                 advancements:

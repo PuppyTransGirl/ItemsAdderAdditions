@@ -1,0 +1,50 @@
+package toutouchien.itemsadderadditions.patch.impl.ia_4_0_17;
+
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
+import toutouchien.itemsadderadditions.integration.bridge.TradeMachineBridge;
+import toutouchien.itemsadderadditions.patch.InjectPoint;
+import toutouchien.itemsadderadditions.patch.MethodInjectPatch;
+import toutouchien.itemsadderadditions.patch.VersionConstraint;
+import toutouchien.itemsadderadditions.patch.VersionSet;
+
+/**
+ * Captures ItemsAdder's trade-machine handler for the block trade-machine path,
+ * which is not exposed by the 4.0.17 public API.
+ */
+public final class TradeMachineCapturePatch_IA_4_0_17 extends MethodInjectPatch {
+    @Override
+    public VersionConstraint supportedVersions() {
+        return VersionSet.ia("4.0.17");
+    }
+
+    @Override
+    public String targetClass() {
+        return "itemsadder/m/jq";
+    }
+
+    @Override
+    protected String targetMethod() {
+        return "<init>";
+    }
+
+    @Override
+    protected String targetDescriptor() {
+        return "(Lorg/bukkit/plugin/Plugin;Litemsadder/m/a;)V";
+    }
+
+    @Override
+    protected InjectPoint injectPoint() {
+        return InjectPoint.BEFORE_RETURN;
+    }
+
+    @Override
+    protected void inject(GeneratorAdapter ga) {
+        ga.loadThis();
+        ga.invokeStatic(
+                Type.getType(TradeMachineBridge.class),
+                Method.getMethod("void capture(Object)")
+        );
+    }
+}

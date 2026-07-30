@@ -1,9 +1,8 @@
 package toutouchien.itemsadderadditions.feature.behaviour.loading;
 
-import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.NullMarked;
+import toutouchien.itemsadderadditions.common.item.ItemVariantResolver;
 import toutouchien.itemsadderadditions.common.loading.AbstractItemsAdderItemLoader;
 import toutouchien.itemsadderadditions.common.registry.ExecutorRegistry;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
@@ -79,37 +78,18 @@ public final class BehaviourLoader extends AbstractItemsAdderItemLoader {
      * ancestors. Ancestors are applied from root to child so child definitions win.
      */
     private Map<String, Object> collectMergedBehaviours(ItemLoadContext context) {
-        String namespacedId = context.namespacedId();
-        String namespace = namespacedId.contains(":") ? namespacedId.substring(0, namespacedId.indexOf(':')) : "";
+        List<ItemVariantResolver.ResolvedItemConfig> nodes = ItemVariantResolver.chainFromSelf(
+                context.config(),
+                context.itemId(),
+                context.namespacedId()
+        );
+        if (nodes.isEmpty()) return Map.of();
 
-        // Walk up the variant_of chain, collecting ancestor behaviour sections root-first.
         List<ConfigurationSection> chain = new ArrayList<>();
-        String currentId = context.itemId();
-        FileConfiguration currentConfig = context.config();
-
-        for (int depth = 0; depth < 16; depth++) {
-            String variantOf = currentConfig.getString("items." + currentId + ".variant_of");
-            if (variantOf == null || variantOf.isBlank()) break;
-
-            String parentId = variantOf.contains(":") ? variantOf.substring(variantOf.indexOf(':') + 1) : variantOf;
-
-            if (currentConfig.contains("items." + parentId)) {
-                currentId = parentId;
-            } else {
-                String parentNsId = variantOf.contains(":") ? variantOf : namespace + ":" + variantOf;
-                CustomStack parent = CustomStack.getInstance(parentNsId);
-                if (parent == null) break;
-                currentConfig = parent.getConfig();
-                currentId = parent.getId();
-            }
-
-            ConfigurationSection section = currentConfig.getConfigurationSection("items." + currentId + ".behaviours");
-            if (section != null) chain.addFirst(section); // prepend so root ends up first
+        for (int i = nodes.size() - 1; i >= 0; i--) {
+            ConfigurationSection section = nodes.get(i).section().getConfigurationSection("behaviours");
+            if (section != null) chain.add(section);
         }
-
-        // Append the item's own behaviours last so they override any ancestor.
-        ConfigurationSection own = context.config().getConfigurationSection("items." + context.itemId() + ".behaviours");
-        if (own != null) chain.add(own);
 
         if (chain.isEmpty()) return Map.of();
 

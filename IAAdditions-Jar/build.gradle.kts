@@ -80,6 +80,7 @@ fun requiredFullTestProtocolLib(minecraftVersion: String) = requiredFullTestPlug
 dependencies {
     implementation(project(":IAAdditions-Core"))
 
+    if (enabled("enable_nms_v26_2")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v26_2"))
     if (enabled("enable_nms_v26_1_2")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v26_1_2"))
     if (enabled("enable_nms_v1_21_11")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v1_21_11"))
     if (enabled("enable_nms_v1_21_10")) implementation(project(":IAAdditions-NMS:IAAdditions-NMS_v1_21_10"))

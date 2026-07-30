@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.plugin;
 
+import dev.lone.itemsadder.api.ItemsAdder;
 import net.momirealms.antigrieflib.AntiGriefLib;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -65,6 +66,7 @@ public class ItemsAdderAdditions extends JavaPlugin {
     public void onEnable() {
         this.runtime = new PluginRuntime(this);
         runtime.enable();
+        ItemsAdder.Advanced.injectItemModifier(this, runtime.itemModifierPipeline()::apply);
     }
 
     @Override

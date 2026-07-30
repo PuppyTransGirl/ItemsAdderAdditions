@@ -27,3 +27,13 @@ dependencies:
     MMOItems:
       load: BEFORE
       required: false
+
+    CustomStructures:
+      load: BEFORE
+      required: false
+      join-classpath: true
+
+    GriefPrevention:
+      load: BEFORE
+      required: false
+      join-classpath: true

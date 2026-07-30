@@ -103,12 +103,8 @@ public final class OpenVariantTransformer {
 
         return switch (config.category()) {
             case ITEM -> swapItemDisplayModel(key, originalIsBlock, originalEntity);
-            case FURNITURE -> spawnOpenFurniture(location, key, originalIsBlock, originalEntity);
+            case FURNITURE, COMPLEX_FURNITURE -> spawnOpenFurniture(location, key, originalIsBlock, originalEntity);
             case BLOCK -> placeOpenBlock(location, key, originalIsBlock, originalEntity, rotationSuffix);
-            default -> {
-                Log.error(LOG_TAG, "Unsupported open_variant category {} for '{}'.", config.category(), config.id());
-                yield null;
-            }
         };
     }
 
