@@ -151,6 +151,9 @@ conditions:
       light:
         min: 8
       can_see_sky: true
+      structures:
+        - minecraft:village_plains
+        - customstructures:ancient_temple
 ```
 
 | 键                                   | 类型     | 描述                                                                           |
@@ -164,8 +167,9 @@ conditions:
 | `location.block`                    | 方块谓词   | 匹配该位置的方块                                                                     |
 | `location.light`                    | 数字或范围  | 匹配方块光照等级                                                                     |
 | `location.can_see_sky`              | 布尔值    | 要求天空可见性                                                                      |
+| `location.structure` / `structures` | 字符串或列表 | 匹配原版结构或 Custom Structures 结构；列表中任意一个结构匹配即可。 |
 
-不支持 `location.structure` 和 `location.structures`。如果配置了它们，谓词将不会匹配
+原版结构使用 `minecraft:village_plains` 等注册表键。自定义结构使用 `customstructures:<structure_name>`（也接受 `custom_structures:<structure_name>` 别名），并需要 ItemsAdderAdditions 1.0.12 或更高版本以及 Custom Structures 插件。请见 [Custom Structures 兼容性](/zh/docs/compatibility/customstructures)。
 
 ## 方块谓词
 
@@ -344,5 +348,4 @@ conditions:
 
 - 实体类型标签在语法上被接受但不会被解析。原版物品和方块标签在支持物品/方块谓词的地方会被解析
 - 实体级别的 `components` 和 `predicates` 部分不受支持，并且会使谓词匹配失败
-- 不支持位置结构
 - NBT 匹配被有意限制；它仅支持 `nbt` 字符串内的简单记分板标签检查

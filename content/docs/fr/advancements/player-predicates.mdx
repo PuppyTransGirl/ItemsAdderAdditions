@@ -152,6 +152,9 @@ conditions:
       light:
         min: 8
       can_see_sky: true
+      structures:
+        - minecraft:village_plains
+        - customstructures:ancient_temple
 ```
 
 | Clé | Type | Description |
@@ -165,8 +168,9 @@ conditions:
 | `location.block` | prédicat de bloc | Correspond au bloc à la position. |
 | `location.light` | nombre ou plage | Correspond au niveau de lumière du bloc. |
 | `location.can_see_sky` | booléen | Exige une visibilité vers le ciel. |
+| `location.structure` / `structures` | chaîne ou liste | Correspond à une structure vanilla ou à une structure Custom Structures. N'importe quelle entrée peut correspondre. |
 
-`location.structure` et `location.structures` ne sont pas pris en charge. Si vous les configurez, le prédicat ne correspondra pas.
+Les structures vanilla utilisent des clés de registre comme `minecraft:village_plains`. Les structures personnalisées utilisent `customstructures:<nom_de_structure>` (l'alias `custom_structures:<nom_de_structure>` est aussi accepté) et nécessitent ItemsAdderAdditions 1.0.12 ou supérieur avec le plugin Custom Structures. Consultez la [compatibilité Custom Structures](/fr/docs/compatibility/customstructures).
 
 ## Prédicats de blocs
 
@@ -345,5 +349,4 @@ Les prédicats d’entité imbriqués peuvent aussi utiliser quelques vérificat
 
 - Les tags de types d’entités sont acceptés syntaxiquement, mais ne sont pas résolus. Les tags d’objets et de blocs vanilla sont résolus là où les prédicats d’objets/blocs sont pris en charge.
 - Les sections `components` et `predicates` au niveau de l’entité ne sont pas prises en charge et font échouer le prédicat de manière fermée.
-- Les structures de position ne sont pas prises en charge.
 - La correspondance NBT est volontairement limitée ; elle ne prend en charge que les vérifications simples de scoreboard tags dans une chaîne `nbt`.

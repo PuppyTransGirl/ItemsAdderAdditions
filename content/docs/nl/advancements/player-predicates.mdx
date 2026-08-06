@@ -152,6 +152,9 @@ conditions:
       light:
         min: 8
       can_see_sky: true
+      structures:
+        - minecraft:village_plains
+        - customstructures:ancient_temple
 ```
 
 | Sleutel | Type | Beschrijving |
@@ -165,8 +168,9 @@ conditions:
 | `location.block` | blokpredicaat | Komt overeen met het blok op de locatie. |
 | `location.light` | getal of bereik | Komt overeen met het bloklichtniveau. |
 | `location.can_see_sky` | boolean | Vereist zicht op de lucht. |
+| `location.structure` / `structures` | string of lijst | Komt overeen met een vanilla structure of een Custom Structures-structure. Elke vermelding kan matchen. |
 
-`location.structure` en `location.structures` worden niet ondersteund. Als je ze configureert, zal het predicaat niet overeenkomen.
+Vanilla structures gebruiken registry keys zoals `minecraft:village_plains`. Custom Structures-vermeldingen gebruiken `customstructures:<structure_name>` (de alias `custom_structures:<structure_name>` wordt ook geaccepteerd) en vereisen ItemsAdderAdditions 1.0.12 of hoger met de Custom Structures-plugin. Zie [Custom Structures-compatibiliteit](/nl/docs/compatibility/customstructures).
 
 ## Blokpredicaten
 
@@ -345,5 +349,4 @@ Geneste entiteitspredicaten kunnen ook een paar entiteitsspecifieke controles ge
 
 - Entiteitstypetags worden syntactisch geaccepteerd maar niet opgelost. Vanilla item- en bloktags worden opgelost waar item-/blokpredicaten worden ondersteund.
 - Entiteitsniveau-secties `components` en `predicates` worden niet ondersteund en laten het predicaat gesloten falen.
-- Locatiestructuren worden niet ondersteund.
 - NBT-matching is bewust beperkt; het ondersteunt alleen eenvoudige scoreboard-tagcontroles binnen een `nbt`-string.

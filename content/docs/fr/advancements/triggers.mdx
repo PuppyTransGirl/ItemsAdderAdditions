@@ -746,7 +746,7 @@ criteria:
 
 ## in_biome
 
-Se déclenche lorsque le joueur entre dans un biome spécifique. Vérifié aux limites des chunks.
+Se déclenche lorsque le joueur entre dans un biome spécifique.
 
 ```yaml
 criteria:
@@ -761,6 +761,34 @@ criteria:
 |-----|------|---------|-------------|
 | `biome` | chaîne | *(requis)* | Clé de biome comme `namespace:id` (par ex. `minecraft:deep_dark`). |
 | `world` | chaîne | *(n’importe quel)* | Nom du monde pour limiter la vérification à un seul monde. |
+
+---
+
+## enter_region
+
+Se déclenche lorsqu'un joueur se déplace ou se téléporte de l'extérieur vers l'intérieur d'une région WorldGuard.
+
+<Callout type="warn">
+    **Versions requises :** Nécessite **ItemsAdderAdditions 1.0.12 ou supérieur** et WorldGuard.
+</Callout>
+
+```yaml
+criteria:
+  enter_spawn:
+    trigger: enter_region
+    conditions:
+      region: spawn
+      world: world  # optionnel
+```
+
+| Clé | Type | Par défaut | Description |
+|-----|------|------------|-------------|
+| `region` | chaîne | *(requis)* | ID de région WorldGuard. La casse est ignorée. |
+| `world` | chaîne | *(n'importe quel)* | Nom du monde Bukkit pour limiter la vérification à un seul monde. |
+
+Le critère ne se déclenche qu'au franchissement de la limite de la région. Se déplacer à l'intérieur de celle-ci ne le déclenche pas à nouveau. Ce déclencheur est indépendant des options de flags WorldGuard d'ItemsAdderAdditions.
+
+Consultez la [compatibilité WorldGuard](/fr/docs/compatibility/worldguard) pour l'installation et le dépannage.
 
 ---
 

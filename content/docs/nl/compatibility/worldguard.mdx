@@ -83,6 +83,23 @@ iaa-action-veinminer
 
 Alle action executors controleren hun actievlag voordat ze worden uitgevoerd. De gecontroleerde locatie wordt gekozen uit de action context: targetentiteit, blok, furniture-entiteit of de locatie van de speler als fallback.
 
+## Regiotrigger voor advancements
+
+ItemsAdderAdditions 1.0.12 voegt de `enter_region`-trigger toe. Deze voltooit een criterium wanneer een speler van buiten naar binnen een ingestelde WorldGuard-regio loopt of teleporteert.
+
+```yaml
+criteria:
+  enter_spawn:
+    trigger: enter_region
+    conditions:
+      region: spawn
+      world: world  # optioneel
+```
+
+Hoofdletters in regio-ID's worden genegeerd. De optionele waarde `world` is de Bukkit-wereldnaam. Deze trigger heeft alleen WorldGuard nodig; `worldguard.enabled` en `worldguard.flags.*` beheren beschermingscontroles, niet regiodetectie voor advancements.
+
+Zie de [`enter_region`-triggerreferentie](/nl/docs/advancements/triggers#enter_region).
+
 ## Regiovoorbeelden
 
 Storage-openingen in een regio weigeren:
@@ -132,3 +149,4 @@ Plaatsing van custom paintings expliciet toestaan:
 - [Bed behaviour](/nl/docs/behaviours/bed)
 - [Custom Paintings](/nl/docs/custom-paintings)
 - [Actieparameters](/nl/docs/actions/parameters)
+- [Advancementtriggers](/nl/docs/advancements/triggers)

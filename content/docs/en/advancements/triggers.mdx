@@ -748,7 +748,7 @@ criteria:
 
 ## in_biome
 
-Fires when the player crosses into a specific biome. Checked at chunk boundaries.
+Fires when the player crosses into a specific biome.
 
 ```yaml
 criteria:
@@ -763,6 +763,34 @@ criteria:
 |-----|------|---------|-------------|
 | `biome` | string | *(required)* | Biome key as `namespace:id` (e.g. `minecraft:deep_dark`). |
 | `world` | string | *(any)* | World name to restrict the check to a single world. |
+
+---
+
+## enter_region
+
+Fires when the player moves or teleports from outside to inside a WorldGuard region.
+
+<Callout type="warn">
+    **Version requirements:** Requires **ItemsAdderAdditions 1.0.12 or higher** and WorldGuard.
+</Callout>
+
+```yaml
+criteria:
+  enter_spawn:
+    trigger: enter_region
+    conditions:
+      region: spawn
+      world: world  # optional
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `region` | string | *(required)* | WorldGuard region ID. Matching is case-insensitive. |
+| `world` | string | *(any)* | Bukkit world name to restrict the check to a single world. |
+
+The criterion only fires when the player crosses the region boundary. Moving between blocks while already inside the region does not fire it again. This trigger is independent of the ItemsAdderAdditions WorldGuard flag toggles.
+
+See [WorldGuard compatibility](/en/docs/compatibility/worldguard) for setup and troubleshooting.
 
 ---
 

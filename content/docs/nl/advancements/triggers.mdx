@@ -746,7 +746,7 @@ criteria:
 
 ## in_biome
 
-Wordt geactiveerd wanneer de speler in een specifiek bioom stapt. Gecontroleerd bij chunkgrenzen.
+Wordt geactiveerd wanneer de speler een specifiek bioom binnenstapt.
 
 ```yaml
 criteria:
@@ -761,6 +761,34 @@ criteria:
 |-----|------|---------|-------------|
 | `biome` | string | *(vereist)* | Bioomsleutel als `namespace:id` (bijv. `minecraft:deep_dark`). |
 | `world` | string | *(elke)* | Wereldnaam om de controle tot één wereld te beperken. |
+
+---
+
+## enter_region
+
+Wordt geactiveerd wanneer een speler van buiten naar binnen een WorldGuard-regio loopt of teleporteert.
+
+<Callout type="warn">
+    **Versievereisten:** Vereist **ItemsAdderAdditions 1.0.12 of hoger** en WorldGuard.
+</Callout>
+
+```yaml
+criteria:
+  enter_spawn:
+    trigger: enter_region
+    conditions:
+      region: spawn
+      world: world  # optioneel
+```
+
+| Sleutel | Type | Standaard | Beschrijving |
+|---------|------|-----------|--------------|
+| `region` | string | *(vereist)* | WorldGuard-regio-ID. Hoofdletters worden genegeerd. |
+| `world` | string | *(elke)* | Bukkit-wereldnaam om de controle tot één wereld te beperken. |
+
+Het criterium wordt alleen geactiveerd bij het overschrijden van de regiogrens. Bewegen terwijl de speler al binnen de regio is activeert het niet opnieuw. Deze trigger staat los van de ItemsAdderAdditions WorldGuard-vlagopties.
+
+Zie [WorldGuard-compatibiliteit](/nl/docs/compatibility/worldguard) voor installatie en probleemoplossing.
 
 ---
 

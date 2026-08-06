@@ -152,6 +152,9 @@ conditions:
       light:
         min: 8
       can_see_sky: true
+      structures:
+        - minecraft:village_plains
+        - customstructures:ancient_temple
 ```
 
 | Key | Type | Description |
@@ -165,8 +168,9 @@ conditions:
 | `location.block` | block predicate | Match the block at the location. |
 | `location.light` | number or range | Match block light level. |
 | `location.can_see_sky` | boolean | Require sky visibility. |
+| `location.structure` / `structures` | string or list | Match a vanilla structure key or a Custom Structures structure. Any listed structure can match. |
 
-`location.structure` and `location.structures` are not supported. If you configure them, the predicate will not match.
+Vanilla structures use registry keys such as `minecraft:village_plains`. Custom Structures entries use `customstructures:<structure_name>` (the alias `custom_structures:<structure_name>` is also accepted) and require ItemsAdderAdditions 1.0.12 or higher with the Custom Structures plugin installed. See [Custom Structures compatibility](/en/docs/compatibility/customstructures).
 
 ## Block predicates
 
@@ -345,5 +349,4 @@ Nested entity predicates can also use a few entity-specific checks.
 
 - Entity type tags are accepted syntactically but are not resolved. Vanilla item and block tags are resolved where item/block predicates are supported.
 - Entity-level `components` and `predicates` sections are not supported and will make the predicate fail closed.
-- Location structures are not supported.
 - NBT matching is intentionally limited; it only supports simple scoreboard tag checks inside an `nbt` string.

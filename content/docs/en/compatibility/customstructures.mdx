@@ -1,0 +1,48 @@
+---
+title: Custom Structures
+description: Match Custom Structures structures in advancement location predicates.
+icon: Landmark
+---
+
+Custom Structures support is optional and is available in ItemsAdderAdditions 1.0.12 and newer. It lets advancement player predicates require the player to be inside a structure spawned by the Custom Structures plugin.
+
+## Configuration
+
+Use the structure name with the `customstructures:` namespace under `conditions.player.location.structure` or `structures`.
+
+```yaml
+criteria:
+  find_temple:
+    trigger: tick
+    conditions:
+      player:
+        location:
+          structures:
+            - customstructures:ancient_temple
+```
+
+The alias `custom_structures:<structure_name>` is also accepted. Structure-name matching is case-insensitive.
+
+## How detection works
+
+ItemsAdderAdditions uses the Custom Structures integration to match structure bounds. Existing and newly generated structures are supported; structures do not need to be regenerated after installing ItemsAdderAdditions.
+
+## Vanilla structures
+
+Vanilla structures do not require Custom Structures. Use their normal registry keys, for example:
+
+```yaml
+location:
+  structure: minecraft:village_plains
+```
+
+## Troubleshooting
+
+- Confirm Custom Structures is enabled before ItemsAdderAdditions.
+- Use the structure's configured name, not its schematic filename unless both are identical.
+- Check the server log for `Enabled advancement structure predicate integration.`
+
+## Related pages
+
+- [Player predicates](/en/docs/advancements/player-predicates#location-checks)
+- [Advancement configuration](/en/docs/advancements/configuration)

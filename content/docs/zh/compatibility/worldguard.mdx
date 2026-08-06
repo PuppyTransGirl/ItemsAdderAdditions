@@ -83,6 +83,23 @@ iaa-action-veinminer
 
 所有 action executor 在运行前都会检查自己的动作 flag。检查位置来自 action context：目标实体、方块、家具实体，或作为 fallback 的玩家位置。
 
+## 进度区域触发器
+
+ItemsAdderAdditions 1.0.12 新增 `enter_region` 进度触发器。当玩家通过移动或传送从外部进入配置的 WorldGuard 区域时，它会完成准则。
+
+```yaml
+criteria:
+  enter_spawn:
+    trigger: enter_region
+    conditions:
+      region: spawn
+      world: world  # 可选
+```
+
+区域 ID 匹配不区分大小写。可选的 `world` 值为 Bukkit 世界名称。该触发器只需要安装 WorldGuard；`worldguard.enabled` 和 `worldguard.flags.*` 控制保护检查，不会关闭进度的区域检测。
+
+请见 [`enter_region` 触发器参考](/zh/docs/advancements/triggers#enter_region)。
+
 ## 区域示例
 
 拒绝在区域中打开 storage：
@@ -132,3 +149,4 @@ iaa-action-veinminer
 - [Bed behaviour](/zh/docs/behaviours/bed)
 - [自定义画](/zh/docs/custom-paintings)
 - [动作参数](/zh/docs/actions/parameters)
+- [进度触发器](/zh/docs/advancements/triggers)

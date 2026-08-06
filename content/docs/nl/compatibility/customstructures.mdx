@@ -1,0 +1,41 @@
+---
+title: Custom Structures
+description: Gebruik Custom Structures-structures in locatiepredicaten van advancements.
+icon: Landmark
+---
+
+Custom Structures-ondersteuning is optioneel en beschikbaar vanaf ItemsAdderAdditions 1.0.12. Hiermee kan een advancement vereisen dat de speler zich in een door Custom Structures gegenereerde structure bevindt.
+
+## Configuratie
+
+Gebruik de structurenaam met de namespace `customstructures:` onder `conditions.player.location.structure` of `structures`.
+
+```yaml
+criteria:
+  find_temple:
+    trigger: tick
+    conditions:
+      player:
+        location:
+          structures:
+            - customstructures:ancient_temple
+```
+
+De alias `custom_structures:<structure_name>` wordt ook geaccepteerd. Hoofdletters in de structurenaam worden genegeerd.
+
+## Werking
+
+ItemsAdderAdditions gebruikt de Custom Structures-integratie om structuregrenzen te matchen. Bestaande en nieuw gegenereerde structures worden ondersteund; ze hoeven na de installatie van ItemsAdderAdditions niet opnieuw te worden gegenereerd.
+
+Vanilla structures hebben Custom Structures niet nodig en gebruiken normale registry keys, bijvoorbeeld `minecraft:village_plains`.
+
+## Probleemoplossing
+
+- Controleer of Custom Structures vóór ItemsAdderAdditions is ingeschakeld.
+- Gebruik de geconfigureerde structurenaam, niet de schematic-bestandsnaam tenzij die gelijk zijn.
+- Zoek in de serverlog naar `Enabled advancement structure predicate integration.`
+
+## Gerelateerde pagina's
+
+- [Spelerpredicaten](/nl/docs/advancements/player-predicates)
+- [Advancementconfiguratie](/nl/docs/advancements/configuration)

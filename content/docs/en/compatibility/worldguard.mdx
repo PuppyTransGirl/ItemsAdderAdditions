@@ -83,6 +83,23 @@ iaa-action-veinminer
 
 All action executors check their action flag before running. The checked location is chosen from the action context: target entity, block, furniture entity, or the player's location as a fallback.
 
+## Advancement region trigger
+
+ItemsAdderAdditions 1.0.12 adds the `enter_region` advancement trigger. It awards a criterion when a player moves or teleports from outside to inside the configured WorldGuard region.
+
+```yaml
+criteria:
+  enter_spawn:
+    trigger: enter_region
+    conditions:
+      region: spawn
+      world: world  # optional
+```
+
+Region IDs are matched case-insensitively. The optional `world` value is the Bukkit world name. This trigger only needs WorldGuard to be installed; `worldguard.enabled` and `worldguard.flags.*` control protection checks, not region detection for advancements.
+
+See the full [`enter_region` trigger reference](/en/docs/advancements/triggers#enter_region).
+
 ## Region examples
 
 Deny storage openings in a region:
@@ -132,3 +149,4 @@ Allow custom painting placement explicitly:
 - [Bed behaviour](/en/docs/behaviours/bed)
 - [Custom Paintings](/en/docs/custom-paintings)
 - [Action parameters](/en/docs/actions/parameters)
+- [Advancement triggers](/en/docs/advancements/triggers)

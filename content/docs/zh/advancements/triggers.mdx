@@ -746,7 +746,7 @@ criteria:
 
 ## in_biome
 
-当玩家进入特定生物群系时触发。在区块边界检查
+当玩家进入特定生物群系时触发
 
 ```yaml
 criteria:
@@ -761,6 +761,34 @@ criteria:
 |---------|-----|--------|-----------------------------------------------|
 | `biome` | 字符串 | *（必填）* | 生物群系键，格式为 `namespace:id`（例如 `minecraft:deep_dark`） |
 | `world` | 字符串 | *（任意）* | 将检查限制在单个世界的世界名称                               |
+
+---
+
+## enter_region
+
+当玩家通过移动或传送从外部进入 WorldGuard 区域时触发。
+
+<Callout type="warn">
+    **版本要求：** 需要 **ItemsAdderAdditions 1.0.12 或更高版本**以及 WorldGuard。
+</Callout>
+
+```yaml
+criteria:
+  enter_spawn:
+    trigger: enter_region
+    conditions:
+      region: spawn
+      world: world  # 可选
+```
+
+| 键 | 类型 | 默认值 | 描述 |
+|----|------|--------|------|
+| `region` | 字符串 | *（必填）* | WorldGuard 区域 ID，不区分大小写。 |
+| `world` | 字符串 | *（任意）* | 将检查限制在单个 Bukkit 世界名称。 |
+
+该准则只在玩家跨过区域边界时触发。玩家已在区域内时继续移动不会再次触发。此触发器不受 ItemsAdderAdditions WorldGuard flag 开关影响。
+
+安装与故障排除请见 [WorldGuard 兼容性](/zh/docs/compatibility/worldguard)。
 
 ---
 

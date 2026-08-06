@@ -83,6 +83,23 @@ iaa-action-veinminer
 
 Tous les exécuteurs d'actions vérifient leur flag d'action avant de s'exécuter. L'emplacement vérifié est choisi depuis le contexte de l'action : entité cible, bloc, entité de meuble ou position du joueur en dernier recours.
 
+## Déclencheur d'avancement de région
+
+ItemsAdderAdditions 1.0.12 ajoute le déclencheur `enter_region`. Il valide un critère lorsqu'un joueur se déplace ou se téléporte de l'extérieur vers l'intérieur d'une région WorldGuard configurée.
+
+```yaml
+criteria:
+  enter_spawn:
+    trigger: enter_region
+    conditions:
+      region: spawn
+      world: world  # optionnel
+```
+
+La casse des IDs de région est ignorée. La valeur optionnelle `world` est le nom du monde Bukkit. Ce déclencheur nécessite seulement WorldGuard ; `worldguard.enabled` et `worldguard.flags.*` contrôlent les protections, pas la détection des régions pour les avancements.
+
+Consultez la [référence du déclencheur `enter_region`](/fr/docs/advancements/triggers#enter_region).
+
 ## Exemples de régions
 
 Refuser l'ouverture des stockages dans une région :
@@ -132,3 +149,4 @@ Autoriser explicitement la pose de peintures personnalisées :
 - [Comportement bed](/fr/docs/behaviours/bed)
 - [Peintures personnalisées](/fr/docs/custom-paintings)
 - [Paramètres des actions](/fr/docs/actions/parameters)
+- [Déclencheurs d'avancement](/fr/docs/advancements/triggers)

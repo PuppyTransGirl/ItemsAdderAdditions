@@ -1,0 +1,41 @@
+---
+title: Custom Structures
+description: 在进度位置谓词中匹配 Custom Structures 结构。
+icon: Landmark
+---
+
+Custom Structures 支持是可选的，并从 ItemsAdderAdditions 1.0.12 起可用。它允许进度要求玩家位于 Custom Structures 插件生成的结构内。
+
+## 配置
+
+在 `conditions.player.location.structure` 或 `structures` 下使用带 `customstructures:` 命名空间的结构名称。
+
+```yaml
+criteria:
+  find_temple:
+    trigger: tick
+    conditions:
+      player:
+        location:
+          structures:
+            - customstructures:ancient_temple
+```
+
+也接受 `custom_structures:<structure_name>` 别名。结构名称匹配不区分大小写。
+
+## 检测方式
+
+ItemsAdderAdditions 使用 Custom Structures 集成匹配结构边界。已有结构和新生成的结构均受支持；安装 ItemsAdderAdditions 后无需重新生成结构。
+
+原版结构无需 Custom Structures，使用普通注册表键即可，例如 `minecraft:village_plains`。
+
+## 故障排除
+
+- 确认 Custom Structures 在 ItemsAdderAdditions 之前启用。
+- 使用结构的配置名称；除非两者相同，否则不要使用 schematic 文件名。
+- 在服务器日志中检查 `Enabled advancement structure predicate integration.`。
+
+## 相关页面
+
+- [玩家谓词](/zh/docs/advancements/player-predicates)
+- [进度配置](/zh/docs/advancements/configuration)

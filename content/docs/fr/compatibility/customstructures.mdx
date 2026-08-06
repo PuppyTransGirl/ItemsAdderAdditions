@@ -1,0 +1,41 @@
+---
+title: Custom Structures
+description: Utiliser les structures de Custom Structures dans les prédicats de position des avancements.
+icon: Landmark
+---
+
+La prise en charge de Custom Structures est optionnelle et disponible depuis ItemsAdderAdditions 1.0.12. Elle permet d'exiger qu'un joueur se trouve dans une structure générée par le plugin Custom Structures.
+
+## Configuration
+
+Utilisez le nom de la structure avec le namespace `customstructures:` sous `conditions.player.location.structure` ou `structures`.
+
+```yaml
+criteria:
+  find_temple:
+    trigger: tick
+    conditions:
+      player:
+        location:
+          structures:
+            - customstructures:ancient_temple
+```
+
+L'alias `custom_structures:<nom_de_structure>` est aussi accepté. La casse du nom est ignorée.
+
+## Fonctionnement
+
+ItemsAdderAdditions utilise l'intégration Custom Structures pour faire correspondre les limites des structures. Les structures existantes et nouvellement générées sont prises en charge ; il n'est pas nécessaire de les générer à nouveau après l'installation d'ItemsAdderAdditions.
+
+Les structures vanilla n'ont pas besoin de Custom Structures et utilisent leurs clés normales, par exemple `minecraft:village_plains`.
+
+## Dépannage
+
+- Vérifiez que Custom Structures est activé avant ItemsAdderAdditions.
+- Utilisez le nom configuré de la structure, pas le nom du schematic sauf s'ils sont identiques.
+- Recherchez `Enabled advancement structure predicate integration.` dans les logs.
+
+## Pages associées
+
+- [Prédicats de joueur](/fr/docs/advancements/player-predicates)
+- [Configuration des avancements](/fr/docs/advancements/configuration)
