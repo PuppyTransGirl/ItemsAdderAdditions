@@ -39,6 +39,7 @@ features:
 | `path` | String | item id | Output path / generated model id. Supports `namespace:path`. |
 | `model` | Object | - | Builder shorthand for the model tree (see below). |
 | `raw` | Object | - | Full item model definition root, passed through verbatim. |
+| `oversized_in_gui` | Boolean | `false` | Allow the model to render outside its slot bounds in GUIs. Requires Minecraft 1.21.6 or newer. |
 | `apply_component` | Boolean | `true` | Attach the `minecraft:item_model` component pointing at the generated id. |
 | `overwrite_existing_file` | Boolean | `true` | When `false`, an existing file at the target path is left untouched. |
 | `custom_model_data` | Object | - | Adds a `minecraft:custom_model_data` component (see below). |
@@ -63,6 +64,20 @@ Rules:
 - Path: lowercase letters, digits, `_`, `-`, `.`, `/`
 - No leading or trailing `/`, no `//`
 - Absolute paths, backslashes, and `..` are rejected
+
+### `oversized_in_gui`
+
+Set `oversized_in_gui: true` to allow the item model to render outside its slot bounds in inventory GUIs. Minecraft added this item model definition field in 1.21.6, so it only has an effect on 1.21.6 or newer.
+
+```yaml
+item_model_definition:
+  oversized_in_gui: true
+  model:
+    type: model
+    model: my_pack:item/large_item
+```
+
+The value is written alongside `model` at the generated JSON root. If omitted, the vanilla default of `false` applies. When used with `raw`, this top-level setting overrides `raw.oversized_in_gui`.
 
 ## Builder model (`model`)
 

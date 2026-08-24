@@ -39,6 +39,7 @@ features:
 | `path` | Chaîne | id de l'objet | Chemin de sortie / id du modèle généré. Supporte `namespace:path`. |
 | `model` | Objet | - | Raccourci builder pour l'arbre de modèle (voir ci-dessous). |
 | `raw` | Objet | - | Racine complète de la définition de modèle, écrite telle quelle. |
+| `oversized_in_gui` | Booléen | `false` | Autorise le modèle à dépasser les limites de son emplacement dans les interfaces. Nécessite Minecraft 1.21.6 ou plus récent. |
 | `apply_component` | Booléen | `true` | Attache le composant `minecraft:item_model` pointant vers l'id généré. |
 | `overwrite_existing_file` | Booléen | `true` | Avec `false`, un fichier existant au chemin cible n'est pas touché. |
 | `custom_model_data` | Objet | - | Ajoute un composant `minecraft:custom_model_data` (voir ci-dessous). |
@@ -63,6 +64,20 @@ Règles :
 - Chemin : lettres minuscules, chiffres, `_`, `-`, `.`, `/`
 - Pas de `/` au début ni à la fin, pas de `//`
 - Les chemins absolus, les antislashs et `..` sont rejetés
+
+### `oversized_in_gui`
+
+Définissez `oversized_in_gui: true` pour autoriser le modèle de l'objet à dépasser les limites de son emplacement dans les interfaces d'inventaire. Minecraft a ajouté ce champ de définition de modèle d'objet dans la version 1.21.6 ; il n'a donc d'effet qu'à partir de cette version.
+
+```yaml
+item_model_definition:
+  oversized_in_gui: true
+  model:
+    type: model
+    model: my_pack:item/large_item
+```
+
+La valeur est écrite à côté de `model` à la racine du JSON généré. Si elle est omise, la valeur vanilla par défaut `false` s'applique. Avec `raw`, ce paramètre de premier niveau remplace `raw.oversized_in_gui`.
 
 ## Modèle builder (`model`)
 

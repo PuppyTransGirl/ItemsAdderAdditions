@@ -39,6 +39,7 @@ features:
 | `path` | String | item-id | Uitvoerpad / gegenereerd model-id. Ondersteunt `namespace:path`. |
 | `model` | Object | - | Builder-shorthand voor de modelboom (zie hieronder). |
 | `raw` | Object | - | Volledige item model definition-root, letterlijk geschreven. |
+| `oversized_in_gui` | Boolean | `false` | Staat toe dat het model buiten de grenzen van het slot in GUI's wordt gerenderd. Vereist Minecraft 1.21.6 of nieuwer. |
 | `apply_component` | Boolean | `true` | Koppelt de `minecraft:item_model` component die naar het gegenereerde id wijst. |
 | `overwrite_existing_file` | Boolean | `true` | Bij `false` blijft een bestaand bestand op het doelpad onaangeroerd. |
 | `custom_model_data` | Object | - | Voegt een `minecraft:custom_model_data` component toe (zie hieronder). |
@@ -63,6 +64,20 @@ Regels:
 - Pad: kleine letters, cijfers, `_`, `-`, `.`, `/`
 - Geen `/` aan begin of eind, geen `//`
 - Absolute paden, backslashes en `..` worden geweigerd
+
+### `oversized_in_gui`
+
+Stel `oversized_in_gui: true` in om toe te staan dat het itemmodel buiten de grenzen van het slot in inventaris-GUI's wordt gerenderd. Minecraft heeft dit veld voor item model definitions toegevoegd in 1.21.6, dus het heeft alleen effect op 1.21.6 of nieuwer.
+
+```yaml
+item_model_definition:
+  oversized_in_gui: true
+  model:
+    type: model
+    model: my_pack:item/large_item
+```
+
+De waarde wordt naast `model` in de root van de gegenereerde JSON geschreven. Wanneer deze is weggelaten, geldt de vanilla standaardwaarde `false`. Bij gebruik met `raw` overschrijft deze instelling op het hoogste niveau `raw.oversized_in_gui`.
 
 ## Builder-model (`model`)
 

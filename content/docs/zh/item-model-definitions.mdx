@@ -39,6 +39,7 @@ features:
 | `path` | 字符串 | 物品 id | 输出路径 / 生成的模型 id。支持 `namespace:path`。 |
 | `model` | 对象 | - | 模型树的 builder 简写（见下文）。 |
 | `raw` | 对象 | - | 完整的物品模型定义根对象，原样写入。 |
+| `oversized_in_gui` | 布尔 | `false` | 允许模型在 GUI 中渲染到槽位边界之外。需要 Minecraft 1.21.6 或更高版本。 |
 | `apply_component` | 布尔 | `true` | 附加指向生成 id 的 `minecraft:item_model` 组件。 |
 | `overwrite_existing_file` | 布尔 | `true` | 为 `false` 时，目标路径已存在的文件保持不变。 |
 | `custom_model_data` | 对象 | - | 添加 `minecraft:custom_model_data` 组件（见下文）。 |
@@ -63,6 +64,20 @@ item_model_definition:
 - 路径：小写字母、数字、`_`、`-`、`.`、`/`
 - 不能以 `/` 开头或结尾，不能有 `//`
 - 拒绝绝对路径、反斜杠和 `..`
+
+### `oversized_in_gui`
+
+设置 `oversized_in_gui: true` 可允许物品模型在物品栏 GUI 中渲染到槽位边界之外。Minecraft 1.21.6 新增了此物品模型定义字段，因此该设置仅在 1.21.6 或更高版本中生效。
+
+```yaml
+item_model_definition:
+  oversized_in_gui: true
+  model:
+    type: model
+    model: my_pack:item/large_item
+```
+
+该值会与 `model` 一同写入生成的 JSON 根对象。若省略，则使用原版默认值 `false`。与 `raw` 一起使用时，此顶层设置会覆盖 `raw.oversized_in_gui`。
 
 ## Builder 模型（`model`）
 
