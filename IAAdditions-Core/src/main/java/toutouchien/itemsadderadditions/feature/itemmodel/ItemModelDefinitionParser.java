@@ -50,6 +50,10 @@ final class ItemModelDefinitionParser {
                 : buildRootFromModel(section.get("model"), namespacedId);
         if (json.isEmpty()) return Optional.empty();
 
+        if (section.contains("oversized_in_gui")) {
+            json.get().addProperty("oversized_in_gui", section.getBoolean("oversized_in_gui"));
+        }
+
         boolean applyComponent = section.getBoolean("apply_component", true);
         boolean overwriteExistingFile = section.getBoolean("overwrite_existing_file", true);
 
