@@ -46,6 +46,10 @@ class StorageBehaviourTest {
                 title: '<gold>Storage'
                 inventory_type: hopper
                 open_variant: ns:open_chest
+                empty_variant: ns:empty_chest
+                filled_variant: ns:filled_chest
+                half_variant: ns:half_chest
+                full_variant: ns:full_chest
                 """), "ns:chest"));
 
         assertEquals("shulker", field(behaviour, "typeName"));
@@ -53,6 +57,10 @@ class StorageBehaviourTest {
         assertEquals("<gold>Storage", field(behaviour, "titleRaw"));
         assertEquals("hopper", field(behaviour, "inventoryTypeName"));
         assertEquals("ns:open_chest", field(behaviour, "openVariant"));
+        assertEquals("ns:empty_chest", field(behaviour, "emptyVariant"));
+        assertEquals("ns:filled_chest", field(behaviour, "filledVariant"));
+        assertEquals("ns:half_chest", field(behaviour, "halfVariant"));
+        assertEquals("ns:full_chest", field(behaviour, "fullVariant"));
     }
 
     @Test

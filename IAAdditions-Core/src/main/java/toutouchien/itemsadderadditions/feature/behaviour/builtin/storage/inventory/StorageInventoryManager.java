@@ -83,6 +83,44 @@ public final class StorageInventoryManager {
         Log.debug("StorageManager", "Cleared storage contents from Entity PDC (UUID: " + entity.getUniqueId() + ")");
     }
 
+    public static void markContentVariant(
+            Block block,
+            NamespacedKey key,
+            String ownerId,
+            String variantId,
+            JavaPlugin plugin
+    ) {
+        new CustomBlockData(block, plugin).set(key, PersistentDataType.STRING, variantMarker(ownerId, variantId));
+    }
+
+    public static void clearContentVariantMarker(Block block, NamespacedKey key, JavaPlugin plugin) {
+        new CustomBlockData(block, plugin).remove(key);
+    }
+
+    @Nullable
+    public static String contentVariantMarker(Block block, NamespacedKey key, JavaPlugin plugin) {
+        return new CustomBlockData(block, plugin).get(key, PersistentDataType.STRING);
+    }
+
+    public static void markContentVariant(Entity entity, NamespacedKey key, String ownerId, String variantId) {
+        entity.getPersistentDataContainer().set(key, PersistentDataType.STRING, variantMarker(ownerId, variantId));
+    }
+
+    @Nullable
+    public static String contentVariantMarker(Entity entity, NamespacedKey key) {
+        return entity.getPersistentDataContainer().get(key, PersistentDataType.STRING);
+    }
+
+    public static boolean isContentVariantMarker(@Nullable String marker, String ownerId) {
+        return marker != null && marker.startsWith(ownerId + "|");
+    }
+
+    @Nullable
+    public static String contentVariantId(@Nullable String marker, String ownerId) {
+        if (!isContentVariantMarker(marker, ownerId)) return null;
+        return marker.substring(ownerId.length() + 1);
+    }
+
     public static void injectIntoItem(ItemStack item, ItemStack[] contents, NamespacedKey key) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) {
@@ -125,5 +163,9 @@ public final class StorageInventoryManager {
         int slots = Math.min(contents.length, inventory.getSize());
         for (int i = 0; i < slots; i++)
             inventory.setItem(i, contents[i]);
+    }
+
+    private static String variantMarker(String ownerId, String variantId) {
+        return ownerId + "|" + variantId;
     }
 }

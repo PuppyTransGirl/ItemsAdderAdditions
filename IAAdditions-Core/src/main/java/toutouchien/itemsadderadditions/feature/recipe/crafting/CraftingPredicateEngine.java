@@ -6,12 +6,15 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.RecipeChoice;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.ParsedIngredient;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +38,34 @@ final class CraftingPredicateEngine {
             }
         }
         return true;
+    }
+
+    /**
+     * Returns whether two recipes are indistinguishable to the native recipe
+     * matcher. Runtime-only predicates such as custom item IDs, custom tags,
+     * amounts and durability are deliberately ignored here because the NMS
+     * registration contains only each ingredient's broad {@link
+     * ParsedIngredient#choice()}.
+     */
+    static boolean hasEquivalentRegistrationShape(
+            CraftingRecipeData first,
+            CraftingRecipeData second
+    ) {
+        if (first.shaped() != second.shaped()) return false;
+
+        if (!first.shaped()) {
+            return unorderedChoicesEquivalent(first.ingredientList, second.ingredientList);
+        }
+
+        RegistrationPattern firstPattern = registrationPattern(first);
+        RegistrationPattern secondPattern = registrationPattern(second);
+        if (firstPattern.width != secondPattern.width
+                || firstPattern.height != secondPattern.height) {
+            return false;
+        }
+
+        return patternsEquivalent(firstPattern, secondPattern, false)
+                || patternsEquivalent(firstPattern, secondPattern, true);
     }
 
     static boolean canCraftAgain(CraftingRecipeData data, ItemStack[] matrix) {
@@ -142,6 +173,127 @@ final class CraftingPredicateEngine {
 
     static String itemInfo(@Nullable ItemStack item) {
         return CraftingIngredientMatcher.itemInfo(item);
+    }
+
+    private static boolean unorderedChoicesEquivalent(
+            List<ParsedIngredient> first,
+            List<ParsedIngredient> second
+    ) {
+        if (first.size() != second.size()) return false;
+        return matchUnorderedChoice(first, second, new boolean[second.size()], 0);
+    }
+
+    private static boolean matchUnorderedChoice(
+            List<ParsedIngredient> first,
+            List<ParsedIngredient> second,
+            boolean[] used,
+            int firstIndex
+    ) {
+        if (firstIndex == first.size()) return true;
+
+        RecipeChoice choice = first.get(firstIndex).choice();
+        for (int secondIndex = 0; secondIndex < second.size(); secondIndex++) {
+            if (used[secondIndex]
+                    || !choicesEquivalent(choice, second.get(secondIndex).choice())) {
+                continue;
+            }
+
+            used[secondIndex] = true;
+            if (matchUnorderedChoice(first, second, used, firstIndex + 1)) return true;
+            used[secondIndex] = false;
+        }
+        return false;
+    }
+
+    private static RegistrationPattern registrationPattern(CraftingRecipeData data) {
+        String[] pattern = data.pattern();
+        assert pattern != null;
+
+        int minRow = pattern.length;
+        int maxRow = -1;
+        int minColumn = Integer.MAX_VALUE;
+        int maxColumn = -1;
+
+        for (int row = 0; row < pattern.length; row++) {
+            String line = pattern[row];
+            for (int column = 0; column < line.length(); column++) {
+                if (line.charAt(column) == ' ') continue;
+                minRow = Math.min(minRow, row);
+                maxRow = Math.max(maxRow, row);
+                minColumn = Math.min(minColumn, column);
+                maxColumn = Math.max(maxColumn, column);
+            }
+        }
+
+        if (maxRow < 0) return new RegistrationPattern(0, 0, new ParsedIngredient[0]);
+
+        int width = maxColumn - minColumn + 1;
+        int height = maxRow - minRow + 1;
+        ParsedIngredient[] cells = new ParsedIngredient[width * height];
+        for (int row = 0; row < height; row++) {
+            String line = pattern[minRow + row];
+            for (int column = 0; column < width; column++) {
+                int sourceColumn = minColumn + column;
+                char key = sourceColumn < line.length() ? line.charAt(sourceColumn) : ' ';
+                if (key != ' ') {
+                    cells[row * width + column] = data.ingredients().get(key);
+                }
+            }
+        }
+        return new RegistrationPattern(width, height, cells);
+    }
+
+    private static boolean patternsEquivalent(
+            RegistrationPattern first,
+            RegistrationPattern second,
+            boolean mirrored
+    ) {
+        for (int row = 0; row < first.height; row++) {
+            for (int column = 0; column < first.width; column++) {
+                ParsedIngredient firstIngredient = first.at(row, column);
+                int secondColumn = mirrored ? second.width - column - 1 : column;
+                ParsedIngredient secondIngredient = second.at(row, secondColumn);
+                if (firstIngredient == null || secondIngredient == null) {
+                    if (firstIngredient != secondIngredient) return false;
+                } else if (!choicesEquivalent(
+                        firstIngredient.choice(), secondIngredient.choice())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean choicesEquivalent(RecipeChoice first, RecipeChoice second) {
+        if (first instanceof RecipeChoice.MaterialChoice firstMaterials
+                && second instanceof RecipeChoice.MaterialChoice secondMaterials) {
+            return materialSet(firstMaterials).equals(materialSet(secondMaterials));
+        }
+
+        if (first instanceof RecipeChoice.ExactChoice firstExact
+                && second instanceof RecipeChoice.ExactChoice secondExact) {
+            List<ItemStack> unmatched = new ArrayList<>(secondExact.getChoices());
+            for (ItemStack expected : firstExact.getChoices()) {
+                int match = -1;
+                for (int i = 0; i < unmatched.size(); i++) {
+                    if (expected.isSimilar(unmatched.get(i))) {
+                        match = i;
+                        break;
+                    }
+                }
+                if (match < 0) return false;
+                unmatched.remove(match);
+            }
+            return unmatched.isEmpty();
+        }
+
+        return first.equals(second);
+    }
+
+    private static EnumSet<Material> materialSet(RecipeChoice.MaterialChoice choice) {
+        EnumSet<Material> materials = EnumSet.noneOf(Material.class);
+        materials.addAll(choice.getChoices());
+        return materials;
     }
 
     @Nullable
@@ -278,5 +430,16 @@ final class CraftingPredicateEngine {
     @FunctionalInterface
     private interface IngredientFilter {
         boolean accepts(ParsedIngredient ingredient);
+    }
+
+    private record RegistrationPattern(
+            int width,
+            int height,
+            ParsedIngredient @Nullable [] cells
+    ) {
+        @Nullable
+        ParsedIngredient at(int row, int column) {
+            return cells[row * width + column];
+        }
     }
 }

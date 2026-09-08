@@ -11,6 +11,7 @@ import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import toutouchien.itemsadderadditions.feature.recipe.crafting.ingredient.ParsedIngredient;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,6 +45,30 @@ class CraftingPredicateEngineTest {
         ItemStack[] m = new ItemStack[9];
         System.arraycopy(items, 0, m, 0, Math.min(items.length, 9));
         return m;
+    }
+
+    private static ParsedIngredient broadCustomIngredient(Material material, String customId) {
+        RecipeChoice registrationChoice = new RecipeChoice.MaterialChoice(material);
+        RecipeChoice validationChoice = new RecipeChoice.ExactChoice(ItemStack.of(material));
+        return new ParsedIngredient(
+                registrationChoice, validationChoice,
+                1, 0, null, false, null, customId, 0);
+    }
+
+    private static CraftingRecipeData customRecipe(
+            String id,
+            boolean shaped,
+            String[] pattern,
+            ParsedIngredient... ingredients
+    ) {
+        Map<Character, ParsedIngredient> byKey = new LinkedHashMap<>();
+        for (int i = 0; i < ingredients.length; i++) {
+            byKey.put((char) ('A' + i), ingredients[i]);
+        }
+        return new CraftingRecipeData(
+                new NamespacedKey("test", id),
+                shaped, pattern, byKey,
+                ItemStack.of(Material.STONE), null);
     }
 
     @Test
@@ -160,6 +185,46 @@ class CraftingPredicateEngineTest {
     void findIngredient_wrongMaterial_returnsNull() {
         CraftingRecipeData data = recipe(Material.STONE, 1);
         assertNull(CraftingPredicateEngine.findIngredient(data, ItemStack.of(Material.DIRT)));
+    }
+
+    @Test
+    void equivalentShapelessRegistrationIgnoresCustomIdsAndIngredientOrder() {
+        CraftingRecipeData beef = customRecipe(
+                "beef", false, null,
+                broadCustomIngredient(Material.FLINT_AND_STEEL, "test:opener"),
+                broadCustomIngredient(Material.PAPER, "test:beef_can"));
+        CraftingRecipeData vegetables = customRecipe(
+                "vegetables", false, null,
+                broadCustomIngredient(Material.PAPER, "test:vegetables_can"),
+                broadCustomIngredient(Material.FLINT_AND_STEEL, "test:opener"));
+
+        assertTrue(CraftingPredicateEngine.hasEquivalentRegistrationShape(beef, vegetables));
+    }
+
+    @Test
+    void differentShapelessRegistrationMaterialsAreNotEquivalent() {
+        CraftingRecipeData paper = customRecipe(
+                "paper", false, null,
+                broadCustomIngredient(Material.PAPER, "test:paper"));
+        CraftingRecipeData book = customRecipe(
+                "book", false, null,
+                broadCustomIngredient(Material.BOOK, "test:book"));
+
+        assertFalse(CraftingPredicateEngine.hasEquivalentRegistrationShape(paper, book));
+    }
+
+    @Test
+    void horizontallyMirroredShapedRegistrationsAreEquivalent() {
+        CraftingRecipeData first = customRecipe(
+                "first", true, new String[]{"AB"},
+                broadCustomIngredient(Material.PAPER, "test:left"),
+                broadCustomIngredient(Material.STICK, "test:right"));
+        CraftingRecipeData mirrored = customRecipe(
+                "mirrored", true, new String[]{"AB"},
+                broadCustomIngredient(Material.STICK, "test:other_right"),
+                broadCustomIngredient(Material.PAPER, "test:other_left"));
+
+        assertTrue(CraftingPredicateEngine.hasEquivalentRegistrationShape(first, mirrored));
     }
 
     @Test

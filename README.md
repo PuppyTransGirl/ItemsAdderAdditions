@@ -45,6 +45,21 @@ Examples include:
 - [Storage](https://itemsadderadditions.com/en/docs/behaviours/storage)
 - And more...
 
+Storage holders can also change their closed visual based on their contents:
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    empty_variant: my_empty_barrel   # optional; otherwise uses the original holder
+    filled_variant: my_filled_barrel # any non-empty inventory
+    half_variant: my_half_barrel     # optional override while partially filled
+    full_variant: my_full_barrel     # optional override when every slot is at stack capacity
+```
+
+`open_variant` still takes priority while the inventory is open. The appropriate
+fill variant is restored when the final viewer closes it.
+
 ### Extra Actions
 
 ItemsAdderAdditions adds new actions that can be triggered by configured events.
@@ -263,6 +278,23 @@ If you would like to improve the project, feel free to:
 
 If you need help, want to report a bug, or have a feature suggestion, please use
 the [Discord server](https://discord.gg/jbQmacZ58H).
+
+### Discord tracker
+
+The repository includes a read-only Discord tracker for turning community activity
+into a ranked, AI-ready report. Copy `scripts/discord-tracker.json.example` to
+`scripts/discord-tracker.json`, replace the channel IDs, and run:
+
+```bash
+DISCORD_BOT_TOKEN=your_bot_token python3 scripts/scan_discord_suggestions.py
+```
+
+The bot only needs `View Channel` and `Read Message History`. It scans configured
+suggestion, bug, update, and announcement channels, ranks items using reactions,
+discussion, participants, and category, then writes JSON plus a Markdown triage
+report. The JSON is intentionally the stable hand-off point for a later AI review
+or implementation workflow. Use `--from-json` to rebuild the Markdown report
+without contacting Discord.
 
 Useful channels include:
 

@@ -19,10 +19,10 @@ class PatchManagerTest {
 
     @Test
     void compatibleVersionAttachesAgentAndDefersUnloadedTargets() {
-        // IA 4.0.17 selects the 4.0.17 patch set. Target IA classes are not loaded in the test
+        // IA 4.0.18 selects the 4.0.18 patch set. Target IA classes are not loaded in the test
         // JVM, so every patch is deferred. Exercises filterPatches, agent attach, transformer
         // registration, and the deferred-class reporting path without modifying real classes.
-        assertDoesNotThrow(() -> PatchManager.applyAll(Version.of("1.21.1", "4.0.17")));
+        assertDoesNotThrow(() -> PatchManager.applyAll(Version.of("1.21.1", "4.0.18")));
     }
 
     @Test

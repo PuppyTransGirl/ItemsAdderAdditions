@@ -26,10 +26,10 @@ import java.util.Arrays;
  *
  * <h3>Optimizations over the original version</h3>
  * <ol>
- *   <li><b>O(1) recipe lookup</b> - {@link #matchRecipe} now delegates to
+ *   <li><b>O(1) normal-case recipe lookup</b> - {@link #matchRecipe} starts with
  *       {@link CraftingRecipeHandler#predicateRecipeByKey}, which is backed by a
- *       {@link java.util.HashMap}.  The old O(n) linear scan fired on every
- *       {@link PrepareItemCraftEvent} (extremely hot).</li>
+ *       {@link java.util.HashMap}. A linear scan is used only when Paper chose
+ *       an equivalent broad recipe whose runtime predicates reject the grid.</li>
  *
  *   <li><b>Cached {@code hasPredicates}</b> - the field is precomputed once in
  *       {@link CraftingRecipeData}.  The old code called
@@ -65,13 +65,13 @@ public final class CraftingRecipeListener implements Listener {
     public void onPrepare(PrepareItemCraftEvent event) {
         Log.debug("Crafting", "PrepareItemCraftEvent");
 
-        CraftingRecipeData data = matchRecipe(event.getRecipe());
-        // Use cached boolean field - no stream() allocation
-        if (data == null || !data.hasPredicates) return;
-
         CraftingInventory inv = event.getInventory();
+        RecipeMatch match = matchRecipe(event.getRecipe(), inv.getMatrix());
+        // Use cached boolean field - no stream() allocation
+        if (match == null) return;
+        CraftingRecipeData data = match.data();
 
-        if (!CraftingPredicateEngine.ingredientsSatisfied(data, inv.getMatrix())) {
+        if (!match.ingredientsSatisfied()) {
             Log.debug("Crafting", "Result blocked (ingredients)");
             inv.setResult(null);
             return;
@@ -84,7 +84,13 @@ public final class CraftingRecipeListener implements Listener {
             if (!anyViewer) {
                 Log.debug("Crafting", "Result blocked (permission)");
                 inv.setResult(null);
+                return;
             }
+        }
+
+        if (!data.key().equals(CraftingPredicateEngine.recipeKey(event.getRecipe()))) {
+            Log.debug("Crafting", "Using predicate-matched result from {}", data.key());
+            inv.setResult(data.result().clone());
         }
     }
 
@@ -105,11 +111,13 @@ public final class CraftingRecipeListener implements Listener {
             if (padded == null) return;
 
             Recipe matched = Bukkit.getCraftingRecipe(padded, player.getWorld());
-            CraftingRecipeData data = matchRecipe(matched);
-            if (data == null || !data.hasPredicates) return;
+            RecipeMatch recipeMatch = matchRecipe(matched, inv.getMatrix());
+            if (recipeMatch == null) return;
+            CraftingRecipeData data = recipeMatch.data();
 
-            if (CraftingPredicateEngine.ingredientsSatisfied(data, inv.getMatrix())) {
-                if (CraftingPredicateEngine.isAir(inv.getResult())) {
+            if (recipeMatch.ingredientsSatisfied()) {
+                if (CraftingPredicateEngine.isAir(inv.getResult())
+                        || !data.key().equals(CraftingPredicateEngine.recipeKey(matched))) {
                     Log.debug("Crafting", "Restoring result");
                     inv.setResult(data.result().clone());
                 }
@@ -127,13 +135,14 @@ public final class CraftingRecipeListener implements Listener {
         Log.debug("Crafting", "CraftItemEvent action={} shift={}",
                 event.getAction(), event.isShiftClick());
 
-        CraftingRecipeData data = matchRecipe(event.getRecipe());
-        if (data == null || !data.hasPredicates) return;
+        CraftingInventory inv = event.getInventory();
+        ItemStack[] matrix = inv.getMatrix();
+        RecipeMatch match = matchRecipe(event.getRecipe(), matrix);
+        if (match == null) return;
+        CraftingRecipeData data = match.data();
 
         event.setCancelled(true);
 
-        CraftingInventory inv = event.getInventory();
-        ItemStack[] matrix = inv.getMatrix();
         Player player = (Player) event.getWhoClicked();
 
         Log.debug("Crafting", "Matrix before craft: {}", Arrays.toString(matrix));
@@ -143,7 +152,7 @@ public final class CraftingRecipeListener implements Listener {
             return;
         }
 
-        if (!CraftingPredicateEngine.ingredientsSatisfied(data, matrix)) {
+        if (!match.ingredientsSatisfied()) {
             Log.debug("Crafting", "Blocked (ingredients)");
             return;
         }
@@ -214,8 +223,10 @@ public final class CraftingRecipeListener implements Listener {
     }
 
     /**
-     * O(1) lookup replacing the original O(n) linear scan over all predicate
-     * recipes.
+     * Uses the O(1) recipe-key lookup for the normal case. If Paper selected a
+     * recipe whose broad registration choices match the grid but whose runtime
+     * predicates do not, scans only until it finds an equivalent registered
+     * shape whose predicates do match.
      *
      * <p>The previous implementation iterated {@code handler.predicateRecipes()}
      * on every event.  This version delegates to
@@ -223,7 +234,10 @@ public final class CraftingRecipeListener implements Listener {
      * {@link java.util.HashMap} keyed on {@link NamespacedKey}.
      */
     @Nullable
-    private CraftingRecipeData matchRecipe(@Nullable Recipe recipe) {
+    private RecipeMatch matchRecipe(
+            @Nullable Recipe recipe,
+            ItemStack[] matrix
+    ) {
         if (recipe == null) {
             Log.debug("Crafting", "matchRecipe: null recipe");
             return null;
@@ -238,6 +252,25 @@ public final class CraftingRecipeListener implements Listener {
         CraftingRecipeData data = handler.predicateRecipeByKey(key);
         Log.debug("Crafting",
                 data != null ? "Matched recipe {}" : "No match for {}", key);
-        return data;
+        if (data == null) return null;
+        if (CraftingPredicateEngine.ingredientsSatisfied(data, matrix)) {
+            return new RecipeMatch(data, true);
+        }
+
+        for (CraftingRecipeData candidate : handler.predicateRecipes()) {
+            if (candidate == data
+                    || !CraftingPredicateEngine.hasEquivalentRegistrationShape(data, candidate)
+                    || !CraftingPredicateEngine.ingredientsSatisfied(candidate, matrix)) {
+                continue;
+            }
+
+            Log.debug("Crafting",
+                    "Paper selected {}, but runtime predicates matched {}", key, candidate.key());
+            return new RecipeMatch(candidate, true);
+        }
+        return new RecipeMatch(data, false);
+    }
+
+    private record RecipeMatch(CraftingRecipeData data, boolean ingredientsSatisfied) {
     }
 }

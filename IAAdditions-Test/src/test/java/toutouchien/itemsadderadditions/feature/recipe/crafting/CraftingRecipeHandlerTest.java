@@ -2,6 +2,7 @@ package toutouchien.itemsadderadditions.feature.recipe.crafting;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.meta.Damageable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -172,6 +173,40 @@ class CraftingRecipeHandlerTest {
         assertNull(data.pattern());
         assertEquals(2, data.ingredients().size());
         assertNull(handler.predicateRecipeByKey(data.key()));
+    }
+
+    @Test
+    void loadAppliesConfiguredDurabilityToResult() {
+        List<CraftingRecipeData> registered = new ArrayList<>();
+        CraftingRecipeHandler handler = new CraftingRecipeHandler(new INmsCraftingRecipeHandler() {
+            @Override
+            public void register(CraftingRecipeData data) {
+                registered.add(data);
+            }
+
+            @Override
+            public void unregisterAll() {
+            }
+        });
+        YamlConfiguration yaml = yaml("""
+                recipes:
+                  damaged_tool:
+                    shapeless: true
+                    ingredients:
+                      - STICK
+                    result:
+                      item: DIAMOND_SWORD
+                      amount: 1
+                      durability: 1
+                """);
+
+        handler.load("test", yaml.getConfigurationSection("recipes"));
+
+        assertEquals(1, registered.size());
+        assertInstanceOf(Damageable.class, registered.getFirst().result().getItemMeta());
+        Damageable resultMeta = (Damageable) registered.getFirst().result().getItemMeta();
+        assertEquals(registered.getFirst().result().getType().getMaxDurability() - 1,
+                resultMeta.getDamage());
     }
 
     @Test

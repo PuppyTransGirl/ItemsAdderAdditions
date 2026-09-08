@@ -20,7 +20,7 @@ public final class OpenVariantPlacement {
     private OpenVariantPlacement() {
     }
 
-    static BlockState captureBlockState(Location location) {
+    public static BlockState captureBlockState(Location location) {
         CustomBlock block = CustomBlock.byAlreadyPlaced(location.getBlock());
         if (block == null) {
             return new BlockState(null, "");
@@ -31,7 +31,7 @@ public final class OpenVariantPlacement {
         return new BlockState(id, id.substring(base.length()));
     }
 
-    static String rotatedVariantId(String baseId, String suffix) {
+    public static String rotatedVariantId(String baseId, String suffix) {
         if (suffix.isEmpty()) {
             return baseId;
         }
@@ -40,7 +40,7 @@ public final class OpenVariantPlacement {
         return CustomBlock.getInstance(rotatedId) == null ? baseId : rotatedId;
     }
 
-    static boolean placeBlock(String namespacedId, Location location) {
+    public static boolean placeBlock(String namespacedId, Location location) {
         CustomBlock block = CustomBlock.getInstance(namespacedId);
         if (block == null) {
             Log.warn(LOG_TAG, "Could not resolve block '{}' for open-variant placement.", namespacedId);
@@ -52,7 +52,7 @@ public final class OpenVariantPlacement {
     }
 
     @Nullable
-    static Entity spawnFurniture(String namespacedId, Location location, boolean replacingBlockHolder, @Nullable Float yaw) {
+    public static Entity spawnFurniture(String namespacedId, Location location, boolean replacingBlockHolder, @Nullable Float yaw) {
         CustomFurniture furniture = CustomFurniture.spawn(namespacedId, supportBlock(location, replacingBlockHolder));
         if (furniture == null || furniture.getEntity() == null) {
             Log.warn(LOG_TAG, "Could not spawn furniture '{}' at {}.", namespacedId, location);
@@ -141,5 +141,5 @@ public final class OpenVariantPlacement {
                 : location.getBlock();
     }
 
-    record BlockState(@Nullable String id, String rotationSuffix) {}
+    public record BlockState(@Nullable String id, String rotationSuffix) {}
 }

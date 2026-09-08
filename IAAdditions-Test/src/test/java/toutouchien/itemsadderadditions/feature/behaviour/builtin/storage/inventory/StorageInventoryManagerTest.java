@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,9 +18,11 @@ class StorageInventoryManagerTest {
     private static final NamespacedKey CONTENTS_KEY = new NamespacedKey("itemsadderadditions", "contents");
     private static final NamespacedKey UNIQUE_KEY = new NamespacedKey("itemsadderadditions", "unique");
 
+    private static ServerMock server;
+
     @BeforeAll
     static void setup() {
-        MockBukkit.mock();
+        server = MockBukkit.mock();
     }
 
     @AfterAll
@@ -93,5 +96,19 @@ class StorageInventoryManagerTest {
         assertEquals(Material.DIRT, inventory.getItem(8).getType());
         assertEquals(4, inventory.getItem(8).getAmount());
         assertFalse(inventory.contains(Material.DIAMOND));
+    }
+
+    @Test
+    void entityContentVariantMarkerRoundTripsOwnerAndVariant() {
+        var entity = server.addPlayer();
+        NamespacedKey key = new NamespacedKey("itemsadderadditions", "variant");
+
+        StorageInventoryManager.markContentVariant(entity, key, "pack:barrel", "pack:half_barrel");
+        String marker = StorageInventoryManager.contentVariantMarker(entity, key);
+
+        assertTrue(StorageInventoryManager.isContentVariantMarker(marker, "pack:barrel"));
+        assertFalse(StorageInventoryManager.isContentVariantMarker(marker, "other:barrel"));
+        assertEquals("pack:half_barrel", StorageInventoryManager.contentVariantId(marker, "pack:barrel"));
+        assertNull(StorageInventoryManager.contentVariantId(marker, "other:barrel"));
     }
 }

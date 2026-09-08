@@ -20,6 +20,8 @@ import org.mockito.MockedStatic;
 import toutouchien.itemsadderadditions.common.item.ItemCategory;
 import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantConfig;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantConfig;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionManager;
@@ -72,6 +74,8 @@ class StorageRuntimeTest {
                 sessions,
                 dropTracker,
                 null,
+                null,
+                new ContentVariantConfig(null, null, null, null),
                 null
         );
     }
@@ -80,12 +84,34 @@ class StorageRuntimeTest {
         return new StorageRuntime(
                 plugin,
                 "test:crate",
-                ItemCategory.BLOCK,
+                config.category() == ItemCategory.BLOCK ? ItemCategory.BLOCK : ItemCategory.FURNITURE,
                 StorageType.STORAGE,
                 CONTENTS_KEY,
                 UNIQUE_KEY,
                 sessions,
                 dropTracker,
+                config,
+                transformer,
+                new ContentVariantConfig(null, null, null, null),
+                null
+        );
+    }
+
+    private StorageRuntime runtimeWithContentVariant(
+            ContentVariantConfig config,
+            ContentVariantTransformer transformer
+    ) {
+        return new StorageRuntime(
+                plugin,
+                "test:crate",
+                ItemCategory.FURNITURE,
+                StorageType.STORAGE,
+                CONTENTS_KEY,
+                UNIQUE_KEY,
+                sessions,
+                dropTracker,
+                null,
+                null,
                 config,
                 transformer
         );
@@ -120,9 +146,36 @@ class StorageRuntimeTest {
     }
 
     @Test
+    void contentFurnitureVariantRequiresPersistentOwnershipMarker() {
+        OpenVariantConfig half = new OpenVariantConfig(ItemCategory.FURNITURE, "test:crate_half");
+        ContentVariantTransformer transformer = mock(ContentVariantTransformer.class);
+        StorageRuntime runtime = runtimeWithContentVariant(
+                new ContentVariantConfig(null, null, half, null), transformer);
+        var entity = server.addPlayer();
+
+        when(transformer.isMarkedEntity(entity)).thenReturn(false, true);
+
+        assertFalse(runtime.matchesStorageFurniture("test:crate_half", entity));
+        assertTrue(runtime.matchesStorageFurniture("test:crate_half", entity));
+        assertTrue(runtime.matchesStorageFurniture("test:crate", entity));
+        assertFalse(runtime.matchesStorageFurniture("test:other", entity));
+    }
+
+    @Test
     void complexFurnitureOpenVariantUsesFurnitureOpenVariantPath() {
         StorageRuntime runtime = runtimeWithOpenVariant(
                 new OpenVariantConfig(ItemCategory.COMPLEX_FURNITURE, "test:crate_open"),
+                mock(OpenVariantTransformer.class)
+        );
+
+        assertFalse(runtime.hasBlockOpenVariant());
+        assertTrue(runtime.hasFurnitureOpenVariant());
+    }
+
+    @Test
+    void itemDisplayOpenVariantUsesFurnitureHolderOpenVariantPath() {
+        StorageRuntime runtime = runtimeWithOpenVariant(
+                new OpenVariantConfig(ItemCategory.ITEM, "test:crate_open"),
                 mock(OpenVariantTransformer.class)
         );
 

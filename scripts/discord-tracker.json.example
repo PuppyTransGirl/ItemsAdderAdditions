@@ -1,0 +1,15 @@
+{
+  "channels": [
+    { "id": "1489728918108770444", "name": "suggestions" },
+    { "id": "1489731666900422840", "name": "bug-report" },
+    { "id": "1489730478519877784", "name": "updates" },
+    { "id": "1511444767991529653", "name": "announcements" }
+  ],
+  "ranking": {
+    "minimum_priority": 0
+  },
+  "output": {
+    "json": "suggestions_dump.json",
+    "markdown": "suggestions_report.md"
+  }
+}

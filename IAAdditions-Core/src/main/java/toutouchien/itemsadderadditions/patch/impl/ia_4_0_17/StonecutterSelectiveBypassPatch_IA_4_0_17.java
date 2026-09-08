@@ -4,7 +4,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import toutouchien.itemsadderadditions.integration.bridge.StonecutterPatchBridge;
 import toutouchien.itemsadderadditions.patch.*;
 
-public final class StonecutterSelectiveBypassPatch_IA_4_0_17 extends CallSiteInjectPatch {
+public class StonecutterSelectiveBypassPatch_IA_4_0_17 extends CallSiteInjectPatch {
     @Override
     public VersionConstraint supportedVersions() {
         return VersionSet.ia("4.0.17");

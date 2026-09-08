@@ -25,6 +25,8 @@ import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.invento
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventorySpec;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryTypes;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.listener.*;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantConfig;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantConfig;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionManager;
@@ -47,6 +49,13 @@ import java.util.*;
  *   <li>{@code SHULKER}  - portable storage; contents are serialised into the dropped item.</li>
  *   <li>{@code DISPOSAL} - trash can; contents are silently discarded on close.</li>
  * </ul>
+ *
+ * <p>Closed holders can optionally use {@code empty_variant} and
+ * {@code filled_variant}. Resource packs that need three visual levels can also
+ * supply {@code half_variant} (some but not all slots occupied) and
+ * {@code full_variant} (every slot at stack capacity). While a GUI is open,
+ * {@code open_variant} takes visual priority; the correct fill variant is restored
+ * after the final viewer closes it.</p>
  */
 @SuppressWarnings("unused")
 @NullMarked
@@ -68,6 +77,18 @@ public final class StorageBehaviour extends BehaviourExecutor {
     @Parameter(key = "open_variant", type = String.class)
     @Nullable
     private String openVariant;
+    @Parameter(key = "empty_variant", type = String.class)
+    @Nullable
+    private String emptyVariant;
+    @Parameter(key = "filled_variant", type = String.class)
+    @Nullable
+    private String filledVariant;
+    @Parameter(key = "half_variant", type = String.class)
+    @Nullable
+    private String halfVariant;
+    @Parameter(key = "full_variant", type = String.class)
+    @Nullable
+    private String fullVariant;
     @Parameter(key = "inventory_type", type = String.class)
     @Nullable
     private String inventoryTypeName;
@@ -99,12 +120,23 @@ public final class StorageBehaviour extends BehaviourExecutor {
 
         NamespacedKey contentsKey = storageKey(plugin, "storage_");
         NamespacedKey uniqueIdKey = storageKey(plugin, "storage_uid_");
+        NamespacedKey contentVariantKey = storageKey(plugin, "storage_variant_");
         StorageType storageType = StorageTypes.resolve(typeName, namespacedID);
 
         OpenVariantConfig resolvedVariantConfig = resolveOpenVariant(host.category());
         @Nullable
         OpenVariantTransformer transformer = resolvedVariantConfig != null
                 ? new OpenVariantTransformer(resolvedVariantConfig)
+                : null;
+
+        ContentVariantConfig contentVariantConfig = resolveContentVariants(host.category());
+        @Nullable ContentVariantTransformer contentVariantTransformer = contentVariantConfig.isConfigured()
+                ? new ContentVariantTransformer(
+                        contentVariantConfig,
+                        namespacedID,
+                        contentVariantKey,
+                        plugin
+                )
                 : null;
 
         @Nullable StorageInventorySpec resolvedSpec = StorageInventoryTypes.resolve(inventoryTypeName, namespacedID);
@@ -121,7 +153,8 @@ public final class StorageBehaviour extends BehaviourExecutor {
                 openSound,
                 closeSound,
                 namespacedID,
-                transformer
+                transformer,
+                contentVariantTransformer
         );
 
         ShulkerDropTracker shulkerDropTracker = new ShulkerDropTracker(
@@ -141,7 +174,9 @@ public final class StorageBehaviour extends BehaviourExecutor {
                 sessionManager,
                 shulkerDropTracker,
                 resolvedVariantConfig,
-                transformer
+                transformer,
+                contentVariantConfig,
+                contentVariantTransformer
         );
 
         StorageInventoryManager.ensureCustomBlockDataRegistered(plugin);
@@ -199,6 +234,36 @@ public final class StorageBehaviour extends BehaviourExecutor {
                         + "block open_variant values; furniture/complex-furniture holders may "
                         + "only use furniture or item_display values.",
                 namespacedID,
+                resolved.id()
+        );
+        return null;
+    }
+
+    private ContentVariantConfig resolveContentVariants(ItemCategory holderCategory) {
+        return new ContentVariantConfig(
+                resolveContentVariant("empty_variant", emptyVariant, holderCategory),
+                resolveContentVariant("filled_variant", filledVariant, holderCategory),
+                resolveContentVariant("half_variant", halfVariant, holderCategory),
+                resolveContentVariant("full_variant", fullVariant, holderCategory)
+        );
+    }
+
+    @Nullable
+    private OpenVariantConfig resolveContentVariant(
+            String configKey,
+            @Nullable String configuredId,
+            ItemCategory holderCategory
+    ) {
+        OpenVariantConfig resolved = OpenVariantConfig.resolve(configuredId, namespacedID, configKey);
+        if (resolved == null) return null;
+        if (isOpenVariantCompatible(holderCategory, resolved)) return resolved;
+
+        Log.warn(
+                "Storage",
+                "storage '{}': incompatible {} '{}'. Block holders may only use block values; "
+                        + "furniture/complex-furniture holders may only use furniture or item_display values.",
+                namespacedID,
+                configKey,
                 resolved.id()
         );
         return null;

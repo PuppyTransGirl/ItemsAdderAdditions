@@ -5,6 +5,7 @@ import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,12 +16,16 @@ import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantConfig;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantConfig;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionManager;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Immutable runtime state for one loaded {@code storage} behaviour instance.
@@ -46,7 +51,13 @@ public final class StorageRuntime {
     @Nullable
     private final OpenVariantTransformer openVariantTransformer;
 
+    private final ContentVariantConfig contentVariantConfig;
+
+    @Nullable
+    private final ContentVariantTransformer contentVariantTransformer;
+
     private final Map<BlockCoord, ItemStack[]> preloadedBlockContents = new HashMap<>();
+    private final Set<BlockCoord> preloadedContentVariantBlocks = new HashSet<>();
 
     public StorageRuntime(
             JavaPlugin plugin,
@@ -58,7 +69,9 @@ public final class StorageRuntime {
             StorageSessionManager sessionManager,
             ShulkerDropTracker shulkerDropTracker,
             @Nullable OpenVariantConfig openVariantConfig,
-            @Nullable OpenVariantTransformer openVariantTransformer
+            @Nullable OpenVariantTransformer openVariantTransformer,
+            ContentVariantConfig contentVariantConfig,
+            @Nullable ContentVariantTransformer contentVariantTransformer
     ) {
         this.plugin = plugin;
         this.namespacedId = namespacedId;
@@ -70,6 +83,8 @@ public final class StorageRuntime {
         this.shulkerDropTracker = shulkerDropTracker;
         this.openVariantConfig = openVariantConfig;
         this.openVariantTransformer = openVariantTransformer;
+        this.contentVariantConfig = contentVariantConfig;
+        this.contentVariantTransformer = contentVariantTransformer;
     }
 
     public JavaPlugin plugin() {
@@ -110,14 +125,28 @@ public final class StorageRuntime {
         return openVariantTransformer;
     }
 
+    public boolean hasContentVariants() {
+        return contentVariantTransformer != null;
+    }
+
+    @Nullable
+    public ContentVariantTransformer contentVariantTransformer() {
+        return contentVariantTransformer;
+    }
+
     public Map<BlockCoord, ItemStack[]> preloadedBlockContents() {
         return preloadedBlockContents;
     }
 
     public boolean matchesClosedBlock(Block block) {
         CustomBlock customBlock = CustomBlock.byAlreadyPlaced(block);
-        return customBlock != null
-                && NamespaceUtils.matchesWithRotation(customBlock.getNamespacedID(), namespacedId);
+        if (customBlock == null) return false;
+
+        String id = customBlock.getNamespacedID();
+        if (NamespaceUtils.matchesWithRotation(id, namespacedId)) return true;
+        return matchesContentVariantId(id)
+                && contentVariantTransformer != null
+                && contentVariantTransformer.isMarkedBlock(block);
     }
 
     public boolean matchesClosedId(String id) {
@@ -128,22 +157,46 @@ public final class StorageRuntime {
         return openVariantConfig != null && id.equals(openVariantConfig.id());
     }
 
+    public boolean matchesContentVariantId(String id) {
+        return contentVariantConfig.containsId(id)
+                || contentVariantConfig.containsId(NamespaceUtils.stripRotationSuffix(id));
+    }
+
+    public boolean matchesStorageFurniture(String id, Entity entity) {
+        return id.equals(namespacedId)
+                || (matchesContentVariantId(id)
+                && contentVariantTransformer != null
+                && contentVariantTransformer.isMarkedEntity(entity));
+    }
+
     public boolean hasBlockOpenVariant() {
         return openVariantConfig != null
                 && openVariantTransformer != null
-                && !openVariantConfig.isFurnitureBased();
+                && category == ItemCategory.BLOCK;
     }
 
     public boolean hasFurnitureOpenVariant() {
         return openVariantConfig != null
                 && openVariantTransformer != null
-                && openVariantConfig.isFurnitureBased();
+                && category != ItemCategory.BLOCK;
     }
 
     public void preloadBlockContents(Block block, @Nullable ItemStack[] contents) {
         if (contents != null) {
             preloadedBlockContents.put(BlockCoord.of(block.getLocation()), contents);
         }
+    }
+
+    public void markPreloadedContentVariant(Block block) {
+        preloadedContentVariantBlocks.add(BlockCoord.of(block.getLocation()));
+    }
+
+    public boolean consumePreloadedContentVariant(Location location) {
+        return preloadedContentVariantBlocks.remove(BlockCoord.of(location));
+    }
+
+    public boolean isPreloadedContentVariant(Location location) {
+        return preloadedContentVariantBlocks.contains(BlockCoord.of(location));
     }
 
     @Nullable
@@ -270,6 +323,7 @@ public final class StorageRuntime {
         sessionManager.clear();
         shulkerDropTracker.clear();
         preloadedBlockContents.clear();
+        preloadedContentVariantBlocks.clear();
         if (openVariantTransformer != null) openVariantTransformer.clear();
     }
 }

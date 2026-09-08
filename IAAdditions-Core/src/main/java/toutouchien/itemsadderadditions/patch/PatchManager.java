@@ -5,6 +5,7 @@ import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_15.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_16.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_17.*;
+import toutouchien.itemsadderadditions.patch.impl.ia_4_0_18.*;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -51,7 +52,13 @@ public final class PatchManager {
             new ResourcePackPacketListenerPatch_IA_4_0_17(),
             new StatRequirementsCapturePatch_IA_4_0_17(),
             new StonecutterSelectiveBypassPatch_IA_4_0_17(),
-            new TradeMachineCapturePatch_IA_4_0_17()
+            new TradeMachineCapturePatch_IA_4_0_17(),
+
+            // IA 4.0.18
+            new CooldownCapturePatch_IA_4_0_18(),
+            new StatRequirementsCapturePatch_IA_4_0_18(),
+            new StonecutterSelectiveBypassPatch_IA_4_0_18(),
+            new TradeMachineCapturePatch_IA_4_0_18()
     );
 
     private PatchManager() {

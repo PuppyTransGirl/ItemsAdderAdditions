@@ -13,7 +13,7 @@ import toutouchien.itemsadderadditions.patch.VersionSet;
  * Captures ItemsAdder's trade-machine handler for the block trade-machine path,
  * which is not exposed by the 4.0.17 public API.
  */
-public final class TradeMachineCapturePatch_IA_4_0_17 extends MethodInjectPatch {
+public class TradeMachineCapturePatch_IA_4_0_17 extends MethodInjectPatch {
     @Override
     public VersionConstraint supportedVersions() {
         return VersionSet.ia("4.0.17");

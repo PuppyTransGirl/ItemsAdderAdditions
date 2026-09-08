@@ -56,6 +56,11 @@ public final class StorageBlockListener implements Listener {
 
         if (!runtime.matchesClosedBlock(block)) return;
 
+        CustomBlock customBlock = CustomBlock.byAlreadyPlaced(block);
+        if (customBlock != null && runtime.matchesContentVariantId(customBlock.getNamespacedID())) {
+            runtime.markPreloadedContentVariant(block);
+        }
+
         ItemStack[] contents = StorageInventoryManager.loadFromBlock(
                 block,
                 runtime.contentsKey(),
@@ -69,7 +74,8 @@ public final class StorageBlockListener implements Listener {
         Log.debug("StorageBlockBreak", "CustomBlockBreakEvent fired: id={}, runtimeId={}, loc={}",
                 event.getNamespacedID(), runtime.namespacedId(), event.getBlock().getLocation());
 
-        if (!runtime.matchesClosedId(event.getNamespacedID())) {
+        boolean contentVariant = runtime.isPreloadedContentVariant(event.getBlock().getLocation());
+        if (!runtime.matchesClosedId(event.getNamespacedID()) && !contentVariant) {
             Log.debug("StorageBlockBreak", "Ignoring: id does not match closed id.");
             return;
         }
@@ -83,15 +89,24 @@ public final class StorageBlockListener implements Listener {
         );
 
         ItemStack[] contents = runtime.consumePreloadedBlockContents(block.getLocation());
+        runtime.consumePreloadedContentVariant(block.getLocation());
         Log.debug("StorageBlockBreak", "Consumed preloaded contents: hasContents={}", contents != null);
 
         Player breaker = event.getPlayer();
         boolean creative = breaker != null && breaker.getGameMode() == GameMode.CREATIVE;
         if (creative) {
             Log.debug("StorageBlockBreak", "Breaker in creative - using creative storage transfer.");
-            runtime.handleCreativeContainerBreak(block.getLocation(), contents);
+            if (contentVariant) {
+                runtime.handleCreativeOpenVariantBreakDrops(block.getLocation(), contents);
+            } else {
+                runtime.handleCreativeContainerBreak(block.getLocation(), contents);
+            }
         } else {
-            runtime.handleContainerBreak(block.getLocation(), contents);
+            if (contentVariant) {
+                runtime.handleOpenVariantBreakDrops(block.getLocation(), contents);
+            } else {
+                runtime.handleContainerBreak(block.getLocation(), contents);
+            }
         }
         StorageInventoryManager.clearBlock(block, runtime.plugin());
         Log.debug("StorageBlockBreak", "Block break handling completed.");
@@ -100,13 +115,19 @@ public final class StorageBlockListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(CustomBlockPlaceEvent event) {
         if (!runtime.matchesClosedId(event.getNamespacedID())) return;
-        if (runtime.storageType() != StorageType.SHULKER) return;
 
-        ItemStack[] stored = runtime.extractFromHand(event.getPlayer());
+        ItemStack[] stored = runtime.storageType() == StorageType.SHULKER
+                ? runtime.extractFromHand(event.getPlayer())
+                : null;
+
+        if (runtime.hasContentVariants()) {
+            runtime.contentVariantTransformer().applyToBlock(event.getBlock(), stored);
+        }
+
         if (stored == null) return;
 
         StorageInventoryManager.saveToBlock(
-                event.getBlock(),
+                event.getBlock().getLocation().getBlock(),
                 stored,
                 runtime.contentsKey(),
                 runtime.plugin()

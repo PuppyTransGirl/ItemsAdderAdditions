@@ -3,6 +3,8 @@ package toutouchien.itemsadderadditions.feature.recipe.crafting;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
@@ -179,8 +181,47 @@ public final class CraftingRecipeHandler {
 
         item = item.clone();
         item = applyResultComponents(namespace, recipeId, item, actualResultSec);
+        applyResultDurability(namespace, recipeId, item, actualResultSec);
         item.setAmount(actualResultSec.getInt("amount", 1));
         return item;
+    }
+
+    private static void applyResultDurability(
+            String namespace,
+            String recipeId,
+            ItemStack item,
+            ConfigurationSection resultSec
+    ) {
+        if (!resultSec.contains("durability")) return;
+
+        int remainingDurability = resultSec.getInt("durability", -1);
+        if (remainingDurability < 0) {
+            Log.warn(LOG_TAG,
+                    "'result.durability' for {}:{} must be a non-negative integer - skipping durability.",
+                    namespace, recipeId);
+            return;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        if (!(meta instanceof Damageable damageable)) {
+            Log.warn(LOG_TAG,
+                    "'result.durability' for {}:{} cannot be applied to non-damageable item '{}'.",
+                    namespace, recipeId, item.getType());
+            return;
+        }
+
+        int maxDurability = damageable.hasMaxDamage()
+                ? damageable.getMaxDamage()
+                : item.getType().getMaxDurability();
+        if (remainingDurability > maxDurability) {
+            Log.warn(LOG_TAG,
+                    "'result.durability' for {}:{} cannot exceed the item's maximum durability of {} - skipping durability.",
+                    namespace, recipeId, maxDurability);
+            return;
+        }
+
+        damageable.setDamage(maxDurability - remainingDurability);
+        item.setItemMeta(meta);
     }
 
     @Nullable

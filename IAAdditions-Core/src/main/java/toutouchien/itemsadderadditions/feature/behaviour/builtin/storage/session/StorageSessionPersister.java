@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
 
@@ -27,19 +28,22 @@ public final class StorageSessionPersister {
     private final NamespacedKey contentsKey;
     private final String originalNamespacedId;
     @Nullable private final OpenVariantTransformer openVariantTransformer;
+    @Nullable private final ContentVariantTransformer contentVariantTransformer;
 
     StorageSessionPersister(
             JavaPlugin plugin,
             StorageType storageType,
             NamespacedKey contentsKey,
             String originalNamespacedId,
-            @Nullable OpenVariantTransformer openVariantTransformer
+            @Nullable OpenVariantTransformer openVariantTransformer,
+            @Nullable ContentVariantTransformer contentVariantTransformer
     ) {
         this.plugin = plugin;
         this.storageType = storageType;
         this.contentsKey = contentsKey;
         this.originalNamespacedId = originalNamespacedId;
         this.openVariantTransformer = openVariantTransformer;
+        this.contentVariantTransformer = contentVariantTransformer;
     }
 
     void saveAfterClose(StorageSession session, boolean lastAtLocation) {
@@ -51,10 +55,13 @@ public final class StorageSessionPersister {
 
         if (session.isBlock()) {
             Location location = session.holderLocation();
-            StorageInventoryManager.saveToBlock(session.block(), contents, contentsKey, plugin);
             if (lastAtLocation && openVariantTransformer != null) {
                 openVariantTransformer.onLastClose(location, originalNamespacedId, true);
             }
+            if (lastAtLocation && contentVariantTransformer != null) {
+                contentVariantTransformer.applyToBlock(location.getBlock(), contents);
+            }
+            StorageInventoryManager.saveToBlock(location.getBlock(), contents, contentsKey, plugin);
             return;
         }
 
@@ -62,6 +69,10 @@ public final class StorageSessionPersister {
             if (lastAtLocation) {
                 Location location = session.holderLocation();
                 Entity saveTarget = restoredFurnitureTarget(location, session.entity());
+                if (contentVariantTransformer != null) {
+                    Entity variantTarget = contentVariantTransformer.applyToEntity(location, saveTarget, contents);
+                    if (variantTarget != null) saveTarget = variantTarget;
+                }
                 StorageInventoryManager.saveToEntity(saveTarget, contents, contentsKey);
             }
             return;

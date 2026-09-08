@@ -1,6 +1,7 @@
 package toutouchien.itemsadderadditions.feature.behaviour.builtin;
 
 import dev.lone.itemsadder.api.CustomFurniture;
+import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.FurnitureBreakEvent;
 import dev.lone.itemsadder.api.Events.FurniturePlacedEvent;
 import org.bukkit.Bukkit;
@@ -8,11 +9,14 @@ import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.entity.Item;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.annotation.Parameter;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.common.utils.Task;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
@@ -56,6 +60,8 @@ import java.util.Set;
 @NullMarked
 @Behaviour(key = "connectable")
 public final class ConnectableBehaviour extends BehaviourExecutor implements Listener {
+    private static final int DROP_MATCH_RADIUS = 2;
+
     /**
      * Locations currently being updated to avoid recursive re-entry.
      */
@@ -67,6 +73,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
      * after shape-swap replacements.
      */
     private final Map<Location, FacingDirection> canonicalFacing = new HashMap<>();
+    private final Set<BlockCoord> pendingVariantDrops = new HashSet<>();
 
     // Raw YAML parameters - resolved into full namespaced IDs in configure().
     @Parameter(key = "type", type = String.class, required = true) @Nullable private String typeRaw;
@@ -125,6 +132,7 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
     @Override
     protected void onUnload(BehaviourHost host) {
         HandlerList.unregisterAll(this);
+        pendingVariantDrops.clear();
     }
 
     @EventHandler
@@ -152,8 +160,33 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         if (removed == null || !isOwnVariant(removed)) return;
 
         Location loc = removed.getEntity().getLocation().toBlockLocation();
+        BlockCoord dropLocation = BlockCoord.of(loc);
+        if (!removed.getNamespacedID().equals(defaultVariant))
+            pendingVariantDrops.add(dropLocation);
         canonicalFacing.remove(loc);
-        Task.sync(task -> updateNeighboursOf(loc), host.plugin());
+        Task.sync(task -> {
+            pendingVariantDrops.remove(dropLocation);
+            updateNeighboursOf(loc);
+        }, host.plugin());
+    }
+
+    @EventHandler
+    public void onItemSpawn(ItemSpawnEvent event) {
+        if (pendingVariantDrops.isEmpty()) return;
+
+        Item item = event.getEntity();
+        CustomStack dropped = CustomStack.byItemStack(item.getItemStack());
+        if (dropped == null || dropped.getNamespacedID().equals(defaultVariant)
+                || !isOwnVariant(dropped.getNamespacedID())) return;
+
+        BlockCoord matched = findPendingDrop(item.getLocation());
+        if (matched == null) return;
+
+        CustomStack original = CustomStack.getInstance(defaultVariant);
+        if (original == null) return;
+
+        pendingVariantDrops.remove(matched);
+        item.setItemStack(original.getItemStack());
     }
 
     private void updateShapeAt(CustomFurniture target) {
@@ -218,7 +251,10 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
      * Returns {@code true} if {@code f}'s namespaced ID is one of this behaviour's variants.
      */
     private boolean isOwnVariant(CustomFurniture f) {
-        String id = f.getNamespacedID();
+        return isOwnVariant(f.getNamespacedID());
+    }
+
+    private boolean isOwnVariant(String id) {
         if (id.equals(defaultVariant)) return true;
         if (type == ConnectableType.TABLE)
             return id.equals(straightVariant) || id.equals(middleVariant)
@@ -227,6 +263,21 @@ public final class ConnectableBehaviour extends BehaviourExecutor implements Lis
         return id.equals(straightVariant) || id.equals(leftVariant)
                 || id.equals(rightVariant) || id.equals(outerVariant)
                 || id.equals(innerVariant);
+    }
+
+    @Nullable
+    private BlockCoord findPendingDrop(Location location) {
+        BlockCoord exact = BlockCoord.of(location);
+        if (pendingVariantDrops.contains(exact)) return exact;
+
+        for (BlockCoord candidate : pendingVariantDrops) {
+            if (!candidate.world().equals(exact.world())) continue;
+            if (Math.abs(candidate.x() - exact.x()) <= DROP_MATCH_RADIUS
+                    && Math.abs(candidate.y() - exact.y()) <= DROP_MATCH_RADIUS
+                    && Math.abs(candidate.z() - exact.z()) <= DROP_MATCH_RADIUS)
+                return candidate;
+        }
+        return null;
     }
 
     private FacingDirection facingOf(CustomFurniture f) {

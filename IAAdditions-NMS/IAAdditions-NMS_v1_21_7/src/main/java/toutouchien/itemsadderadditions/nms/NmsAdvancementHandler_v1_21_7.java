@@ -170,14 +170,15 @@ public final class NmsAdvancementHandler_v1_21_7 implements INmsAdvancementHandl
         }
     }
 
-    private static Map<ResourceLocation, AdvancementProgress> buildInitialProgress(List<AdvancementHolder> holders) {
-        Map<ResourceLocation, AdvancementProgress> progress = new HashMap<>();
+    private static Map<ResourceLocation, AdvancementProgress> buildPlayerProgress(
+            Player player, List<AdvancementHolder> holders
+    ) {
+        PlayerAdvancements playerAdvancements = ((CraftPlayer) player).getHandle().getAdvancements();
+        Map<ResourceLocation, AdvancementProgress> progress = new LinkedHashMap<>();
         for (AdvancementHolder holder : holders) {
-            Map<String, CriterionProgress> criteria = new HashMap<>();
-            for (String name : holder.value().criteria().keySet()) {
-                criteria.put(name, new CriterionProgress());
-            }
-            progress.put(holder.id(), newProgress(criteria));
+            AdvancementProgress current = playerAdvancements.getOrStartProgress(holder);
+            current.update(holder.value().requirements());
+            progress.put(holder.id(), current);
         }
         return progress;
     }
@@ -185,10 +186,10 @@ public final class NmsAdvancementHandler_v1_21_7 implements INmsAdvancementHandl
     private static void broadcastUpdate(List<AdvancementHolder> added, Set<ResourceLocation> removed) {
         if (added.isEmpty() && removed.isEmpty()) return;
 
-        ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
-                false, added, removed, buildInitialProgress(added), false
-        );
         for (Player player : Bukkit.getOnlinePlayers()) {
+            ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
+                    false, added, removed, buildPlayerProgress(player, added), false
+            );
             ((CraftPlayer) player).getHandle().connection.send(packet);
         }
     }
@@ -277,7 +278,7 @@ public final class NmsAdvancementHandler_v1_21_7 implements INmsAdvancementHandl
         if (holder == null) return false;
         if (holder.value().display().map(DisplayInfo::isHidden).orElse(false)) {
             ((CraftPlayer) player).getHandle().connection.send(
-                    new ClientboundUpdateAdvancementsPacket(false, List.of(holder), Collections.emptySet(), buildInitialProgress(List.of(holder)), false)
+                    new ClientboundUpdateAdvancementsPacket(false, List.of(holder), Collections.emptySet(), buildPlayerProgress(player, List.of(holder)), false)
             );
         }
         PlayerAdvancements pa = ((CraftPlayer) player).getHandle().getAdvancements();

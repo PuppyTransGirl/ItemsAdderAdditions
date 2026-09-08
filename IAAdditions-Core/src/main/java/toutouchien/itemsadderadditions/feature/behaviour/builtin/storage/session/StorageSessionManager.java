@@ -16,6 +16,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryResolver;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventorySpec;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
@@ -56,14 +57,16 @@ public final class StorageSessionManager {
             @Nullable Sound openSound,
             @Nullable Sound closeSound,
             String originalNamespacedId,
-            @Nullable OpenVariantTransformer openVariantTransformer
+            @Nullable OpenVariantTransformer openVariantTransformer,
+            @Nullable ContentVariantTransformer contentVariantTransformer
     ) {
         this.storageType = storageType;
         this.antiGriefLib = antiGriefLib;
         this.openVariantTransformer = openVariantTransformer;
         this.inventories = new StorageInventoryResolver(sessions, rows, spec, title, storageType, contentsKey, plugin);
         this.persister = new StorageSessionPersister(
-                plugin, storageType, contentsKey, originalNamespacedId, openVariantTransformer);
+                plugin, storageType, contentsKey, originalNamespacedId,
+                openVariantTransformer, contentVariantTransformer);
         this.sounds = new StorageSoundPlayer(openSound, closeSound);
     }
 

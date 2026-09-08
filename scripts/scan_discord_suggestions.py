@@ -27,6 +27,7 @@ from typing import Any
 
 
 DEFAULT_CHANNEL_ID = "1489728918108770444"
+DEFAULT_CONFIG_PATH = "scripts/discord-tracker.json"
 API_BASE = "https://discord.com/api/v10"
 USER_AGENT = "ItemsAdderAdditionsSuggestionScanner/1.0"
 
@@ -93,6 +94,9 @@ LARGE_SCOPE_WORDS = {
     "support everything",
     "everything",
 }
+
+UPDATE_WORDS = {"update", "updated", "changelog", "release", "released", "version", "patch notes"}
+ANNOUNCEMENT_WORDS = {"announcement", "announcing", "news", "maintenance", "重要", "notice"}
 
 
 @dataclass
@@ -299,6 +303,10 @@ def choose_category(title: str, messages: list[dict[str, Any]], tag_names: list[
 
     if contains_any_keyword(haystack, BUG_WORDS):
         return "bug"
+    if contains_any_keyword(haystack, ANNOUNCEMENT_WORDS):
+        return "announcement"
+    if contains_any_keyword(haystack, UPDATE_WORDS):
+        return "update"
     if contains_any_keyword(haystack, COMPAT_WORDS):
         return "compatibility"
     if contains_any_keyword(haystack, LARGE_SCOPE_WORDS):
@@ -600,7 +608,8 @@ def escape_md(value: str) -> str:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Scan Discord suggestion posts into triage reports.")
-    parser.add_argument("--channel-id", default=DEFAULT_CHANNEL_ID, help="Discord suggestions channel ID.")
+    parser.add_argument("--config", default=DEFAULT_CONFIG_PATH, help="JSON tracker configuration path.")
+    parser.add_argument("--channel-id", help="Override the configured suggestions channel ID.")
     parser.add_argument("--message-limit", type=int, default=40, help="Max messages to read from each post/thread.")
     parser.add_argument("--text-message-limit", type=int, default=200, help="Max top-level text messages to read.")
     parser.add_argument("--max-archived-pages", type=int, default=20, help="Max archived-thread pages to scan.")
@@ -612,8 +621,42 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def load_config(path: str) -> dict[str, Any]:
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            config = json.load(handle)
+    except FileNotFoundError:
+        return {"channels": [{"id": DEFAULT_CHANNEL_ID, "name": "suggestions"}]}
+    if not isinstance(config, dict):
+        raise ValueError(f"Tracker config must be a JSON object: {path}")
+    return config
+
+
+def apply_config_defaults(args: argparse.Namespace, config: dict[str, Any]) -> None:
+    output = config.get("output") or {}
+    if args.json_out == "suggestions_dump.json":
+        args.json_out = output.get("json", args.json_out)
+    if args.md_out == "suggestions_report.md":
+        args.md_out = output.get("markdown", args.md_out)
+    ranking = config.get("ranking") or {}
+    args.minimum_priority = int(ranking.get("minimum_priority", 0))
+
+
+def configured_channels(config: dict[str, Any], override: str | None) -> list[dict[str, Any]]:
+    if override:
+        return [{"id": override, "name": "override"}]
+    channels = config.get("channels") or []
+    if isinstance(channels, dict):
+        channels = [{"id": channel_id, "name": name} for name, channel_id in channels.items()]
+    result = [channel for channel in channels if isinstance(channel, dict) and channel.get("id")]
+    return result or [{"id": DEFAULT_CHANNEL_ID, "name": "suggestions"}]
+
+
 def main() -> int:
     args = parse_args()
+    config = load_config(args.config)
+    apply_config_defaults(args, config)
+    channels = configured_channels(config, args.channel_id)
     if args.from_json:
         suggestions = load_suggestions_dump(args.from_json, args.summary_chars)
         suggestions.sort(key=lambda item: (item.recommendation != "do_now", -item.priority_score, item.title.lower()))
@@ -627,42 +670,33 @@ def main() -> int:
         return 2
 
     client = DiscordClient(token)
-    channel = client.request(f"/channels/{args.channel_id}")
-    channel_type = channel.get("type")
-    channel_type_name = CHANNEL_TYPE_NAMES.get(channel_type, f"type_{channel_type}")
-    print(f"Scanning channel {args.channel_id} ({channel_type_name})...")
-
     suggestions: list[ScoredSuggestion] = []
+    for configured_channel in channels:
+        channel_id = str(configured_channel["id"])
+        channel = client.request(f"/channels/{channel_id}")
+        channel_type = channel.get("type")
+        channel_type_name = CHANNEL_TYPE_NAMES.get(channel_type, f"type_{channel_type}")
+        print(f"Scanning {configured_channel.get('name', channel_id)} ({channel_id}, {channel_type_name})...")
 
-    if channel_type in {15, 16}:
-        threads = fetch_forum_threads(
-            client,
-            args.channel_id,
-            args.include_private_archived,
-            args.max_archived_pages,
-        )
-        print(f"Found {len(threads)} forum/media posts.")
-        for index, thread in enumerate(threads, start=1):
-            messages = fetch_all_messages(client, thread["id"], args.message_limit)
-            suggestions.append(score_thread(channel, thread, messages, args.summary_chars))
-            print(f"[{index}/{len(threads)}] {thread.get('name', thread['id'])}")
-    else:
-        top_messages = fetch_all_messages(client, args.channel_id, args.text_message_limit)
-        suggestions.extend(score_text_message(channel, message, args.summary_chars) for message in top_messages)
-
-        threads = fetch_text_channel_threads(
-            client,
-            args.channel_id,
-            args.include_private_archived,
-            args.max_archived_pages,
-        )
-        print(f"Found {len(top_messages)} messages and {len(threads)} threads.")
-        for index, thread in enumerate(threads, start=1):
-            messages = fetch_all_messages(client, thread["id"], args.message_limit)
-            suggestions.append(score_thread(channel, thread, messages, args.summary_chars))
-            print(f"[thread {index}/{len(threads)}] {thread.get('name', thread['id'])}")
+        if channel_type in {15, 16}:
+            threads = fetch_forum_threads(client, channel_id, args.include_private_archived, args.max_archived_pages)
+            print(f"Found {len(threads)} forum/media posts.")
+            for index, thread in enumerate(threads, start=1):
+                messages = fetch_all_messages(client, thread["id"], args.message_limit)
+                suggestions.append(score_thread(channel, thread, messages, args.summary_chars))
+                print(f"[{index}/{len(threads)}] {thread.get('name', thread['id'])}")
+        else:
+            top_messages = fetch_all_messages(client, channel_id, args.text_message_limit)
+            suggestions.extend(score_text_message(channel, message, args.summary_chars) for message in top_messages)
+            threads = fetch_text_channel_threads(client, channel_id, args.include_private_archived, args.max_archived_pages)
+            print(f"Found {len(top_messages)} messages and {len(threads)} threads.")
+            for index, thread in enumerate(threads, start=1):
+                messages = fetch_all_messages(client, thread["id"], args.message_limit)
+                suggestions.append(score_thread(channel, thread, messages, args.summary_chars))
+                print(f"[thread {index}/{len(threads)}] {thread.get('name', thread['id'])}")
 
     suggestions.sort(key=lambda item: (item.recommendation != "do_now", -item.priority_score, item.title.lower()))
+    suggestions = [item for item in suggestions if item.priority_score >= args.minimum_priority]
 
     write_json(args.json_out, suggestions)
     write_markdown(args.md_out, suggestions)

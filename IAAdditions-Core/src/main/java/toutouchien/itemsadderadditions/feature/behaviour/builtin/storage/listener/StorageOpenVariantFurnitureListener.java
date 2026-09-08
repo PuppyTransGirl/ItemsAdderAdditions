@@ -29,12 +29,13 @@ public final class StorageOpenVariantFurnitureListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onOpenVariantFurnitureInteract(FurnitureInteractEvent event) {
         if (!runtime.hasFurnitureOpenVariant()) return;
-        if (!runtime.matchesOpenVariantId(event.getNamespacedID())) return;
         if (event.getPlayer().isSneaking()) return;
 
         Entity entity = event.getBukkitEntity();
         if (entity == null) return;
         if (!runtime.openVariantTransformer().isTransformed(entity.getLocation())) return;
+        if (!runtime.matchesOpenVariantId(event.getNamespacedID())
+                && !runtime.matchesStorageFurniture(event.getNamespacedID(), entity)) return;
 
         event.setCancelled(true);
         runtime.sessionManager().openForPlayerAtTransformedLocation(
@@ -59,13 +60,13 @@ public final class StorageOpenVariantFurnitureListener implements Listener {
             Log.debug("StorageOpenVariantBreak", "Ignoring: no furniture open variant configured.");
             return;
         }
-        if (!runtime.matchesOpenVariantId(event.getNamespacedID())) {
+        Entity entity = event.getBukkitEntity();
+        if (entity == null) return;
+        if (!runtime.matchesOpenVariantId(event.getNamespacedID())
+                && !runtime.matchesStorageFurniture(event.getNamespacedID(), entity)) {
             Log.debug("StorageOpenVariantBreak", "Ignoring: id does not match open variant.");
             return;
         }
-
-        Entity entity = event.getBukkitEntity();
-        if (entity == null) return;
         if (!runtime.openVariantTransformer().isTransformed(entity.getLocation())) {
             Log.debug("StorageOpenVariantBreak", "Ignoring: location {} is not in transformed state.",
                     entity.getLocation());

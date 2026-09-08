@@ -27,21 +27,25 @@ public final class StorageFurnitureListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onFurnitureInteract(FurnitureInteractEvent event) {
-        if (!event.getNamespacedID().equals(runtime.namespacedId())) return;
+        Entity entity = event.getBukkitEntity();
+        if (entity == null) return;
+        if (!runtime.matchesStorageFurniture(event.getNamespacedID(), entity)) return;
+        if (runtime.hasFurnitureOpenVariant()
+                && runtime.openVariantTransformer().isTransformed(entity.getLocation())) return;
         if (event.getPlayer().isSneaking()) return;
 
         event.setCancelled(true);
-        Entity entity = event.getBukkitEntity();
-        if (entity == null) return;
         runtime.sessionManager().openForEntity(event.getPlayer(), entity);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFurnitureBreak(FurnitureBreakEvent event) {
-        if (!event.getNamespacedID().equals(runtime.namespacedId())) return;
-
         Entity entity = event.getBukkitEntity();
         if (entity == null) return;
+        if (!runtime.matchesStorageFurniture(event.getNamespacedID(), entity)) return;
+        if (runtime.hasFurnitureOpenVariant()
+                && runtime.openVariantTransformer().isTransformed(entity.getLocation())) return;
+        boolean contentVariant = runtime.matchesContentVariantId(event.getNamespacedID());
 
         // Flush any open session to the entity PDC, then read the live contents.
         runtime.sessionManager().closeSessionsAt(entity.getLocation(), null);
@@ -53,10 +57,18 @@ public final class StorageFurnitureListener implements Listener {
         if (creative) {
             Log.debug("StorageFurnitureBreak", "Breaker in creative - using creative storage transfer.");
             ItemStack[] contents = StorageInventoryManager.loadFromEntity(entity, runtime.contentsKey());
-            runtime.handleCreativeContainerBreak(entity.getLocation(), contents);
+            if (contentVariant) {
+                runtime.handleCreativeOpenVariantBreakDrops(entity.getLocation(), contents);
+            } else {
+                runtime.handleCreativeContainerBreak(entity.getLocation(), contents);
+            }
         } else {
             ItemStack[] contents = StorageInventoryManager.loadFromEntity(entity, runtime.contentsKey());
-            runtime.handleContainerBreak(entity.getLocation(), contents);
+            if (contentVariant) {
+                runtime.handleOpenVariantBreakDrops(entity.getLocation(), contents);
+            } else {
+                runtime.handleContainerBreak(entity.getLocation(), contents);
+            }
         }
         StorageInventoryManager.clearEntity(entity, runtime.contentsKey());
 
@@ -69,20 +81,23 @@ public final class StorageFurnitureListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFurniturePlaced(FurniturePlacedEvent event) {
         if (!event.getNamespacedID().equals(runtime.namespacedId())) return;
-        if (runtime.storageType() != StorageType.SHULKER) return;
 
-        // Yes, it can be null
-        if (event.getPlayer() == null)
-            return;
+        ItemStack[] stored = null;
+        // Yes, the player can be null.
+        if (runtime.storageType() == StorageType.SHULKER && event.getPlayer() != null) {
+            stored = runtime.shulkerDropTracker()
+                    .consumePlaceContents(event.getPlayer().getUniqueId());
+        }
 
-        ItemStack[] stored = runtime.shulkerDropTracker()
-                .consumePlaceContents(event.getPlayer().getUniqueId());
-        if (stored == null) return;
+        Entity target = event.getBukkitEntity();
+        if (runtime.hasContentVariants()) {
+            Entity transformed = runtime.contentVariantTransformer()
+                    .applyToEntity(target.getLocation(), target, stored);
+            if (transformed != null) target = transformed;
+        }
 
-        StorageInventoryManager.saveToEntity(
-                event.getBukkitEntity(),
-                stored,
-                runtime.contentsKey()
-        );
+        if (stored != null) {
+            StorageInventoryManager.saveToEntity(target, stored, runtime.contentsKey());
+        }
     }
 }

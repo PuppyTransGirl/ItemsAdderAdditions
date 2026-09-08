@@ -1,5 +1,5 @@
 group = "toutouchien.itemsadderadditions"
-version = "1.0.13-beta-2"
+version = "1.0.13"
 
 tasks.register("fullTest") {
     group = "verification"

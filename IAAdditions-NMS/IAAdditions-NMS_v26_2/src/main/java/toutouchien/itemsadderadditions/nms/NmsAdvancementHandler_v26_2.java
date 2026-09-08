@@ -176,10 +176,17 @@ public final class NmsAdvancementHandler_v26_2 implements INmsAdvancementHandler
     private static void broadcastUpdate(List<AdvancementHolder> added, Set<Identifier> removed) {
         if (added.isEmpty() && removed.isEmpty()) return;
 
-        ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
-                false, added, removed, Collections.emptyMap(), false
-        );
         for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerAdvancements playerAdvancements = ((CraftPlayer) player).getHandle().getAdvancements();
+            Map<Identifier, AdvancementProgress> progress = new LinkedHashMap<>();
+            for (AdvancementHolder holder : added) {
+                AdvancementProgress current = playerAdvancements.getOrStartProgress(holder);
+                current.update(holder.value().requirements());
+                progress.put(holder.id(), current);
+            }
+            ClientboundUpdateAdvancementsPacket packet = new ClientboundUpdateAdvancementsPacket(
+                    false, added, removed, progress, false
+            );
             ((CraftPlayer) player).getHandle().connection.send(packet);
         }
     }

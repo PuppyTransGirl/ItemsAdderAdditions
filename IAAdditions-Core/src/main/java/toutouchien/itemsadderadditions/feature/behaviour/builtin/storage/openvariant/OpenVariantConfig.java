@@ -40,13 +40,23 @@ public record OpenVariantConfig(ItemCategory category, String id) {
      */
     @Nullable
     public static OpenVariantConfig resolve(@Nullable String id, String ownerNamespacedId) {
+        return resolve(id, ownerNamespacedId, "open_variant");
+    }
+
+    @Nullable
+    public static OpenVariantConfig resolve(
+            @Nullable String id,
+            String ownerNamespacedId,
+            String configKey
+    ) {
         if (id == null)
             return null;
 
         if (id.isBlank()) {
             Log.warn(
                     "Storage",
-                    "open_variant for '{}': value is blank - expected a namespacedID string.",
+                    "{} for '{}': value is blank - expected a namespacedID string.",
+                    configKey,
                     ownerNamespacedId
             );
             return null;
@@ -58,8 +68,9 @@ public record OpenVariantConfig(ItemCategory category, String id) {
         if (stack == null) {
             Log.warn(
                     "Storage",
-                    "open_variant for '{}': '{}' is not a recognised custom item. " +
+                    "{} for '{}': '{}' is not a recognised custom item. " +
                             "Make sure ItemsAdder has finished loading before this behaviour is initialised.",
+                    configKey,
                     ownerNamespacedId,
                     id
             );
@@ -68,8 +79,8 @@ public record OpenVariantConfig(ItemCategory category, String id) {
 
         ItemCategory category = ItemCategory.determine(stack, stack.getConfig(), stack.getId());
         Log.debug("Storage",
-                "open_variant for '{}': '{}' -> {} (determined via ItemCategory).",
-                ownerNamespacedId, stack.getNamespacedID(), category);
+                "{} for '{}': '{}' -> {} (determined via ItemCategory).",
+                configKey, ownerNamespacedId, stack.getNamespacedID(), category);
 
         return new OpenVariantConfig(category, stack.getNamespacedID());
     }

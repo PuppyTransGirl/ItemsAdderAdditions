@@ -7,6 +7,7 @@ import org.objectweb.asm.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_15.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_16.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_17.*;
+import toutouchien.itemsadderadditions.patch.impl.ia_4_0_18.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,11 @@ class PatchImplCoverageTest {
                 new StatRequirementsCapturePatch_IA_4_0_17(),
                 new TradeMachineCapturePatch_IA_4_0_17(),
                 new StonecutterSelectiveBypassPatch_IA_4_0_17(),
-                new AddEnchantmentPatch_IA_4_0_17()
+                new AddEnchantmentPatch_IA_4_0_17(),
+                new CooldownCapturePatch_IA_4_0_18(),
+                new StatRequirementsCapturePatch_IA_4_0_18(),
+                new TradeMachineCapturePatch_IA_4_0_18(),
+                new StonecutterSelectiveBypassPatch_IA_4_0_18()
         );
     }
 

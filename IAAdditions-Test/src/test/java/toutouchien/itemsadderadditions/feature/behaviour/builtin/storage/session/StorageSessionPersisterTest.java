@@ -18,6 +18,7 @@ import org.mockbukkit.mockbukkit.world.WorldMock;
 import org.mockito.MockedStatic;
 import toutouchien.itemsadderadditions.common.utils.BlockCoord;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.StorageType;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.contentvariant.ContentVariantTransformer;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryManager;
 import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.openvariant.OpenVariantTransformer;
 
@@ -106,6 +107,40 @@ class StorageSessionPersisterTest {
     }
 
     @Test
+    void saveAfterCloseAppliesContentVariantBeforePersistingToFinalFurniture() {
+        Entity original = mock(Entity.class);
+        Entity variant = mock(Entity.class);
+        Location location = new Location(world, 5, 64, 5);
+        when(original.getLocation()).thenReturn(location);
+        ContentVariantTransformer transformer = mock(ContentVariantTransformer.class);
+        when(transformer.applyToEntity(location, original, contents)).thenReturn(variant);
+        StorageSessionPersister persister = new StorageSessionPersister(
+                plugin, StorageType.STORAGE, CONTENTS_KEY, "pack:closed", null, transformer);
+
+        try (MockedStatic<StorageInventoryManager> storage = mockStatic(StorageInventoryManager.class)) {
+            persister.saveAfterClose(furnitureSession(original, inventory), true);
+
+            verify(transformer).applyToEntity(location, original, contents);
+            storage.verify(() -> StorageInventoryManager.saveToEntity(variant, contents, CONTENTS_KEY));
+        }
+    }
+
+    @Test
+    void saveAfterCloseAppliesContentVariantToRestoredBlockBeforeSaving() {
+        Block block = world.getBlockAt(6, 64, 6);
+        ContentVariantTransformer transformer = mock(ContentVariantTransformer.class);
+        StorageSessionPersister persister = new StorageSessionPersister(
+                plugin, StorageType.STORAGE, CONTENTS_KEY, "pack:closed", null, transformer);
+
+        try (MockedStatic<StorageInventoryManager> storage = mockStatic(StorageInventoryManager.class)) {
+            persister.saveAfterClose(blockSession(block, inventory), true);
+
+            verify(transformer).applyToBlock(block, contents);
+            storage.verify(() -> StorageInventoryManager.saveToBlock(block, contents, CONTENTS_KEY, plugin));
+        }
+    }
+
+    @Test
     void saveAfterCloseLogsAndSkipsSessionWithoutHolder() {
         StorageSessionPersister persister = persister(StorageType.STORAGE, null);
         StorageSession session = new StorageSession(player, inventory, null, null, StorageType.STORAGE);
@@ -171,7 +206,7 @@ class StorageSessionPersisterTest {
     }
 
     private StorageSessionPersister persister(StorageType type, OpenVariantTransformer transformer) {
-        return new StorageSessionPersister(plugin, type, CONTENTS_KEY, "pack:closed", transformer);
+        return new StorageSessionPersister(plugin, type, CONTENTS_KEY, "pack:closed", transformer, null);
     }
 
     private StorageSession blockSession(Block block, Inventory inv) {
