@@ -192,6 +192,20 @@ result:
   amount: 3
 ```
 
+### `result.durability`
+
+Optionnel. Disponible depuis la version 1.0.13 pour les objets de résultat pouvant subir des dégâts.
+
+Définit la **durabilité restante** du résultat, et non sa valeur de dégâts. La valeur doit être comprise entre `0` et
+la durabilité maximale de l'objet. Une durabilité maximale personnalisée appliquée via les composants du résultat est
+également prise en compte.
+
+```yaml
+result:
+  item: DIAMOND_PICKAXE
+  durability: 250
+```
+
 ## Recettes avec forme
 
 Les recettes avec forme utilisent un `pattern` et une section `ingredients` indexée par caractères.

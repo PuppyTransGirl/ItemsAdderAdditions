@@ -190,6 +190,19 @@ result:
   amount: 3
 ```
 
+### `result.durability`
+
+可选。从 1.0.13 开始可用于能够损耗的结果物品。
+
+设置结果物品的**剩余耐久度**，而不是损坏值。该值必须在 `0` 与物品的最大耐久度之间。通过结果 components
+设置的自定义最大耐久度同样会被正确使用。
+
+```yaml
+result:
+  item: DIAMOND_PICKAXE
+  durability: 250
+```
+
 ## 有序配方
 
 有序配方使用 `pattern` 和以字符为键的 `ingredients` 部分

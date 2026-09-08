@@ -191,6 +191,19 @@ result:
   amount: 3
 ```
 
+### `result.durability`
+
+Optional. Available since 1.0.13 for damageable result items.
+
+Sets the result's **remaining durability**, not its damage value. It must be between `0` and the item's maximum
+durability. This also respects a custom maximum durability applied through result components.
+
+```yaml
+result:
+  item: DIAMOND_PICKAXE
+  durability: 250
+```
+
 ## Shaped recipes
 
 Shaped recipes use a `pattern` and a char-keyed `ingredients` section.

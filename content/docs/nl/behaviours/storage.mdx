@@ -135,6 +135,28 @@ Wanneer de inventaris door alle spelers wordt gesloten, keert de storage terug n
     `open_variant`-waarden voor complex furniture worden ondersteund vanaf ItemsAdderAdditions 1.0.12. Block-storage moet een blockvariant gebruiken; furniture en complex furniture kunnen furniture, complex furniture of een item display-model gebruiken.
 </Callout>
 
+## Inhoudsvarianten
+
+Vanaf versie 1.0.13 kan een gesloten opslaghouder van uiterlijk veranderen op basis van hoe vol deze is.
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    empty_variant: my_empty_storage   # optioneel; lege inventaris
+    filled_variant: my_filled_storage # optioneel; elke niet-lege inventaris
+    half_variant: my_half_storage     # optioneel; gedeeltelijk gevulde inventaris
+    full_variant: my_full_storage     # optioneel; elk slot gevuld tot de stapellimiet
+```
+
+`filled_variant` is de eenvoudige optie met twee toestanden: deze wordt voor elke niet-lege inventaris gebruikt, tenzij
+een specifiekere `half_variant` of `full_variant` is ingesteld. Ontbrekende varianten vallen terug op `filled_variant`
+en daarna op het oorspronkelijke uiterlijk van de opslaghouder.
+
+`open_variant` heeft voorrang zolang spelers de inventaris bekijken. Nadat de laatste speler deze sluit, wordt de juiste
+inhoudsvariant hersteld. ID's en blok-/furniturecompatibiliteit volgen dezelfde regels als `open_variant`, en de rotatie
+van directionele blokken blijft behouden.
+
 <VideoGif src="/assets/behaviours_storage_example"/>
 
 ## Gerelateerde pagina's

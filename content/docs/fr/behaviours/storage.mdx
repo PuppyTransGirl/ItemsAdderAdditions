@@ -135,6 +135,28 @@ Quand l'inventaire est fermé par tous les joueurs, le storage retourne à sa va
     Les `open_variant` de meubles complexes sont pris en charge depuis ItemsAdderAdditions 1.0.12. Un storage de type bloc doit utiliser une variante bloc ; les meubles et meubles complexes peuvent utiliser un meuble, un meuble complexe ou un modèle d'item display.
 </Callout>
 
+## Variantes selon le contenu
+
+Depuis la version 1.0.13, un stockage peut changer d'apparence lorsqu'il est fermé selon son niveau de remplissage.
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    empty_variant: my_empty_storage   # optionnel ; inventaire vide
+    filled_variant: my_filled_storage # optionnel ; inventaire non vide
+    half_variant: my_half_storage     # optionnel ; inventaire partiellement rempli
+    full_variant: my_full_storage     # optionnel ; chaque emplacement est rempli à sa limite
+```
+
+`filled_variant` permet une configuration simple à deux états : cette variante est utilisée pour tout inventaire non
+vide, sauf si une variante `half_variant` ou `full_variant` plus précise est configurée. Une variante manquante revient
+à `filled_variant`, puis à l'apparence d'origine du stockage.
+
+`open_variant` reste prioritaire tant que l'inventaire est ouvert. La variante correspondant au contenu est restaurée
+après la fermeture par le dernier joueur. Les IDs et la compatibilité bloc/meuble suivent les mêmes règles que
+`open_variant`, et la rotation des blocs directionnels est conservée.
+
 <VideoGif src="/assets/behaviours_storage_example"/>
 
 ## Pages associées

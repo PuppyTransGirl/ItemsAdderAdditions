@@ -137,6 +137,28 @@ When the inventory is closed by all players, the storage returns to its normal v
     display model.
 </Callout>
 
+## Content variants
+
+Since 1.0.13, a storage holder can change its closed appearance based on how full it is.
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    empty_variant: my_empty_storage   # optional; empty inventory
+    filled_variant: my_filled_storage # optional; any non-empty inventory
+    half_variant: my_half_storage     # optional; partially filled inventory
+    full_variant: my_full_storage     # optional; every slot filled to its stack limit
+```
+
+`filled_variant` is the simple two-state option: it is used for every non-empty inventory unless a more specific
+`half_variant` or `full_variant` is configured. Missing variants fall back to `filled_variant` and then to the holder's
+original appearance.
+
+`open_variant` takes priority while the inventory has viewers. The appropriate content variant is restored after the
+last viewer closes it. IDs and block/furniture compatibility follow the same rules as `open_variant`, and directional
+block rotation is preserved when variants change.
+
 <VideoGif src="/assets/behaviours_storage_example"/>
 
 ## Related pages

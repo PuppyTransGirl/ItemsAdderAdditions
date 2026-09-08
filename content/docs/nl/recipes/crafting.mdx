@@ -192,6 +192,20 @@ result:
   amount: 3
 ```
 
+### `result.durability`
+
+Optioneel. Vanaf versie 1.0.13 beschikbaar voor beschadigbare resultaatitems.
+
+Stelt de **resterende duurzaamheid** van het resultaat in, niet de schadewaarde. De waarde moet tussen `0` en de
+maximale duurzaamheid van het item liggen. Een aangepaste maximale duurzaamheid die via resultaatcomponents is
+toegepast wordt ook gerespecteerd.
+
+```yaml
+result:
+  item: DIAMOND_PICKAXE
+  durability: 250
+```
+
 ## Gevormde recepten
 
 Gevormde recepten gebruiken een `pattern` en een met tekens gesleutelde `ingredients`-sectie.

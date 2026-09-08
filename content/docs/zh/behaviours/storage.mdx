@@ -135,6 +135,26 @@ ID 语法请见 [ID](/zh/docs/compatibility/ids)。
     ItemsAdderAdditions 1.0.12 及更高版本支持复杂家具 `open_variant`。方块 storage 必须使用方块变体；家具和复杂家具可以使用家具、复杂家具或 item display 模型。
 </Callout>
 
+## 内容状态变体
+
+从 1.0.13 开始，存储容器关闭时可根据物品栏的填充状态改变外观。
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    empty_variant: my_empty_storage   # 可选；物品栏为空
+    filled_variant: my_filled_storage # 可选；物品栏中有任意物品
+    half_variant: my_half_storage     # 可选；物品栏部分填充
+    full_variant: my_full_storage     # 可选；每个槽位都达到对应物品的堆叠上限
+```
+
+`filled_variant` 是简单的两状态选项：只要物品栏不为空就会使用它，除非配置了更具体的 `half_variant` 或
+`full_variant`。缺少对应变体时会回退到 `filled_variant`，再回退到容器原本的外观。
+
+玩家打开物品栏时，`open_variant` 始终优先。最后一名查看者关闭物品栏后，会恢复与内容状态对应的变体。
+ID 以及方块/家具兼容规则与 `open_variant` 相同，切换变体时也会保留方向方块的旋转状态。
+
 <VideoGif src="/assets/behaviours_storage_example"/>
 
 ## 相关页面
