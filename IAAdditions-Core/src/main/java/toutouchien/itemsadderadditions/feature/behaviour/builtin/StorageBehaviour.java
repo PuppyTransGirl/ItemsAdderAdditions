@@ -17,6 +17,7 @@ import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.annotation.Parameter;
 import toutouchien.itemsadderadditions.common.item.ItemCategory;
 import toutouchien.itemsadderadditions.common.logging.Log;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourExecutor;
 import toutouchien.itemsadderadditions.feature.behaviour.BehaviourHost;
 import toutouchien.itemsadderadditions.feature.behaviour.annotation.Behaviour;
@@ -93,6 +94,10 @@ public final class StorageBehaviour extends BehaviourExecutor {
     @Nullable
     private String inventoryTypeName;
     @Nullable
+    private List<String> allowedItems;
+    @Nullable
+    private List<String> deniedItems;
+    @Nullable
     private Sound openSound;
     @Nullable
     private Sound closeSound;
@@ -104,6 +109,32 @@ public final class StorageBehaviour extends BehaviourExecutor {
     public boolean configure(Object configData, String namespacedID) {
         if (!super.configure(configData, namespacedID)) return false;
         if (!(configData instanceof ConfigurationSection section)) return false;
+
+        boolean hasAllowedItems = section.contains("allowed_items");
+        boolean hasDeniedItems = section.contains("denied_items");
+        if (hasAllowedItems && hasDeniedItems) {
+            Log.itemSkip("Storage", namespacedID,
+                    "storage behaviour cannot configure both 'allowed_items' and 'denied_items'");
+            return false;
+        }
+
+        String itemListKey = hasAllowedItems ? "allowed_items" : hasDeniedItems ? "denied_items" : null;
+        if (itemListKey != null) {
+            Object rawItems = section.get(itemListKey);
+            if (!(rawItems instanceof List<?> items) || items.stream().anyMatch(item -> !(item instanceof String))) {
+                Log.itemSkip("Storage", namespacedID,
+                        "parameter '{}' must be a list of item IDs or tags", itemListKey);
+                return false;
+            }
+
+            String namespace = NamespaceUtils.namespace(namespacedID);
+            List<String> normalizedItems = items.stream()
+                    .map(String.class::cast)
+                    .map(item -> NamespaceUtils.normalizeItemIDOrTag(namespace, item))
+                    .toList();
+            if (hasAllowedItems) allowedItems = normalizedItems;
+            else deniedItems = normalizedItems;
+        }
 
         StorageSounds sounds = StorageSoundParser.parse(section, namespacedID);
         if (sounds == null) return false;
@@ -200,7 +231,8 @@ public final class StorageBehaviour extends BehaviourExecutor {
             StorageRuntime runtime,
             ShulkerDropTracker shulkerDropTracker
     ) {
-        StorageGuiGuard guiGuard = new StorageGuiGuard(SHULKER_ITEM_IDS);
+        StorageGuiGuard guiGuard = new StorageGuiGuard(
+                runtime.sessionManager(), SHULKER_ITEM_IDS, allowedItems, deniedItems);
 
         if (runtime.category() == ItemCategory.BLOCK) {
             registeredListeners.add(new StorageBlockListener(runtime));

@@ -44,6 +44,10 @@ public final class StorageSessionRegistry {
         return null;
     }
 
+    boolean ownsInventory(Inventory inventory) {
+        return sessions.values().stream().anyMatch(session -> session.inventory() == inventory);
+    }
+
     List<StorageSession> near(Location location, double maxDistanceSquared) {
         List<StorageSession> matches = new ArrayList<>();
         for (StorageSession session : sessions.values()) {

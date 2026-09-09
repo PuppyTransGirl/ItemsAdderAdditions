@@ -1,7 +1,5 @@
 package toutouchien.itemsadderadditions.feature.behaviour.builtin.storage;
 
-import dev.lone.itemsadder.api.CustomStack;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,36 +11,47 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
-import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.inventory.StorageInventoryHolder;
+import toutouchien.itemsadderadditions.common.namespace.CustomTagType;
+import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.feature.behaviour.builtin.storage.session.StorageSessionManager;
 
+import java.util.List;
 import java.util.Set;
 
 /**
- * Prevents SHULKER-type storage items from being placed inside any storage GUI,
- * blocking nesting.
+ * Blocks disallowed player insertions into storage GUIs and prevents SHULKER nesting.
  */
 @NullMarked
 public final class StorageGuiGuard implements Listener {
+    private final StorageSessionManager sessions;
     private final Set<String> shulkerItemIDs;
+    @Nullable private final List<String> allowedItems;
+    @Nullable private final List<String> deniedItems;
 
-    public StorageGuiGuard(Set<String> shulkerItemIDs) {
+    public StorageGuiGuard(
+            StorageSessionManager sessions,
+            Set<String> shulkerItemIDs,
+            @Nullable List<String> allowedItems,
+            @Nullable List<String> deniedItems
+    ) {
+        this.sessions = sessions;
         this.shulkerItemIDs = shulkerItemIDs;
+        this.allowedItems = allowedItems;
+        this.deniedItems = deniedItems;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getView().getTopInventory().getHolder(false)
-                instanceof StorageInventoryHolder)) return;
-
         Inventory topInv = event.getView().getTopInventory();
+        if (!sessions.ownsInventory(topInv)) return;
 
         boolean blocked = switch (event.getAction()) {
             case PLACE_ONE, PLACE_SOME, PLACE_ALL, SWAP_WITH_CURSOR -> event.getRawSlot() < topInv.getSize()
-                    && isShulker(event.getCursor());
+                    && blocksInsertion(event.getCursor());
 
             case MOVE_TO_OTHER_INVENTORY -> event.getRawSlot() >= topInv.getSize()
-                    && isShulker(event.getCurrentItem());
+                    && blocksInsertion(event.getCurrentItem());
 
             case COLLECT_TO_CURSOR -> isShulker(event.getCursor());
 
@@ -52,7 +61,7 @@ public final class StorageGuiGuard implements Listener {
                 ItemStack hotbar = slot >= 0
                         ? player.getInventory().getItem(slot)
                         : player.getInventory().getItemInOffHand();
-                yield isShulker(hotbar);
+                yield blocksInsertion(hotbar);
             }
 
             default -> false;
@@ -60,34 +69,39 @@ public final class StorageGuiGuard implements Listener {
 
         if (blocked) {
             event.setCancelled(true);
-            Log.debug("StorageGuiGuard",
-                    "Blocked {} from placing a SHULKER storage item inside a storage GUI.",
-                    player.getName());
+            Log.debug("StorageGuiGuard", "Blocked {} from inserting an item into a storage GUI.", player.getName());
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getView().getTopInventory().getHolder(false)
-                instanceof StorageInventoryHolder)) return;
-        if (!isShulker(event.getOldCursor())) return;
+        if (!sessions.ownsInventory(event.getView().getTopInventory())) return;
+        if (!blocksInsertion(event.getOldCursor())) return;
 
         int topSize = event.getView().getTopInventory().getSize();
         for (int rawSlot : event.getRawSlots()) {
             if (rawSlot < topSize) {
                 event.setCancelled(true);
-                Log.debug("StorageGuiGuard",
-                        "Blocked {} from dragging a SHULKER storage item into a storage GUI.",
-                        player.getName());
+                Log.debug("StorageGuiGuard", "Blocked {} from dragging an item into a storage GUI.", player.getName());
                 return;
             }
         }
     }
 
     private boolean isShulker(@Nullable ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) return false;
-        CustomStack cs = CustomStack.byItemStack(item);
-        return cs != null && shulkerItemIDs.contains(cs.getNamespacedID());
+        String itemId = NamespaceUtils.itemID(item);
+        return itemId != null && shulkerItemIDs.contains(itemId);
+    }
+
+    private boolean blocksInsertion(@Nullable ItemStack item) {
+        String itemId = NamespaceUtils.itemID(item);
+        if (itemId == null) return false;
+        if (shulkerItemIDs.contains(itemId)) return true;
+
+        if (allowedItems != null) return allowedItems.stream().noneMatch(
+                expected -> NamespaceUtils.matchesContentIDOrTag(itemId, expected, CustomTagType.ITEM));
+        return deniedItems != null && deniedItems.stream().anyMatch(
+                expected -> NamespaceUtils.matchesContentIDOrTag(itemId, expected, CustomTagType.ITEM));
     }
 }

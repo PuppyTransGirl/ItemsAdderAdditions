@@ -87,6 +87,15 @@ class StorageSessionRegistryTest {
     }
 
     @Test
+    void ownsOnlyRegisteredInventoryInstance() {
+        StorageSessionRegistry registry = new StorageSessionRegistry();
+        registry.add(sessionAt(world.getBlockAt(1, 65, 1)));
+
+        assertTrue(registry.ownsInventory(inventory));
+        assertFalse(registry.ownsInventory(Bukkit.createInventory(null, 9)));
+    }
+
+    @Test
     void nearReturnsSessionsWithinDistance() {
         StorageSessionRegistry registry = new StorageSessionRegistry();
         StorageSession close = sessionAt(world.getBlockAt(0, 64, 0));

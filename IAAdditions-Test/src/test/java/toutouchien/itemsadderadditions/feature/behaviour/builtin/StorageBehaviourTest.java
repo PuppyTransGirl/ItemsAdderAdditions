@@ -4,6 +4,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -98,6 +99,37 @@ class StorageBehaviourTest {
                 open_sound:
                   name: block.chest.open
                   source: bad_source
+                """), "ns:chest"));
+    }
+
+    @Test
+    void configureNormalizesAllowedAndDeniedItemLists() throws Exception {
+        StorageBehaviour whitelist = new StorageBehaviour();
+        StorageBehaviour blacklist = new StorageBehaviour();
+
+        assertTrue(whitelist.configure(yamlOf("""
+                type: storage
+                allowed_items:
+                  - minecraft:book
+                  - "#minecraft:logs"
+                  - "#ns:building_materials"
+                """), "ns:chest"));
+        assertTrue(blacklist.configure(yamlOf("""
+                type: storage
+                denied_items: []
+                """), "ns:chest"));
+
+        assertEquals(List.of("minecraft:book", "#minecraft:logs", "#ns:building_materials"),
+                field(whitelist, "allowedItems"));
+        assertEquals(List.of(), field(blacklist, "deniedItems"));
+    }
+
+    @Test
+    void configureRejectsAllowedAndDeniedItemsTogether() {
+        assertFalse(new StorageBehaviour().configure(yamlOf("""
+                type: storage
+                allowed_items: []
+                denied_items: []
                 """), "ns:chest"));
     }
 }

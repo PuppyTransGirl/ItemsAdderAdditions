@@ -191,6 +191,10 @@ public final class StorageSessionManager {
         return inventories.liveContentsAt(location);
     }
 
+    public boolean ownsInventory(Inventory inventory) {
+        return sessions.ownsInventory(inventory);
+    }
+
     private boolean canOpen(Player player, Location location) {
         return storageType == StorageType.DISPOSAL
                 || StorageProtectionChecks.canOpenStorage(player, location, antiGriefLib);
