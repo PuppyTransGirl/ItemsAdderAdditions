@@ -106,6 +106,40 @@ behaviours:
     title: "<gray>Custom Furnace</gray>"
 ```
 
+## Item restrictions
+
+Since 1.0.14, storage can restrict which items players may insert. Use `allowed_items` to allow only matching items:
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    allowed_items:
+      - minecraft:book
+      - "#minecraft:logs"
+      - "#my_pack:building_materials"
+```
+
+Or use `denied_items` to reject matching items while allowing everything else:
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    denied_items:
+      - minecraft:tnt
+      - "#my_pack:portable_storage"
+```
+
+Entries may be vanilla or ItemsAdder item IDs, Minecraft item tags, or IAA custom item tags.
+
+<Callout type="warn">
+    `allowed_items` and `denied_items` are mutually exclusive. Configuring both rejects the storage behaviour.
+</Callout>
+
+An empty `allowed_items` list allows nothing. An empty `denied_items` list denies nothing. Omitting both keeps the
+storage unrestricted. Restrictions apply only to new player insertions; previously saved contents are not removed.
+
 ## Open variant
 
 You can optionally set `open_variant` to make the custom block, furniture, or complex furniture change into another variant while at least one player has the storage open.

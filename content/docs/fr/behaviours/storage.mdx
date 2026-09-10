@@ -106,6 +106,43 @@ behaviours:
     title: "<gray>Fourneau Personnalisé</gray>"
 ```
 
+## Restrictions d’objets
+
+Depuis la version 1.0.14, un stockage peut limiter les objets que les joueurs peuvent y insérer. Utilisez
+`allowed_items` pour n’autoriser que les objets correspondants :
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    allowed_items:
+      - minecraft:book
+      - "#minecraft:logs"
+      - "#my_pack:building_materials"
+```
+
+Ou utilisez `denied_items` pour refuser les objets correspondants tout en autorisant tous les autres :
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    denied_items:
+      - minecraft:tnt
+      - "#my_pack:portable_storage"
+```
+
+Les entrées peuvent être des IDs d’objets vanilla ou ItemsAdder, des tags d’objets Minecraft ou des tags d’objets
+personnalisés IAA.
+
+<Callout type="warn">
+    `allowed_items` et `denied_items` sont mutuellement exclusifs. Configurer les deux invalide le comportement de stockage.
+</Callout>
+
+Une liste `allowed_items` vide n’autorise aucun objet. Une liste `denied_items` vide n’en refuse aucun. Si les deux
+options sont omises, le stockage reste sans restriction. Ces restrictions concernent uniquement les nouvelles
+insertions des joueurs ; le contenu déjà enregistré n’est pas supprimé.
+
 ## Variante ouverte
 
 Vous pouvez optionnellement définir `open_variant` pour faire changer le bloc, meuble ou meuble complexe en une autre variante tant qu’au moins un joueur a le stockage ouvert.

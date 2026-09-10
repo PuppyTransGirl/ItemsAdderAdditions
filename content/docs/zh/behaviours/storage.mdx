@@ -106,6 +106,40 @@ behaviours:
     title: "<gray>自定义熔炉</gray>"
 ```
 
+## 物品限制
+
+从 1.0.14 开始，存储容器可以限制玩家能够放入的物品。使用 `allowed_items` 仅允许匹配的物品：
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    allowed_items:
+      - minecraft:book
+      - "#minecraft:logs"
+      - "#my_pack:building_materials"
+```
+
+也可以使用 `denied_items` 拒绝匹配的物品，同时允许其他所有物品：
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    denied_items:
+      - minecraft:tnt
+      - "#my_pack:portable_storage"
+```
+
+列表项可以是原版或 ItemsAdder 物品 ID、Minecraft 物品标签，或 IAA 自定义物品标签。
+
+<Callout type="warn">
+    `allowed_items` 和 `denied_items` 互斥。同时配置两者会导致该存储行为被拒绝。
+</Callout>
+
+空的 `allowed_items` 列表不允许放入任何物品，空的 `denied_items` 列表不会拒绝任何物品。两者都省略时，
+存储保持无限制。限制仅适用于玩家新放入的物品；之前保存的内容不会被移除。
+
 ## 开启变体
 
 你可以选择设置 `open_variant`，使自定义方块、家具或复杂家具在至少有一名玩家打开存储时切换为另一个变体

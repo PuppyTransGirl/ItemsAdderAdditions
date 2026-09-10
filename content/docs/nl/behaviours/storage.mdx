@@ -106,6 +106,42 @@ behaviours:
     title: "<gray>Aangepaste Oven</gray>"
 ```
 
+## Itembeperkingen
+
+Vanaf versie 1.0.14 kan opslag beperken welke items spelers mogen invoegen. Gebruik `allowed_items` om alleen
+overeenkomende items toe te staan:
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    allowed_items:
+      - minecraft:book
+      - "#minecraft:logs"
+      - "#my_pack:building_materials"
+```
+
+Of gebruik `denied_items` om overeenkomende items te weigeren en alle andere items toe te staan:
+
+```yaml
+behaviours:
+  storage:
+    type: STORAGE
+    denied_items:
+      - minecraft:tnt
+      - "#my_pack:portable_storage"
+```
+
+Vermeldingen mogen vanilla- of ItemsAdder-item-ID's, Minecraft-itemtags of aangepaste IAA-itemtags zijn.
+
+<Callout type="warn">
+    `allowed_items` en `denied_items` sluiten elkaar uit. Als beide zijn ingesteld, wordt het opslaggedrag afgewezen.
+</Callout>
+
+Een lege lijst `allowed_items` staat niets toe. Een lege lijst `denied_items` weigert niets. Als beide opties ontbreken,
+blijft de opslag onbeperkt. De beperkingen gelden alleen voor nieuwe invoegingen door spelers; eerder opgeslagen inhoud
+wordt niet verwijderd.
+
 ## Open variant
 
 Je kunt optioneel `open_variant` instellen om het aangepaste blok, meubel of complexe meubel te laten veranderen naar een andere variant terwijl ten minste een speler de opslag open heeft.
