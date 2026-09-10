@@ -14,7 +14,7 @@ class BuiltInActionsTest {
         List<ActionExecutor> actions = BuiltInActions.create();
         Set<String> keys = actions.stream().map(ActionExecutor::key).collect(Collectors.toSet());
 
-        assertEquals(17, actions.size());
+        assertEquals(18, actions.size());
         assertEquals(Set.of(
                 "actionbar",
                 "clear_item",
@@ -26,6 +26,7 @@ class BuiltInActionsTest {
                 "play_animation",
                 "play_emote",
                 "replace_biome",
+                "iaa_replace_near_blocks",
                 "replace_item",
                 "shoot_fireball",
                 "swing_hand",

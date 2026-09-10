@@ -5,6 +5,7 @@ import org.jspecify.annotations.NullMarked;
 import toutouchien.itemsadderadditions.common.registry.ExecutorRegistry;
 import toutouchien.itemsadderadditions.feature.action.loading.ActionBindings;
 import toutouchien.itemsadderadditions.feature.action.loading.ActionLoader;
+import toutouchien.itemsadderadditions.feature.action.builtin.ReplaceNearBlocksAction;
 import toutouchien.itemsadderadditions.runtime.reload.ContentReloadContext;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadPhase;
 import toutouchien.itemsadderadditions.runtime.reload.ReloadStepResult;
@@ -36,10 +37,12 @@ public final class ActionsManager implements ReloadableContentSystem {
     }
 
     public void applySettings(PluginSettings settings) {
+        ReplaceNearBlocksAction.cancelPending();
         registry.registerBuiltIns(settings::actionEnabled, BuiltInActions.create());
     }
 
     public int reload(List<CustomStack> items) {
+        ReplaceNearBlocksAction.cancelPending();
         return loader.load(items);
     }
 
@@ -59,6 +62,7 @@ public final class ActionsManager implements ReloadableContentSystem {
     }
 
     public void shutdown() {
+        ReplaceNearBlocksAction.cancelPending();
         ActionBindings.clear();
     }
 

@@ -8,6 +8,7 @@ import toutouchien.itemsadderadditions.common.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.action.ActionsManager;
+import toutouchien.itemsadderadditions.feature.action.builtin.ReplaceNearBlocksAction;
 import toutouchien.itemsadderadditions.feature.advancement.AdvancementManager;
 import toutouchien.itemsadderadditions.feature.behaviour.BehavioursManager;
 import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
@@ -76,6 +77,7 @@ public final class ReloadCoordinator {
     }
 
     public ReloadResult reloadItemsAdderData() {
+        ReplaceNearBlocksAction.cancelPending();
         ContentReloadContext context = buildContext();
         List<ReloadStepResult> results = reloadPlan.run(context);
         boolean registryChanged = results.stream().anyMatch(ReloadStepResult::registryChanged);

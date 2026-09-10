@@ -758,7 +758,12 @@ public final class NamespaceUtils {
             return customTagContainsContent(tagId, expectedType, actual);
         }
 
-        if (expectedType == CustomTagType.ITEM || expectedType == CustomTagType.BLOCK) {
+        if (expectedType == CustomTagType.BLOCK) {
+            Material material = actual.startsWith("minecraft:") ? vanillaMaterial(actual) : null;
+            return material != null && material.isBlock()
+                    && matchesMaterialTag(material, tagId, Tag.REGISTRY_BLOCKS);
+        }
+        if (expectedType == CustomTagType.ITEM) {
             return matchesMinecraftIDOrTag(actual, expected);
         }
 

@@ -76,10 +76,7 @@ public enum BlocksShape {
             for (int dx = -rx; dx <= rx; dx++)
                 for (int dy = -ry; dy <= ry; dy++)
                     for (int dz = -rz; dz <= rz; dz++) {
-                        double norm = (rx > 0 ? Math.abs(dx) / (double) rx : 0)
-                                + (ry > 0 ? Math.abs(dy) / (double) ry : 0)
-                                + (rz > 0 ? Math.abs(dz) / (double) rz : 0);
-                        if (norm <= 1.0)
+                        if (containsBlock(dx, dy, dz, rx, ry, rz))
                             locations.add(center.clone().add(dx, dy, dz));
                     }
             return locations;
@@ -108,10 +105,7 @@ public enum BlocksShape {
             for (int dx = -rx; dx <= rx; dx++)
                 for (int dy = -ry; dy <= ry; dy++)
                     for (int dz = -rz; dz <= rz; dz++) {
-                        double norm = (rx > 0 ? Math.pow(dx / (double) rx, 2) : 0)
-                                + (ry > 0 ? Math.pow(dy / (double) ry, 2) : 0)
-                                + (rz > 0 ? Math.pow(dz / (double) rz, 2) : 0);
-                        if (norm <= 1.0)
+                        if (containsBlock(dx, dy, dz, rx, ry, rz))
                             locations.add(center.clone().add(dx, dy, dz));
                     }
             return locations;
@@ -138,9 +132,7 @@ public enum BlocksShape {
             List<Location> locations = new ArrayList<>();
             for (int dx = -rx; dx <= rx; dx++)
                 for (int dz = -rz; dz <= rz; dz++) {
-                    double xzNorm = (rx > 0 ? Math.pow(dx / (double) rx, 2) : 0)
-                            + (rz > 0 ? Math.pow(dz / (double) rz, 2) : 0);
-                    if (xzNorm <= 1.0)
+                    if (containsBlock(dx, 0, dz, rx, ry, rz))
                         for (int dy = -ry; dy <= ry; dy++)
                             locations.add(center.clone().add(dx, dy, dz));
                 }
@@ -385,6 +377,21 @@ public enum BlocksShape {
      * @return mutable list of block locations inside the shape
      */
     public abstract List<Location> collect(Location center, int rx, int ry, int rz);
+
+    /** Allocation-free block predicate for the four symmetric replacement shapes. */
+    public boolean containsBlock(int dx, int dy, int dz, int rx, int ry, int rz) {
+        if (Math.abs(dx) > rx || Math.abs(dy) > ry || Math.abs(dz) > rz) return false;
+        double x = rx == 0 ? 0 : dx / (double) rx;
+        double y = ry == 0 ? 0 : dy / (double) ry;
+        double z = rz == 0 ? 0 : dz / (double) rz;
+        return switch (this) {
+            case CUBOID -> true;
+            case RHOMBUS -> Math.abs(x) + Math.abs(y) + Math.abs(z) <= 1;
+            case SPHERE -> x * x + y * y + z * z <= 1;
+            case CYLINDER -> x * x + z * z <= 1;
+            default -> throw new IllegalArgumentException("Unsupported block shape: " + this);
+        };
+    }
 
     /**
      * Whether this shape requires a look direction vector.
