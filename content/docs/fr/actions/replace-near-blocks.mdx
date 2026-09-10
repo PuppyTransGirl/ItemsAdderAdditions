@@ -1,0 +1,132 @@
+---
+title: Remplacer les blocs proches
+description: Remplacer progressivement des blocs vanilla ou ItemsAdder proches sans charger les chunks déchargés.
+version: "1.0.14"
+---
+
+```yaml
+iaa_replace_near_blocks:
+  from:
+    - minecraft:stone
+    - my_pack:old_ore
+    - "#minecraft:dirt"
+    - "#my_pack:replaceable_blocks"
+  to: minecraft:gold_block
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+Remplace les blocs correspondants autour de la cible de l'action. Le préfixe `iaa_` est obligatoire ; `replace_near_blocks` n'est pas un alias, car ItemsAdder possède déjà une action portant ce nom.
+
+Le travail est réparti sur plusieurs ticks afin de réduire les ralentissements. Les paramètres d'action existants comme `permission`, `delay` et `target` sont pris en charge. Consultez [Paramètres des actions](/fr/docs/actions/parameters).
+
+## Paramètres
+
+### `from`
+
+Requis. Une liste contenant entre 1 et 32 identifiants ou tags de blocs. Un bloc est remplacé si son identifiant réel correspond à au moins une entrée.
+
+Entrées prises en charge :
+
+- Identifiants de blocs vanilla, comme `minecraft:stone`
+- Identifiants de blocs personnalisés ItemsAdder, comme `my_pack:old_ore`
+- Tags de blocs Minecraft, comme `#minecraft:dirt`
+- Tags personnalisés ItemsAdderAdditions déclarés avec `type: block`, comme `#my_pack:replaceable_blocks`
+
+Les tags d'objets, de meubles, de recettes, inconnus ou mal formés sont rejetés au chargement de la configuration. Les suffixes de rotation des blocs personnalisés suivent les règles habituelles d'ItemsAdderAdditions. Consultez [Tags personnalisés](/fr/docs/custom-tags) et [Identifiants](/fr/docs/compatibility/ids).
+
+### `to`
+
+Requis. Un seul identifiant exact de bloc vanilla.
+
+La cible peut être l'air ou un bloc plein, solide et sans état, comme la pierre, la terre, les planches, les minerais ou les blocs de métal. Les blocs personnalisés, blocs soumis à la gravité, blocs non solides et blocs avec des propriétés d'état sérialisées sont rejetés.
+
+Les blocs personnalisés peuvent être utilisés dans `from`. Ils sont supprimés via l'API ItemsAdder avant le placement de la cible vanilla afin qu'ItemsAdder puisse effacer leur état enregistré. Si la recherche ou la suppression échoue, le traitement s'arrête sans remplacer le bloc vanilla sous-jacent.
+
+### `shape`
+
+Optionnel. La valeur par défaut est `SPHERE`.
+
+Formes prises en charge :
+
+- `CUBOID`
+- `RHOMBUS`
+- `SPHERE`
+- `CYLINDER`
+
+Les quatre formes sont centrées sur la cible résolue de l'action. Les formes directionnelles ne sont pas prises en charge par cette action.
+
+### `radius`
+
+Requis. Utilisez un rayon uniforme :
+
+```yaml
+radius:
+  blocks_from_center: 5
+```
+
+Ou configurez chaque axe séparément :
+
+```yaml
+radius:
+  x: 8
+  y: 2
+  z: 8
+```
+
+Lorsque `blocks_from_center` est présent, il remplace `x`, `y` et `z`. Les axes manquants valent 5 par défaut. Un `CYLINDER` avec `y: 0` mesure un bloc de hauteur.
+
+Chaque rayon doit être un entier compris entre 0 et 25. La boîte englobante inclusive `(2x + 1) × (2y + 1) × (2z + 1)` doit contenir au maximum 32 768 coordonnées. Un rayon uniforme ne peut donc pas dépasser 15. Les configurations dépassant une limite sont rejetées plutôt que tronquées.
+
+## Protection et sécurité
+
+Avant chaque remplacement, l'action demande à AntiGriefLib les permissions `BREAK` et `PLACE` pour ce bloc. Le flag WorldGuard de l'action est `iaa-action-iaa-replace-near-blocks`.
+
+Les sources suivantes sont ignorées :
+
+- Entités de bloc et barrières
+- Blocs personnalisés avec un comportement ItemsAdderAdditions actif
+- Blocs contenant des données persistantes ItemsAdderAdditions
+- Blocs dont l'état change pendant les vérifications de protection
+
+Le scanner vérifie l'état du chunk avant de lire les blocs et ne demande pas le chargement des chunks déchargés. Un remplacement nécessite aussi que la zone de 3×3 chunks autour du bloc soit chargée. Sinon, ce bloc est ignoré. L'action n'ajoute aucun ticket de chunk.
+
+La physique normale des blocs reste activée afin que Paper gère les mises à jour des voisins, l'éclairage, la persistance et la synchronisation des clients. La physique et les callbacks d'autres plugins peuvent effectuer du travail supplémentaire ou charger indirectement des chunks ; la règle des chunks chargés ne couvre que les accès directs de cette action.
+
+## Limites de performances
+
+Toutes les exécutions partagent une seule file synchrone :
+
+- Maximum de 4 exécutions actives
+- Maximum de 512 coordonnées candidates par tick
+- Maximum de 32 remplacements par tick
+- Budget souple d'environ 2 ms par tick
+
+Si quatre traitements sont déjà actifs, une nouvelle exécution est ignorée. Le travail en attente est annulé lorsque le joueur se déconnecte, ou lors du rechargement ou de la désactivation du plugin. Les remplacements déjà terminés restent dans le monde ; l'action ne les annule pas.
+
+## Exemple complet
+
+```yaml
+my_pack:replacement_wand:
+  events:
+    interact:
+      right:
+        iaa_replace_near_blocks:
+          from:
+            - minecraft:stone
+            - "#my_pack:replaceable_blocks"
+          to: minecraft:deepslate
+          shape: CYLINDER
+          radius:
+            x: 8
+            y: 1
+            z: 8
+          permission: myserver.replacement-wand
+```
+
+## Pages associées
+
+- [Paramètres des actions](/fr/docs/actions/parameters)
+- [Tags personnalisés](/fr/docs/custom-tags)
+- [Compatibilité WorldGuard](/fr/docs/compatibility/worldguard)

@@ -1,0 +1,132 @@
+---
+title: Nabije blokken vervangen
+description: Vervang nabije vanilla- of ItemsAdder-blokken stapsgewijs zonder ongeladen chunks te laden.
+version: "1.0.14"
+---
+
+```yaml
+iaa_replace_near_blocks:
+  from:
+    - minecraft:stone
+    - my_pack:old_ore
+    - "#minecraft:dirt"
+    - "#my_pack:replaceable_blocks"
+  to: minecraft:gold_block
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+Vervangt overeenkomende blokken rond het doel van de actie. Het voorvoegsel `iaa_` is verplicht; `replace_near_blocks` is geen alias omdat ItemsAdder al een actie met die naam heeft.
+
+Het werk wordt over meerdere serverticks verdeeld om tickvertragingen te beperken. Bestaande actieparameters zoals `permission`, `delay` en `target` worden ondersteund. Zie [Actieparameters](/nl/docs/actions/parameters).
+
+## Parameters
+
+### `from`
+
+Verplicht. Een lijst met 1 tot 32 blok-ID's of bloktags. Een blok wordt vervangen wanneer het werkelijke ID met een van de vermeldingen overeenkomt.
+
+Ondersteunde vermeldingen:
+
+- Vanilla blok-ID's, zoals `minecraft:stone`
+- Aangepaste ItemsAdder-blok-ID's, zoals `my_pack:old_ore`
+- Minecraft-bloktags, zoals `#minecraft:dirt`
+- Aangepaste ItemsAdderAdditions-tags met `type: block`, zoals `#my_pack:replaceable_blocks`
+
+Tags voor items, meubels of recepten en onbekende of ongeldige tags worden bij het laden van de configuratie geweigerd. Rotatiesuffixen van aangepaste blokken volgen de gebruikelijke matchingregels van ItemsAdderAdditions. Zie [Aangepaste tags](/nl/docs/custom-tags) en [ID's](/nl/docs/compatibility/ids).
+
+### `to`
+
+Verplicht. Eén exact vanilla blok-ID.
+
+Het doel mag lucht zijn of een stateless, volledig massief blok zoals steen, aarde, planken, ertsen of metaalblokken. Aangepaste blokken, vallende blokken, niet-massieve blokken en blokken met geserialiseerde state-eigenschappen worden geweigerd.
+
+Aangepaste blokken mogen in `from` worden gebruikt. Ze worden via de ItemsAdder-API verwijderd voordat het vanilla doel wordt geplaatst, zodat ItemsAdder de opgeslagen toestand van het aangepaste blok kan verwijderen. Als opzoeken of verwijderen mislukt, stopt de taak zonder het onderliggende vanilla blok te vervangen.
+
+### `shape`
+
+Optioneel. Standaardwaarde: `SPHERE`.
+
+Ondersteunde vormen:
+
+- `CUBOID`
+- `RHOMBUS`
+- `SPHERE`
+- `CYLINDER`
+
+Alle vier de vormen zijn gecentreerd op het bepaalde actiedoel. Directionele vormen worden door deze actie niet ondersteund.
+
+### `radius`
+
+Verplicht. Gebruik een uniforme straal:
+
+```yaml
+radius:
+  blocks_from_center: 5
+```
+
+Of stel elke as afzonderlijk in:
+
+```yaml
+radius:
+  x: 8
+  y: 2
+  z: 8
+```
+
+Wanneer `blocks_from_center` aanwezig is, overschrijft die waarde `x`, `y` en `z`. Ontbrekende aswaarden zijn standaard 5. Een `CYLINDER` met `y: 0` is één blok hoog.
+
+Elke straal moet een geheel getal van 0 tot en met 25 zijn. De inclusieve omhullende doos `(2x + 1) × (2y + 1) × (2z + 1)` mag maximaal 32.768 coördinaten bevatten. Een uniforme straal kan daarom maximaal 15 zijn. Configuraties boven een limiet worden geweigerd en niet afgekapt.
+
+## Bescherming en veiligheid
+
+Voor elke vervanging vraagt de actie AntiGriefLib om zowel `BREAK`- als `PLACE`-toestemming voor dat blok. De WorldGuard-vlag van de actie is `iaa-action-iaa-replace-near-blocks`.
+
+De volgende bronblokken worden overgeslagen:
+
+- Blokentiteiten en barriers
+- Aangepaste blokken met actief ItemsAdderAdditions-gedrag
+- Blokken met persistente ItemsAdderAdditions-blokdata
+- Blokken waarvan de state tijdens de beschermingscontroles verandert
+
+De scanner controleert de chunkstatus voordat blokken worden gelezen en vraagt niet om ongeladen chunks te laden. Voor een vervanging moet ook het omliggende gebied van 3×3 chunks geladen zijn. Anders wordt het blok overgeslagen. De actie voegt geen chunktickets toe.
+
+Normale blokphysics blijft ingeschakeld, zodat Paper updates van buren, verlichting, opslag en clientsynchronisatie afhandelt. Physics en callbacks van andere plugins kunnen extra werk uitvoeren of indirect chunks laden; de regel voor geladen chunks geldt alleen voor rechtstreekse toegang door deze actie.
+
+## Prestatielimieten
+
+Alle uitvoeringen delen één synchrone wachtrij:
+
+- Maximaal 4 actieve uitvoeringen
+- Maximaal 512 kandidaatcoördinaten per tick
+- Maximaal 32 vervangingen per tick
+- Ongeveer 2 ms zacht verwerkingsbudget per tick
+
+Als er al vier taken actief zijn, wordt een nieuwe uitvoering genegeerd. Wachtend werk wordt geannuleerd wanneer de speler de verbinding verbreekt of wanneer de plugin wordt herladen of uitgeschakeld. Reeds voltooide vervangingen blijven in de wereld staan; de actie draait ze niet terug.
+
+## Volledig voorbeeld
+
+```yaml
+my_pack:replacement_wand:
+  events:
+    interact:
+      right:
+        iaa_replace_near_blocks:
+          from:
+            - minecraft:stone
+            - "#my_pack:replaceable_blocks"
+          to: minecraft:deepslate
+          shape: CYLINDER
+          radius:
+            x: 8
+            y: 1
+            z: 8
+          permission: myserver.replacement-wand
+```
+
+## Gerelateerde pagina's
+
+- [Actieparameters](/nl/docs/actions/parameters)
+- [Aangepaste tags](/nl/docs/custom-tags)
+- [WorldGuard-compatibiliteit](/nl/docs/compatibility/worldguard)

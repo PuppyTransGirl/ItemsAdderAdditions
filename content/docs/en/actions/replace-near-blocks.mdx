@@ -1,0 +1,132 @@
+---
+title: Replace Near Blocks
+description: Incrementally replace nearby vanilla or ItemsAdder blocks without loading unloaded chunks.
+version: "1.0.14"
+---
+
+```yaml
+iaa_replace_near_blocks:
+  from:
+    - minecraft:stone
+    - my_pack:old_ore
+    - "#minecraft:dirt"
+    - "#my_pack:replaceable_blocks"
+  to: minecraft:gold_block
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+Replaces matching blocks around the action target. The `iaa_` prefix is required; `replace_near_blocks` is not an alias because ItemsAdder already has an action with that name.
+
+Work is distributed across server ticks to reduce tick stalls. Existing action parameters such as `permission`, `delay`, and `target` are supported. See [Action Parameters](/en/docs/actions/parameters).
+
+## Parameters
+
+### `from`
+
+Required. A list containing 1 to 32 block IDs or block tags. A block is replaced when its actual ID matches any entry.
+
+Supported entries:
+
+- Vanilla block IDs, such as `minecraft:stone`
+- ItemsAdder custom-block IDs, such as `my_pack:old_ore`
+- Minecraft block tags, such as `#minecraft:dirt`
+- ItemsAdderAdditions custom tags declared with `type: block`, such as `#my_pack:replaceable_blocks`
+
+Item, furniture, recipe, unknown, and malformed tags are rejected when the configuration is loaded. Custom block rotation suffixes use the normal ItemsAdderAdditions matching rules. See [Custom Tags](/en/docs/custom-tags) and [IDs](/en/docs/compatibility/ids).
+
+### `to`
+
+Required. One exact vanilla block ID.
+
+The target can be air or a stateless, full solid block such as stone, dirt, planks, ores, or metal blocks. Custom blocks, gravity blocks, non-solid blocks, and blocks with serialized state properties are rejected.
+
+Custom blocks can be used in `from`. They are removed through the ItemsAdder API before the vanilla target is placed so ItemsAdder can clear its stored custom-block state. If lookup or removal fails, the job stops without replacing the backing vanilla block.
+
+### `shape`
+
+Optional. Defaults to `SPHERE`.
+
+Supported shapes:
+
+- `CUBOID`
+- `RHOMBUS`
+- `SPHERE`
+- `CYLINDER`
+
+All four shapes are centered on the resolved action target. Directional shapes are not supported by this action.
+
+### `radius`
+
+Required. Use a uniform radius:
+
+```yaml
+radius:
+  blocks_from_center: 5
+```
+
+Or configure each axis separately:
+
+```yaml
+radius:
+  x: 8
+  y: 2
+  z: 8
+```
+
+When `blocks_from_center` is present, it overrides `x`, `y`, and `z`. Missing axis values default to 5. A `CYLINDER` with `y: 0` is one block high.
+
+Each radius must be an integer from 0 to 25. The inclusive bounding box `(2x + 1) × (2y + 1) × (2z + 1)` must contain at most 32,768 coordinates. This means a uniform radius can be at most 15. Configurations over either limit are rejected instead of being truncated.
+
+## Protection and safety
+
+Before each replacement, the action asks AntiGriefLib for both `BREAK` and `PLACE` permission at that block. The action's WorldGuard flag is `iaa-action-iaa-replace-near-blocks`.
+
+The following sources are skipped:
+
+- Block entities and barriers
+- Custom blocks with an active ItemsAdderAdditions behaviour
+- Blocks carrying ItemsAdderAdditions persistent block data
+- Blocks whose state changes while protection checks are running
+
+The scanner checks chunk state before reading blocks and does not request unloaded chunks. A replacement also requires the surrounding 3×3 chunk area to be loaded. If it is not, that block is skipped. The action does not add chunk tickets.
+
+Normal block physics remains enabled so Paper handles neighbor updates, lighting, persistence, and client synchronization. Physics and callbacks from other plugins can perform additional work or load chunks indirectly; the loaded-chunk rule only covers direct access performed by this action.
+
+## Performance limits
+
+All executions share one synchronous queue:
+
+- Maximum 4 active executions
+- Maximum 512 candidate coordinates per tick
+- Maximum 32 replacements per tick
+- Approximately 2 ms soft processing budget per tick
+
+If four jobs are already active, another execution is ignored. Pending work is cancelled when its player disconnects or on plugin reload or disable. Replacements already completed remain in the world; the action does not roll them back.
+
+## Full example
+
+```yaml
+my_pack:replacement_wand:
+  events:
+    interact:
+      right:
+        iaa_replace_near_blocks:
+          from:
+            - minecraft:stone
+            - "#my_pack:replaceable_blocks"
+          to: minecraft:deepslate
+          shape: CYLINDER
+          radius:
+            x: 8
+            y: 1
+            z: 8
+          permission: myserver.replacement-wand
+```
+
+## Related pages
+
+- [Action Parameters](/en/docs/actions/parameters)
+- [Custom Tags](/en/docs/custom-tags)
+- [WorldGuard compatibility](/en/docs/compatibility/worldguard)

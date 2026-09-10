@@ -1,0 +1,132 @@
+---
+title: 替换附近方块
+description: 分批替换附近的原版或 ItemsAdder 方块，且不会加载未加载的区块。
+version: "1.0.14"
+---
+
+```yaml
+iaa_replace_near_blocks:
+  from:
+    - minecraft:stone
+    - my_pack:old_ore
+    - "#minecraft:dirt"
+    - "#my_pack:replaceable_blocks"
+  to: minecraft:gold_block
+  shape: SPHERE
+  radius:
+    blocks_from_center: 5
+```
+
+替换动作目标周围符合条件的方块。必须使用 `iaa_` 前缀；由于 ItemsAdder 已有同名动作，因此 `replace_near_blocks` 不是此动作的别名。
+
+任务会分布到多个服务器 tick 中执行，以减少卡顿。支持 `permission`、`delay` 和 `target` 等现有动作参数。请参阅[动作参数](/zh/docs/actions/parameters)。
+
+## 参数
+
+### `from`
+
+必填。包含 1 至 32 个方块 ID 或方块标签的列表。方块的实际 ID 匹配任意一项时即会被替换。
+
+支持的条目：
+
+- 原版方块 ID，例如 `minecraft:stone`
+- ItemsAdder 自定义方块 ID，例如 `my_pack:old_ore`
+- Minecraft 方块标签，例如 `#minecraft:dirt`
+- 使用 `type: block` 声明的 ItemsAdderAdditions 自定义标签，例如 `#my_pack:replaceable_blocks`
+
+物品、家具、配方、未知或格式错误的标签会在加载配置时被拒绝。自定义方块的旋转后缀遵循 ItemsAdderAdditions 的常规匹配规则。请参阅[自定义标签](/zh/docs/custom-tags)和 [ID](/zh/docs/compatibility/ids)。
+
+### `to`
+
+必填。一个准确的原版方块 ID。
+
+目标可以是空气，也可以是无状态的完整固体方块，例如石头、泥土、木板、矿石或金属块。自定义方块、受重力影响的方块、非固体方块以及带有序列化状态属性的方块会被拒绝。
+
+`from` 可以包含自定义方块。放置原版目标前会通过 ItemsAdder API 移除这些方块，使 ItemsAdder 能够清除已存储的自定义方块状态。如果查找或移除失败，任务会停止，并且不会替换其底层原版方块。
+
+### `shape`
+
+可选。默认值为 `SPHERE`。
+
+支持的形状：
+
+- `CUBOID`
+- `RHOMBUS`
+- `SPHERE`
+- `CYLINDER`
+
+四种形状都以解析后的动作目标为中心。此动作不支持方向性形状。
+
+### `radius`
+
+必填。使用统一半径：
+
+```yaml
+radius:
+  blocks_from_center: 5
+```
+
+或者分别配置每个轴：
+
+```yaml
+radius:
+  x: 8
+  y: 2
+  z: 8
+```
+
+存在 `blocks_from_center` 时，它会覆盖 `x`、`y` 和 `z`。缺少的轴默认值为 5。`y: 0` 的 `CYLINDER` 高度为一个方块。
+
+每个半径必须是 0 至 25 的整数。包含边界的包围盒 `(2x + 1) × (2y + 1) × (2z + 1)` 最多可包含 32,768 个坐标。因此，统一半径最大为 15。超出任一限制的配置会被拒绝，而不会被截断。
+
+## 保护与安全
+
+每次替换前，此动作都会通过 AntiGriefLib 检查该方块的 `BREAK` 和 `PLACE` 权限。此动作的 WorldGuard flag 为 `iaa-action-iaa-replace-near-blocks`。
+
+以下源方块会被跳过：
+
+- 方块实体和屏障
+- 启用了 ItemsAdderAdditions 行为的自定义方块
+- 包含 ItemsAdderAdditions 持久方块数据的方块
+- 在保护检查期间状态发生变化的方块
+
+扫描器会在读取方块前检查区块状态，并且不会请求加载未加载的区块。替换方块还要求其周围 3×3 的区块区域均已加载，否则会跳过该方块。此动作不会添加区块加载票。
+
+方块物理保持正常启用，由 Paper 处理相邻方块更新、光照、持久化和客户端同步。方块物理和其他插件的回调可能执行额外工作或间接加载区块；已加载区块规则仅涵盖此动作执行的直接访问。
+
+## 性能限制
+
+所有执行任务共用一个同步队列：
+
+- 最多 4 个活动任务
+- 每 tick 最多处理 512 个候选坐标
+- 每 tick 最多替换 32 个方块
+- 每 tick 约 2 ms 的软处理预算
+
+如果已有四个活动任务，新的执行会被忽略。玩家断开连接或插件重载、停用时会取消待处理任务。已经完成的替换会保留在世界中，此动作不会回滚它们。
+
+## 完整示例
+
+```yaml
+my_pack:replacement_wand:
+  events:
+    interact:
+      right:
+        iaa_replace_near_blocks:
+          from:
+            - minecraft:stone
+            - "#my_pack:replaceable_blocks"
+          to: minecraft:deepslate
+          shape: CYLINDER
+          radius:
+            x: 8
+            y: 1
+            z: 8
+          permission: myserver.replacement-wand
+```
+
+## 相关页面
+
+- [动作参数](/zh/docs/actions/parameters)
+- [自定义标签](/zh/docs/custom-tags)
+- [WorldGuard 兼容性](/zh/docs/compatibility/worldguard)
