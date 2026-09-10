@@ -1,33 +1,85 @@
 ---
 title: Teleportatie
-description: Teleporteer een speler of entiteit naar vaste wereldcoördinaten wanneer een ItemsAdder-itemgebeurtenis wordt geactiveerd. Geef X, Y, Z, wereld, yaw en pitch op.
+description: Teleporteer een speler of entiteit naar absolute, relatieve of benoemde bestemmingen.
 version: "1.0.0"
 ---
 
+Teleporteer de doelentiteit van de actie naar absolute coördinaten, coördinaten ten opzichte van de huidige locatie of een benoemde bestemming.
+
+## Coördinaatbestemmingen
+
+Alle drie de assen zijn verplicht. Numerieke waarden zijn absoluut en blijven compatibel met bestaande configuraties.
+
 ```yaml
 teleport:
-  x: 100.5
-  y: 64.0
-  z: -50.5
-  yaw: 90.0 # optioneel
-  pitch: 0.0 # optioneel
-  world: "world_nether" # optioneel
+  x: 100
+  y: 64
+  z: -50
 ```
 
-## Parameters
+Zet `~` voor een coördinaat tussen aanhalingstekens om deze relatief te maken aan de entiteit die wordt geteleporteerd. `"~"` behoudt de huidige coördinaat, `"~10"` telt er 10 bij op en `"~-2.5"` trekt er 2,5 van af.
 
-### `x`, `y`, `z`
+```yaml
+teleport:
+  x: "~10"
+  y: "~"
+  z: "~-2.5"
+```
 
-Verplicht. De doelcoördinaten.
+Absolute en relatieve assen kunnen worden gecombineerd:
 
-### `yaw`
+```yaml
+teleport:
+  x: 100
+  y: "~5"
+  z: "~-2"
+```
 
-Optioneel. Standaard: de huidige yaw van de speler.
+Relatieve coördinaten gebruiken altijd de huidige locatie van de doelentiteit, niet die van de speler die de actie activeerde. Lege, ongeldige, NaN- en oneindige waarden worden geweigerd.
 
-### `pitch`
+## Benoemde bestemmingen
 
-Optioneel. Standaard: de huidige pitch van de speler.
+Gebruik `destination` in plaats van `x`, `y` en `z`. Coördinaten en een benoemde bestemming kunnen niet worden gecombineerd.
+
+### Wereldspawn
+
+```yaml
+teleport:
+  destination: world_spawn
+```
+
+`world_spawn` gebruikt de huidige wereld van de doelentiteit. Stel `world` in om de spawn van een andere geladen wereld te gebruiken:
+
+```yaml
+teleport:
+  destination: world_spawn
+  world: "world_nether"
+```
+
+### Respawn van de speler
+
+```yaml
+teleport:
+  destination: respawn
+```
+
+`respawn` gebruikt de respawnlocatie van de speler die de actie activeerde, inclusief bedden en respawnankers. Als de speler geen geldige respawnlocatie heeft, wordt de spawn van de ingestelde wereld gebruikt, of de spawn van de huidige wereld van de speler wanneer `world` ontbreekt.
+
+De actie teleporteert nog steeds de doelentiteit. De activerende speler wordt alleen gebruikt om de respawnlocatie te vinden.
+
+## Optionele parameters
+
+### `yaw` en `pitch`
+
+Absolute rotatiewaarden. Bij coördinaten behouden ontbrekende waarden de huidige rotatie van de doelentiteit. Bij een benoemde bestemming behouden ontbrekende waarden de rotatie van die bestemming.
+
+```yaml
+teleport:
+  destination: respawn
+  yaw: 90.0
+  pitch: 0.0
+```
 
 ### `world`
 
-Optioneel. Standaard: de huidige wereld van de speler.
+Bij coördinaten of `world_spawn` wordt standaard de huidige wereld van de doelentiteit gebruikt. Bij `respawn` dient deze alleen als terugvalwereld wanneer de speler geen respawnlocatie heeft. Een ingestelde wereld moet bestaan en geladen zijn.

@@ -1,33 +1,85 @@
 ---
 title: Teleport
-description: Teleport a player or entity to fixed world coordinates.
+description: Teleport a player or entity to absolute, relative, or named destinations.
 version: "1.0.0"
 ---
 
+Teleport the action's targeted entity with absolute coordinates, coordinates relative to its current location, or a named destination.
+
+## Coordinate destinations
+
+All three coordinate axes are required. Numeric values are absolute and remain compatible with existing configurations.
+
 ```yaml
 teleport:
-  x: 100.5
-  y: 64.0
-  z: -50.5
-  yaw: 90.0 # optional
-  pitch: 0.0 # optional
-  world: "world_nether" # optional
+  x: 100
+  y: 64
+  z: -50
 ```
 
-## Parameters
+Prefix a quoted coordinate with `~` to make it relative to the entity being teleported. `"~"` keeps the current coordinate, while `"~10"` adds 10 and `"~-2.5"` subtracts 2.5.
 
-### `x`, `y`, `z`
+```yaml
+teleport:
+  x: "~10"
+  y: "~"
+  z: "~-2.5"
+```
 
-Required. The target coordinates.
+Absolute and relative axes can be mixed:
 
-### `yaw`
+```yaml
+teleport:
+  x: 100
+  y: "~5"
+  z: "~-2"
+```
 
-Optional. Defaults to the player's current yaw.
+Relative coordinates always use the current location of the targeted entity, not the player who triggered the action. Blank, malformed, NaN, and infinite values are rejected.
 
-### `pitch`
+## Named destinations
 
-Optional. Defaults to the player's current pitch.
+Use `destination` instead of `x`, `y`, and `z`. Coordinates and a named destination cannot be combined.
+
+### World spawn
+
+```yaml
+teleport:
+  destination: world_spawn
+```
+
+`world_spawn` uses the targeted entity's current world. Set `world` to use another loaded world's spawn:
+
+```yaml
+teleport:
+  destination: world_spawn
+  world: "world_nether"
+```
+
+### Player respawn
+
+```yaml
+teleport:
+  destination: respawn
+```
+
+`respawn` uses the triggering player's respawn location, including beds and respawn anchors. If the player has no valid respawn location, it falls back to the configured world's spawn, or the player's current-world spawn when `world` is omitted.
+
+The action still teleports the targeted entity. The triggering player is used only to find the respawn location.
+
+## Optional parameters
+
+### `yaw` and `pitch`
+
+Absolute rotation values. With coordinates, omitted values preserve the targeted entity's current rotation. With a named destination, omitted values preserve that destination's rotation.
+
+```yaml
+teleport:
+  destination: respawn
+  yaw: 90.0
+  pitch: 0.0
+```
 
 ### `world`
 
-Optional. Defaults to the player's current world.
+With coordinates or `world_spawn`, defaults to the targeted entity's current world. With `respawn`, it is used only as the fallback world when the player has no respawn location. A configured world must be loaded and exist.

@@ -1,33 +1,85 @@
 ---
 title: Téléportation
-description: Téléporter un joueur ou une entité vers des coordonnées fixes dans un monde lorsqu’un événement d’objet ItemsAdder se déclenche. Indiquez X, Y, Z, monde, yaw et pitch.
+description: Téléportez un joueur ou une entité vers une destination absolue, relative ou nommée.
 version: "1.0.0"
 ---
 
+Téléportez l'entité ciblée par l'action vers des coordonnées absolues, des coordonnées relatives à sa position actuelle ou une destination nommée.
+
+## Destinations par coordonnées
+
+Les trois axes sont obligatoires. Les valeurs numériques sont absolues et restent compatibles avec les configurations existantes.
+
 ```yaml
 teleport:
-  x: 100.5
-  y: 64.0
-  z: -50.5
-  yaw: 90.0 # optionnel
-  pitch: 0.0 # optionnel
-  world: "world_nether" # optionnel
+  x: 100
+  y: 64
+  z: -50
 ```
 
-## Paramètres
+Préfixez une coordonnée entre guillemets par `~` pour la rendre relative à l'entité téléportée. `"~"` conserve la coordonnée actuelle, `"~10"` ajoute 10 et `"~-2.5"` soustrait 2,5.
 
-### `x`, `y`, `z`
+```yaml
+teleport:
+  x: "~10"
+  y: "~"
+  z: "~-2.5"
+```
 
-Obligatoire. Les coordonnées cibles.
+Les axes absolus et relatifs peuvent être combinés :
 
-### `yaw`
+```yaml
+teleport:
+  x: 100
+  y: "~5"
+  z: "~-2"
+```
 
-Optionnel. Par défaut : le yaw actuel du joueur.
+Les coordonnées relatives utilisent toujours la position actuelle de l'entité ciblée, et non celle du joueur ayant déclenché l'action. Les valeurs vides, incorrectes, NaN et infinies sont refusées.
 
-### `pitch`
+## Destinations nommées
 
-Optionnel. Par défaut : le pitch actuel du joueur.
+Utilisez `destination` à la place de `x`, `y` et `z`. Les coordonnées et une destination nommée ne peuvent pas être combinées.
+
+### Point d'apparition du monde
+
+```yaml
+teleport:
+  destination: world_spawn
+```
+
+`world_spawn` utilise le monde actuel de l'entité ciblée. Définissez `world` pour utiliser le point d'apparition d'un autre monde chargé :
+
+```yaml
+teleport:
+  destination: world_spawn
+  world: "world_nether"
+```
+
+### Réapparition du joueur
+
+```yaml
+teleport:
+  destination: respawn
+```
+
+`respawn` utilise le point de réapparition du joueur ayant déclenché l'action, y compris les lits et les ancres de réapparition. Si aucun point valide n'existe, le point d'apparition du monde configuré est utilisé, ou celui du monde actuel du joueur si `world` est absent.
+
+L'action téléporte toujours l'entité ciblée. Le joueur déclencheur sert uniquement à trouver le point de réapparition.
+
+## Paramètres optionnels
+
+### `yaw` et `pitch`
+
+Valeurs de rotation absolues. Avec des coordonnées, leur absence conserve la rotation actuelle de l'entité ciblée. Avec une destination nommée, leur absence conserve la rotation de cette destination.
+
+```yaml
+teleport:
+  destination: respawn
+  yaw: 90.0
+  pitch: 0.0
+```
 
 ### `world`
 
-Optionnel. Par défaut : le monde actuel du joueur.
+Avec des coordonnées ou `world_spawn`, le monde actuel de l'entité ciblée est utilisé par défaut. Avec `respawn`, ce monde sert uniquement de repli si le joueur n'a aucun point de réapparition. Un monde configuré doit exister et être chargé.
