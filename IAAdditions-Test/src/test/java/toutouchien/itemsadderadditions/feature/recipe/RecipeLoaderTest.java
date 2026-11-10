@@ -1,10 +1,14 @@
 package toutouchien.itemsadderadditions.feature.recipe;
 
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockito.ArgumentCaptor;
 import toutouchien.itemsadderadditions.common.loading.ConfigFileRegistry;
 import toutouchien.itemsadderadditions.feature.recipe.brewing.BrewingRecipeHandler;
 import toutouchien.itemsadderadditions.feature.recipe.campfire.CampfireRecipeHandler;
@@ -18,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -89,6 +94,30 @@ class RecipeLoaderTest {
                 .register(eq("testpack"), eq("smelt_beef"), any(), any(), eq(120), eq(0.35f));
         verify(nms.stonecutterRecipes())
                 .register(eq("testpack"), eq("cut_bricks"), any(), any());
+    }
+
+    @Test
+    void appliesPotionTypeToCampfireIngredient() throws IOException {
+        writeRecipeFile("potion.yml", """
+                info:
+                  namespace: testpack
+                recipes:
+                  campfire_cooking:
+                    boil_water:
+                      ingredient:
+                        item: POTION
+                        potion_type: minecraft:water
+                      result:
+                        item: GLASS_BOTTLE
+                """);
+
+        loader.loadAll(ConfigFileRegistry.scan(contents.toFile()));
+
+        ArgumentCaptor<ItemStack> ingredient = ArgumentCaptor.forClass(ItemStack.class);
+        verify(nms.campfireRecipes())
+                .register(eq("testpack"), eq("boil_water"), ingredient.capture(), any(), eq(600), eq(0.0f));
+        PotionMeta meta = assertInstanceOf(PotionMeta.class, ingredient.getValue().getItemMeta());
+        assertEquals(PotionType.WATER, meta.getBasePotionType());
     }
 
     @Test

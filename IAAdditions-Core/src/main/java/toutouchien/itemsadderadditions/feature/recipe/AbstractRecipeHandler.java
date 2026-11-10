@@ -1,12 +1,18 @@
 package toutouchien.itemsadderadditions.feature.recipe;
 
+import net.kyori.adventure.key.Key;
+import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
 import toutouchien.itemsadderadditions.feature.component.ComponentsManager;
+
+import java.util.Locale;
 
 /**
  * Shared helpers and loading loop for all simple (non-crafting) recipe handlers.
@@ -253,6 +259,34 @@ public abstract class AbstractRecipeHandler {
             String recipeId,
             ConfigurationSection ingredientSection
     ) {
-        return resolveItem(namespace, recipeId, "ingredient", ingredientSection.getString("item"));
+        ItemStack item = resolveItem(namespace, recipeId, "ingredient", ingredientSection.getString("item"));
+        String rawPotionType = ingredientSection.getString("potion_type");
+        if (item == null || rawPotionType == null) return item;
+
+        String key = rawPotionType.trim().toLowerCase(Locale.ROOT);
+        if (!key.contains(":")) key = "minecraft:" + key;
+
+        PotionType potionType;
+        try {
+            potionType = Registry.POTION.get(Key.key(key));
+        } catch (IllegalArgumentException e) {
+            potionType = null;
+        }
+
+        if (potionType == null) {
+            Log.warn(logTag, "Unknown ingredient potion type '{}' for {}:{}",
+                    rawPotionType, namespace, recipeId);
+            return null;
+        }
+
+        if (!(item.getItemMeta() instanceof PotionMeta potionMeta)) {
+            Log.warn(logTag, "Ingredient for {}:{} has potion_type but is not a potion",
+                    namespace, recipeId);
+            return null;
+        }
+
+        potionMeta.setBasePotionType(potionType);
+        item.setItemMeta(potionMeta);
+        return item;
     }
 }
