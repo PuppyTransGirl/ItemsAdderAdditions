@@ -12,6 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.common.namespace.NamespaceUtils;
+import toutouchien.itemsadderadditions.common.version.VersionUtils;
+import toutouchien.itemsadderadditions.nms.api.NmsManager;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -227,6 +229,11 @@ final class AdvancementPredicateSupport {
     static boolean matchesLimitedNbt(Entity entity, String nbt) {
         String normalized = nbt.trim();
         if (normalized.isBlank()) return true;
+
+        if (VersionUtils.isHigherThanOrEquals(VersionUtils.v26_3)) {
+            return NmsManager.instance().handler().matchesEntityNbt(entity, normalized);
+        }
+
         if (normalized.contains("Tags")) {
             for (String tag : entity.getScoreboardTags()) {
                 if (normalized.contains('"' + tag + '"') || normalized.contains("'" + tag + "'")) return true;

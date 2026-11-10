@@ -31,7 +31,7 @@ public final class CustomEntities {
             return CustomEntity.byAlreadySpawned(entity);
         } catch (RuntimeException e) {
             if (warned.compareAndSet(false, true))
-                Log.warn(TAG, "ItemsAdder Entities API call failed, complex furniture and custom entity features will return no match until it recovers. Cause: {}", e.getMessage());
+                Log.warn(TAG, "ItemsAdder Entities API is unavailable. Check that the Entities API is enabled in ItemsAdder's config.yml; complex furniture and custom entity features will not match until it becomes available. Cause: {}", e.getMessage());
             return null;
         }
     }

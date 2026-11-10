@@ -1,5 +1,6 @@
 package toutouchien.itemsadderadditions.nms.api;
 
+import org.bukkit.entity.Entity;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandler;
@@ -32,6 +33,13 @@ public interface INmsHandler {
      * return a handler where {@link INmsItemComponentHandler#isSupported()} is false.
      */
     INmsItemComponentHandler itemComponents();
+
+    /**
+     * Checks a partial SNBT compound against the entity's serialized NBT.
+     */
+    default boolean matchesEntityNbt(Entity entity, String snbt) {
+        return false;
+    }
 
     /**
      * Calls {@code RecipeManager#finalizeRecipeLoading()} once.
