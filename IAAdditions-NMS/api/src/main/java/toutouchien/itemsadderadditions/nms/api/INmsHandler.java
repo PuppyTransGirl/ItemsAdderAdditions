@@ -1,8 +1,8 @@
 package toutouchien.itemsadderadditions.nms.api;
 
+import org.bukkit.entity.Entity;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import org.bukkit.entity.Entity;
 import toutouchien.itemsadderadditions.nms.api.component.INmsItemComponentHandler;
 
 @NullMarked
@@ -34,7 +34,9 @@ public interface INmsHandler {
      */
     INmsItemComponentHandler itemComponents();
 
-    /** Checks a partial SNBT compound against the entity's serialized NBT. */
+    /**
+     * Checks a partial SNBT compound against the entity's serialized NBT.
+     */
     default boolean matchesEntityNbt(Entity entity, String snbt) {
         return false;
     }

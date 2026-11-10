@@ -135,7 +135,7 @@ public final class BytePacketListener_v26_3 {
          */
         private boolean tryHandleCreativeSlot(ChannelHandlerContext ctx, ByteBuf byteBuf) {
             FriendlyByteBuf buf = new FriendlyByteBuf(byteBuf);
-            if (buf.readVarInt() != 0x38) return false;
+            if (buf.readVarInt() != 0x39) return false;
 
             short slot = buf.readShort();
             if (slot == -1) return false;
@@ -173,7 +173,7 @@ public final class BytePacketListener_v26_3 {
                     : itemRegistry.getId(CraftItemStack.asNMSCopy(customItem.getItemStack()).getItem());
 
             FriendlyByteBuf out = new FriendlyByteBuf(ctx.alloc().buffer());
-            out.writeVarInt(0x38);
+            out.writeVarInt(0x39);
             out.writeShort(slot);
             out.writeVarInt(1);
             out.writeVarInt(baseItemId);
