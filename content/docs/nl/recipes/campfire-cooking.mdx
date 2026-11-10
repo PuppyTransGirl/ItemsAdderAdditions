@@ -31,6 +31,16 @@ ingredient:
   item: mmoitems:consumable:raw_fish
 ```
 
+### `ingredient.potion_type`
+
+Optioneel. Stelt het basis-potiontype in voor een vanilla potion-ingrediënt. De sleutel mag de namespace `minecraft:` bevatten of weglaten. Dit geldt alleen als `ingredient.item` een potion oplevert; onbekende potiontypes en items die geen potion zijn, worden afgewezen.
+
+```yaml
+ingredient:
+  item: POTION
+  potion_type: minecraft:water
+```
+
 ### `result.item`
 
 Verplicht. Het bereide uitvoeritem.

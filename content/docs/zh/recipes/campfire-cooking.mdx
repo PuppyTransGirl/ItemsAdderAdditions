@@ -31,6 +31,16 @@ ingredient:
   item: mmoitems:consumable:raw_fish
 ```
 
+### `ingredient.potion_type`
+
+可选。为原版药水原料设置基础药水类型。键名可以包含或省略 `minecraft:` 命名空间。仅当 `ingredient.item` 解析为药水时有效；未知药水类型或非药水物品会被拒绝。
+
+```yaml
+ingredient:
+  item: POTION
+  potion_type: minecraft:water
+```
+
 ### `result.item`
 
 必填。烹饪后的输出物品

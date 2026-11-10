@@ -31,6 +31,16 @@ ingredient:
   item: mmoitems:consumable:raw_fish
 ```
 
+### `ingredient.potion_type`
+
+Optionnel. Définit le type de potion de base d’un ingrédient vanilla. La clé peut inclure le namespace `minecraft:` ou l’omettre. Cette option ne s’applique que si `ingredient.item` correspond à une potion ; les types inconnus ou les objets qui ne sont pas des potions sont refusés.
+
+```yaml
+ingredient:
+  item: POTION
+  potion_type: minecraft:water
+```
+
 ### `result.item`
 
 Obligatoire. L'objet cuit en sortie.

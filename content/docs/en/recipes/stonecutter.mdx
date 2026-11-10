@@ -31,6 +31,16 @@ ingredient:
   item: mmoitems:material:rough_marble
 ```
 
+### `ingredient.potion_type`
+
+Optional. Set the base potion type on a vanilla potion ingredient. The key may include the `minecraft:` namespace or omit it. This only applies when `ingredient.item` resolves to a potion; unknown potion types or non-potion items are rejected.
+
+```yaml
+ingredient:
+  item: POTION
+  potion_type: minecraft:water
+```
+
 ### `result.item`
 
 Required. The output item.
