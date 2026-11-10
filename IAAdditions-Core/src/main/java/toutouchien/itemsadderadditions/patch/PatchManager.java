@@ -5,7 +5,11 @@ import toutouchien.itemsadderadditions.common.logging.Log;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_15.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_16.*;
 import toutouchien.itemsadderadditions.patch.impl.ia_4_0_17.*;
-import toutouchien.itemsadderadditions.patch.impl.ia_4_0_18.*;
+import toutouchien.itemsadderadditions.patch.impl.ia_4_0_18.CooldownCapturePatch_IA_4_0_18;
+import toutouchien.itemsadderadditions.patch.impl.ia_4_0_18.StatRequirementsCapturePatch_IA_4_0_18;
+import toutouchien.itemsadderadditions.patch.impl.ia_4_0_18.StonecutterSelectiveBypassPatch_IA_4_0_18;
+import toutouchien.itemsadderadditions.patch.impl.ia_4_0_18.TradeMachineCapturePatch_IA_4_0_18;
+import toutouchien.itemsadderadditions.patch.impl.ia_5_0_0.StonecutterSelectiveBypassPatch_IA_5_0_0;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -58,7 +62,10 @@ public final class PatchManager {
             new CooldownCapturePatch_IA_4_0_18(),
             new StatRequirementsCapturePatch_IA_4_0_18(),
             new StonecutterSelectiveBypassPatch_IA_4_0_18(),
-            new TradeMachineCapturePatch_IA_4_0_18()
+            new TradeMachineCapturePatch_IA_4_0_18(),
+
+            // IA 5.0.0
+            new StonecutterSelectiveBypassPatch_IA_5_0_0()
     );
 
     private PatchManager() {
